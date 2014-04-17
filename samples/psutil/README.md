@@ -38,9 +38,9 @@ Windows users may find [pip-Win](https://sites.google.com/site/pydatalog/python/
 
 Connect
 -------
-Download [iot-psutil.py](https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/iot-psutil.py) from GitHub
+Download [iot-psutil.py](https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/src/iot-psutil.py) from GitHub
 ```
-[me@localhost ~]$ wget https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/iot-psutil.py
+[me@localhost ~]$ wget https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/src/iot-psutil.py
 ```
 
 Execute the script
