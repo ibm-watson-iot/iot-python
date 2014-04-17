@@ -12,24 +12,40 @@ The following data points are supported:
 
 Prepare
 -------
-[Install Python](https://www.python.org/download/releases/2.7)
+[Install Python 2.7](https://www.python.org/download/releases/2.7).  
 
-[Install pip](http://pip.readthedocs.org/en/latest/installing.html).  Windows users may prefer to use [pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows)
-
-Install the [paho-mqtt](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/) and [psutil](https://code.google.com/p/psutil/) Python modules.  Windows users may prefer to use the [psutil Windows Installer](https://pypi.python.org/pypi?:action=display&name=psutil#downloads)
+For RHEL 6/CentOS users there is an [easy way](http://developerblog.redhat.com/2013/02/14/setting-up-django-and-python-2-7-on-red-hat-enterprise-6-the-easy-way/) to install Python 2.7 alongside your existing Python 2.6 install.
 
 ```
-pip install paho-mqtt
-pip install psutil
+[me@localhost ~]$ sudo sh -c 'wget -qO- http://people.redhat.com/bkabrda/scl_python27.repo >> /etc/yum.repos.d/scl.repo'
+[me@localhost ~]$ sudo yum install python27
+[me@localhost ~]$ scl -l
+python27
+[me@localhost ~]$ scl enable python27 bash
+[me@localhost ~]$ python -V
+Python 2.7.3
 ```
+
+
+Once you have the Python 2.7 runtime available, the simplest way to install Python modules is using [pip](http://pip.readthedocs.org/en/latest/installing.html).  With pip configured, install the [paho-mqtt](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/) and [psutil](https://code.google.com/p/psutil/)  modules.
+```
+[me@localhost ~]$ pip install paho-mqtt
+[me@localhost ~]$ pip install psutil
+```
+
+Windows users may find [pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows) useful. A [Windows installer](https://pypi.python.org/pypi?:action=display&name=psutil#downloads) is also available for the psutil module.
+
 
 Connect
 -------
 Download [iot-psutil.py](https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/iot-psutil.py) from GitHub
+```
+[me@localhost ~]$ wget https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/iot-psutil.py
+```
 
 Execute the script
 ```
-$ python iot-psutil.py
+[me@localhost ~]$ python iot-psutil.py
 Connected successfully - Your device ID is ca51af86af39
  * http://quickstart.internetofthings.ibmcloud.com/?deviceId=ca51af86af39
 Visit the QuickStart portal to see this device's data visualized in real time and learn more about the IBM Internet of Things Cloud
