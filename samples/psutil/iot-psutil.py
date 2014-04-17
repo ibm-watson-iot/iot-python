@@ -122,7 +122,7 @@ def interruptHandler(signal, frame):
 
 def usage():
 	print(
-		"IOTQS-PYPSINFO: Publish basic system utilization statistics to the IBM Internet of Things Cloud service." + "\n" +
+		"IOT-PSUTIL: Publish basic system utilization statistics to the IBM Internet of Things Cloud service." + "\n" +
 		"\n" +
 		"Datapoints sent:" + "\n" +
 		"  name          The name of this device.  Defaults to hostname ('%s')" % platform.node() + "\n" +

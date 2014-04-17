@@ -1,7 +1,17 @@
-#Python PSUtil QuickStart Adapter
+#Python PSUtil IoT Adapter
 
-Prerequisites
---------------
+
+Samples code for sending system utilization data to the IBM Internet of Things QuickStart service from a Python 2.7 runtime environment.
+
+The following data points are supported:
+ * CPU utilization (%)
+ * Memory utilization (%)
+ * Outbound network utilization across all network interfaces (KB/s)
+ * Inbound network utilization across all network interfaces (KB/s)
+
+
+Prepare
+-------
 1 [Install Python](https://www.python.org/download/releases/2.7)
 
 2 [Install pip](http://pip.readthedocs.org/en/latest/installing.html).  Windows users may prefer to use [pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows)
@@ -13,13 +23,13 @@ pip install paho-mqtt
 pip install psutil
 ```
 
-Getting Started
----------------
-1 Download [iotqs-pypsutil.py](https://raw.githubusercontent.com/durera/iot-py-psutil/master/quickstart/iotqs-pypsutil.py) from GitHub
+Connect
+-------
+1 Download [iot-psutil.py](https://raw.githubusercontent.com/durera/iot-py-psutil/master/samples/iot-psutil.py) from GitHub
 
 2 Launch the program
 ```
-$ python iotqs-pypsinfo.py
+$ python iot-psutil.py
 Connected successfully - Your device ID is ca51af86af39
  * http://quickstart.internetofthings.ibmcloud.com/?deviceId=ca51af86af39
 Visit the QuickStart portal to see this device's data visualized in real time and learn more about the IBM Internet of Things Cloud
