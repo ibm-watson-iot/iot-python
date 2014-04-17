@@ -128,12 +128,12 @@ def usage():
 		"  name          The name of this device.  Defaults to hostname ('%s')" % platform.node() + "\n" +
 		"  cpu           Current CPU utilization (%)" + "\n" +
 		"  mem           Current memory utilization (%)" + "\n" +
-		"  network.up    Current outbound network utilization across all network interfaces (kb/s)" + "\n" +
-		"  network.down  Current inbound network utilization across all network interfaces (kb/s)" + "\n" + 
+		"  network_up    Current outbound network utilization across all network interfaces (KB/s)" + "\n" +
+		"  network_down  Current inbound network utilization across all network interfaces (KB/s)" + "\n" + 
 		"\n" + 
 		"Options: " + "\n" +
 		"  -h, --help       Display help information" + "\n" + 
-		"  -n, --name       Override the default value of the 'name' datapoint" + "\n" + 
+		"  -n, --name       Override the default device name" + "\n" + 
 		"  -v, --verbose    Be more verbose"
 	)
 
