@@ -35,7 +35,7 @@ class ClientThread(threading.Thread):
 		self.stopEvent = stopEvent
 		
 		self.messages = 0
-		self.topic = 'iot-1/d/'+self.deviceId+'/evt/py-psutil-quickstart/json'
+		self.topic = 'iot-1/d/'+self.deviceId+'/evt/psutil/json'
 
 		self.client = paho.Client("quickstart:"+deviceId, clean_session=True)
 		
