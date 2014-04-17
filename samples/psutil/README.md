@@ -1,7 +1,7 @@
-#Python PSUtil IoT Adapter
+Python PSUtil IoT Adapter
+=========================
 
-
-Samples code for sending system utilization data to the IBM Internet of Things QuickStart service from a Python 2.7 runtime environment.
+Sample code for sending system utilization data to the IBM Internet of Things QuickStart service from a Python 2.7 runtime environment.
 
 The following data points are supported:
  * CPU utilization (%)
@@ -12,11 +12,11 @@ The following data points are supported:
 
 Prepare
 -------
-1 [Install Python](https://www.python.org/download/releases/2.7)
+[Install Python](https://www.python.org/download/releases/2.7)
 
-2 [Install pip](http://pip.readthedocs.org/en/latest/installing.html).  Windows users may prefer to use [pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows)
+[Install pip](http://pip.readthedocs.org/en/latest/installing.html).  Windows users may prefer to use [pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows)
 
-3 Install the [paho-mqtt](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/) and [psutil](https://code.google.com/p/psutil/) Python modules.  Windows users may prefer to use the [psutil Windows Installer](https://pypi.python.org/pypi?:action=display&name=psutil#downloads)
+Install the [paho-mqtt](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/) and [psutil](https://code.google.com/p/psutil/) Python modules.  Windows users may prefer to use the [psutil Windows Installer](https://pypi.python.org/pypi?:action=display&name=psutil#downloads)
 
 ```
 pip install paho-mqtt
@@ -25,9 +25,9 @@ pip install psutil
 
 Connect
 -------
-1 Download [iot-psutil.py](https://raw.githubusercontent.com/durera/iot-py-psutil/master/samples/iot-psutil.py) from GitHub
+Download [iot-psutil.py](https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/iot-psutil.py) from GitHub
 
-2 Launch the program
+Execute the script
 ```
 $ python iot-psutil.py
 Connected successfully - Your device ID is ca51af86af39
