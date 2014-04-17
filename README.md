@@ -5,8 +5,8 @@ Contains QuickStart, SDKs and samples for sending system utilization data to the
 The following data points are supported:
  * CPU utilization (%)
  * Memory utilization (%)
- * Outbound network utilization across all network interfaces (kb/s)
- * Inbound network utilization across all network interfaces (kb/s)
+ * Outbound network utilization across all network interfaces (KB/s)
+ * Inbound network utilization across all network interfaces (KB/s)
 
 
 Platform

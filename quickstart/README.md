@@ -29,7 +29,8 @@ Visit the QuickStart portal to see this device's data visualized in real time an
 
 Windows 7 Users: There is a [bug in Paho](https://bugs.eclipse.org/bugs/show_bug.cgi?id=431698) on Windows 7, you may need to update with the latest version from the [repository](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/tree/src/paho/mqtt/client.py) until this bug fix makes it into a release.
 
-3 Visualize
+Visualize
+---------
 Visit the [IBM Internet of Things QuickStart Portal](http://quickstart.internetofthings.ibmcloud.com) and enter your device ID to see real time visualizations of 
 the data sent from your device.
 
