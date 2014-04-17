@@ -56,10 +56,8 @@ class ClientThread(threading.Thread):
 				'name' : self.deviceName,
 				'cpu' : psutil.cpu_percent(percpu=False),
 				'mem' : psutil.virtual_memory().percent,
-				'network': { 
-					'up' : "%.2f" % ((ioAfter.bytes_sent - ioBefore.bytes_sent)/float(1024)), 
-					'down' : "%.2f" % ((ioAfter.bytes_recv - ioBefore.bytes_recv)/float(1024)) 
-				}
+				'network_up': "%.2f" % ((ioAfter.bytes_sent - ioBefore.bytes_sent)/float(1024)), 
+				'network_down':  "%.2f" % ((ioAfter.bytes_recv - ioBefore.bytes_recv)/float(1024)) 
 			}
 			if self.verbose:
 				print "Datapoint = " + json.dumps(data)

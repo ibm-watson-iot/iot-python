@@ -1,8 +1,8 @@
-#IBM Internet of Things Python PSUtil Adapter
+#Python PSUtil Adapter
 
-Contains QuickStart, SDKs and samples for connecting a device running Python to the IBM Internet of Things cloud and sending system utilization data.
+Contains QuickStart, SDKs and samples for connecting a machine running Python to the IBM Internet of Things cloud and sending system utilization data.
 
-Enables publishing of basic system utilization statistics to the IBM Internet of Things Cloud service from any device that supports a Python 2.7 runtime.
+Enables publishing of basic system utilization statistics to the IBM Internet of Things Cloud service from any machine that supports a Python 2.7 runtime.
 
 The following data points are supported:
  * CPU utilization (%)
