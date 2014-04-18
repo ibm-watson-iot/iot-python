@@ -54,35 +54,46 @@ class ClientThread(threading.Thread):
 		if self.verbose:
 			print "Publishing to " + self.topic
 
-		start = time.time() * 1000
 		
+		start = time.time()
+
 		# Take initial reading
 		psutil.cpu_percent(percpu=False)
-		
+		ioBefore_ts = time.time()
+		ioBefore = psutil.net_io_counters()
+
 		while(not self.stopEvent.is_set()):
-			ioBefore = psutil.net_io_counters()
 			time.sleep(1)
-			ioAfter = psutil.net_io_counters();
+			ioAfter_ts = time.time()
+			ioAfter = psutil.net_io_counters()
 			
+			# Calculate the time taken between IO checks
+			ioDuration = ioAfter_ts - ioBefore_ts
+
 			data = { 
 				'name' : self.deviceName,
 				'cpu' : psutil.cpu_percent(percpu=False),
 				'mem' : psutil.virtual_memory().percent,
-				'network_up': "%.2f" % ((ioAfter.bytes_sent - ioBefore.bytes_sent)/float(1024)), 
-				'network_down':  "%.2f" % ((ioAfter.bytes_recv - ioBefore.bytes_recv)/float(1024)) 
+				'network_up': "%.2f" % ( (ioAfter.bytes_sent - ioBefore.bytes_sent) / (ioDuration*1024) ), 
+				'network_down':  "%.2f" % ( (ioAfter.bytes_recv - ioBefore.bytes_recv) / (ioDuration*1024) ) 
 			}
 			if self.verbose:
 				print "Datapoint = " + json.dumps(data)
 			
 			payload = { 'd' : data }
 			self.client.publish(self.topic, payload=json.dumps(payload), qos=0, retain=False)
+			
+			# Update timestamp and data ready for next loop
+			ioBefore_ts = ioAfter_ts
+			ioBefore = ioAfter
+
 				
 		self.client.disconnect()
 		self.client.loop_stop()
 		
-		elapsed = ((time.time() * 1000) - start)
-		msgPerSecond = self.messages/(elapsed/1000)
-		print "Messages published:"+ str(self.messages) + ", life:" + "%.0f" % (elapsed/1000) + "s, msg/s:" + "%.2f" % msgPerSecond
+		elapsed = ((time.time()) - start)
+		msgPerSecond = self.messages/(elapsed)
+		print "Messages published:"+ str(self.messages) + ", life:" + "%.0f" % (elapsed) + "s, msg/s:" + "%.2f" % msgPerSecond
 	
 	
 	def on_log(self, mqttc, obj, level, string):
