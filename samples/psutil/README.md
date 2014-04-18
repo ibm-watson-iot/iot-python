@@ -53,10 +53,12 @@ Visit the QuickStart portal to see this device's data visualized in real time an
 
 ## Microsoft Windows
 [Install Python 2.7](https://www.python.org/download/releases/2.7)
-[Install pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows) and use this to install the paho-mqtt Python package
-[Install psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads).
 
-Windows 7 users should note that there is a [bug in paho-mqtt](https://bugs.eclipse.org/bugs/show_bug.cgi?id=431698), you may need to update with the latest version from the [repository](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/tree/src/paho/mqtt/client.py) until this bug fix makes it into a release.
+[Install pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows) and use this to install the paho-mqtt Python package.  Windows 7 users should note that there is a [bug in paho-mqtt](https://bugs.eclipse.org/bugs/show_bug.cgi?id=431698), you may need to update with the latest version from the [repository](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/tree/src/paho/mqtt/client.py) until this bug fix makes it into a release.
+
+Download and install [psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads) using the appropriate Windows installer:
+ * [psutil-2.1.0.win32-py2.7.exe](https://pypi.python.org/packages/2.7/p/psutil/psutil-2.1.0.win32-py2.7.exe#md5=cfe1b146fc38176e4e63290fa15029a1)
+ * [psutil-2.1.0.win-amd64-py2.7.exe](https://pypi.python.org/packages/2.7/p/psutil/psutil-2.1.0.win-amd64-py2.7.exe#md5=db0ee08adb7f00386ee419dcf414d451)
 
 Download [iot-psutil.py](https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/src/iot-psutil.py) from GitHub
 
