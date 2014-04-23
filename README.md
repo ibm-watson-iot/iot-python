@@ -1,7 +1,7 @@
-IBM IOT Cloud for Python
-========================
+IBM Internet of Things Cloud for Python
+=======================================
 
-Contains samples for working with the IBM Internet of Things cloud from a Python 2.7 runtime environment.
+Contains samples for working with the IBM Internet of Things Cloud from a Python 2.7 runtime environment.
 
 Platform
 --------
