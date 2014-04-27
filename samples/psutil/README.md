@@ -16,7 +16,6 @@ pi@raspberrypi ~ $ sudo apt-get install python-dev
 pi@raspberrypi ~ $ sudo apt-get install python-pip
 pi@raspberrypi ~ $ sudo pip install paho-mqtt
 pi@raspberrypi ~ $ sudo pip install psutil
-pi@raspberrypi ~ $ sudo echo "184.172.124.189 messaging.quickstart.internetofthings.ibmcloud.com" >> /etc/hosts
 pi@raspberrypi ~ $ wget https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/src/iot-psutil.py
 pi@raspberrypi ~ $ python iot-psutil.py
 Connected successfully - Your device ID is ca51af86af39
@@ -36,7 +35,6 @@ See: [Setting up Django and Python 2.7 on Red Hat Enterprise 6 the easy way](htt
 [root@localhost ~]# scl enable python27 bash
 [root@localhost ~]# pip install paho-mqtt
 [root@localhost ~]# pip install psutil
-[root@localhost ~]# echo "184.172.124.189 messaging.quickstart.internetofthings.ibmcloud.com" >> /etc/hosts
 [root@localhost ~]# exit
 [me@localhost ~]$ wget https://raw.githubusercontent.com/ibm-messaging/iot-python/master/samples/psutil/src/iot-psutil.py
 [me@localhost ~]$ scl enable python27 bash
