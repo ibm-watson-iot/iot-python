@@ -1,7 +1,7 @@
 IBM Internet of Things Cloud for Python
 =======================================
 
-Contains samples for working with the IBM Internet of Things Cloud from a Python 2.7 runtime environment.
+Python module for interacting with the IBM Internet of Things Cloud with Python.
 
 Platform
 --------
@@ -55,8 +55,7 @@ auth-token=$token
 ```
 
 ####Subscribing to Device events
-By default, will subscribe to all events from all connected devices.
-Use the type, id and event parameters to control the scope of the subscription.  A single client can support multiple subscriptions.
+By default, this will subscribe to all events from all connected devices.  Use the type, id and event parameters to control the scope of the subscription.  A single client can support multiple subscriptions.
 
 #####Subscribe to all events from all devices
 ```
@@ -73,10 +72,10 @@ client.subscribeToDeviceEvents(type=myDeviceType)
 client.subscribeToDeviceEvents(event=myEvent)
 ```
 
-#####Subscribe to a specific event from two specific devices
+#####Subscribe to a specific event from two different devices
 ```
 client.subscribeToDeviceEvents(type=myDeviceType, id=myDeviceId, event=myEvent)
-lient.subscribeToDeviceEvents(type=myDeviceType, id=myOtherDeviceId, event=myEvent)
+lient.subscribeToDeviceEvents(type=myOtherDeviceType, id=myOtherDeviceId, event=myEvent)
 ```
 
 ####Handling events from Devices
@@ -87,6 +86,50 @@ def myEventCallback(type, id, event, format, data):
 
 ...
 client.eventCallback = myEventCallback
-
 client.subscribeToDeviceEvents()
+```
+
+
+####Subscribing to Device status
+By default, this will subscribe to status updates for all connected devices. Use the type and id parameters to control the scope of the subscription.  A single client can support multiple subscriptions.
+
+#####Subscribe to status updates for all devices
+```
+client.subscribeToDeviceStatus()
+```
+
+#####Subscribe to status updates for all devices of a specific type
+```
+client.subscribeToDeviceStatus(type=myDeviceType)
+```
+
+#####Subscribe to status updates for two different devices
+```
+client.subscribeToDeviceStatus(type=myDeviceType, id=myDeviceId)
+lient.subscribeToDeviceStatus(type=myOtherDeviceType, id=myOtherDeviceId)
+```
+
+####Handling status updates from Devices
+To process the status updates received by your subscroptions you need to register an event callback method.
+```
+def myStatusCallback(type, id, status):
+	print "Status of device [%s:%s] changed to %s" % (type, id, json.dumps(status))
+
+...
+client.statusCallback = myStatusCallback
+client.subscribeToDeviceStstus()
+```
+
+####Publishing Events "from" Devices
+Applications can publish events as if they originated from a Device
+```
+myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+client.publishEvent(type=myDeviceType, id=myDeviceId, event="status", data=myData)
+```
+
+####Publishing Commands to Devices
+Applications can publish commands to connected Devices
+```
+commandData={'delay' : 50}
+client.publishCommand(type=myDeviceType, id=myDeviceId, command="reboot", data=myData)
 ```
