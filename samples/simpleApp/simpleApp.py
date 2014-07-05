@@ -60,9 +60,9 @@ if __name__ == "__main__":
 	authKey = None
 	authToken = None
 	configFilePath = None
-	deviceType = "sample-iotpsutil"
-	deviceId = "cc52af80cf38"
-	event = "psutil"
+	deviceType = "+"
+	deviceId = "+"
+	event = "+"
 	
 	for o, a in opts:
 		if o in ("-v", "--verbose"):
