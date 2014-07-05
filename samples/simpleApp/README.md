@@ -29,7 +29,7 @@ auth-token=$token
 ```
 
 ```
-[me@localhost ~]C:\Users\David\Documents\GitHub\iot-python\samples\simpleApp>python simpleApp.py -c application.cfg
+[me@localhost ~] python simpleApp.py -c application.cfg
 Status of device [psutil:001] changed to {"ClientAddr": "1.2.3.4", "Protocol": "mqtt-tcp", "ClientID": "d:aaaaa:psutil:001", "User": "use-token-auth", "Time": "2014-07-05T16:09:26.161-04:00", "Action": "Connect", "ConnectTime": "2014-07-05T16:09:26.161-04:00", "Port": 1883}
 json event 'psutil' received from device [psutil:001]: {"mem": 67.2, "network_up": 1.32, "cpu": 1.7, "name": "My Laptop", "network_down": 0.38}
 json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up": 0.73, "cpu": 2.2, "name": "My Laptop", "network_down": 1.05}
@@ -38,7 +38,7 @@ json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up
 
 ###Using command line options
 ```
-[me@localhost ~]C:\Users\David\Documents\GitHub\iot-python\samples\simpleApp>python simpleApp.py -o $orgId -i myApplication -k $key -t $token
+[me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token
 Status of device [psutil:001] changed to {"ClientAddr": "1.2.3.4", "Protocol": "mqtt-tcp", "ClientID": "d:aaaaa:psutil:001", "User": "use-token-auth", "Time": "2014-07-05T16:09:26.161-04:00", "Action": "Connect", "ConnectTime": "2014-07-05T16:09:26.161-04:00", "Port": 1883}
 json event 'psutil' received from device [psutil:001]: {"mem": 67.2, "network_up": 1.32, "cpu": 1.7, "name": "My Laptop", "network_down": 0.38}
 json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up": 0.73, "cpu": 2.2, "name": "My Laptop", "network_down": 1.05}
@@ -53,20 +53,20 @@ By default the application will attempt to subscribe to all events from all devi
 
 ####Example 1: Subscribe to all events from all connected devices
 ```
-[me@localhost ~]C:\Users\David\Documents\GitHub\iot-python\samples\simpleApp>python simpleApp.py -o $orgId -i myApplication -k $key -t $token
+[me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token
 ```
 
 ####Example 2: Subscribe to all events from all connected devices of a specific type
 ```
-[me@localhost ~]C:\Users\David\Documents\GitHub\iot-python\samples\simpleApp>python simpleApp.py -o $orgId -i myApplication -k $key -t $token -T $deviceType
+[me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token -T $deviceType
 ```
 
 ####Example 3: Subscribe to all events from a specific device
 ```
-[me@localhost ~]C:\Users\David\Documents\GitHub\iot-python\samples\simpleApp>python simpleApp.py -o $orgId -i myApplication -k $key -t $token -T $deviceType -I deviceId
+[me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token -T $deviceType -I deviceId
 ```
 
 ####Example 4: Subscribe a specific event sent from any connected device
 ```
-[me@localhost ~]C:\Users\David\Documents\GitHub\iot-python\samples\simpleApp>python simpleApp.py -o $orgId -i myApplication -k $key -t $token -E $event
+[me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token -E $event
 ```
