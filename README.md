@@ -20,11 +20,11 @@ Documentation
 
 ####Constructor
 The Client constructor accepts an options dict containing:
- * org
- * appId
- * authMethod (the only value of authMethod currently supported is "apikey")
- * authKey (required if authMethod is "apikey")
- * authToken (required if authMethod is "apikey")
+ * org - Your organization ID
+ * id - The unique ID of your application within your organization
+ * authMethod - Method of authentication (the only value of authMethod currently supported is "apikey")
+ * authKey - API key (required if authMethod is "apikey")
+ * authToken - API key token (required if authMethod is "apikey")
 
 ```
 import ibmiotc.application
