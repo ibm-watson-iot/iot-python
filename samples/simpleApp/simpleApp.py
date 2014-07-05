@@ -7,7 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html 
 #
 # Contributors:
-#   IBM - Initial Contribution
+#   David Parker - Initial Contribution
 # *****************************************************************************
 
 import getopt
