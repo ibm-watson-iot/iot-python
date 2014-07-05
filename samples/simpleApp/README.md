@@ -6,7 +6,7 @@ Sample code for a very basic appliation which subscribes to both events and conn
 Ssimply provide the device ID of your QuickStart connected device: 
 ```
 [me@localhost ~]$ python simpleApp.py -I 112233445566
-Status of device [sample-iotpsutil:112233445566] changed to {"ClientAddr": "86.178.101.88", "Protocol": "mqtt-tcp", "ClientID": "d:quickstart:sample-iotpsutil:cc52af80cf38", "ConnectTime": "2014-07-05T15:57:39.280-04:00", "Time": "2014-07-05T15:57:39.283-04:00", "Action": "Connect", "Port": 1883}
+Status of device [sample-iotpsutil:112233445566] changed to {"ClientAddr": "1.2.3.4", "Protocol": "mqtt-tcp", "ClientID": "d:quickstart:sample-iotpsutil:cc52af80cf38", "ConnectTime": "2014-07-05T15:57:39.280-04:00", "Time": "2014-07-05T15:57:39.283-04:00", "Action": "Connect", "Port": 1883}
 json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.1, "network_up": 0.99, "cpu": 3.3, "name": "My Laptop", "network_down": 0.86}
 json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.1, "network_up": 0.63, "cpu": 1.2, "name": "My Laptop", "network_down": 0.58}
 json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.2, "network_up": 0.65, "cpu": 1.2, "name": "My Laptop", "network_down": 0.47}
