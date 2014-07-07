@@ -120,6 +120,7 @@ lient.subscribeToDeviceStatus(deviceType=myOtherDeviceType, deviceId=myOtherDevi
 
 ####Handling status updates from Devices
 To process the status updates received by your subscriptions you need to register an event callback method.  The messages are returned as an instance of the Status class:
+
 The following properties are set for both "Connect" and "Disconnect" status events:
  * status.clientAddr - string  
  * status.protocol - string  
@@ -129,6 +130,7 @@ The following properties are set for both "Connect" and "Disconnect" status even
  * status.action - string  
  * status.connectTime - datetime  
  * status.port - int
+
 The following properties are only set when the action is "Disconnect":
  * status.writeMsg - int
  * status.readMsg - int
