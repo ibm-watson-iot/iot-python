@@ -10,6 +10,7 @@ Platform
 Dependencies
 ------------
 * [paho-mqtt](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/)
+* [iso8601](https://bitbucket.org/micktwomey/pyiso8601/)
 
 
 Documentation
@@ -64,7 +65,7 @@ client.subscribeToDeviceEvents()
 
 #####Subscribe to all events from all devices of a specific type
 ```python
-client.subscribeToDeviceEvents(type=myDeviceType)
+client.subscribeToDeviceEvents(deviceType=myDeviceType)
 ```
 
 #####Subscribe to a specific event from all devices
@@ -74,15 +75,23 @@ client.subscribeToDeviceEvents(event=myEvent)
 
 #####Subscribe to a specific event from two different devices
 ```python
-client.subscribeToDeviceEvents(type=myDeviceType, id=myDeviceId, event=myEvent)
-lient.subscribeToDeviceEvents(type=myOtherDeviceType, id=myOtherDeviceId, event=myEvent)
+client.subscribeToDeviceEvents(deviceType=myDeviceType, deviceId=myDeviceId, event=myEvent)
+lient.subscribeToDeviceEvents(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId, event=myEvent)
 ```
 
 ####Handling events from Devices
-To process the events received by your subscroptions you need to register an event callback method.
+To process the events received by your subscroptions you need to register an event callback method.  The messages are returned as an instance of the Event class:
+ * event.device - string (uniquely identifies the device across all types of devices in the organization $deviceType:$deviceId)
+ * event.deviceType - string
+ * event.deviceId - string
+ * event.event - string
+ * event.format - string
+ * event.data - dict
+ * event.timestamp - datetime
+ 
 ```python
-def myEventCallback(type, id, event, format, data):
-  print "%s event '%s' received from device [%s:%s]: %s" % (format, event, type, id, json.dumps(data))
+def myEventCallback(event):
+  print "%s event '%s' received from device [%s]: %s" % (event.format, event.event, event.device, json.dumps(event.data))
 
 ...
 client.eventCallback = myEventCallback
@@ -100,20 +109,39 @@ client.subscribeToDeviceStatus()
 
 #####Subscribe to status updates for all devices of a specific type
 ```python
-client.subscribeToDeviceStatus(type=myDeviceType)
+client.subscribeToDeviceStatus(deviceType=myDeviceType)
 ```
 
 #####Subscribe to status updates for two different devices
 ```python
-client.subscribeToDeviceStatus(type=myDeviceType, id=myDeviceId)
-lient.subscribeToDeviceStatus(type=myOtherDeviceType, id=myOtherDeviceId)
+client.subscribeToDeviceStatus(deviceType=myDeviceType, deviceId=myDeviceId)
+lient.subscribeToDeviceStatus(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId)
 ```
 
 ####Handling status updates from Devices
-To process the status updates received by your subscroptions you need to register an event callback method.
+To process the status updates received by your subscriptions you need to register an event callback method.  The messages are returned as an instance of the Status class:
+The following properties are set for both "Connect" and "Disconnect" status events:
+ * status.clientAddr - string  
+ * status.protocol - string  
+ * status.clientId - string  
+ * status.user - string  
+ * status.time - datetime  
+ * status.action - string  
+ * status.connectTime - datetime  
+ * status.port - int
+The following properties are only set when the action is "Disconnect":
+ * status.writeMsg - int
+ * status.readMsg - int
+ * status.reason - string  
+ * status.readBytes - int  
+ * status.writeBytes - int  
+
 ```python
-def myStatusCallback(type, id, status):
-	print "Status of device [%s:%s] changed to %s" % (type, id, json.dumps(status))
+def myStatusCallback(status):
+  if status.action == "Disconnect":
+    print "%s - device %s - %s (%s)" % (status.time.isoformat(), status.device, status.action, status.reason)
+  else:
+    print "%s - %s - %s" % (status.time.isoformat(), status.device, status.action)
 
 ...
 client.statusCallback = myStatusCallback
@@ -124,12 +152,12 @@ client.subscribeToDeviceStstus()
 Applications can publish events as if they originated from a Device
 ```python
 myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-client.publishEvent(type=myDeviceType, id=myDeviceId, event="status", data=myData)
+client.publishEvent(myDeviceType, myDeviceId, "status", myData)
 ```
 
 ####Publishing Commands to Devices
 Applications can publish commands to connected Devices
 ```python
-commandData={'delay' : 50}
-client.publishCommand(type=myDeviceType, id=myDeviceId, command="reboot", data=myData)
+commandData={'rebootDelay' : 50}
+client.publishCommand(myDeviceType, myDeviceId, "reboot", myData)
 ```

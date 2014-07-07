@@ -12,8 +12,8 @@
 
 import json
 import ibmiotc
-import sys
 import ConfigParser
+from datetime import datetime
 
 class Client(ibmiotc.AbstractClient):
 
@@ -35,7 +35,7 @@ class Client(ibmiotc.AbstractClient):
 				if self.options['auth-token'] == None: 
 					raise ibmiotc.ConfigurationException("Missing required property for token based authentication: auth-token")
 			else:
-				raise ibmiotc.UnsupportedAuthenticationMethod(authMethod)
+				raise ibmiotc.UnsupportedAuthenticationMethod(options['authMethod'])
 
 
 		ibmiotc.AbstractClient.__init__(
@@ -56,44 +56,28 @@ class Client(ibmiotc.AbstractClient):
 		else:
 			self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 			topic = 'iot-2/evt/'+event+'/fmt/json'
-			payload = { 'd' : data }
+			
+			# Note: Python JSON serialization doesn't know what to do with a datetime object on it's own
+			payload = { 'd' : data, 'ts': datetime.now().isoformat() }
 			self.client.publish(topic, payload=json.dumps(payload), qos=0, retain=False)
 			return True
 
 
-'''
-See: http://stackoverflow.com/questions/2819696/parsing-properties-file-in-python/2819788#2819788
-'''			
-class ConfigFile(object):
-	def __init__(self, fp):
-		self.fp = fp
-		self.sechead = '[device]\n'
-	
-	def readline(self):
-		if self.sechead:
-			try: 
-				return self.sechead
-			finally: 
-				self.sechead = None
-		else: 
-			return self.fp.readline()
-
-
 def ParseConfigFile(configFilePath):
 	parms = ConfigParser.ConfigParser()
-
+	sectionHeader = "device"
 	try:
 		with open(configFilePath) as f:
-			parms.readfp(ConfigFile(f))
+			parms.readfp(ibmiotc.ConfigFile(f, sectionHeader))
 		
-		organization = parms.get("device", "org", None)
-		type = parms.get("device", "type", None)
-		id = parms.get("device", "id", None)
-		authMethod = parms.get("device", "auth-method", None)
-		authToken = parms.get("device", "auth-token", None)
+		organization = parms.get(sectionHeader, "org", None)
+		deviceType = parms.get(sectionHeader, "type", None)
+		deviceId = parms.get(sectionHeader, "id", None)
+		authMethod = parms.get(sectionHeader, "auth-method", None)
+		authToken = parms.get(sectionHeader, "auth-token", None)
 		
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotc.ConfigurationException(reason)
 		
-	return {'org': organization, 'type': type, 'id': id, 'auth-method': authMethod, 'auth-token': authToken}
+	return {'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}

@@ -12,10 +12,11 @@
 
 import getopt
 import signal
-import threading
 import time
 import sys
 import json
+import threading
+import pprint
 
 try:
 	import ibmiotc.application
@@ -32,15 +33,39 @@ except ImportError:
 	import ibmiotc.application
 
 
-def myEventCallback(type, id, event, format, data):
-	print "%s event '%s' received from device [%s:%s]: %s" % (format, event, type, id, json.dumps(data))
+tableRowTemplate = "%-33s%-30s%s"
 
-def myStatusCallback(type, id, status):
-	print "Status of device [%s:%s] changed to %s" % (type, id, json.dumps(status))
+def myEventCallback(event):
+	print "%-33s%-30s%s" % (event.timestamp.isoformat(), event.device, event.event + ": " + json.dumps(event.data))
+
+	
+def myStatusCallback(status):
+	if status.action == "Disconnect":
+		print tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr + " (" + status.reason + ")")
+	else:
+		print tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr)
+
 	
 def interruptHandler(signal, frame):
 	client.disconnect()
 	sys.exit(0)
+
+
+def usage():
+	print(
+		"simpleApp: Basic application connected to the IBM Internet of Things Cloud service." + "\n" +
+		"\n" +
+		"Options: " + "\n" +
+		"  -h, --help          Display help information" + "\n" + 
+		"  -o, --organization  Connect to the specified organization" + "\n" + 
+		"  -i, --id            Application identifier (must be unique within the organization)" + "\n" + 
+		"  -k, --key           API key" + "\n" + 
+		"  -t, --token         Authentication token for the API key specified" + "\n" + 
+		"  -c, --config        Load application configuration file (ignore -o, -i, -k, -t options)" + "\n" + 
+		"  -T, --devicetype    Restrict subscription to events from devices of the specified type" + "\n" + 
+		"  -I, --deviceid      Restrict subscription to events from devices of the specified id" + "\n" + 
+		"  -E, --event         Restrict subscription to a specific event"
+	)
 
 
 if __name__ == "__main__":
@@ -53,7 +78,6 @@ if __name__ == "__main__":
 		usage()
 		sys.exit(2)
 
-	verbose = False
 	organization = "quickstart"
 	appId = "mySampleApp"
 	authMethod = None
@@ -65,9 +89,7 @@ if __name__ == "__main__":
 	event = "+"
 	
 	for o, a in opts:
-		if o in ("-v", "--verbose"):
-			verbose = True
-		elif o in ("-o", "--organizatoin"):
+		if o in ("-o", "--organizatoin"):
 			organization = a
 		elif o in ("-i", "--id"):
 			appId = a
@@ -109,12 +131,18 @@ if __name__ == "__main__":
 		sys.exit()
 
 	
-	client.eventCallback = myEventCallback
-	client.statusCallback = myStatusCallback
+	print "(Press Ctrl+C to disconnect)"
 	
-	client.subscribeToDeviceEvents(type=deviceType, id=deviceId, event=event)
-	client.subscribeToDeviceStatus(type=deviceType, id=deviceId)
+	client.deviceEventCallback = myEventCallback
+	client.deviceStatusCallback = myStatusCallback
+	
+	client.subscribeToDeviceEvents(deviceType, deviceId, event)
+	client.subscribeToDeviceStatus(deviceType, deviceId)
 
+	print "============================================================================="
+	print tableRowTemplate % ("Timestamp", "Device", "Event")
+	print "============================================================================="
+	
 	while True:
 		time.sleep(1)
 		

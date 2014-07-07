@@ -6,13 +6,25 @@ Sample code for a very basic appliation which subscribes to both events and conn
 Ssimply provide the device ID of your QuickStart connected device: 
 ```
 [me@localhost ~]$ python simpleApp.py -I 112233445566
-Status of device [sample-iotpsutil:112233445566] changed to {"ClientAddr": "1.2.3.4", "Protocol": "mqtt-tcp", "ClientID": "d:quickstart:sample-iotpsutil:cc52af80cf38", "ConnectTime": "2014-07-05T15:57:39.280-04:00", "Time": "2014-07-05T15:57:39.283-04:00", "Action": "Connect", "Port": 1883}
-json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.1, "network_up": 0.99, "cpu": 3.3, "name": "My Laptop", "network_down": 0.86}
-json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.1, "network_up": 0.63, "cpu": 1.2, "name": "My Laptop", "network_down": 0.58}
-json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.2, "network_up": 0.65, "cpu": 1.2, "name": "My Laptop", "network_down": 0.47}
-json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.2, "network_up": 1.15, "cpu": 13.1, "name": "My Laptop", "network_down": 0.63}
-json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.2, "network_up": 0.65, "cpu": 4.2, "name": "My Laptop", "network_down": 0.64}
-json event 'psutil' received from device [sample-iotpsutil:112233445566]: {"mem": 67.2, "network_up": 0.51, "cpu": 1.0, "name": "My Laptop", "network_down": 0.47}
+(Press Ctrl+C to disconnect)
+=============================================================================
+Timestamp                        Device                        Event
+=============================================================================
+2014-07-07T12:04:32.296000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.75, "cpu": 0.2, "name": "W520", "network_down": 0.44}
+2014-07-07T07:03:55.202000-04:00 sample-iotpsutil:112233445566 Connect 1.2.3.4
+2014-07-07T12:04:33.300000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.42, "cpu": 5.4, "name": "W520", "network_down": 1.08}
+2014-07-07T12:04:34.304000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.27, "cpu": 0.0, "name": "W520", "network_down": 0.29}
+2014-07-07T12:04:35.308000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.27, "cpu": 1.9, "name": "W520", "network_down": 0.29}
+2014-07-07T12:04:36.312000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.27, "cpu": 0.4, "name": "W520", "network_down": 0.35}
+2014-07-07T12:04:37.317000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.27, "cpu": 0.4, "name": "W520", "network_down": 0.29}
+2014-07-07T12:04:38.321000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 73.2, "network_up": 0.27, "cpu": 0.2, "name": "W520", "network_down": 0.59}
+2014-07-07T07:04:37.550000-04:00 sample-iotpsutil:112233445566 Disconnect 195.212.29.68 (The connection has completed normally.)
+2014-07-07T07:11:47.779000-04:00 sample-iotpsutil:112233445566 Connect 1.2.3.4
+2014-07-07T12:11:49.732000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 75.4, "network_up": 0.12, "cpu": 0.2, "name": "W520", "network_down": 0.0}
+2014-07-07T12:11:50.736000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 75.4, "network_up": 0.38, "cpu": 1.5, "name": "W520", "network_down": 0.58}
+2014-07-07T12:11:51.740000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 75.4, "network_up": 0.38, "cpu": 5.4, "name": "W520", "network_down": 0.63}
+2014-07-07T12:11:52.745000+00:00 sample-iotpsutil:112233445566 psutil: {"mem": 75.4, "network_up": 0.27, "cpu": 3.9, "name": "W520", "network_down": 0.29}
+2014-07-07T07:11:52.186000-04:00 sample-iotpsutil:112233445566 Disconnect 1.2.3.4 (The connection has completed normally.)
 ```
 
 ## Registered Organization Usage
@@ -30,22 +42,22 @@ auth-token=$token
 
 ```
 [me@localhost ~] python simpleApp.py -c application.cfg
-Status of device [psutil:001] changed to {"ClientAddr": "1.2.3.4", "Protocol": "mqtt-tcp", "ClientID": "d:aaaaa:psutil:001", "User": "use-token-auth", "Time": "2014-07-05T16:09:26.161-04:00", "Action": "Connect", "ConnectTime": "2014-07-05T16:09:26.161-04:00", "Port": 1883}
-json event 'psutil' received from device [psutil:001]: {"mem": 67.2, "network_up": 1.32, "cpu": 1.7, "name": "My Laptop", "network_down": 0.38}
-json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up": 0.73, "cpu": 2.2, "name": "My Laptop", "network_down": 1.05}
-json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up": 0.51, "cpu": 1.3, "name": "My Laptop", "network_down": 0.47}
+(Press Ctrl+C to disconnect)
+=============================================================================
+Timestamp                        Device                        Event
+=============================================================================
+2014-07-07T07:16:44.826000-04:00 psutil:001                    Connect 1.2.3.4
+2014-07-07T12:16:53.813000+00:00 psutil:001                    psutil: {"mem": 75.1, "network_up": 0.89, "cpu": 2.0, "name": "W520", "network_down": 1.1}
+2014-07-07T12:16:54.817000+00:00 psutil:001                    psutil: {"mem": 75.1, "network_up": 0.27, "cpu": 0.2, "name": "W520", "network_down": 0.29}
+2014-07-07T12:16:55.821000+00:00 psutil:001                    psutil: {"mem": 75.0, "network_up": 0.27, "cpu": 1.8, "name": "W520", "network_down": 0.29}
 ```
 
 ###Using command line options
 ```
 [me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token
-Status of device [psutil:001] changed to {"ClientAddr": "1.2.3.4", "Protocol": "mqtt-tcp", "ClientID": "d:aaaaa:psutil:001", "User": "use-token-auth", "Time": "2014-07-05T16:09:26.161-04:00", "Action": "Connect", "ConnectTime": "2014-07-05T16:09:26.161-04:00", "Port": 1883}
-json event 'psutil' received from device [psutil:001]: {"mem": 67.2, "network_up": 1.32, "cpu": 1.7, "name": "My Laptop", "network_down": 0.38}
-json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up": 0.73, "cpu": 2.2, "name": "My Laptop", "network_down": 1.05}
-json event 'psutil' received from device [psutil:001]: {"mem": 67.1, "network_up": 0.51, "cpu": 1.3, "name": "My Laptop", "network_down": 0.47}
 ```
 
-### Additional Options
+### Additional command line options
 By default the application will attempt to subscribe to all events from all devices in the organization.  Three options exist to control the scope of the application:
  * Device Type
  * Device Id

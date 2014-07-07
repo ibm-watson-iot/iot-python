@@ -17,7 +17,6 @@ import psutil
 import platform
 import json
 import signal
-import paho.mqtt.client as paho
 from uuid import getnode as get_mac
 
 
@@ -117,6 +116,8 @@ if __name__ == "__main__":
 		sys.exit()
 	
 
+	print "(Press Ctrl+C to disconnect)"
+	
 	# Take initial reading
 	psutil.cpu_percent(percpu=False)
 	ioBefore_ts = time.time()

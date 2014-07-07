@@ -14,11 +14,13 @@ import os
 import time
 import json
 import socket
+import ssl
 import logging
 import paho.mqtt.client as paho
 import threading
+from datetime import datetime
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 class AbstractClient:
 	def __init__(self, organization, clientId, username, password, logDir=None):
@@ -30,7 +32,6 @@ class AbstractClient:
 		self.keepAlive = 60
 		
 		self.connectEvent = threading.Event()
-		self.disconnectEvent = threading.Event()
 		
 		self.messages = 0
 		self.recv = 0
@@ -58,8 +59,13 @@ class AbstractClient:
 		
 		# Configure authentication
 		if self.username is not None:
+			#TODO: Support TLS 
+			#self.port = 8883
+			#self.client.tls_set(ca_certs="../../src/ibmiotc/cert/primary_intermediate.crt")
+			#self.client.tls_set(ca_certs="../../src/ibmiotc/cert/primary_intermediate.crt", certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1)
+			#self.client.tls_insecure_set(True)
 			self.client.username_pw_set(self.username, self.password)
-		
+			
 		#attach MQTT callbacks
 		self.client.on_log = self.on_log
 		self.client.on_connect = self.on_connect
@@ -88,12 +94,8 @@ class AbstractClient:
 	def disconnect(self):
 		self.logger.info("Closing connection to the IBM Internet of Things Cloud")
 		self.client.disconnect()
-		self.disconnectEvent.clear()
-		if not self.disconnectEvent.wait(timeout=10):
-			self.client.loop_stop()
-			self.__logAndRaiseException(ConnectionException("Operation timed out disconnecting from the IBM Internet of Things service: %s" % (self.address)))
-		self.client.loop_stop()
 		self.stats()
+		self.logger.info("Closed connection to the IBM Internet of Things Cloud")
 			
 	def stats(self):
 		elapsed = ((time.time()) - self.start)
@@ -118,8 +120,8 @@ class AbstractClient:
 	5: Refused - not authorised (MQTT v3.1 broker only)
 	'''
 	def on_connect(self, mosq, obj, rc):
-		self.connectEvent.set()
 		if rc == 0:
+			self.connectEvent.set()
 			self.logger.info("Connected successfully")
 		elif rc == 5:
 			self.__logAndRaiseException(ConnectionException("Not authorized: s (%s, %s)" % (self.clientId, self.username, self.password)))
@@ -131,10 +133,7 @@ class AbstractClient:
 	When 0 the disconnection was the result of disconnect() being called, when 1 the disconnection was unexpected.
 	'''
 	def on_disconnect(self, mosq, obj, rc):
-		self.disconnectEvent.set()
-		if rc == 0:
-			self.logger.info("Disconnected from the IBM Internet of Things Cloud")
-		else:
+		if rc == 1:
 			self.logger.error("Unexpected disconnect from the IBM Internet of Things Cloud")
 		
 	'''
@@ -145,13 +144,22 @@ class AbstractClient:
 		self.messages = self.messages + 1
 
 
-class ConfigurationException(Exception):
-	def __init__(self, reason):
-		self.reason = reason
+'''
+See: http://stackoverflow.com/questions/2819696/parsing-properties-file-in-python/2819788#2819788
+'''			
+class ConfigFile(object):
+	def __init__(self, fp, header):
+		self.fp = fp
+		self.sechead = '['+header+']\n'
 	
-	def __str__(self):
-		return self.reason
-
+	def readline(self):
+		if self.sechead:
+			try: 
+				return self.sechead
+			finally: 
+				self.sechead = None
+		else: 
+			return self.fp.readline()
 
 
 '''
@@ -184,5 +192,16 @@ class UnsupportedAuthenticationMethod(ConnectionException):
 	
 	def __str__(self):
 		return "Unsupported authentication method %s" % self.method
+
+
+'''
+Specific exception where and Event object can not be constructed
+'''
+class InvalidEventException(Exception):
+	def __init__(self, reason):
+		self.reason = reason
+	
+	def __str__(self):
+		return "Invalid Event %s" % self.reason
 
 
