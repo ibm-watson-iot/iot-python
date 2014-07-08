@@ -3,3 +3,7 @@
 *.pyc
 *.project
 *.pydevproject
+*.zip
+src/ibmiotc.egg-info/*
+MANIFEST
+README.txt

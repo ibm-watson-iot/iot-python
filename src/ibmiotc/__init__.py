@@ -20,7 +20,7 @@ import paho.mqtt.client as paho
 import threading
 from datetime import datetime
 
-__version__ = "0.0.2"
+__version__ = "0.0.4"
 
 class AbstractClient:
 	def __init__(self, organization, clientId, username, password, logDir=None):

@@ -138,30 +138,34 @@ class Client(ibmiotc.AbstractClient):
 	def __init__(self, options):
 		self.__options = options
 
-		if self.__options['org'] == None:
+		username = None
+		password = None
+
+		if 'org' not in self.__options or self.__options['org'] == None:
 			raise ibmiotc.ConfigurationException("Missing required property: org")
-		if self.__options['id'] == None: 
+		if 'id' not in self.__options or self.__options['id'] == None: 
 			raise ibmiotc.ConfigurationException("Missing required property: type")
-		
-		if self.__options['org'] != "quickstart":
-			if self.__options['auth-method'] == None: 
-				raise ibmiotc.ConfigurationException("Missing required property: auth-method")
-				
-			if (self.__options['auth-method'] == "apikey"):
-				if self.__options['auth-key'] == None: 
-					raise ibmiotc.ConfigurationException("Missing required property for API key based authentication: auth-key")
-				if self.__options['auth-token'] == None: 
-					raise ibmiotc.ConfigurationException("Missing required property for API key based authentication: auth-token")
-			else:
-				raise ibmiotc.UnsupportedAuthenticationMethod(options['authMethod'])
+
+		# Auth method is optional.  e.g. in QuickStart there is no authentication
+		if 'auth-method' not in self.__options:
+			self.__options['auth-method'] = None
+			
+		if (self.__options['auth-method'] == "apikey"):
+			# Check for required API Key and authentication token
+			if 'auth-key' not in self.__options or self.__options['auth-key'] == None: 
+				raise ibmiotc.ConfigurationException("Missing required property for API key based authentication: auth-key")
+			if 'auth-token' not in self.__options or self.__options['auth-token'] == None: 
+				raise ibmiotc.ConfigurationException("Missing required property for API key based authentication: auth-token")
+			
+			username = self.__options['auth-key']
+			password = self.__options['auth-token']
+			
+		elif self.__options['auth-method'] is not None:
+			raise ibmiotc.UnsupportedAuthenticationMethod(options['authMethod'])
 
 		# Call parent constructor
 		ibmiotc.AbstractClient.__init__(
-			self, 
-			organization = options['org'],
-			clientId = "a:" + options['org'] + ":" + options['id'], 
-			username = options['auth-key'] if (options['auth-method'] == "apikey") else None,
-			password = options['auth-token']
+			self, options['org'], "a:" + options['org'] + ":" + options['id'], username, password
 		)
 		
 		# Add handler for device events
