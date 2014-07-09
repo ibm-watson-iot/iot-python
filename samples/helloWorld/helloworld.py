@@ -54,10 +54,10 @@ except Exception as e:
 	sys.exit()
 
 # Connect and configuration the application
-# - subscribe to live data from the device we created
+# - subscribe to live data from the device we created, specifically to "greeting" events
 # - use the myAppEventCallback method to process events
 appCli.connect()
-appCli.subscribeToDeviceEvents(deviceType, deviceId)
+appCli.subscribeToDeviceEvents(deviceType, deviceId, "greeting")
 appCli.deviceEventCallback = myAppEventCallback
 
 
