@@ -23,36 +23,12 @@ DEVICE_EVENT_RE = re.compile("iot-2/type/(.+)/id/(.+)/evt/(.+)/fmt/(.+)")
 DEVICE_COMMAND_RE = re.compile("iot-2/type/(.+)/id/(.+)/cmd/(.+)/fmt/(.+)")
 DEVICE_STATUS_RE = re.compile("iot-2/type/(.+)/id/(.+)/mon")
 APP_STATUS_RE = re.compile("iot-2/app/(.+)/mon")
-		
-class Message:
-	def __init__(self, message):
-		self.payload = json.loads(str(message.payload))
-		self.timestamp = self.__parseMessageTimestamp()
-		self.data = self.__parseMessageData()
 
-		
-	def __parseMessageTimestamp(self):
-		try:
-			if 'ts' in self.payload:
-				return iso8601.parse_date(self.payload['ts'])
-			else:
-				return datetime.now()
-		except iso8601.ParseError as e:
-			raise ibmiotc.InvalidEventException("Unable to parse event timestamp: %s" % str(e))
-	
-	
-	def __parseMessageData(self):
-		if 'd' in self.payload:
-			return self.payload['d']
-		else:
-			return None
-
-
-class Status(Message):
+class Status(ibmiotc.Message):
 	def __init__(self, message):
 		result = DEVICE_STATUS_RE.match(message.topic)
 		if result:
-			Message.__init__(self, message)
+			ibmiotc.Message.__init__(self, message)
 			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
@@ -101,11 +77,11 @@ class Status(Message):
 			raise ibmiotc.InvalidEventException("Received device status on invalid topic: %s" % (message.topic))
 
 	
-class Event(Message):
+class Event(ibmiotc.Message):
 	def __init__(self, message):
 		result = DEVICE_EVENT_RE.match(message.topic)
 		if result:
-			Message.__init__(self, message)
+			ibmiotc.Message.__init__(self, message)
 			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
@@ -117,11 +93,11 @@ class Event(Message):
 			raise ibmiotc.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
 
 
-class Command(Message):
+class Command(ibmiotc.Message):
 	def	__init__(self, message):
 		result = DEVICE_COMMAND_RE.match(message.topic)
 		if result:
-			Message.__init__(self, message)
+			ibmiotc.Message.__init__(self, message)
 			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
@@ -168,7 +144,7 @@ class Client(ibmiotc.AbstractClient):
 			self, options['org'], "a:" + options['org'] + ":" + options['id'], username, password
 		)
 		
-		# Add handler for device events
+		# Add handlers for events and status
 		self.client.message_callback_add("iot-2/type/+/id/+/evt/+/fmt/+", self.__onDeviceEvent)
 		self.client.message_callback_add("iot-2/type/+/id/+/mon", self.__onDeviceStatus)
 		self.client.message_callback_add("iot-2/app/+/mon", self.__onAppStatus)
@@ -218,6 +194,20 @@ class Client(ibmiotc.AbstractClient):
 			self.client.subscribe(topic, qos=0)
 			return True
 	
+
+	def subscribeToDeviceCommands(self, deviceType="+", deviceId="+", command="+"):
+		if self.__options['org'] == "quickstart":
+			self.logger.warning("QuickStart applications do not support commands")
+			return False
+		
+		if not self.connectEvent.wait():
+			self.logger.warning("Unable to subscribe to commands (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, command))
+			return False
+		else:
+			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/json' % (deviceType, deviceId, command)
+			self.client.subscribe(topic, qos=0)
+			return True
+
 	
 	def publishEvent(self, deviceType, deviceId, event, data):
 		if not self.connectEvent.wait():
@@ -245,7 +235,7 @@ class Client(ibmiotc.AbstractClient):
 			self.client.publish(topic, payload=json.dumps(payload), qos=0, retain=False)
 			return True
 
-			
+	
 	'''
 	Internal callback for messages that have not been handled by any of the specific internal callbacks, these
 	messages are not passed on to any user provided callback

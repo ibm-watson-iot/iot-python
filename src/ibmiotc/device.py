@@ -13,26 +13,43 @@
 import json
 import ibmiotc
 import ConfigParser
+import re
 from datetime import datetime
+
+
+COMMAND_RE = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
+
+
+class Command(ibmiotc.Message):
+	def	__init__(self, message):
+		result = COMMAND_RE.match(message.topic)
+		if result:
+			ibmiotc.Message.__init__(self, message)
+			
+			self.command = result.group(1)
+			self.format = result.group(2)
+		else:
+			raise ibmiotc.InvalidEventException("Received command on invalid topic: %s" % (message.topic))
+
 
 class Client(ibmiotc.AbstractClient):
 
 	def __init__(self, options):
-		self.options = options
+		self.__options = options
 
-		if self.options['org'] == None:
+		if self.__options['org'] == None:
 			raise ibmiotc.ConfigurationException("Missing required property: org")
-		if self.options['type'] == None: 
+		if self.__options['type'] == None: 
 			raise ibmiotc.ConfigurationException("Missing required property: type")
-		if self.options['id'] == None: 
+		if self.__options['id'] == None: 
 			raise ibmiotc.ConfigurationException("Missing required property: id")
 		
-		if self.options['org'] != "quickstart":
-			if self.options['auth-method'] == None: 
+		if self.__options['org'] != "quickstart":
+			if self.__options['auth-method'] == None: 
 				raise ibmiotc.ConfigurationException("Missing required property: auth-method")
 				
-			if (self.options['auth-method'] == "token"):
-				if self.options['auth-token'] == None: 
+			if (self.__options['auth-method'] == "token"):
+				if self.__options['auth-token'] == None: 
 					raise ibmiotc.ConfigurationException("Missing required property for token based authentication: auth-token")
 			else:
 				raise ibmiotc.UnsupportedAuthenticationMethod(options['authMethod'])
@@ -46,7 +63,18 @@ class Client(ibmiotc.AbstractClient):
 			password = options['auth-token']
 		)
 
+
+		# Add handler for commands if not connected to QuickStart
+		if self.__options['org'] != "quickstart":
+			self.client.message_callback_add("iot-2/cmd/+/fmt/+", self.__onCommand)
+		
+		# Initialize user supplied callback
+		self.commandCallback = None
+
 		self.connect()
+		
+		if self.__options['org'] != "quickstart":
+			self.__subscribeToCommands()
 		
 
 	def publishEvent(self, event, data):
@@ -61,6 +89,35 @@ class Client(ibmiotc.AbstractClient):
 			payload = { 'd' : data, 'ts': datetime.now().isoformat() }
 			self.client.publish(topic, payload=json.dumps(payload), qos=0, retain=False)
 			return True
+
+
+	def __subscribeToCommands(self):
+		if self.__options['org'] == "quickstart":
+			self.logger.warning("QuickStart applications do not support commands")
+			return False
+		
+		if not self.connectEvent.wait():
+			self.logger.warning("Unable to subscribe to commands because device is not currently connected")
+			return False
+		else:
+			topic = 'iot-2/cmd/+/fmt/json'
+			self.client.subscribe(topic, qos=0)
+			return True
+
+	'''
+	Internal callback for device command messages, parses source device from topic string and 
+	passes the information on to the registerd device command callback
+	'''
+	def __onCommand(self, client, userdata, message):
+		self.recv = self.recv + 1
+
+		try:
+			command = Command(message)
+			self.logger.debug("Received command '%s'" % (command.command))
+			if self.commandCallback: self.commandCallback(command)
+		except ibmiotc.InvalidEventException as e:
+			self.logger.critical(str(e))
+
 
 
 def ParseConfigFile(configFilePath):

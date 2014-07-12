@@ -57,6 +57,20 @@ def usage():
 		"  -v, --verbose    Be more verbose"
 	)
 
+def commandProcessor(cmd):
+	global interval
+	print "Command received: %s" % cmd.payload
+	if cmd.command == "setInterval":
+		if 'interval' not in cmd.data:
+			print "Error - command is missing required information: 'interval'"
+		else:
+			interval = cmd.data['interval']
+	elif cmd.command == "print":
+		if 'message' not in cmd.data:
+			print "Error - command is missing required information: 'message'"
+		else:
+			print cmd.data['message']
+	
 if __name__ == "__main__":
 	signal.signal(signal.SIGINT, interruptHandler)
 
@@ -76,12 +90,15 @@ if __name__ == "__main__":
 	authToken = None
 	configFilePath = None
 	
+	# Seconds to sleep between readings
+	interval = 1
+	
 	for o, a in opts:
 		if o in ("-v", "--verbose"):
 			verbose = True
 		elif o in ("-n", "--name"):
 			deviceName = a
-		elif o in ("-o", "--organizatoin"):
+		elif o in ("-o", "--organization"):
 			organization = a
 		elif o in ("-t", "--type"):
 			deviceType = a
@@ -105,6 +122,7 @@ if __name__ == "__main__":
 		else:
 			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
 		client = ibmiotc.device.Client(options)
+		client.commandCallback = commandProcessor
 	except ibmiotc.ConfigurationException as e:
 		print str(e)
 		sys.exit()
@@ -124,7 +142,7 @@ if __name__ == "__main__":
 	ioBefore = psutil.net_io_counters()
 
 	while True:
-		time.sleep(1)
+		time.sleep(interval)
 		ioAfter_ts = time.time()
 		ioAfter = psutil.net_io_counters()
 		

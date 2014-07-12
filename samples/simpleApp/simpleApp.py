@@ -117,7 +117,6 @@ if __name__ == "__main__":
 		options = ibmiotc.application.ParseConfigFile(configFilePath)
 	else:
 		options = {"org": organization, "id": appId, "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
-	
 	try:
 		client = ibmiotc.application.Client(options)
 	except ibmiotc.ConfigurationException as e:

@@ -18,9 +18,33 @@ import ssl
 import logging
 import paho.mqtt.client as paho
 import threading
+import iso8601
 from datetime import datetime
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
+
+class Message:
+	def __init__(self, message):
+		self.payload = json.loads(str(message.payload))
+		self.timestamp = self.__parseMessageTimestamp()
+		self.data = self.__parseMessageData()
+
+		
+	def __parseMessageTimestamp(self):
+		try:
+			if 'ts' in self.payload:
+				return iso8601.parse_date(self.payload['ts'])
+			else:
+				return datetime.now()
+		except iso8601.ParseError as e:
+			raise InvalidEventException("Unable to parse event timestamp: %s" % str(e))
+	
+	
+	def __parseMessageData(self):
+		if 'd' in self.payload:
+			return self.payload['d']
+		else:
+			return None
 
 class AbstractClient:
 	def __init__(self, organization, clientId, username, password, logDir=None):
