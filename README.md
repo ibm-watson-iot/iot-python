@@ -13,6 +13,20 @@ Dependencies
 * [iso8601](https://bitbucket.org/micktwomey/pyiso8601/)
 
 
+Installation
+------------
+This module is not yet available in PyPi, however you can download the latest release and use pip's ability to install from a file.
+```
+[root@localhost ~]# pip install ibmiotc-version.zip
+```
+
+Uninstall
+---------
+Uninstalling the module is simple.
+```
+[root@localhost ~]# pip uninstall ibmiotc
+```
+
 Documentation
 -------------
 
