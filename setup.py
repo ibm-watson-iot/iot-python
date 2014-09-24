@@ -19,7 +19,7 @@ setup(
     description='IBM Internet of Things Cloud for Python',
 	long_description=open('README.txt').read(),
     install_requires=[
-        "paho-mqtt >= 0.9",
-        "iso8601 == 0.1.10",
+        "paho-mqtt >= 1.0",
+        "iso8601 >= 0.1.10",
     ]
 )

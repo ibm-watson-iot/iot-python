@@ -21,7 +21,7 @@ import threading
 import iso8601
 from datetime import datetime
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 class Message:
 	def __init__(self, message):
@@ -105,9 +105,9 @@ class AbstractClient:
 	def connect(self):
 		self.logger.debug("Connecting... (address = %s, port = %s, clientId = %s, username = %s, password = %s)" % (self.address, self.port, self.clientId, self.username, self.password))
 		try:
-			self.client.loop_start()
 			self.connectEvent.clear()
 			self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
+			self.client.loop_start()
 			if not self.connectEvent.wait(timeout=10):
 				self.__logAndRaiseException(ConnectionException("Operation timed out connecting to the IBM Internet of Things service: %s" % (self.address)))
 				
@@ -143,12 +143,12 @@ class AbstractClient:
 	4: Refused - bad user name or password (MQTT v3.1 broker only)
 	5: Refused - not authorised (MQTT v3.1 broker only)
 	'''
-	def on_connect(self, mosq, obj, rc):
+	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
 			self.connectEvent.set()
 			self.logger.info("Connected successfully")
 		elif rc == 5:
-			self.__logAndRaiseException(ConnectionException("Not authorized: s (%s, %s)" % (self.clientId, self.username, self.password)))
+			self.__logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
 			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
