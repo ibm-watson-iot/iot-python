@@ -164,7 +164,28 @@ class Client(ibmiotc.AbstractClient):
 		# Initialize user supplied callbacks (applcations)
 		self.appStatusCallback = None
 		
-		self.connect()
+		self.client.on_connect = self.on_connect
+
+		#self.connect()
+	
+	'''
+	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
+	The parameter rc is an integer giving the return code:
+	0: Success
+	1: Refused - unacceptable protocol version
+	2: Refused - identifier rejected
+	3: Refused - server unavailable
+	4: Refused - bad user name or password (MQTT v3.1 broker only)
+	5: Refused - not authorised (MQTT v3.1 broker only)
+	'''
+	def on_connect(self, client, userdata, flags, rc):
+		if rc == 0:
+			self.connectEvent.set()
+			self.logger.info("Connected successfully: %s" % self.clientId)
+		elif rc == 5:
+			self.__logAndRaiseException(ConnectionException("Not authorized: (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+		else:
+			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
 	
 	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+"):

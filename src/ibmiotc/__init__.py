@@ -19,9 +19,10 @@ import logging
 import paho.mqtt.client as paho
 import threading
 import iso8601
+import pytz
 from datetime import datetime
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 
 class Message:
 	def __init__(self, message):
@@ -33,9 +34,12 @@ class Message:
 	def __parseMessageTimestamp(self):
 		try:
 			if 'ts' in self.payload:
-				return iso8601.parse_date(self.payload['ts'])
+				dt = iso8601.parse_date(self.payload['ts'])
+				return dt.astimezone(pytz.timezone('UTC'))
 			else:
-				return datetime.now()
+				#dt = datetime.utcfromtimestamp(time.time())
+				#return pytz.utc.localize(dt)
+				return datetime.now(pytz.timezone('UTC'))
 		except iso8601.ParseError as e:
 			raise InvalidEventException("Unable to parse event timestamp: %s" % str(e))
 	
@@ -116,10 +120,13 @@ class AbstractClient:
 			self.__logAndRaiseException(ConnectionException("Failed to connect to the IBM Internet of Things service: %s - %s" % (self.address, str(serr))))
 
 	def disconnect(self):
-		self.logger.info("Closing connection to the IBM Internet of Things Cloud")
+		#self.logger.info("Closing connection to the IBM Internet of Things Foundation")
 		self.client.disconnect()
-		self.stats()
-		self.logger.info("Closed connection to the IBM Internet of Things Cloud")
+		# If we don't call loop_stop() it appears we end up with a zombie thread which continues to process 
+		# network traffic, preventing any subsequent attempt to reconnect using connect()
+		self.client.loop_stop()
+		#self.stats()
+		self.logger.info("Closed connection to the IBM Internet of Things Foundation")
 			
 	def stats(self):
 		elapsed = ((time.time()) - self.start)
@@ -133,24 +140,7 @@ class AbstractClient:
 	def on_log(self, mqttc, obj, level, string):
 		self.logger.debug("%s" % (string))
 
-	'''
-	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
-	The parameter rc is an integer giving the return code:
-	0: Success
-	1: Refused - unacceptable protocol version
-	2: Refused - identifier rejected
-	3: Refused - server unavailable
-	4: Refused - bad user name or password (MQTT v3.1 broker only)
-	5: Refused - not authorised (MQTT v3.1 broker only)
-	'''
-	def on_connect(self, client, userdata, flags, rc):
-		if rc == 0:
-			self.connectEvent.set()
-			self.logger.info("Connected successfully")
-		elif rc == 5:
-			self.__logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
-		else:
-			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+
 
 	'''
 	This is called when the client disconnects from the broker. The rc parameter indicates the status of the disconnection. 
@@ -158,7 +148,7 @@ class AbstractClient:
 	'''
 	def on_disconnect(self, mosq, obj, rc):
 		if rc == 1:
-			self.logger.error("Unexpected disconnect from the IBM Internet of Things Cloud")
+			self.logger.error("Unexpected disconnect from the IBM Internet of Things Foundation")
 		
 	'''
 	This is called when a message from the client has been successfully sent to the broker. 

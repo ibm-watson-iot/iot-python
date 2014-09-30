@@ -14,6 +14,7 @@ import json
 import ibmiotc
 import ConfigParser
 import re
+import pytz
 from datetime import datetime
 
 
@@ -71,13 +72,35 @@ class Client(ibmiotc.AbstractClient):
 		# Initialize user supplied callback
 		self.commandCallback = None
 
-		self.connect()
-		
-		if self.__options['org'] != "quickstart":
-			self.__subscribeToCommands()
-		
+		self.client.on_connect = self.on_connect
 
-	def publishEvent(self, event, data):
+		#self.connect()
+		
+		
+	
+	'''
+	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
+	The parameter rc is an integer giving the return code:
+	0: Success
+	1: Refused - unacceptable protocol version
+	2: Refused - identifier rejected
+	3: Refused - server unavailable
+	4: Refused - bad user name or password (MQTT v3.1 broker only)
+	5: Refused - not authorised (MQTT v3.1 broker only)
+	'''
+	def on_connect(self, client, userdata, flags, rc):
+		if rc == 0:
+			self.connectEvent.set()
+			self.logger.info("Connected successfully: %s" % self.clientId)
+			if self.__options['org'] != "quickstart":
+				self.__subscribeToCommands()
+		elif rc == 5:
+			self.__logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+		else:
+			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+	
+
+	def publishEvent(self, event, data, qos=0):
 		if not self.connectEvent.wait():
 			self.logger.warning("Unable to send event %s because device is not currently connected")
 			return False
@@ -86,8 +109,8 @@ class Client(ibmiotc.AbstractClient):
 			topic = 'iot-2/evt/'+event+'/fmt/json'
 			
 			# Note: Python JSON serialization doesn't know what to do with a datetime object on it's own
-			payload = { 'd' : data, 'ts': datetime.now().isoformat() }
-			self.client.publish(topic, payload=json.dumps(payload), qos=0, retain=False)
+			payload = { 'd' : data, 'ts': datetime.now(pytz.timezone('UTC')).isoformat() }
+			self.client.publish(topic, payload=json.dumps(payload), qos=qos, retain=False)
 			return True
 
 

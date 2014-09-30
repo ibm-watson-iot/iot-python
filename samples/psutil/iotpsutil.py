@@ -122,6 +122,7 @@ if __name__ == "__main__":
 		else:
 			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
 		client = ibmiotc.device.Client(options)
+		client.connect()
 		client.commandCallback = commandProcessor
 	except ibmiotc.ConfigurationException as e:
 		print str(e)

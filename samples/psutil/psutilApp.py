@@ -144,6 +144,7 @@ if __name__ == "__main__":
 	
 	try:
 		client = ibmiotc.application.Client(options)
+		client.connect()
 		client.deviceStatusCallback = myStatusCallback
 		client.subscribeToDeviceStatus()
 	except Exception as e:

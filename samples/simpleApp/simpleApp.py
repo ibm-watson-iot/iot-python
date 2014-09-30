@@ -119,6 +119,7 @@ if __name__ == "__main__":
 		options = {"org": organization, "id": appId, "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
 	try:
 		client = ibmiotc.application.Client(options)
+		client.connect()
 	except ibmiotc.ConfigurationException as e:
 		print str(e)
 		sys.exit()

@@ -1,6 +1,5 @@
 import sys
 sys.path.insert(0, 'src')
-from ibmiotc import __version__
 
 try:
     from setuptools import setup
@@ -9,7 +8,7 @@ except ImportError:
 
 setup(
     name='ibmiotc',
-    version=__version__,
+    version="0.0.7",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -21,5 +20,6 @@ setup(
     install_requires=[
         "paho-mqtt >= 1.0",
         "iso8601 >= 0.1.10",
+		"pytz >= 2014.7"
     ]
 )
