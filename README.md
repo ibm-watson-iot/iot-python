@@ -1,23 +1,25 @@
-IBM Internet of Things Cloud for Python
-=======================================
+IBM Internet of Things Foundation for Python
+============================================
 
-Python module for interacting with the IBM Internet of Things Cloud with Python.
+Python module for interacting with the IBM Internet of Things Foundation with Python.
 
 Platform
 --------
-* [Python 2.7](https://www.python.org/download/releases/2.7)
+Note: TLS v1.2 is the minimum supported protocol supported by the Internet of Things Foundation, this is not supported in Python 2.
+* [Python 3.4](https://www.python.org/download/releases/3.4.1)
 
 Dependencies
 ------------
-* [paho-mqtt](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.python.git/)
-* [iso8601](https://bitbucket.org/micktwomey/pyiso8601/)
+* [paho-mqtt](https://pypi.python.org/pypi/paho-mqtt)
+* [iso8601](https://pypi.python.org/pypi/iso8601)
+* [pytz](https://pypi.python.org/pypi/pytz)
 
 
 Installation
 ------------
-This module is not yet available in PyPi, however you can download the latest release and use pip's ability to install from a file.
+Install the latest version of the library with pip
 ```
-[root@localhost ~]# pip install ibmiotc-version.zip
+[root@localhost ~]# pip install ibmiotc
 ```
 
 Uninstall
@@ -62,6 +64,7 @@ except ibmiotc.ConnectionException  as e:
 
 The application configuration file must be in the following format:
 ```
+[application]
 org=$orgId
 id=$myApplication
 auth-method=apikey
@@ -155,9 +158,9 @@ The following properties are only set when the action is "Disconnect":
 ```python
 def myStatusCallback(status):
   if status.action == "Disconnect":
-    print "%s - device %s - %s (%s)" % (status.time.isoformat(), status.device, status.action, status.reason)
+    print("%s - device %s - %s (%s)" % (status.time.isoformat(), status.device, status.action, status.reason))
   else:
-    print "%s - %s - %s" % (status.time.isoformat(), status.device, status.action)
+    print("%s - %s - %s" % (status.time.isoformat(), status.device, status.action))
 
 ...
 client.statusCallback = myStatusCallback

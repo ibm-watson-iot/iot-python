@@ -59,17 +59,17 @@ def usage():
 
 def commandProcessor(cmd):
 	global interval
-	print "Command received: %s" % cmd.payload
+	print("Command received: %s" % cmd.payload)
 	if cmd.command == "setInterval":
 		if 'interval' not in cmd.data:
-			print "Error - command is missing required information: 'interval'"
+			print("Error - command is missing required information: 'interval'")
 		else:
 			interval = cmd.data['interval']
 	elif cmd.command == "print":
 		if 'message' not in cmd.data:
-			print "Error - command is missing required information: 'message'"
+			print("Error - command is missing required information: 'message'")
 		else:
-			print cmd.data['message']
+			print(cmd.data['message'])
 	
 if __name__ == "__main__":
 	signal.signal(signal.SIGINT, interruptHandler)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hn:vo:t:i:T:c:", ["help", "name=", "verbose", "type=", "id=", "token=", "config="])
 	except getopt.GetoptError as err:
-		print str(err)
+		print(str(err))
 		usage()
 		sys.exit(2)
 
@@ -125,17 +125,17 @@ if __name__ == "__main__":
 		client.connect()
 		client.commandCallback = commandProcessor
 	except ibmiotc.ConfigurationException as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 	except ibmiotc.UnsupportedAuthenticationMethod as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 	except ibmiotc.ConnectionException as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 	
 
-	print "(Press Ctrl+C to disconnect)"
+	print("(Press Ctrl+C to disconnect)")
 	
 	# Take initial reading
 	psutil.cpu_percent(percpu=False)
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 			'network_down':  round( (ioAfter.bytes_recv - ioBefore.bytes_recv) / (ioDuration*1024), 2 ) 
 		}
 		if verbose:
-			print "Datapoint = " + json.dumps(data)
+			print("Datapoint = " + json.dumps(data))
 		
 		client.publishEvent("psutil", data)
 		

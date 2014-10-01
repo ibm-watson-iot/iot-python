@@ -36,14 +36,14 @@ except ImportError:
 tableRowTemplate = "%-33s%-30s%s"
 
 def myEventCallback(event):
-	print "%-33s%-30s%s" % (event.timestamp.isoformat(), event.device, event.event + ": " + json.dumps(event.data))
+	print("%-33s%-30s%s" % (event.timestamp.isoformat(), event.device, event.event + ": " + json.dumps(event.data)))
 
 	
 def myStatusCallback(status):
 	if status.action == "Disconnect":
-		print tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr + " (" + status.reason + ")")
+		print(tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr + " (" + status.reason + ")"))
 	else:
-		print tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr)
+		print(tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr))
 
 	
 def interruptHandler(signal, frame):
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:t:c:T:I:E:", ["help", "org=", "id=", "key=", "token=", "config=", "devicetype", "deviceid", "event"])
 	except getopt.GetoptError as err:
-		print str(err)
+		print(str(err))
 		usage()
 		sys.exit(2)
 
@@ -121,17 +121,17 @@ if __name__ == "__main__":
 		client = ibmiotc.application.Client(options)
 		client.connect()
 	except ibmiotc.ConfigurationException as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 	except ibmiotc.UnsupportedAuthenticationMethod as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 	except ibmiotc.ConnectionException as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 
 	
-	print "(Press Ctrl+C to disconnect)"
+	print("(Press Ctrl+C to disconnect)")
 	
 	client.deviceEventCallback = myEventCallback
 	client.deviceStatusCallback = myStatusCallback
@@ -139,9 +139,9 @@ if __name__ == "__main__":
 	client.subscribeToDeviceEvents(deviceType, deviceId, event)
 	client.subscribeToDeviceStatus(deviceType, deviceId)
 
-	print "============================================================================="
-	print tableRowTemplate % ("Timestamp", "Device", "Event")
-	print "============================================================================="
+	print("=============================================================================")
+	print(tableRowTemplate % ("Timestamp", "Device", "Event"))
+	print("=============================================================================")
 	
 	while True:
 		time.sleep(1)

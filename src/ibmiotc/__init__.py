@@ -22,11 +22,11 @@ import iso8601
 import pytz
 from datetime import datetime
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 
 class Message:
 	def __init__(self, message):
-		self.payload = json.loads(str(message.payload))
+		self.payload = json.loads(message.payload.decode("utf-8"))
 		self.timestamp = self.__parseMessageTimestamp()
 		self.data = self.__parseMessageData()
 
@@ -87,11 +87,10 @@ class AbstractClient:
 		
 		# Configure authentication
 		if self.username is not None:
-			#TODO: Support TLS 
-			#self.port = 8883
-			#self.client.tls_set(ca_certs="../../src/ibmiotc/cert/primary_intermediate.crt")
-			#self.client.tls_set(ca_certs="../../src/ibmiotc/cert/primary_intermediate.crt", certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1)
-			#self.client.tls_insecure_set(True)
+			self.port = 8883
+			# Path to certificate
+			caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
+			self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
 			self.client.username_pw_set(self.username, self.password)
 			
 		#attach MQTT callbacks

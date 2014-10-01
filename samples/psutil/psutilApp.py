@@ -59,14 +59,14 @@ def myStatusCallback(status):
 
 def printOptions():
 	global deviceType, deviceId
-	print "Command List:"
-	print " 1. Change target device"
+	print("Command List:")
+	print(" 1. Change target device")
 	if deviceType == None or deviceId == None:
 		pass
 	else:
-		print " 2. Set publish rate of %s:%s" % (deviceType, deviceId)
-		print " 3. Send message to console of %s:%s" % (deviceType, deviceId)
-	print "(Ctrl+C to disconnect)"
+		print(" 2. Set publish rate of %s:%s" % (deviceType, deviceId))
+		print(" 3. Send message to console of %s:%s" % (deviceType, deviceId))
+	print("(Ctrl+C to disconnect)")
 
 def setTarget():
 	global deviceType, deviceId, connectedDevices
@@ -74,41 +74,41 @@ def setTarget():
 	deviceList.append(None)
 	n = 0
 	
-	print "Device Selection:"
-	print " 0. Manually enter type and ID"
+	print("Device Selection:")
+	print(" 0. Manually enter type and ID")
 	for key, device in connectedDevices.items():
 		deviceList.append(device)
 		n += 1
-		print " " + str(n) + ". " + device['id'] + ":" + device['type']
+		print(" " + str(n) + ". " + device['id'] + ":" + device['type'])
 	
-	i = int(raw_input("Choose Device >"))
-	print ""
+	i = int(input("Choose Device >"))
+	print("")
 	if i == 0:
 		setTargetType()
 		setTargetId()
-		print ""
+		print("")
 	else:
 		deviceType = deviceList[i]['type']
 		deviceId = deviceList[i]['id']
 
 def setTargetType():
 	global deviceType
-	deviceType = raw_input("Enter Device Type >")
+	deviceType = input("Enter Device Type >")
 
 def setTargetId():
 	global deviceId
-	deviceId = raw_input("Enter Device Id >")
+	deviceId = input("Enter Device Id >")
 
 def changePublishRate():
 	global client, deviceType, deviceId
-	interval = int(raw_input("Enter Interval (seconds) >"))
-	print ""
+	interval = int(input("Enter Interval (seconds) >"))
+	print("")
 	client.publishCommand(deviceType, deviceId, "setInterval", {'interval': interval})
 
 def sendMessage():
 	global client, deviceType, deviceId
-	message = raw_input("Enter message to be displayed >")
-	print ""
+	message = input("Enter message to be displayed >")
+	print("")
 	client.publishCommand(deviceType, deviceId, "print", {'message': message})
 
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hc:T:I:", ["help", "config=", "devicetype=", "deviceid="])
 	except getopt.GetoptError as err:
-		print str(err)
+		print(str(err))
 		usage()
 		sys.exit(2)
 
@@ -148,15 +148,15 @@ if __name__ == "__main__":
 		client.deviceStatusCallback = myStatusCallback
 		client.subscribeToDeviceStatus()
 	except Exception as e:
-		print str(e)
+		print(str(e))
 		sys.exit()
 
 	
 	while True:
 		printOptions()
 		try:
-			option = int(raw_input("%s:%s>" % (deviceType, deviceId)))
-			print ""
+			option = int(input("%s:%s>" % (deviceType, deviceId)))
+			print("")
 			if option == 1:
 				setTarget()
 			elif option == 2:

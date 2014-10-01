@@ -34,7 +34,7 @@ except ImportError:
 
 
 def myAppEventCallback(event):
-	print "Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x'])
+	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
 
 
 organization = "quickstart"
@@ -50,7 +50,7 @@ try:
 	appOptions = {"org": organization, "id": appId, "auth-method": authMethod, "auth-token": authToken}
 	appCli = ibmiotc.application.Client(appOptions)
 except Exception as e:
-	print str(e)
+	print(str(e))
 	sys.exit()
 
 # Connect and configuration the application
@@ -66,7 +66,7 @@ try:
 	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
 	deviceCli = ibmiotc.device.Client(deviceOptions)
 except Exception as e:
-	print str(e)
+	print(str(e))
 	sys.exit()
 
 # Connect and send a datapoint "hello" with value "world" into the cloud as an event of type "greeting" 10 times

@@ -13,7 +13,7 @@
 import re
 import ibmiotc
 import json
-import ConfigParser
+import configparser
 import iso8601
 from datetime import datetime
 
@@ -331,18 +331,18 @@ class Client(ibmiotc.AbstractClient):
 Parse a standard application configuration file
 '''
 def ParseConfigFile(configFilePath):
-	parms = ConfigParser.ConfigParser()
+	parms = configparser.ConfigParser()
 	sectionHeader = "application"
 
 	try:
 		with open(configFilePath) as f:
-			parms.readfp(ibmiotc.ConfigFile(f, sectionHeader))
+			parms.readfp(f)
 		
-		organization = parms.get(sectionHeader, "org", None)
-		appId = parms.get(sectionHeader, "id", None)
-		authMethod = parms.get(sectionHeader, "auth-method", None)
-		authKey = parms.get(sectionHeader, "auth-key", None)
-		authToken = parms.get(sectionHeader, "auth-token", None)
+		organization = parms.get(sectionHeader, "org", fallback=None)
+		appId = parms.get(sectionHeader, "id", fallback=None)
+		authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
+		authKey = parms.get(sectionHeader, "auth-key", fallback=None)
+		authToken = parms.get(sectionHeader, "auth-token", fallback=None)
 		
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])

@@ -12,7 +12,7 @@
 
 import json
 import ibmiotc
-import ConfigParser
+import configparser
 import re
 import pytz
 from datetime import datetime
@@ -142,19 +142,18 @@ class Client(ibmiotc.AbstractClient):
 			self.logger.critical(str(e))
 
 
-
 def ParseConfigFile(configFilePath):
-	parms = ConfigParser.ConfigParser()
+	parms = configparser.ConfigParser()
 	sectionHeader = "device"
 	try:
 		with open(configFilePath) as f:
-			parms.readfp(ibmiotc.ConfigFile(f, sectionHeader))
+			parms.read_file(f)
 		
-		organization = parms.get(sectionHeader, "org", None)
-		deviceType = parms.get(sectionHeader, "type", None)
-		deviceId = parms.get(sectionHeader, "id", None)
-		authMethod = parms.get(sectionHeader, "auth-method", None)
-		authToken = parms.get(sectionHeader, "auth-token", None)
+		organization = parms.get(sectionHeader, "org", fallback=None)
+		deviceType = parms.get(sectionHeader, "type", fallback=None)
+		deviceId = parms.get(sectionHeader, "id", fallback=None)
+		authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
+		authToken = parms.get(sectionHeader, "auth-token", fallback=None)
 		
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
