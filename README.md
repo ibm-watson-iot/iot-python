@@ -1,11 +1,8 @@
 IBM Internet of Things Foundation for Python
 ============================================
 
-Python module for interacting with the IBM Internet of Things Foundation with Python.
+Python module for interacting with the IBM Internet of Things Foundation.
 
-Platform
---------
-Note: TLS v1.2 is the minimum supported protocol supported by the Internet of Things Foundation, this is not supported in Python 2.
 * [Python 3.4](https://www.python.org/download/releases/3.4.1)
 
 Dependencies
@@ -32,8 +29,12 @@ Uninstalling the module is simple.
 Documentation
 -------------
 
-###Application Client
+###Device Client
 
+Work in progress ...
+
+
+###Application Client
 
 ####Constructor
 The Client constructor accepts an options dict containing:
@@ -93,7 +94,7 @@ client.subscribeToDeviceEvents(event=myEvent)
 #####Subscribe to a specific event from two different devices
 ```python
 client.subscribeToDeviceEvents(deviceType=myDeviceType, deviceId=myDeviceId, event=myEvent)
-lient.subscribeToDeviceEvents(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId, event=myEvent)
+client.subscribeToDeviceEvents(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId, event=myEvent)
 ```
 
 ####Handling events from Devices
@@ -132,7 +133,7 @@ client.subscribeToDeviceStatus(deviceType=myDeviceType)
 #####Subscribe to status updates for two different devices
 ```python
 client.subscribeToDeviceStatus(deviceType=myDeviceType, deviceId=myDeviceId)
-lient.subscribeToDeviceStatus(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId)
+client.subscribeToDeviceStatus(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId)
 ```
 
 ####Handling status updates from Devices

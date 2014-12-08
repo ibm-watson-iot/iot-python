@@ -11,7 +11,7 @@
 # *****************************************************************************
 
 import json
-import ibmiotc
+import ibmiotf
 import configparser
 import re
 import pytz
@@ -21,42 +21,42 @@ from datetime import datetime
 COMMAND_RE = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
 
 
-class Command(ibmiotc.Message):
+class Command(ibmiotf.Message):
 	def	__init__(self, message):
 		result = COMMAND_RE.match(message.topic)
 		if result:
-			ibmiotc.Message.__init__(self, message)
+			ibmiotf.Message.__init__(self, message)
 			
 			self.command = result.group(1)
 			self.format = result.group(2)
 		else:
-			raise ibmiotc.InvalidEventException("Received command on invalid topic: %s" % (message.topic))
+			raise ibmiotf.InvalidEventException("Received command on invalid topic: %s" % (message.topic))
 
 
-class Client(ibmiotc.AbstractClient):
+class Client(ibmiotf.AbstractClient):
 
 	def __init__(self, options):
 		self.__options = options
 
 		if self.__options['org'] == None:
-			raise ibmiotc.ConfigurationException("Missing required property: org")
+			raise ibmiotf.ConfigurationException("Missing required property: org")
 		if self.__options['type'] == None: 
-			raise ibmiotc.ConfigurationException("Missing required property: type")
+			raise ibmiotf.ConfigurationException("Missing required property: type")
 		if self.__options['id'] == None: 
-			raise ibmiotc.ConfigurationException("Missing required property: id")
+			raise ibmiotf.ConfigurationException("Missing required property: id")
 		
 		if self.__options['org'] != "quickstart":
 			if self.__options['auth-method'] == None: 
-				raise ibmiotc.ConfigurationException("Missing required property: auth-method")
+				raise ibmiotf.ConfigurationException("Missing required property: auth-method")
 				
 			if (self.__options['auth-method'] == "token"):
 				if self.__options['auth-token'] == None: 
-					raise ibmiotc.ConfigurationException("Missing required property for token based authentication: auth-token")
+					raise ibmiotf.ConfigurationException("Missing required property for token based authentication: auth-token")
 			else:
-				raise ibmiotc.UnsupportedAuthenticationMethod(options['authMethod'])
+				raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
 
 
-		ibmiotc.AbstractClient.__init__(
+		ibmiotf.AbstractClient.__init__(
 			self, 
 			organization = options['org'],
 			clientId = "d:" + options['org'] + ":" + options['type'] + ":" + options['id'], 
@@ -138,7 +138,7 @@ class Client(ibmiotc.AbstractClient):
 			command = Command(message)
 			self.logger.debug("Received command '%s'" % (command.command))
 			if self.commandCallback: self.commandCallback(command)
-		except ibmiotc.InvalidEventException as e:
+		except ibmiotf.InvalidEventException as e:
 			self.logger.critical(str(e))
 
 
@@ -157,6 +157,6 @@ def ParseConfigFile(configFilePath):
 		
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
-		raise ibmiotc.ConfigurationException(reason)
+		raise ibmiotf.ConfigurationException(reason)
 		
 	return {'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}

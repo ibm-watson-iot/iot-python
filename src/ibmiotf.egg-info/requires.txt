@@ -1,0 +1,4 @@
+iso8601 >= 0.1.10
+paho-mqtt >= 1.0
+pytz >= 2014.7
+requests >= 2.5.0

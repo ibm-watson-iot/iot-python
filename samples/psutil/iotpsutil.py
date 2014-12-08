@@ -21,18 +21,18 @@ from uuid import getnode as get_mac
 
 
 try:
-	import ibmiotc.device
+	import ibmiotf.device
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
 	#
-	# If you have the module installed, just use "import ibmiotc"
+	# If you have the module installed, just use "import ibmiotf"
 	import os
 	import inspect
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../src")))
 	if cmd_subfolder not in sys.path:
 		sys.path.insert(0, cmd_subfolder)
-	import ibmiotc.device
+	import ibmiotf.device
 
 
 
@@ -42,7 +42,7 @@ def interruptHandler(signal, frame):
 
 def usage():
 	print(
-		"IOT-PSUTIL: Publish basic system utilization statistics to the IBM Internet of Things Cloud service." + "\n" +
+		"IOT-PSUTIL: Publish basic system utilization statistics to the IBM Internet of Things Foundation." + "\n" +
 		"\n" +
 		"Datapoints sent:" + "\n" +
 		"  name          The name of this device.  Defaults to hostname ('%s')" % platform.node() + "\n" +
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 	verbose = False
 	organization = "quickstart"
 	deviceType = "sample-iotpsutil"
-	deviceId = str(hex(int(get_mac())))[2:-1]
+	deviceId = str(hex(int(get_mac())))[2:]
 	deviceName = platform.node()
 	authMethod = None
 	authToken = None
@@ -118,19 +118,19 @@ if __name__ == "__main__":
 	client = None
 	try:
 		if configFilePath is not None:
-			options = ibmiotc.device.ParseConfigFile(configFilePath)
+			options = ibmiotf.device.ParseConfigFile(configFilePath)
 		else:
 			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-		client = ibmiotc.device.Client(options)
+		client = ibmiotf.device.Client(options)
 		client.connect()
 		client.commandCallback = commandProcessor
-	except ibmiotc.ConfigurationException as e:
+	except ibmiotf.ConfigurationException as e:
 		print(str(e))
 		sys.exit()
-	except ibmiotc.UnsupportedAuthenticationMethod as e:
+	except ibmiotf.UnsupportedAuthenticationMethod as e:
 		print(str(e))
 		sys.exit()
-	except ibmiotc.ConnectionException as e:
+	except ibmiotf.ConnectionException as e:
 		print(str(e))
 		sys.exit()
 	

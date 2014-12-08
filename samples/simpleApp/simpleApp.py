@@ -19,18 +19,18 @@ import threading
 import pprint
 
 try:
-	import ibmiotc.application
+	import ibmiotf.application
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
 	#
-	# If you have the module installed, just use "import ibmiotc"
+	# If you have the module installed, just use "import ibmiotf"
 	import os
 	import inspect
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../src")))
 	if cmd_subfolder not in sys.path:
 		sys.path.insert(0, cmd_subfolder)
-	import ibmiotc.application
+	import ibmiotf.application
 
 
 tableRowTemplate = "%-33s%-30s%s"
@@ -114,19 +114,19 @@ if __name__ == "__main__":
 
 	client = None
 	if configFilePath is not None:
-		options = ibmiotc.application.ParseConfigFile(configFilePath)
+		options = ibmiotf.application.ParseConfigFile(configFilePath)
 	else:
 		options = {"org": organization, "id": appId, "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
 	try:
-		client = ibmiotc.application.Client(options)
+		client = ibmiotf.application.Client(options)
 		client.connect()
-	except ibmiotc.ConfigurationException as e:
+	except ibmiotf.ConfigurationException as e:
 		print(str(e))
 		sys.exit()
-	except ibmiotc.UnsupportedAuthenticationMethod as e:
+	except ibmiotf.UnsupportedAuthenticationMethod as e:
 		print(str(e))
 		sys.exit()
-	except ibmiotc.ConnectionException as e:
+	except ibmiotf.ConnectionException as e:
 		print(str(e))
 		sys.exit()
 

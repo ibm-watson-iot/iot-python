@@ -1,0 +1,16 @@
+CHANGES.txt
+LICENSE
+MANIFEST.in
+README.md
+README.txt
+setup.py
+src/ibmiotf/__init__.py
+src/ibmiotf/api.py
+src/ibmiotf/application.py
+src/ibmiotf/device.py
+src/ibmiotf/messaging.pem
+src/ibmiotf.egg-info/PKG-INFO
+src/ibmiotf.egg-info/SOURCES.txt
+src/ibmiotf.egg-info/dependency_links.txt
+src/ibmiotf.egg-info/requires.txt
+src/ibmiotf.egg-info/top_level.txt

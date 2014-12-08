@@ -22,7 +22,7 @@ import iso8601
 import pytz
 from datetime import datetime
 
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 
 class Message:
 	def __init__(self, message):

@@ -11,7 +11,8 @@
 # *****************************************************************************
 
 import re
-import ibmiotc
+import ibmiotf
+import ibmiotf.api
 import json
 import configparser
 import iso8601
@@ -24,11 +25,11 @@ DEVICE_COMMAND_RE = re.compile("iot-2/type/(.+)/id/(.+)/cmd/(.+)/fmt/(.+)")
 DEVICE_STATUS_RE = re.compile("iot-2/type/(.+)/id/(.+)/mon")
 APP_STATUS_RE = re.compile("iot-2/app/(.+)/mon")
 
-class Status(ibmiotc.Message):
+class Status(ibmiotf.Message):
 	def __init__(self, message):
 		result = DEVICE_STATUS_RE.match(message.topic)
 		if result:
-			ibmiotc.Message.__init__(self, message)
+			ibmiotf.Message.__init__(self, message)
 			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
@@ -74,14 +75,14 @@ class Status(ibmiotc.Message):
 			self.writeBytes = self.payload['WriteBytes'] if ('WriteBytes' in self.payload) else None  
 			
 		else:
-			raise ibmiotc.InvalidEventException("Received device status on invalid topic: %s" % (message.topic))
+			raise ibmiotf.InvalidEventException("Received device status on invalid topic: %s" % (message.topic))
 
 	
-class Event(ibmiotc.Message):
+class Event(ibmiotf.Message):
 	def __init__(self, message):
 		result = DEVICE_EVENT_RE.match(message.topic)
 		if result:
-			ibmiotc.Message.__init__(self, message)
+			ibmiotf.Message.__init__(self, message)
 			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
@@ -90,14 +91,14 @@ class Event(ibmiotc.Message):
 			self.event = result.group(3)
 			self.format = result.group(4)
 		else:
-			raise ibmiotc.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
+			raise ibmiotf.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
 
 
-class Command(ibmiotc.Message):
+class Command(ibmiotf.Message):
 	def	__init__(self, message):
 		result = DEVICE_COMMAND_RE.match(message.topic)
 		if result:
-			ibmiotc.Message.__init__(self, message)
+			ibmiotf.Message.__init__(self, message)
 			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
@@ -106,10 +107,10 @@ class Command(ibmiotc.Message):
 			self.command = result.group(3)
 			self.format = result.group(4)
 		else:
-			raise ibmiotc.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
+			raise ibmiotf.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
 
 
-class Client(ibmiotc.AbstractClient):
+class Client(ibmiotf.AbstractClient):
 
 	def __init__(self, options):
 		self.__options = options
@@ -118,9 +119,9 @@ class Client(ibmiotc.AbstractClient):
 		password = None
 
 		if 'org' not in self.__options or self.__options['org'] == None:
-			raise ibmiotc.ConfigurationException("Missing required property: org")
+			raise ibmiotf.ConfigurationException("Missing required property: org")
 		if 'id' not in self.__options or self.__options['id'] == None: 
-			raise ibmiotc.ConfigurationException("Missing required property: type")
+			raise ibmiotf.ConfigurationException("Missing required property: type")
 
 		# Auth method is optional.  e.g. in QuickStart there is no authentication
 		if 'auth-method' not in self.__options:
@@ -129,18 +130,18 @@ class Client(ibmiotc.AbstractClient):
 		if (self.__options['auth-method'] == "apikey"):
 			# Check for required API Key and authentication token
 			if 'auth-key' not in self.__options or self.__options['auth-key'] == None: 
-				raise ibmiotc.ConfigurationException("Missing required property for API key based authentication: auth-key")
+				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
 			if 'auth-token' not in self.__options or self.__options['auth-token'] == None: 
-				raise ibmiotc.ConfigurationException("Missing required property for API key based authentication: auth-token")
+				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
 			
 			username = self.__options['auth-key']
 			password = self.__options['auth-token']
 			
 		elif self.__options['auth-method'] is not None:
-			raise ibmiotc.UnsupportedAuthenticationMethod(options['authMethod'])
+			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
 
 		# Call parent constructor
-		ibmiotc.AbstractClient.__init__(
+		ibmiotf.AbstractClient.__init__(
 			self, options['org'], "a:" + options['org'] + ":" + options['id'], username, password
 		)
 		
@@ -166,7 +167,9 @@ class Client(ibmiotc.AbstractClient):
 		
 		self.client.on_connect = self.on_connect
 
-		#self.connect()
+		# Create an api client if not connected in QuickStart mode
+		if self.__options['org'] != "quickstart":
+			self.api = ibmiotf.api.ApiClient(options)
 	
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
@@ -277,7 +280,7 @@ class Client(ibmiotc.AbstractClient):
 			event = Event(message)
 			self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.deviceType, event.deviceId))
 			if self.deviceEventCallback: self.deviceEventCallback(event)
-		except ibmiotc.InvalidEventException as e:
+		except ibmiotf.InvalidEventException as e:
 			self.logger.critical(str(e))
 
 		
@@ -292,7 +295,7 @@ class Client(ibmiotc.AbstractClient):
 			command = Command(message)
 			self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.deviceType, command.deviceId))
 			if self.deviceCommandCallback: self.deviceCommandCallback(command)
-		except ibmiotc.InvalidEventException as e:
+		except ibmiotf.InvalidEventException as e:
 			self.logger.critical(str(e))
 
 		
@@ -307,7 +310,7 @@ class Client(ibmiotc.AbstractClient):
 			status= Status(message)
 			self.logger.debug("Received %s action from %s:%s" % (status.action, status.deviceType, status.deviceId))
 			if self.deviceStatusCallback: self.deviceStatusCallback(status)
-		except ibmiotc.InvalidEventException as e:
+		except ibmiotf.InvalidEventException as e:
 			self.logger.critical(str(e))
 	
 	
@@ -346,7 +349,7 @@ def ParseConfigFile(configFilePath):
 		
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
-		raise ibmiotc.ConfigurationException(reason)
+		raise ibmiotf.ConfigurationException(reason)
 		
 	return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken}
 			

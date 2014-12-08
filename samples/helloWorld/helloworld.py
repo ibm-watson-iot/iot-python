@@ -17,20 +17,20 @@ from uuid import getnode as get_mac
 
 
 try:
-	import ibmiotc.application
-	import ibmiotc.device
+	import ibmiotf.application
+	import ibmiotf.device
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
 	#
-	# If you have the module installed, just use "import ibmiotc.application" & "import ibmiotc.device"
+	# If you have the module installed, just use "import ibmiotf.application" & "import ibmiotf.device"
 	import os
 	import inspect
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../src")))
 	if cmd_subfolder not in sys.path:
 		sys.path.insert(0, cmd_subfolder)
-	import ibmiotc.application
-	import ibmiotc.device
+	import ibmiotf.application
+	import ibmiotf.device
 
 
 def myAppEventCallback(event):
@@ -39,7 +39,7 @@ def myAppEventCallback(event):
 
 organization = "quickstart"
 deviceType = "helloWorldDevice"
-deviceId = str(hex(int(get_mac())))[2:-1]
+deviceId = str(hex(int(get_mac())))[2:]
 appId = deviceId + "_receiver"
 authMethod = None
 authToken = None
@@ -48,7 +48,7 @@ authToken = None
 # Initialize the application client.
 try:
 	appOptions = {"org": organization, "id": appId, "auth-method": authMethod, "auth-token": authToken}
-	appCli = ibmiotc.application.Client(appOptions)
+	appCli = ibmiotf.application.Client(appOptions)
 except Exception as e:
 	print(str(e))
 	sys.exit()
@@ -64,7 +64,7 @@ appCli.deviceEventCallback = myAppEventCallback
 # Initialize the device client.
 try:
 	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-	deviceCli = ibmiotc.device.Client(deviceOptions)
+	deviceCli = ibmiotf.device.Client(deviceOptions)
 except Exception as e:
 	print(str(e))
 	sys.exit()
