@@ -16,18 +16,33 @@ Installation
 ------------
 Install the latest version of the library with pip
 ```
-[root@localhost ~]# pip install ibmiotc
+[root@localhost ~]# pip install ibmiotf
 ```
 
 Uninstall
 ---------
 Uninstalling the module is simple.
 ```
-[root@localhost ~]# pip uninstall ibmiotc
+[root@localhost ~]# pip uninstall ibmiotf
 ```
 
 Documentation
 -------------
+
+1. Device Client
+2. Application Client
+ 1. [Constructor](#constructor)
+ 2. [Subscribing to Device events](#subscribing-to-device-events)
+ 3. [Handling events from Devices](#handling-events-from-devices)
+ 4. [Subscribing to Device status](#subscribing-to-device-status)
+ 5. [Handling status updates from Devices](#handling-status-updates-from-devices)
+ 6. [Publishing Events "from" Devices](#publishing-events-from-devices)
+ 7. [Publishing Commands to Devices](#publishing-commands-to-devices)
+ 8. [Retrieve Device Details](#retrieve-devices-details)
+ 9. [Register a New Device](#register-a-new-device)
+ 10. [Delete a Device](#delete-a-device)
+ 11. [Access Historical Event Data](#access-historical-event-data)
+
 
 ###Device Client
 
@@ -45,21 +60,21 @@ The Client constructor accepts an options dict containing:
  * authToken - API key token (required if authMethod is "apikey")
 
 ```python
-import ibmiotc.application
+import ibmiotf.application
 try:
   options = {"org": organization, "id": appId, "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
-  client = ibmiotc.application.Client(options)
-  except ibmiotc.ConnectionException  as e:
+  client = ibmiotf.application.Client(options)
+  except ibmiotf.ConnectionException  as e:
   ...
 ```
 
 #####Using a Configuration File
 ```python
-import ibmiotc.application
+import ibmiotf.application
 try:
-  options = ibmiotc.application.ParseConfigFile(configFilePath)
-  client = ibmiotc.application.Client(options)
-except ibmiotc.ConnectionException  as e:
+  options = ibmiotf.application.ParseConfigFile(configFilePath)
+  client = ibmiotf.application.Client(options)
+except ibmiotf.ConnectionException  as e:
   ...
 ```
 
@@ -78,21 +93,25 @@ By default, this will subscribe to all events from all connected devices.  Use t
 
 #####Subscribe to all events from all devices
 ```python
+client.connect()
 client.subscribeToDeviceEvents()
 ```
 
 #####Subscribe to all events from all devices of a specific type
 ```python
+client.connect()
 client.subscribeToDeviceEvents(deviceType=myDeviceType)
 ```
 
 #####Subscribe to a specific event from all devices
 ```python
+client.connect()
 client.subscribeToDeviceEvents(event=myEvent)
 ```
 
 #####Subscribe to a specific event from two different devices
 ```python
+client.connect()
 client.subscribeToDeviceEvents(deviceType=myDeviceType, deviceId=myDeviceId, event=myEvent)
 client.subscribeToDeviceEvents(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId, event=myEvent)
 ```
@@ -112,6 +131,7 @@ def myEventCallback(event):
   print "%s event '%s' received from device [%s]: %s" % (event.format, event.event, event.device, json.dumps(event.data))
 
 ...
+client.connect()
 client.eventCallback = myEventCallback
 client.subscribeToDeviceEvents()
 ```
@@ -122,16 +142,19 @@ By default, this will subscribe to status updates for all connected devices. Use
 
 #####Subscribe to status updates for all devices
 ```python
+client.connect()
 client.subscribeToDeviceStatus()
 ```
 
 #####Subscribe to status updates for all devices of a specific type
 ```python
+client.connect()
 client.subscribeToDeviceStatus(deviceType=myDeviceType)
 ```
 
 #####Subscribe to status updates for two different devices
 ```python
+client.connect()
 client.subscribeToDeviceStatus(deviceType=myDeviceType, deviceId=myDeviceId)
 client.subscribeToDeviceStatus(deviceType=myOtherDeviceType, deviceId=myOtherDeviceId)
 ```
@@ -164,6 +187,7 @@ def myStatusCallback(status):
     print("%s - %s - %s" % (status.time.isoformat(), status.device, status.action))
 
 ...
+client.connect()
 client.statusCallback = myStatusCallback
 client.subscribeToDeviceStstus()
 ```
@@ -171,6 +195,7 @@ client.subscribeToDeviceStstus()
 ####Publishing Events "from" Devices
 Applications can publish events as if they originated from a Device
 ```python
+client.connect()
 myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
 client.publishEvent(myDeviceType, myDeviceId, "status", myData)
 ```
@@ -178,6 +203,56 @@ client.publishEvent(myDeviceType, myDeviceId, "status", myData)
 ####Publishing Commands to Devices
 Applications can publish commands to connected Devices
 ```python
+client.connect()
 commandData={'rebootDelay' : 50}
 client.publishCommand(myDeviceType, myDeviceId, "reboot", myData)
+```
+
+####Retrieve Devices Details
+
+#####Retrieve Details of all Registered Devices
+```python
+deviceList = client.api.getDevices()
+print(deviceList)
+```
+
+#####Retrieve Details of a Specific Device
+```python
+device = client.api.getDevice(deviceType, deviceId)
+print(device)
+```
+
+####Register a New Device
+```python
+device = client.api.registerDevice(deviceType, deviceId, metadata)
+print(device)
+print("Generated Authentication Token = %s" % (device['password']))
+```
+
+####Delete a Device
+```python
+try:
+  client.api.deleteDevice(deviceType, deviceId)
+except Exception as e:
+  print(str(e))
+```
+
+####Access Historical Event Data
+
+#####Get historical event data for a specific device
+```python
+result = client.api.getHistoricalEvents(deviceType, deviceId)
+print(result)
+```
+
+#####Get historical event data for all devices of a specific type
+```python
+result = client.api.getHistoricalEvents(deviceType)
+print(result)
+```
+
+#####Get historical event data for all devices of all types
+```python
+result = client.api.getHistoricalEvents()
+print(result)
 ```

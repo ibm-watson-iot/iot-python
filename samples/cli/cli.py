@@ -13,7 +13,6 @@
 import argparse
 import time
 import sys
-import psutil
 import platform
 import json
 import signal
@@ -95,6 +94,8 @@ def historian(args):
 		i = 0
 		for event in result:
 			i = i + 1
+			if 'device_id' not in event:
+				event['device_id'] = args[1]
 			deviceId = event['device_id']
 			print("%-4s%-20s%-20s%s" % (i, deviceId, event['evt_type'], event['evt']))
 		

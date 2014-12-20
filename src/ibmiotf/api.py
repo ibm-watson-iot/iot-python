@@ -108,7 +108,7 @@ class ApiClient():
 	
 	
 	def getHistoricalEvents(self, deviceType=None, deviceId=None, options=None):
-		if deviceId is None and deviceType is not None:
+		if deviceId is not None and deviceType is not None:
 			url = ApiClient.historianDeviceUrl % (self.__options['org'], deviceType, deviceId)
 		elif deviceType is not None:
 			url = ApiClient.historianTypeUrl % (self.__options['org'], deviceType)
