@@ -10,6 +10,7 @@ Dependencies
 * [paho-mqtt](https://pypi.python.org/pypi/paho-mqtt)
 * [iso8601](https://pypi.python.org/pypi/iso8601)
 * [pytz](https://pypi.python.org/pypi/pytz)
+* [requests](https://pypi.python.org/pypi/requests)
 
 
 Installation
