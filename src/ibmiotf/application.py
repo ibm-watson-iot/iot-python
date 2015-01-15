@@ -229,7 +229,7 @@ class Client(ibmiotf.AbstractClient):
 			return False
 		else:
 			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/json' % (deviceType, deviceId, command)
-			self.client.subscribe(topic, qos=0)
+			self.client.subscribe(topic, qos=2)
 			return True
 
 	
@@ -256,7 +256,7 @@ class Client(ibmiotf.AbstractClient):
 
 			# Note: Python JSON serialization doesn't know what to do with a datetime object on it's own
 			payload = { 'd' : data, 'ts': datetime.now().isoformat() }
-			self.client.publish(topic, payload=json.dumps(payload), qos=0, retain=False)
+			self.client.publish(topic, payload=json.dumps(payload), qos=2, retain=False)
 			return True
 
 	

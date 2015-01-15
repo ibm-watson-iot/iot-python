@@ -85,8 +85,8 @@ class Client(ibmiotf.AbstractClient):
 	1: Refused - unacceptable protocol version
 	2: Refused - identifier rejected
 	3: Refused - server unavailable
-	4: Refused - bad user name or password (MQTT v3.1 broker only)
-	5: Refused - not authorised (MQTT v3.1 broker only)
+	4: Refused - bad user name or password
+	5: Refused - not authorised
 	'''
 	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
@@ -124,7 +124,7 @@ class Client(ibmiotf.AbstractClient):
 			return False
 		else:
 			topic = 'iot-2/cmd/+/fmt/json'
-			self.client.subscribe(topic, qos=0)
+			self.client.subscribe(topic, qos=2)
 			return True
 
 	'''
