@@ -14,9 +14,14 @@ import re
 import ibmiotf
 import ibmiotf.api
 import json
-import configparser
 import iso8601
 from datetime import datetime
+
+# Support Python 2.7 and 3.4 versions of configparser
+try:
+	import configparser
+except ImportError:
+	import ConfigParser as configparser
 
 
 # Compile regular expressions for topic parsing
@@ -339,13 +344,18 @@ def ParseConfigFile(configFilePath):
 
 	try:
 		with open(configFilePath) as f:
-			parms.readfp(f)
+			try:
+				parms.read_file(f)
+			except AttributeError:
+				# Python 2.7 support
+				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
+				parms.readfp(f)
 		
-		organization = parms.get(sectionHeader, "org", fallback=None)
-		appId = parms.get(sectionHeader, "id", fallback=None)
-		authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
-		authKey = parms.get(sectionHeader, "auth-key", fallback=None)
-		authToken = parms.get(sectionHeader, "auth-token", fallback=None)
+		organization = parms.get(sectionHeader, "org", None)
+		appId = parms.get(sectionHeader, "id", None)
+		authMethod = parms.get(sectionHeader, "auth-method", None)
+		authKey = parms.get(sectionHeader, "auth-key", None)
+		authToken = parms.get(sectionHeader, "auth-token", None)
 		
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])

@@ -10,6 +10,7 @@
 #   David Parker - Initial Contribution
 # *****************************************************************************
 
+import sys
 import os
 import time
 import json
@@ -21,8 +22,9 @@ import threading
 import iso8601
 import pytz
 from datetime import datetime
+from pkg_resources import get_distribution
 
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 
 class Message:
 	def __init__(self, message):
@@ -84,13 +86,26 @@ class AbstractClient:
 
 		self.client = paho.Client(self.clientId, clean_session=True)
 		
+		try:
+			self.tlsVersion = ssl.PROTOCOL_TLSv1_2
+		except:
+			self.tlsVersion = None
 		
 		# Configure authentication
 		if self.username is not None:
-			self.port = 8883
-			# Path to certificate
-			caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
-			self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
+			# In environments where either ssl is not available, or TLSv1.2 is not available we will fallback to MQTT over TCP
+			if self.tlsVersion is not None:
+				self.port = 8883
+				# Path to certificate
+				caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
+				self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
+				# Pre Python 3.2 the Paho MQTT client will use a bespoke hostname check which does not support wildcard certificates
+				# Fix is included in 1.1 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=440547
+				if float(get_distribution('paho-mqtt').version) < 1.1 and (sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 2)):
+					self.logger.warning("Disabling TLS certificate hostname checking - Versions of the Paho MQTT client pre 1.1 do not support TLS wildcarded certificates on Python 3.2 or earlier: https://bugs.eclipse.org/bugs/show_bug.cgi?id=440547")
+					self.client.tls_insecure_set(True)
+			else:
+				self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
 			self.client.username_pw_set(self.username, self.password)
 			
 		#attach MQTT callbacks
