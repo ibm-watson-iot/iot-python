@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: ibmiotf
-Version: 0.0.9
+Version: 0.0.10
 Summary: IBM Internet of Things Foundation for Python
 Home-page: https://github.com/ibm-messaging/iot-python
 Author: David Parker
@@ -222,6 +222,7 @@ Description: IBM Internet of Things Foundation for Python
         -  `paho-mqtt <https://pypi.python.org/pypi/paho-mqtt>`__
         -  `iso8601 <https://pypi.python.org/pypi/iso8601>`__
         -  `pytz <https://pypi.python.org/pypi/pytz>`__
+        -  `requests <https://pypi.python.org/pypi/requests>`__
         
         Installation
         ------------

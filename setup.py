@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='ibmiotf',
-    version="0.0.9",
+    version="0.0.10",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},

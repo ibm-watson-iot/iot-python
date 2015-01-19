@@ -153,16 +153,20 @@ def ParseConfigFile(configFilePath):
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
+				organization = parms.get(sectionHeader, "org", fallback=None)
+				deviceType = parms.get(sectionHeader, "type", fallback=None)
+				deviceId = parms.get(sectionHeader, "id", fallback=None)
+				authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
+				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
-			
-		organization = parms.get(sectionHeader, "org", None)
-		deviceType = parms.get(sectionHeader, "type", None)
-		deviceId = parms.get(sectionHeader, "id", None)
-		authMethod = parms.get(sectionHeader, "auth-method", None)
-		authToken = parms.get(sectionHeader, "auth-token", None)
+				organization = parms.get(sectionHeader, "org", None)
+				deviceType = parms.get(sectionHeader, "type", None)
+				deviceId = parms.get(sectionHeader, "id", None)
+				authMethod = parms.get(sectionHeader, "auth-method", None)
+				authToken = parms.get(sectionHeader, "auth-token", None)
 		
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
