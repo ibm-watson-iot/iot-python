@@ -48,6 +48,40 @@
 	// Start with the necessary tabs hidden
 	$('#connectedPanel').hide()
 
+	$("#goForm").submit(function(e) {
+		$("#goWarning").css("visibility", "hidden");
+		var requestData = {"email": this.elements["username3"].value, "pin": this.elements["pin3"].value};
+		username = this.elements["username3"].value;
+		// Try to authenticate
+		$.ajax({
+			url: "/auth",
+			type: "POST",
+			data: JSON.stringify(requestData),
+			dataType: "json",
+			contentType: "application/json; charset=utf-8",
+			success: function(response){
+				cli.connect(requestData);
+			},
+			error: function(xhr, status, error) {
+				// If we can't log in try to register
+				$.ajax({
+					url: "/register",
+					type: "POST",
+					data: JSON.stringify(requestData),
+					contentType: "application/json; charset=utf-8",
+					success: function(response){
+						cli.connect(requestData);
+					},
+					error: function(xhr, status, error) {
+						$("#goWarning").css("visibility", "visible");
+						$("#goWarning").html("<strong>Failed to connect!</strong>  Incorrect PIN entered for username '" + username + "'");
+					}
+				});
+			}
+		});
+		return false;
+	});
+	
 	$("#registerForm").submit(function(e) {
 		$("#registerWarning").css("visibility", "hidden");
 		var requestData = {"email": this.elements["username1"].value, "pin": this.elements["pin1"].value};

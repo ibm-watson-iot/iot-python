@@ -40,6 +40,11 @@ dbName = "iotfzonesample"
 port = int(os.getenv('VCAP_APP_PORT', 80))
 host = str(os.getenv('VCAP_APP_HOST', "0.0.0.0"))
 
+# =============================================================================
+# Choose application theme
+# =============================================================================
+#theme = "default"
+theme = "simple"
 
 # =============================================================================
 # Configure global properties
@@ -149,7 +154,7 @@ def device(id):
 
 @app.route('/')
 def applicationUi():
-	return template('app', uri=uri)
+	return template('app-' + theme, uri=uri)
 
 	
 @app.route('/websocket')
