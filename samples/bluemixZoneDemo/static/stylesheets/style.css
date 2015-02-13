@@ -1,0 +1,79 @@
+body {
+	font-family: tahoma;
+	background-color: #f0f0f0;
+	margin: 10px;
+}
+
+p , div, form, li, button {
+	font-family: tahoma;
+}
+
+span#myUsername {
+	font-weight:bold
+}
+
+a#myDeviceLink{
+	font-weight:bold
+}
+
+div#connectWarning, div#registerWarning {
+	visibility: hidden
+}
+
+div#connectedPanel {
+	display:none
+}
+
+form.form-inline {
+	margin-bottom: 1em;
+}
+
+.graphHolder {
+	background-color: white;
+	margin-top: 20px;
+	border: solid 2px rgb(2,104,144);
+	border-radius: 5px;
+	box-shadow: 2px 2px 8px #aaa;
+}
+
+
+/* Graph styles */
+.redline {
+	stroke: darkred;			/* the line colour for paths is steelblue */
+	stroke-width: 2;			/* the line width for paths is 2 pixels */
+	fill: none;
+}
+
+.blueline {
+	stroke: darkblue;			/* the line colour for paths is steelblue */
+	stroke-width: 2;			/* the line width for paths is 2 pixels */
+	fill: none;
+}
+
+.greenline {
+	stroke: darkgreen;			/* the line colour for paths is steelblue */
+	stroke-width: 2;			/* the line width for paths is 2 pixels */
+	fill: none;
+}
+
+.axis path,
+.axis line {
+	fill: none;					/* don't fill areas bounded by the axis line */
+	stroke: grey;				/* make the axis line grey */
+	stroke-width: 1;			/* make the width of the axis lines 1 pixel */
+	shape-rendering: crispEdges;/* make the edges sharp */
+}
+.headerValue {
+
+}
+.grid .tick {
+	stroke: lightgrey;
+	opacity: 0.7;
+}
+.grid path {
+	stroke-width: 0;
+}
+
+.disconnected {
+	opacity: 0.3;
+}

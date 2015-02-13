@@ -1,0 +1,150 @@
+* {
+	text-align: center;
+	font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: 300;
+	color: #ececec;
+}
+
+html {
+	font-size: 0.9em;
+	box-sizing: border-box;
+}
+
+*, *:before, *:after {
+	box-sizing: inherit;
+}
+
+body {
+	background-image: linear-gradient(to bottom right, #2d3f4a, #1d3649);
+	margin: 0;
+	padding: 0;
+}
+
+h1, h3 {
+	font-family: "Helvetica Neue Bold", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 1.4rem;
+	margin: 0.1em 0;
+	padding-top: 0.5em;
+}
+
+h2 {
+	font-size: 1.4rem;
+	margin-top: 0.1em;
+}
+
+h3 {
+	font-size: 1.2rem;
+	margin: 1.2em 0 0.5em 0;
+}
+
+p {
+	font-size: 1rem;
+	margin: 0.1em 0;
+}
+
+input {
+	color: #000
+}
+
+.outer-main {
+	position: relative;
+	min-height: 100vh;
+}
+
+.main {
+	margin: 0px 11% 0 11%;
+}
+
+.watermark {
+	position: absolute;
+	width: 100%;
+	left: -20px;
+	top: 10px;
+}
+
+.plane {
+	width: 8%;
+	height: auto;
+	position: absolute;
+}
+
+.plane.left {
+	bottom: 60%;
+	left: 2%;
+}
+
+.plane.right {
+	top: 50%;
+	right: 2%;
+
+}
+
+.r180 {
+	-webkit-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+
+.trail {
+	width: 2%;
+	position: absolute;
+	background-image: url('/static/images/contrail.svg');
+	background-repeat: repeat-y;
+}
+
+.trail.left {
+	bottom: 0;
+	top: 41%;
+	left: 5%;
+}
+
+.trail.right {
+	top: 0;
+	bottom: 51%;
+	right: 5%;
+}
+
+.data-table {
+	width: 100%;
+	background-color: #ececec;
+	margin: 1em 0 1em 0;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+.data-table * {
+	color: #1d3649;
+}
+
+.data-table th {
+	font-family: "HelvNeue Bold for IBM", "HelveticaNeue-Bold", "Helvetica Neue Bold", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: bold;
+}
+
+.data-table tr.table-title {
+	background-color: #fff;
+}
+
+.data-table tr.data-title {
+	font-size: 1.1rem;
+}
+
+.data-table th, .data-table td {
+	padding: 0.5rem 0 0.5rem 0;
+}
+
+.iot-footer-pad {
+	height: 35px;
+}
+
+.iot-footer {
+	position: absolute;
+	bottom: 0;
+	width: 20%;
+	left: 40%;
+	height: auto;
+	max-height: 30px;
+}
