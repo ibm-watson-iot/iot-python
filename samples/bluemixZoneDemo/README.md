@@ -3,6 +3,10 @@ Sample application demonstrating how to send events to the cloud from a device a
 
 See the demo application running live: http://iot-demo.mybluemix.net/
 
+
+---
+
+
 ##Introduction
 The application has two main pieces of function.
 
@@ -15,9 +19,11 @@ The main application is a Python WSGI server which primarily exists to provide d
 The second part of the application is a page designed to be ran on a users phone that uses Javascript to simulate device code running on the phone.  The device code presents the same username & PIN to the backend application for authentication, on asuccessful authentication the backend application will provide the device with the necessary crendentials required to connect securely to the IOT Foundation.
 
 
-##Bluemix
-The sample is specifically designed to be deployed into Bluemix.  The application requires a binding to both an instance of the IOTF & Cloudant services.
+---
 
+
+##Bluemix Deployment
+The sample is specifically designed to be deployed into Bluemix.  The application requires a binding to both an instance of the IOTF & Cloudant services.
 
 ###Get the sample source code
 ```
@@ -48,20 +54,27 @@ cf push <app_name> -c "python server.py"
 ```
 ###Launch your application
 
-Open http://<app_name>.mybluemix.net/ in a browser
+Open http://&lt;app_name&gt;.mybluemix.net/ in a browser
+
+
+---
+
 
 ##Configuration
 The demo supports multiple themes.  The Demo running in Bluemix uses a highly customised theme specifically designed for the IOT Bluemix Zone, but there are a number of simpler themes included in the sample code that provide a cleaner starting point for building your own application based on this sample.
+
+One way to do this is to use the cf **set-env** command:
+```
+cf set-env <app_name> theme simple
+```
 
 To change the theme simply set a value for the "theme" environment variable to one of these options:
  - **default** - The original theme, provides the traditional interface associated with a modern web application, with discrete registration and login options for the application user.
  - **simple** - A simplified theme, which combines registration and login into a single "Go" action.  This will login a user if the username matches an existing user (and the PIN is correct), or register a new user if the username is new to the system.  This is the model that the demo running in the Bluemix IOT zone utilises.
  - **bluemix** - A highly customised theme designed to seemlessly integrate into the Bluemix IOT Zone.
 
-One way to do this is to use the cf **set-env** command:
-```
-cf set-env <app_name> theme simple
-```
+
+---
 
 
 ##Local development
