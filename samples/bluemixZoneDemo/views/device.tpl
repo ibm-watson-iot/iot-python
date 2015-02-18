@@ -26,8 +26,10 @@
 		<div class="main">
 			<h1>Your device ID:</h1>
 			<h2><span id="deviceId">{{deviceId}}</span></h2>
-			<input id="pin" type="password" />
-			<button id="connectButton">Connect</button>
+			<h3>Enter your 4-digit code:</h3>
+			<input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit code" required/>
+			<button id="connectButton">START</button>
+			<h3 id="connection">N/A</h3>
 			<h3>So what exactly is happening here?</h3>
 			<p>Using MQTT messaging, the accelerometer data from your phone is being sent to the IoT Foundation.</p>
 			<p>A Bluemix app is using this data to mirror your movements &mdash; go on, try moving your phone.</p>
@@ -64,17 +66,6 @@
 					<td id="accx">X</td>
 					<td id="accy">Y</td>
 					<td id="accz">Z</td>
-				</tr>
-			</table>
-			<table class="data-table">
-				<tr class="table-title">
-					<th colspan="1">Device status</th>
-				</tr>
-				<tr class="data-title">
-					<th>Connection</th>
-				</tr>
-				<tr>
-					<td id="connection">N/A</td>
 				</tr>
 			</table>
 		</div>

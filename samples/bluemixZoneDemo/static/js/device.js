@@ -69,7 +69,7 @@
     	// The device connected successfully
         console.log("Connected Successfully!");
         isConnected = true;
-        document.getElementById("connection").innerHTML = "Connected";
+        document.getElementById("connection").innerHTML = "";
     }
 
     function onConnectFailure(){
