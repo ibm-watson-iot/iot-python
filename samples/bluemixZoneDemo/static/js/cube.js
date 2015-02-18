@@ -79,15 +79,6 @@
 			$('#myDeviceLink').attr('href', url);
 			$('#connectedPanel').show()
 			
-			// Display a QR code
-			$('#qrcode').qrcode({
-				text: url,
-				width: 128,
-				height: 128,
-				foreground : "#1d3649",
-				background : "#ffffff"
-			});
-
 			$('#connectedPanel').css('opacity', 0).slideDown({
 				duration: 'slow',
 				progress: function() {
@@ -102,19 +93,25 @@
 		this.disconnect = function() {
 			ws.send("close");
 			ws.close();
-			console.log("Disconnected from live data feed")
+			console.log("Disconnected from live data feed");
 			$('#connectPanel').show()
 			$('#connectedPanel').hide()
 			updateParentIFrame()
 		}
 	}
 
+	/*
+	 * Allows us to report page dimensions to a parent iframe
+	 * This is used in the bluemix theme, but is a no-op in all others
+	 */
 	function updateParentIFrame() {
-		var bodyHeight = document.body.clientHeight;
-		if (bodyHeight != cachedHeight) {
-			console.log("Posting message to parent of iframe to resize to height " + bodyHeight);
-			window.parent.postMessage(bodyHeight, "*");
-			cachedHeight = bodyHeight;
+		if (iframeMode) {
+			var bodyHeight = document.body.clientHeight;
+			if (bodyHeight != cachedHeight) {
+				console.log("Posting message to parent of iframe to resize to height " + bodyHeight);
+				window.parent.postMessage(bodyHeight, "*");
+				cachedHeight = bodyHeight;
+			}
 		}
 	}
 	
@@ -126,25 +123,12 @@
 		updateParentIFrame();
 
 		// If in iframe, post resize messages to parent
-		$(window).resize(function() {
-			updateParentIFrame();
-		});
-
-		function showGraph(id) {
-			$(".graphHolder").hide();
-			$("#"+id).show();
-			$("ul#vis-tabs li").removeClass("selected");
-			$("ul#vis-tabs li[data-graph="+id+"]").addClass("selected");
-
+		if (iframeMode) {
+			$(window).resize(function() {
+				updateParentIFrame();
+			});
 		}
-
-		showGraph("magData");
-
-		$("#vis-tabs li").click(function(e) {
-			var graphToShow = $(e.target).data("graph");
-			showGraph(graphToShow);
-		});	
-
+		
 		$("#goForm").submit(function(e) {
 			$("#goWarning").css("visibility", "hidden");
 			var requestData = {"email": this.elements["username3"].value, "pin": this.elements["pin3"].value};
@@ -158,6 +142,7 @@
 				contentType: "application/json; charset=utf-8",
 				success: function(response){
 					cli.connect(requestData);
+					updateQrCode();
 				},
 				error: function(xhr, status, error) {
 					// If we can't log in try to register
@@ -190,6 +175,7 @@
 				contentType: "application/json; charset=utf-8",
 				success: function(response){
 					cli.connect(requestData);
+					updateQrCode();
 				},
 				error: function(xhr, status, error) {
 					$("#registerWarning").css("visibility", "visible");
@@ -217,6 +203,7 @@
 				success: function(response){
 					cli.setExpectDisconnect(false);
 					cli.connect(requestData);
+					updateQrCode();
 				},
 				error: function(xhr, status, error) {
 					$("#connectWarning").css("visibility", "visible");
@@ -227,17 +214,28 @@
 		});
 
 		$("#signoutButton").click(
-				function(){
-					/*
-					 * We have been deliberately requested to close the web socket connection, so let's tell the client
-					 * so it knows not to reconnect automatically.
-					 */		
-					cli.setExpectDisconnect(true); // We expect the web socket connection to close
-					cli.disconnect();
-				}
+			function(){
+				/*
+				 * We have been deliberately requested to close the web socket connection, so let's tell the client
+				 * so it knows not to reconnect automatically.
+				 */		
+				cli.setExpectDisconnect(true); // We expect the web socket connection to close
+				cli.disconnect();
+			}
 		);
 	});
 	
+	function updateQrCode() {
+		// Remove any existing QR code and build a new QR code for the currently selected device
+		$('#qrcode').empty();
+		$('#qrcode').qrcode({
+			text: 'http://' + window.location.host + '/device/' + username,
+			width: 128,
+			height: 128,
+			foreground : "#1d3649",
+			background : "#ffffff"
+		});
+	}
 	
 	function vibrateWarning() {
 		/*
@@ -255,6 +253,7 @@
 	
 	// Allows the page to be embedded in an iframe and report resize events to the parent
 	var cachedHeight = undefined;
+	var iframeMode = false;
 	
 	var cli = new Client();
 	var username;
@@ -447,7 +446,9 @@
 	}
 
 	function updateGraphs() {
-		for (var i in graphs) { graphs[i].update(); }
+		for (var i in graphs) { 
+			graphs[i].update(); 
+		}
 	}
 
 	var graphs = []; 

@@ -1,3 +1,27 @@
+/* Override the pretty bootstrap theme */
+ul.nav li a:active, ul.nav li a:hover, ul.nav li a:focus, ul.nav li a{
+	color:#000;
+	text-decoration:none;
+	background-color:#fff;
+}
+
+ul.nav li.active a:active, ul.nav li.active a:hover, ul.nav li.active a:focus, ul.nav li.active a {
+	color:#000;
+	text-decoration:underline;
+	background-color:#fff;
+}
+
+
+/* initially set the connectedPanel to no display */
+div#connectedPanel {
+	display:none
+}
+
+div#connectWarning, div#registerWarning , div#goWarning, div#vibrationWarning {
+	visibility: hidden
+}
+
+
 * {
 	color: #152935;
 }
@@ -60,33 +84,18 @@ html, body {
 }
 
 .iotDemo .black-button {
-display: inline-block;
-background-color: #152935;
-color: white;
+	background-color: #152935;
+	color: white;
 }
+
 .iotDemo .section-button {
-padding: 5px 24px;
-width: auto;
-border: 1px #152935 solid;
-font-weight: normal;
+	padding: 5px 24px;
+	width: auto;
+	border: 1px #152935 solid;
+	font-weight: normal;
 }
 
-.iotDemo .section-base {
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-	-webkit-flex-direction: column;
-	-ms-flex-direction: column;
-	flex-direction: column;
-	-webkit-align-items: center;
-	-ms-flex-align: center;
-	align-items: center;
-	-webkit-justify-content: center;
-	-ms-flex-pack: center;
-	justify-content: center;
-}
-
-.iotDemo .divider-line {
+img.divider-line {
 	margin-top: 1.5em;
 	margin-bottom: 1.5em;
 }
@@ -105,7 +114,7 @@ font-weight: normal;
 padding: 5.71429rem 10%;
 }
 
-section#name-entry-section {
+div#name-entry-section {
 	background-image: url('/static/images/squares.svg');
 	background-repeat: no-repeat;
 	background-position: center top;
@@ -114,12 +123,12 @@ section#name-entry-section {
 	padding-bottom: 0;
 }
 
-section#connectedPanel {
+div#connectedPanel {
 	padding-top: 0;
 }
 
 @media screen and (min-width: 1440px){
-	section#name-entry-section {
+	div#name-entry-section {
 		background-size: contain;
 	}
 }
@@ -159,6 +168,8 @@ form#goForm {
 }
 
 /* Graph styles */
+.graphHolder {}
+
 .redline {
 	stroke: darkred;			/* the line colour for paths is steelblue */
 	stroke-width: 2;			/* the line width for paths is 2 pixels */
@@ -196,7 +207,8 @@ form#goForm {
 }
 
 #cube {
-	float: left;
+	margin-left:auto;
+	margin-right:auto;
 	height: 300px;
 	width: 300px;
 	background-color: #f4f4f4;
@@ -205,50 +217,5 @@ form#goForm {
 
 #visualisations {
 	height: 300px;
-	margin-left: 330px;
+	margin-top: 1em;
 }
-
-#vis-row {
-	width: 100%;
-	padding-top: 1rem;
-}
-
-.cf {
-	*zoom: 1;
-}
-.cf::before, .cf::after {
-	content: " ";
-	display: table;
-}
-.cf::after {
-	clear: both;
-}
-
-ul#vis-tabs {
-	display: -webkit-box;
-	display: -moz-box;
-	display: -ms-flexbox;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	-ms-flex-direction: row;
-	flex-direction: row;
-	-webkit-align-items: center;
-	-ms-flex-align: center;
-	align-items: center;
-	-webkit-justify-content: center;
-	-ms-flex-pack: center;
-	-webkit-justify-content: space-around;
-	justify-content: space-around;
-}
-
-ul#vis-tabs li {
-	padding: 5px;
-	font-weight: bold;
-	cursor: pointer;
-}
-
-ul#vis-tabs li.selected {
-	border-bottom: 2px solid currentColor;
-}
-

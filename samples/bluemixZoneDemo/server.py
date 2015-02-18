@@ -40,12 +40,12 @@ else:
 	# Ensure you blank these out before committing/uploading the code
 	uri = "localhost"
 
-	organization = ""
-	authKey = ""
-	authToken = ""
+	organization = "warsbf"
+	authKey = "a-warsbf-oraut4ygqt"
+	authToken = "3YT_fyYWGLi&HyeRSV"
 	authMethod = "apikey"
-	dbUsername = ""
-	dbPassword = ""
+	dbUsername = "37c06e60-e5eb-46ce-8684-ede06fc1bc43-bluemix"
+	dbPassword = "4b8deb699d2d2a77b1ffb4f603bc964fb2d3d20f6964778da7cd70126b835017"
 
 dbName = "iotfzonesample"
 port = int(os.getenv('VCAP_APP_PORT', 80))
@@ -54,7 +54,7 @@ host = str(os.getenv('VCAP_APP_HOST', "0.0.0.0"))
 # =============================================================================
 # Choose application theme
 # =============================================================================
-theme = os.getenv('theme', "default")
+theme = os.getenv('theme', "bluemix")
 print("Using theme '%s'" % theme)
 
 # =============================================================================
