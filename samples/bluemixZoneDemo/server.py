@@ -55,6 +55,7 @@ host = str(os.getenv('VCAP_APP_HOST', "0.0.0.0"))
 # Choose application theme
 # =============================================================================
 theme = os.getenv('theme', "default")
+print("Using theme '%s'" % theme)
 
 # =============================================================================
 # Configure global properties

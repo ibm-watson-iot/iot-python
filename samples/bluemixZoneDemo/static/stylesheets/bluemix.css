@@ -1,0 +1,254 @@
+* {
+	color: #152935;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+	font-size: 14px;
+	font-family: HelveticaNeue-Light, "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: 300;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.iotDemo a {
+	text-decoration: underline;
+	color: inherit;
+	font-weight: bold;
+}
+
+.iotDemo .center-text {
+	text-align: center;
+}
+
+.iotDemo .medium-large-font {
+	font-size: 1.5rem;
+	line-height: 1.6em;
+	font-weight: bold;
+}
+
+.iotDemo .medium-font {
+	font-size: 1.14286rem;
+	line-height: 1.45em;
+	margin-bottom: 0;
+}
+
+.iotDemo, .iotDemo a, .iotDemo blockquote, .iotDemo cite, .iotDemo div, .iotDemo dl, .iotDemo dt, .iotDemo dd .iotDemo footer, .iotDemo h1, .iotDemo h2, .iotDemo h3, .iotDemo h4, .iotDemo h5, .iotDemo h6, .iotDemo img, .iotDemo li, .iotDemo nav, .iotDemo ol, .iotDemo p, .iotDemo section, .iotDemo ul {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font: inherit;
+	font-size: 100%;
+	vertical-align: baseline;
+}
+
+.iotDemo {
+	line-height: 1;
+}
+
+.medium-large-font {
+	color: #1d3649;
+}
+
+.iotDemo .use-code-input-row input {
+	height: 24px;
+	margin-right: 1em;
+}
+
+.iotDemo .black-button {
+display: inline-block;
+background-color: #152935;
+color: white;
+}
+.iotDemo .section-button {
+padding: 5px 24px;
+width: auto;
+border: 1px #152935 solid;
+font-weight: normal;
+}
+
+.iotDemo .section-base {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-justify-content: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+}
+
+.iotDemo .divider-line {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+
+.iotDemo ol, .iotDemo ul {
+	list-style: none;
+}
+
+@media screen and (min-width: 694px)
+.iotDemo .white-section {
+	padding: 4.28571rem 10%;
+}
+
+@media screen and (min-width: 862px)
+.iotDemo .white-section {
+padding: 5.71429rem 10%;
+}
+
+section#name-entry-section {
+	background-image: url('/static/images/squares.svg');
+	background-repeat: no-repeat;
+	background-position: center top;
+	background-size: auto;
+	border: 0;
+	padding-bottom: 0;
+}
+
+section#connectedPanel {
+	padding-top: 0;
+}
+
+@media screen and (min-width: 1440px){
+	section#name-entry-section {
+		background-size: contain;
+	}
+}
+
+p#first-steps {
+	padding-top: 1rem;
+	max-width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#name-entry-section input#username3 {
+	width: 12em;
+}
+
+#name-entry-section input#pin3 {
+	width: 8em;
+}
+
+#name-entry-section, #connectedPanel {
+	padding: 3.5rem 10%;
+}
+
+#qrcode {
+	padding: 1rem;
+}
+
+@media screen and (min-width: 694px){
+	#name-entry-section, #connectedPanel {
+		padding: 4.28571rem 10%;
+	}
+}
+
+form#goForm {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+/* Graph styles */
+.redline {
+	stroke: darkred;			/* the line colour for paths is steelblue */
+	stroke-width: 2;			/* the line width for paths is 2 pixels */
+	fill: none;
+}
+
+.blueline {
+	stroke: darkblue;			/* the line colour for paths is steelblue */
+	stroke-width: 2;			/* the line width for paths is 2 pixels */
+	fill: none;
+}
+
+.greenline {
+	stroke: darkgreen;			/* the line colour for paths is steelblue */
+	stroke-width: 2;			/* the line width for paths is 2 pixels */
+	fill: none;
+}
+
+.axis path,
+.axis line {
+	fill: none;					/* don't fill areas bounded by the axis line */
+	stroke: grey;				/* make the axis line grey */
+	stroke-width: 1;			/* make the width of the axis lines 1 pixel */
+	shape-rendering: crispEdges;/* make the edges sharp */
+}
+.headerValue {
+
+}
+.grid .tick {
+	stroke: lightgrey;
+	opacity: 0.7;
+}
+.grid path {
+	stroke-width: 0;
+}
+
+#cube {
+	float: left;
+	height: 300px;
+	width: 300px;
+	background-color: #f4f4f4;
+	border: 1px #2d3f4a solid;
+}
+
+#visualisations {
+	height: 300px;
+	margin-left: 330px;
+}
+
+#vis-row {
+	width: 100%;
+	padding-top: 1rem;
+}
+
+.cf {
+	*zoom: 1;
+}
+.cf::before, .cf::after {
+	content: " ";
+	display: table;
+}
+.cf::after {
+	clear: both;
+}
+
+ul#vis-tabs {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-justify-content: center;
+	-ms-flex-pack: center;
+	-webkit-justify-content: space-around;
+	justify-content: space-around;
+}
+
+ul#vis-tabs li {
+	padding: 5px;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+ul#vis-tabs li.selected {
+	border-bottom: 2px solid currentColor;
+}
+
