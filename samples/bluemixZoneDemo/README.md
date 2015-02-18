@@ -19,21 +19,32 @@ The second part of the application is a page designed to be ran on a users phone
 The sample is specifically designed to be deployed into Bluemix.  The application requires a binding to both an instance of the IOTF & Cloudant services.
 
 
-###Create a new application in Bluemix
- - [Log in](https://console.ng.bluemix.net/) to your Bluemix account
-   - [Start a tree trial](https://apps.admin.ibmcloud.com/manage/trial/bluemix.html)
- - Create an App > Web > Python
- - Bind a new or existing instance of the **Cloudant NoSQL DB** service to your application
- - Bind a new or existing instance of the **Internet of Things** service to your application
-
 ###Get the sample source code
- - Install [git](https://github.com/)
- - git clone https://github.com/ibm-messaging/iot-python.git
- - cd iot-python/samples/bluemixZoneDemo
-
-###Push the application into Bluemix
 ```
-cf push <app_name> -m 32M -b https://github.com/cloudfoundry/cf-buildpack-python.git -c "python server.py"
+$ git clone https://github.com/ibm-messaging/iot-python.git
+$ cd iot-python/samples/bluemixZoneDemo
+```
+
+###Create a new application
+```bash
+$ cf push <app_name> -m 32M -b https://github.com/cloudfoundry/cf-buildpack-python.git --no-start
+```
+
+###Create the required services
+```bash
+$ cf create-service iotf-service iotf-service-bronze iotdemo-iotf
+$ cf create-service cloudantNoSQLDB Shared iotdemo-cloudant
+```
+
+### Bind the services to your application
+```bash
+$ cf bind-service <app_name> iotdemo-iotf
+$ cf bind-service <app_name> iotdemo-cloudant
+```
+
+###Start the application
+```
+cf push <app_name> -c "python server.py"
 ```
 ###Launch your application
 
@@ -50,9 +61,6 @@ To change the theme simply set a value for the "theme" environment variable to o
 One way to do this is to use the cf **set-env** command:
 ```
 cf set-env <app_name> theme simple
-Setting env variable 'theme' to 'simple' for app <app_name> in org <org_name> / space <space_name> as <user_id>...
-OK
-TIP: Use 'cf.exe restage' to ensure your env variable changes take effect
 ```
 
 
