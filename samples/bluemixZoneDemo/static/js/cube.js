@@ -105,7 +105,7 @@
 	 * This is used in the bluemix theme, but is a no-op in all others
 	 */
 	function updateParentIFrame() {
-		if (iframeMode) {
+		if (isInIframe) {
 			var bodyHeight = document.body.clientHeight;
 			if (bodyHeight != cachedHeight) {
 				console.log("Posting message to parent of iframe to resize to height " + bodyHeight);
@@ -123,7 +123,7 @@
 		updateParentIFrame();
 
 		// If in iframe, post resize messages to parent
-		if (iframeMode) {
+		if (isInIframe) {
 			$(window).resize(function() {
 				updateParentIFrame();
 			});
@@ -253,7 +253,7 @@
 	
 	// Allows the page to be embedded in an iframe and report resize events to the parent
 	var cachedHeight = undefined;
-	var iframeMode = false;
+	var isInIframe = (window.location != window.parent.location) ? true : false;
 	
 	var cli = new Client();
 	var username;
