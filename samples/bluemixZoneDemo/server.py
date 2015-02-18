@@ -242,4 +242,5 @@ from geventwebsocket.handler import WebSocketHandler
 
 
 server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
+print(" * Starting web socket server")
 server.serve_forever()

@@ -1,13 +1,21 @@
 (function(window){
 	function Client() {
-		var ws;
-		var expectDisconnect = false;
-		var excessiveVibrationDetected = false;
+		var ws; // web socket to the iotzone application running in Bluemix
+		var expectDisconnect = false; // allows the client to handle expected and unexpected disconnects
+		var excessiveVibrationDetected = false; // allows the client to track excessive vibration from the phone
+		console.log("expectDisconnect: "+expectDisconnect);
 		
+		/*
+		 * Toggle whether the client should expect a disconnect from the web socket server: used to control 
+		 * whether an automatic reconnect occurs
+		 */
 		this.setExpectDisconnect = function(bool) {
 			expectDisconnect = bool;
 		}
 		
+		/*
+		 * Toggle the excessiveVibrationDetected flag
+		 */
 		this.setExcessiveVibrationDetected = function(bool) {
 			excessiveVibrationDetected = bool;
 		}
@@ -30,7 +38,7 @@
 				 */
 				if (!expectDisconnect) {
 					console.log("Web socket connection dropped. Reconnecting in one second...");
-					// We'll connect in a second's time, to avoid hammering the server in the event of a chronic issue
+					// Reconnect in a second's time, to avoid hammering the server in the event of a chronic issue
 					setTimeout(function() {
 						cli.connect(data)}, 1000);
 				} else {
@@ -52,10 +60,10 @@
 				// Calculate if a device is vibrating excessively
 				values["accelMag"] = Math.sqrt(values.accelX * values.accelX + values.accelY * values.accelY + values.accelZ * values.accelZ);
 				if (values["accelMag"] >= 20 && (!excessiveVibrationDetected)) {
-					// Excessive vibration detected - so let's render this on the page
 					vibrateWarning();
 				}
-									
+							
+				// Update the 3D image and graphs
 				sensorData.push(values);
 				render(values.rotB, values.rotG, values.rotA);
 				updateGraphs();
@@ -65,7 +73,6 @@
 			var url = 'http://' + window.location.host + '/device/' + username;
 			$('#myDeviceLink').text(url);
 			$('#myDeviceLink').attr('href', url);
-			
 			$('#connectedPanel').show()
 		}
 
@@ -78,103 +85,113 @@
 		}
 	}
 
-	// Start with the necessary tabs hidden
-	$('#connectedPanel').hide()
+	$(document).ready(function() {
+		$('#goForm').css("visibility", "visible");
+		$('#registerForm').css("visibility", "visible");
+		$('#connectForm').css("visibility", "visible");
+		$('#signoutButton').css("visibility", "visible");
 
-	$("#goForm").submit(function(e) {
-		$("#goWarning").css("visibility", "hidden");
-		var requestData = {"email": this.elements["username3"].value, "pin": this.elements["pin3"].value};
-		username = this.elements["username3"].value;
-		// Try to authenticate
-		$.ajax({
-			url: "/auth",
-			type: "POST",
-			data: JSON.stringify(requestData),
-			dataType: "json",
-			contentType: "application/json; charset=utf-8",
-			success: function(response){
-				cli.connect(requestData);
-			},
-			error: function(xhr, status, error) {
-				// If we can't log in try to register
-				$.ajax({
-					url: "/register",
-					type: "POST",
-					data: JSON.stringify(requestData),
-					contentType: "application/json; charset=utf-8",
-					success: function(response){
-						cli.connect(requestData);
-					},
-					error: function(xhr, status, error) {
-						$("#goWarning").css("visibility", "visible");
-						$("#goWarning").html("<strong>Failed to connect!</strong>  Incorrect PIN entered for username '" + username + "'");
+		$("#goForm").submit(function(e) {
+			$("#goWarning").css("visibility", "hidden");
+			var requestData = {"email": this.elements["username3"].value, "pin": this.elements["pin3"].value};
+			username = this.elements["username3"].value;
+			// Try to authenticate
+			$.ajax({
+				url: "/auth",
+				type: "POST",
+				data: JSON.stringify(requestData),
+				dataType: "json",
+				contentType: "application/json; charset=utf-8",
+				success: function(response){
+					cli.connect(requestData);
+				},
+				error: function(xhr, status, error) {
+					// If we can't log in try to register
+					$.ajax({
+						url: "/register",
+						type: "POST",
+						data: JSON.stringify(requestData),
+						contentType: "application/json; charset=utf-8",
+						success: function(response){
+							cli.connect(requestData);
+						},
+						error: function(xhr, status, error) {
+							$("#goWarning").css("visibility", "visible");
+							$("#goWarning").html("<strong>Failed to authenticate!</strong>  Incorrect PIN entered for username '" + username + "'");
+						}
+					});
+				}
+			});
+			return false;
+		});
+
+		$("#registerForm").submit(function(e) {
+			$("#registerWarning").css("visibility", "hidden");
+			var requestData = {"email": this.elements["username1"].value, "pin": this.elements["pin1"].value};
+			username = this.elements["username1"].value;
+			$.ajax({
+				url: "/register",
+				type: "POST",
+				data: JSON.stringify(requestData),
+				contentType: "application/json; charset=utf-8",
+				success: function(response){
+					cli.connect(requestData);
+				},
+				error: function(xhr, status, error) {
+					$("#registerWarning").css("visibility", "visible");
+					if (error == "Conflict") {
+						$("#registerWarning").html("<strong>Username '" + username + "' is already taken!</strong>  Please choose another.");
 					}
-				});
-			}
-		});
-		return false;
-	});
-	
-	$("#registerForm").submit(function(e) {
-		$("#registerWarning").css("visibility", "hidden");
-		var requestData = {"email": this.elements["username1"].value, "pin": this.elements["pin1"].value};
-		username = this.elements["username1"].value;
-		$.ajax({
-			url: "/register",
-			type: "POST",
-			data: JSON.stringify(requestData),
-			contentType: "application/json; charset=utf-8",
-			success: function(response){
-				cli.connect(requestData);
-			},
-			error: function(xhr, status, error) {
-				$("#registerWarning").css("visibility", "visible");
-				if (error == "Conflict") {
-					$("#registerWarning").html("<strong>Username '" + username + "' is already taken!</strong>  Please choose another.");
+					else {
+						$("#registerWarning").html("<strong>Failed to register username!</strong>  " + error);
+					}
 				}
-				else {
-					$("#registerWarning").html("<strong>Failed to register username!</strong>  " + error);
+			});
+			return false;
+		});
+
+		$("#connectForm").submit(function(e) {
+			$("#connectWarning").css("visibility", "hidden");
+			var requestData = {"email": this.elements["username2"].value, "pin": this.elements["pin2"].value};
+			username = this.elements["username2"].value;
+			$.ajax({
+				url: "/auth",
+				type: "POST",
+				data: JSON.stringify(requestData),
+				dataType: "json",
+				contentType: "application/json; charset=utf-8",
+				success: function(response){
+					cli.setExpectDisconnect(false);
+					cli.connect(requestData);
+				},
+				error: function(xhr, status, error) {
+					$("#connectWarning").css("visibility", "visible");
+					$("#connectWarning").html("<strong>Failed to connect!</strong>  Invalid combination of username and PIN");
 				}
-			}
+			});
+			return false;
 		});
-		return false;
-	});
 
-	$("#connectForm").submit(function(e) {
-		$("#connectWarning").css("visibility", "hidden");
-		var requestData = {"email": this.elements["username2"].value, "pin": this.elements["pin2"].value};
-		username = this.elements["username2"].value;
-		$.ajax({
-			url: "/auth",
-			type: "POST",
-			data: JSON.stringify(requestData),
-			dataType: "json",
-			contentType: "application/json; charset=utf-8",
-			success: function(response){
-				cli.setExpectDisconnect(false);
-				console.log("connectForm: expectDisconnect:"+expectDisconnect);
-				cli.connect(requestData);
-			},
-			error: function(xhr, status, error) {
-				$("#connectWarning").css("visibility", "visible");
-				$("#connectWarning").html("<strong>Failed to connect!</strong>  Invalid combination of username and PIN");
-			}
-		});
-		return false;
+		$("#signoutButton").click(
+				function(){
+					/*
+					 * We have been deliberately requested to close the web socket connection, so let's tell the client
+					 * so it knows not to reconnect automatically.
+					 */				
+					cli.setExpectDisconnect(true);
+					cli.disconnect();
+				}
+		);
 	});
-
-	$("#signoutButton").click(
-		function(){
-			cli.setExpectDisconnect(true); // We expect the web socket connection to close
-			cli.disconnect();
-		}
-	);
 	
 	function vibrateWarning() {
+		/*
+		 * Excessive vibration has been detected from the incoming events! Show an alert and switch off the excessive vibration detector while
+		 * the alert is being shown
+		 */
 		cli.setExcessiveVibrationDetected(true);
 		$("#vibrationWarning").css("visibility", "visible");
 		setTimeout(function() {
-			// Turn off the visible warning
 			$("#vibrationWarning").css("visibility", "hidden");
 			// Reset the excessive vibration detector
 			cli.setExcessiveVibrationDetected(false);
@@ -292,22 +309,9 @@
 			}
 			valuesSet.push(values);
 		}
-
-		//////////////////////////
 		
 		var minval = this.properties.minValue;
 		var maxval = this.properties.maxValue;
-
-		/*
-		if (this.properties.scalable) {
-			for (var i in valuesSet) { 
-				for (var j in valuesSet[i]) {
-					if (valuesSet[i][j].y < minval) { minval = valuesSet[i][j].y; } 
-					if (valuesSet[i][j].y > maxval) { maxval = valuesSet[i][j].y; } 
-				}
-			}
-		}
-		*/
 
 		var margin = {
 			top: 30, 
@@ -337,22 +341,6 @@
 		var line = new d3.svg.line()
 			.x(function(d) { return x(d.x); })
 			.y(function(d) { return y(d.y); });
-		/*
-		for (var i in this.properties.stats) {
-			var props = this.properties;
-			lines.push(new d3.svg.line()
-				.x(function(d) { return x(d.x); })
-				.y(function(d) { 
-					(function(idx) { 
-						console.log(props, idx);
-						console.log(y(d[props.stats[idx].field]));
-						return function() { 
-							return y(d[props.stats[idx].field]); 
-						} 
-					})(i) 
-				}));
-		}
-		*/
 
 		// Adds the svg canvas
 		$("#"+this.domId).html("");
@@ -403,7 +391,6 @@
 	}
 
 	function updateGraphs() {
-		// TODO: update all graphs
 		for (var i in graphs) { graphs[i].update(); }
 	}
 
@@ -427,7 +414,6 @@
 		],
 		minValue: -15,
 		maxValue: 15 
-		//scalable: true
 	}));
 
 	graphs.push(new Graph("gyroData", {
@@ -440,6 +426,5 @@
 		minValue: -400,
 		maxValue: 400 
 	}));
-
 
 }(window));

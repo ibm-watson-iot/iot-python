@@ -24,6 +24,14 @@ div#connectedPanel {
 	display:none
 }
 
+form#goForm, form#registerForm, form#connectForm {
+	visibility: hidden
+}
+
+button#signoutButton {
+	visibility: hidden
+}
+
 form.form-inline {
 	margin-bottom: 1em;
 }

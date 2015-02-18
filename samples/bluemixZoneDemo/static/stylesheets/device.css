@@ -50,6 +50,11 @@ input {
 	color: #000
 }
 
+button#connectButton{
+	visibility: hidden;
+	color: #000
+}
+
 .outer-main {
 	position: relative;
 	min-height: 100vh;

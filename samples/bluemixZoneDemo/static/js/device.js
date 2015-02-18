@@ -81,6 +81,11 @@
     function connectDevice(client){
 		document.getElementById("connection").innerHTML = "Connecting...";	
     	console.log("Connecting device to IoT Foundation...");
+    	// Disable the connect button and gray it out as we have started the MQTT connect cycle. If a connection fails,
+    	// or if it's later dropped, the device will automatically try reconnecting again - no manual intervention
+    	// is required from this point on.
+    	document.getElementById("connectButton").disabled = true;
+    	$("#connectButton").css("color", "#999");
 		client.connect({
 			onSuccess: onConnectSuccess,
 			onFailure: onConnectFailure,
@@ -121,7 +126,10 @@
 		});
     }
 	
-	$("#connectButton").click(getDeviceCredentials);
+    $(document).ready(function() {
+    	$("#connectButton").css("visibility", "visible");
+    	$("#connectButton").click(getDeviceCredentials);
+    });
 
     var deviceId = window.deviceId;
 	document.getElementById("connection").innerHTML = "Disconnected";
