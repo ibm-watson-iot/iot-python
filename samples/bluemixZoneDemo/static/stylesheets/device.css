@@ -67,6 +67,7 @@ input#pin{
 
 .watermark {
 	position: absolute;
+	z-index: -1;
 	width: 100%;
 	left: -20px;
 	top: 10px;
