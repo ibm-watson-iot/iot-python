@@ -112,6 +112,48 @@ button#connectButton{
 	right: 5%;
 }
 
+input#pin {
+	color: #1d3649;
+	width: 8em;
+}
+
+input#pin, button#connectButton {
+	font-size: 16px;
+	line-height: 1;
+}
+
+button#connectButton {
+	color: #ececec;
+	background-color: #1d3649;
+	border: 1px solid #ececec;
+}
+
+button#connectButton:active {
+	background-color: #ececec;
+	color: #1d3649;
+	border: 1px solid #1d3649;
+}
+
+#connection {
+	margin-top: 1rem;
+}
+
+#connection:empty {
+	display: none;
+}
+
+#connection:before {
+	content: " ";
+	display: inline-block;
+	vertical-align: middle;
+	background-size: 100% auto;
+	background-repeat: no-repeat;
+	background-image: url('/static/images/warning.svg');
+	width: 1.5em;
+	height: 1.5em;
+	margin-right: 0.5em;
+}
+
 .data-table {
 	width: 100%;
 	background-color: #ececec;
