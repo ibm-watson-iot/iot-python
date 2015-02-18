@@ -67,6 +67,7 @@
 					<div id="connectedPanel">
 						<p>Hi, <span id="myUsername">My Username</span>!</p>
 						<p>Open the following page in your phone's browser and enter your PIN to turn your phone into your personal IOT connected device: <a id="myDeviceLink" href="#">My Device</a></p>
+						<div class="medium-large-font center-text" id="qrcode"></div>
 						<div>
 							<button id="signoutButton" type="button" class="btn btn-default">Switch User</button>
 						</div>
@@ -153,6 +154,7 @@
 	<script type="text/javascript" src="/static/js/jquery.js"></script>
 	<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/static/js/util.js"></script>
+	<script type="text/javascript" src="/static/js/jquery.qrcode.min.js"></script>
 	<script type="text/javascript" src="/static/js/cube.js"></script>
 </body>
 </html>

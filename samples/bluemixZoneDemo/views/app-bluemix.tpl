@@ -8,7 +8,7 @@
 <body class="iotDemo">
 	<section class="white-section section-base" id="name-entry-section">
 		<div class="medium-large-font center-text">First...</div>
-		<p class="medium-font center-text" id="first-steps">Give your smartphone a somewhat unique name and a 4-digit code.
+		<p class="medium-font center-text" id="first-steps">Give your smartphone a unique name and a 4-digit code.
 We’ll generate a URL for you to open in your phone’s browser.</p>
 		<div class="use-code-input-row" id="connectPanel">
 			<form id="goForm">

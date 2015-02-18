@@ -16,6 +16,10 @@ a#myDeviceLink{
 	font-weight:bold
 }
 
+#qrcode {
+	padding: 1rem;
+}
+
 div#connectWarning, div#registerWarning , div#goWarning, div#vibrationWarning {
 	visibility: hidden
 }
