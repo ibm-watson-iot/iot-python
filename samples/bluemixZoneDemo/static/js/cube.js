@@ -1,7 +1,20 @@
 (function(window){
 	function Client() {
 		var ws;
-
+		var expectDisconnect = false;
+		var excessiveVibrationDetected = false;
+		
+		this.setExpectDisconnect = function(bool) {
+			expectDisconnect = bool;
+		}
+		
+		this.setExcessiveVibrationDetected = function(bool) {
+			excessiveVibrationDetected = bool;
+		}
+		
+		/*
+		 * Open a web socket connection to the iotzone server
+		 */
 		this.connect = function(data) {
 			console.log("Connecting to live data feed for user " + data.email);
 			ws = new WebSocket("ws://" + window.location.host + "/websocket");
@@ -10,8 +23,21 @@
 				ws.send(message);
 				$("#status-message").text("Connected as " + data.email)
 			};
+			ws.onclose = function() {
+				/*
+				 * Connection has been closed by the server. If this is unexpected (i.e., not initiated by the user), then
+				 * we should try re-establishing it.
+				 */
+				if (!expectDisconnect) {
+					console.log("Web socket connection dropped. Reconnecting in one second...");
+					// We'll connect in a second's time, to avoid hammering the server in the event of a chronic issue
+					setTimeout(function() {
+						cli.connect(data)}, 1000);
+				} else {
+					console.log("Web socket connection closed successfully");
+				}
+			};
 			ws.onmessage = function (evt) {
-				console.log("Event data received: " + evt.data);
 				var msg = JSON.parse(evt.data)
 				var values = {
 					time: (new Date()).getTime(),
@@ -22,7 +48,14 @@
 					rotB: parseFloat(msg.ob),
 					rotG: parseFloat(msg.og)
 				};
+				
+				// Calculate if a device is vibrating excessively
 				values["accelMag"] = Math.sqrt(values.accelX * values.accelX + values.accelY * values.accelY + values.accelZ * values.accelZ);
+				if (values["accelMag"] >= 20 && (!excessiveVibrationDetected)) {
+					// Excessive vibration detected - so let's render this on the page
+					vibrateWarning();
+				}
+									
 				sensorData.push(values);
 				render(values.rotB, values.rotG, values.rotA);
 				updateGraphs();
@@ -118,6 +151,8 @@
 			dataType: "json",
 			contentType: "application/json; charset=utf-8",
 			success: function(response){
+				cli.setExpectDisconnect(false);
+				console.log("connectForm: expectDisconnect:"+expectDisconnect);
 				cli.connect(requestData);
 			},
 			error: function(xhr, status, error) {
@@ -130,10 +165,21 @@
 
 	$("#signoutButton").click(
 		function(){
+			cli.setExpectDisconnect(true); // We expect the web socket connection to close
 			cli.disconnect();
 		}
 	);
 	
+	function vibrateWarning() {
+		cli.setExcessiveVibrationDetected(true);
+		$("#vibrationWarning").css("visibility", "visible");
+		setTimeout(function() {
+			// Turn off the visible warning
+			$("#vibrationWarning").css("visibility", "hidden");
+			// Reset the excessive vibration detector
+			cli.setExcessiveVibrationDetected(false);
+		}, 2000);
+	}
 	
 	var cli = new Client();
 	var username;

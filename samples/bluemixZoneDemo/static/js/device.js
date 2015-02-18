@@ -35,7 +35,7 @@
     }
 
     function publish() {
-    	// We only attempty to publish if we're actually connected, saving CPU and battery
+    	// We only attempt to publish if we're actually connected, saving CPU and battery
 		if (isConnected) {
 	    	var payload = {
 	            "d": {
@@ -60,7 +60,7 @@
 				// Alternatively, we could use Paho's onConnectionLost mechanism.
 				isConnected = false;
 				document.getElementById("connection").innerHTML = "Disconnected";
-				setTimeout(connectDevice, 1000);		
+				setTimeout(connectDevice(client), 1000);		
 			}
 		}
     }
@@ -74,11 +74,22 @@
 
     function onConnectFailure(){
     	// The device failed to connect. Let's try again in one second.
-        console.log("Could not connect!");
-        setTimeout(connectDevice, 1000);	
+        console.log("Could not connect to IoT Foundation! Trying again in one second.");
+        setTimeout(connectDevice(client), 1000);	
     }
     
-    function connectDevice() {
+    function connectDevice(client){
+		document.getElementById("connection").innerHTML = "Connecting...";	
+    	console.log("Connecting device to IoT Foundation...");
+		client.connect({
+			onSuccess: onConnectSuccess,
+			onFailure: onConnectFailure,
+			userName: "use-token-auth",
+			password: password
+		});
+    }
+    
+    function getDeviceCredentials() {
 		var data = {"email": window.deviceId, "pin": document.getElementById('pin').value};
 		$.ajax({
 			url: "/auth",
@@ -94,13 +105,8 @@
 				client = new Paho.MQTT.Client(orgId+".messaging.internetofthings.ibmcloud.com", 1883, clientId);
 
 				console.log("Attempting connect");
-				document.getElementById("connection").innerHTML = "Connecting...";	
-				client.connect({
-					onSuccess: onConnectSuccess,
-					onFailure: onConnectFailure,
-					userName: "use-token-auth",
-					password: password
-				});
+
+				connectDevice(client);
 
 				/*
 				 * Now start the publish cycle to publish 10 times a second. This offers smooth animations 
@@ -115,7 +121,7 @@
 		});
     }
 	
-	$("#connectButton").click(connectDevice);
+	$("#connectButton").click(getDeviceCredentials);
 
     var deviceId = window.deviceId;
 	document.getElementById("connection").innerHTML = "Disconnected";

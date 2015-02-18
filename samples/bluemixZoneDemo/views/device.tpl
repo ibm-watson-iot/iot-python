@@ -32,7 +32,7 @@
 			<p>Using MQTT messaging, the accelerometer data from your phone is being sent to the IoT Foundation.</p>
 			<p>A Bluemix app is using this data to mirror your movements &mdash; go on, try moving your phone.</p>
 			<h3>Still not convinced?</h3>
-			<p>Using the Twitter API, the app will tweet if your phone moves too fast. Start shaking!</p>
+			<p>The application will flag a warning if your phone moves too fast. Start shaking!</p>
 			<h3>Watch that raw data go!</h3>
 		</div>
 		<div class="main">

@@ -41,15 +41,15 @@
 						<div>
 							<button id="signoutButton" type="button" class="btn btn-default">Switch User</button>
 						</div>
+						<div class="alert alert-danger" role="alert" id="vibrationWarning">Excessive device vibration detected!</div>
 						<br />
-						
 						<ul class="nav nav-pills">
 						  <li class="active"><a href="#tab_a" data-toggle="tab">Visualization</a></li>
 						  <li><a href="#tab_b" data-toggle="tab">Vibration</a></li>
 						  <li><a href="#tab_c" data-toggle="tab">Motion</a></li>
 						  <li><a href="#tab_d" data-toggle="tab">Orientation</a></li>
 						  <li><a href="#tab_e" data-toggle="tab">How it Works</a></li>
-						</ul>
+						</ul>				
 						<div class="tab-content">
 							<div class="tab-pane active" id="tab_a">
 								<div class="panel panel-default">

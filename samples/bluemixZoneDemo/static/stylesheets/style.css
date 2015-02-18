@@ -16,7 +16,7 @@ a#myDeviceLink{
 	font-weight:bold
 }
 
-div#connectWarning, div#registerWarning , div#goWarning {
+div#connectWarning, div#registerWarning , div#goWarning, div#vibrationWarning {
 	visibility: hidden
 }
 
