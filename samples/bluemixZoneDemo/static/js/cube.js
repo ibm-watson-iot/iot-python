@@ -431,6 +431,17 @@
 			.call(yAxis);
 
 		var colors = ["#1d3649", "#41d6c3", "#5596e6"];
+		
+		// Add a key to the graph, including a white rectangle so the key is not
+		// overwritten by incoming data from the phone
+		
+		svg.append("svg:rect")
+				.attr("x", width - 125)
+				.attr("y", 0)
+				.attr("height", 5+(i * 22))
+				.attr("width", 120)
+				.attr("stroke", "#ffffff")
+				.attr("fill", "#ffffff");
 		for (var i = 0 ; i < valuesSet.length; i++) {
 			svg.append("svg:rect")
 					.attr("x", width - 120)
@@ -469,8 +480,8 @@
 			{ field: "accelY", name: "Accel Y" },
 			{ field: "accelZ", name: "Accel Z" }
 		],
-		minValue: -25,
-		maxValue: 25 
+		minValue: -30,
+		maxValue: 30 
 	}));
 
 	graphs.push(new Graph("gyroData", {
