@@ -40,12 +40,12 @@ else:
 	# Ensure you blank these out before committing/uploading the code
 	uri = "localhost"
 
-	organization = ""
-	authKey = ""
-	authToken = ""
+	organization = "m7w5zl"
+	authKey = "a-m7w5zl-vc8nxuaw00"
+	authToken = "IGx4DQwZ?hw6s+q8sa"
 	authMethod = "apikey"
-	dbUsername = ""
-	dbPassword = ""
+	dbUsername = "7236e716-ecac-4059-b782-d6b8baeb49e5-bluemix"
+	dbPassword = "4d28798d9693939048865720fc608f25100fe529b5e32953ca5d8de7c6dea90f"
 
 dbName = "iotfzonesample"
 port = int(os.getenv('VCAP_APP_PORT', 80))

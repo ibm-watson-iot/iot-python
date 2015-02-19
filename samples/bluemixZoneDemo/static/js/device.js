@@ -130,6 +130,9 @@
     }
 	
     $(document).ready(function() {
+    	// We can now hide the loading screen, and show the main demo
+    	$("#loading").css("visibility", "hidden");
+    	$("#maindemo").css("visibility", "visible");
     	$("#connectButton").css("visibility", "visible");
     	$("#connectButton").click(getDeviceCredentials);
     });
