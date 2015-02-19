@@ -145,6 +145,11 @@ button#connectButton{
 	height: 35px;
 }
 
+.iot-connected-image {
+	max-width: 50px;
+	max-height: 60px;
+}
+
 .iot-footer {
 	position: absolute;
 	bottom: 0;

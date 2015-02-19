@@ -20,19 +20,22 @@
 		<div class="trail right"></div>
 		<img class="plane left" src="/static/images/plane.svg" />
 		<img class="plane right r180" src="/static/images/plane.svg" />
-		<div class="iot-footer-container">
-			<img class="iot-footer" src="/static/images/iot-footer.svg" />
-		</div>
 		<div class="main">
 			<h1>Your device ID:</h1>
 			<h2><span id="deviceId">{{deviceId}}</span></h2>
 			<input id="pin" type="password" />
+			<br>
 			<button id="connectButton">Connect</button>
+			
+			<p>
+    		Connection status:
+    		<img id="connectionImage" src="/static/images/disconnected.svg" class="iot-connected-image" style="vertical-align:middle">
+			</p>​
 			<h3>So what exactly is happening here?</h3>
 			<p>Using MQTT messaging, the accelerometer data from your phone is being sent to the IoT Foundation.</p>
 			<p>A Bluemix app is using this data to mirror your movements &mdash; go on, try moving your phone.</p>
 			<h3>Still not convinced?</h3>
-			<p>The application will flag a warning if your phone moves too fast. Start shaking!</p>
+			<p>See what happens when you shake your phone harder!</p>
 			<h3>Watch that raw data go!</h3>
 		</div>
 		<div class="main">
@@ -64,17 +67,6 @@
 					<td id="accx">X</td>
 					<td id="accy">Y</td>
 					<td id="accz">Z</td>
-				</tr>
-			</table>
-			<table class="data-table">
-				<tr class="table-title">
-					<th colspan="1">Device status</th>
-				</tr>
-				<tr class="data-title">
-					<th>Connection</th>
-				</tr>
-				<tr>
-					<td id="connection">N/A</td>
 				</tr>
 			</table>
 		</div>

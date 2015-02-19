@@ -59,7 +59,7 @@
 				// to rapid connect attempts and hence drain the battery/use unnecessary network bandwidth.
 				// Alternatively, we could use Paho's onConnectionLost mechanism.
 				isConnected = false;
-				document.getElementById("connection").innerHTML = "Disconnected";
+				changeConnectionStatusImage("/static/images/disconnected.svg");
 				setTimeout(connectDevice(client), 1000);		
 			}
 		}
@@ -69,7 +69,7 @@
     	// The device connected successfully
         console.log("Connected Successfully!");
         isConnected = true;
-        document.getElementById("connection").innerHTML = "Connected";
+        changeConnectionStatusImage("/static/images/connected.svg");
     }
 
     function onConnectFailure(){
@@ -79,7 +79,7 @@
     }
     
     function connectDevice(client){
-		document.getElementById("connection").innerHTML = "Connecting...";	
+    	changeConnectionStatusImage("/static/images/connecting.svg");
     	console.log("Connecting device to IoT Foundation...");
     	// Disable the connect button and gray it out as we have started the MQTT connect cycle. If a connection fails,
     	// or if it's later dropped, the device will automatically try reconnecting again - no manual intervention
@@ -132,6 +132,12 @@
     });
 
     var deviceId = window.deviceId;
-	document.getElementById("connection").innerHTML = "Disconnected";
 	
+	/*
+	 * Change the image that shows connection status
+	 */
+	function changeConnectionStatusImage(image) {
+        document.getElementById("connectionImage").src=image;
+    }
+
 }(window));
