@@ -48,7 +48,6 @@
 				}
 			};
 			ws.onmessage = function (evt) {
-				console.log("Event data received: " + evt.data);
 				var msg = JSON.parse(evt.data)
 				var values = {
 					time: (new Date()).getTime(),
@@ -379,16 +378,15 @@
 		var width = $("#"+this.domId).parent().width() - margin.left - margin.right;
 		var height = 300 - margin.top - margin.bottom;
 
-		// Parse the date / time
-		var parseDate = d3.time.format("%d-%b-%y").parse;
-
+		
 		// Set the ranges
 		var x = d3.time.scale().range([0, width]);
 		var y = d3.scale.linear().range([height, 0]);
 
+		
 		// Define the axes
 		var xAxis = d3.svg.axis().scale(x)
-			.orient("bottom").ticks(5);
+			.orient("bottom").ticks(5).tickFormat("").outerTickSize(0);
 
 		var yAxis = d3.svg.axis().scale(y)
 			.orient("left").ticks(5);
