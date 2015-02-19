@@ -28,7 +28,7 @@
 			 * wss establishes a secure websocket
 			 * ws establishes an insecure websocket (required for use when accessing the sample via https
 			 */
-			ws = new WebSocket("ws://" + window.location.host + "/websocket");
+			ws = new WebSocket("wss://" + window.location.host + "/websocket");
 			ws.onopen = function() {
 				var message = JSON.stringify(data);
 				ws.send(message);
