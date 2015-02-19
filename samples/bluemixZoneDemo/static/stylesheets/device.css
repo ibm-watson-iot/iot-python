@@ -55,6 +55,10 @@ button#connectButton{
 	color: #000
 }
 
+input#pin{
+	visibility: hidden;
+}
+
 .outer-main {
 	position: relative;
 	min-height: 100vh;
@@ -152,10 +156,6 @@ button#connectButton{
 
 div#maindemo {
 	visibility: hidden;
-}
-
-div#loading {
-	visibility: visible;
 }
 
 .iot-footer {

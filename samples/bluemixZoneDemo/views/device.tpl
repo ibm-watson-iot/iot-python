@@ -15,21 +15,17 @@
 		<div class="trail right"></div>
 		<img class="plane left" src="/static/images/plane.svg" />
 		<img class="plane right r180" src="/static/images/plane.svg" />
-		<div id="loading" class="main">
-			<h1>Loading...</h1>
-		</div>
-		<div id="maindemo" class="main">
+		<div id="main" class="main">
 			<h1>Your device ID:</h1>
 			<h2><span id="deviceId">{{deviceId}}</span></h2>
-			<h3>Enter your 4-digit code:</h3>
-			<input id="pin" type="password" placeholder="Enter your 4-digit code" inputmode="numeric" maxlength="4"/>
+			<h3><span id="instructions">Loading...</span></h3>
+			<input id="pin" type="password" placeholder="Code" inputmode="numeric" maxlength="4"/>
 			<button id="connectButton">Connect</button>
-			<p>
-    		<img id="connectionImage" src="/static/images/disconnected.svg" class="iot-connected-image" style="vertical-align:middle">
-    		<span id="connection">Disconnected</span>
-			</p>
-		</div>
-		<div class="main">​
+			<br>
+			<p style="padding-top:10px">
+    			<img id="connectionImage" src="/static/images/disconnected.svg" class="iot-connected-image" style="vertical-align:middle">
+    			<span id="connection">Disconnected</span>
+			</p>​
 			<h3>So what exactly is happening here?</h3>
 			<p>Using MQTT messaging, the accelerometer data from your phone is being sent to the IoT Foundation.</p>
 			<p>A Bluemix app is using this data to mirror your movements &mdash; go on, try moving your phone.</p>

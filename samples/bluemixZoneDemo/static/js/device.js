@@ -130,9 +130,9 @@
     }
 	
     $(document).ready(function() {
-    	// We can now hide the loading screen, and show the main demo
-    	$("#loading").css("visibility", "hidden");
-    	$("#maindemo").css("visibility", "visible");
+    	// We can now display the instructions and enable the form to start the connection
+    	document.getElementById("instructions").innerHTML = "Enter your 4-digit code:";
+    	$("#pin").css("visibility", "visible");
     	$("#connectButton").css("visibility", "visible");
     	$("#connectButton").click(getDeviceCredentials);
     });

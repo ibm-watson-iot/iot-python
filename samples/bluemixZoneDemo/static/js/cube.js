@@ -271,8 +271,8 @@
 	var mouseX = 0;
 	var mouseXOnMouseDown = 0;
 
-	var width = 300;
-	var height = 300;
+	var width = 270;
+	var height = 270;
 
 	init();
 	render(0, 0, 0);

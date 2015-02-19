@@ -26,12 +26,12 @@ div#connectWarning, div#registerWarning , div#goWarning, div#vibrationWarning {
 	text-align:center; 
 	border-bottom: 1px solid red; 
 	line-height:0.1em; 
-	margin:10px 0 20px; 
+	margin:30px 0 20px; 
 }
 
 .iotDemo .alert span{
 	background:#fff; 
-	padding:0 10px; 
+	padding:0px 10px; 
 	color: red;
 	font-size: 20px;
 }
@@ -232,10 +232,11 @@ form#goForm {
 #cube {
 	margin-left:auto;
 	margin-right:auto;
-	height: 300px;
-	width: 300px;
+	height: 270px;
+	width: 270px;
 	background-color: #f4f4f4;
 	border: 1px #2d3f4a solid;
+	vertical-align: middle;
 }
 
 #visualisations {
