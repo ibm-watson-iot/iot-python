@@ -23,6 +23,7 @@
 		<div class="main">
 			<h1>Your device ID:</h1>
 			<h2><span id="deviceId">{{deviceId}}</span></h2>
+			<h3>Enter your 4-digit code:</h3>
 			<input id="pin" type="password" maxlength="4" size="4"/>
 			<button id="connectButton">Connect</button>
 			<p>
