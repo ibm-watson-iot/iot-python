@@ -71,7 +71,7 @@
 						<div>
 							<button id="signoutButton" type="button" class="btn btn-default">Switch User</button>
 						</div>
-						<div class="alert alert-danger" role="alert" id="vibrationWarning">Excessive device vibration detected!</div>
+						<div class="alert alert-danger" role="alert" id="vibrationWarning">Wow! We've detected some serious shaking!</div>
 						<br />
 						
 						<ul class="nav nav-pills">

@@ -18,7 +18,7 @@
 				<button class="section-button black-button" type="submit">Go play!</button>
 			</form>
 		</div>
-		<div id="goWarning">&nbsp;</div>
+		<div class="alert" id="goWarning"><span>&nbsp;</span></div>
 	</div>
 
 
@@ -35,27 +35,29 @@
 			<p class="medium-font center-text">Enter your 4-digit code on your phone and then try moving your phone around.<br />
 			<p class="medium-font center-text">See the model and graph below mirroring your movements?</p>
 			<p class="medium-font center-text">This is made possible via MQTT messaging, the IoT Foundation, and this cool sample that's hosted on Bluemix! This is all done using secure connections.</p>
-			<div class="alert alert-danger" role="alert" id="vibrationWarning">Excessive device vibration detected!</div>
 		</div>
 		
 		<div class="container" id="visualisations">
     		<div class="row">
-      			<div class="panel-body col-md-6 col-sm-12 col-lg-3 center-text">
-					<p>3D visualisation</p>
+      			<div class="col-md-6 col-sm-12 col-lg-3 center-text">
+					<p class="medium-font-bold style="font-weight:bold">Your device</p>
 					<div id="cube"></div>
 				</div>
-				<div class="panel-body col-md-6 col-sm-12 col-lg-3 center-text">
-					<p>Vibration</p>
+				<div class="col-md-6 col-sm-12 col-lg-3 center-text">
+					<p class="medium-font-bold style="font-weight:bold">Vibration</p>
 					<div id="magData" class="graphHolder"></div>
 				</div>
-				<div class="panel-body col-md-6 col-sm-12 col-lg-3 center-text">
-					<p>Motion</p>
+				<div class="col-md-6 col-sm-12 col-lg-3 center-text">
+					<p class="medium-font-bold style="font-weight:bold">Motion</p>
 					<div id="accelData" class="graphHolder"></div>
 				</div>
-				<div class="panel-body col-md-6 col-sm-12 col-lg-3 center-text">
-					<p>Orientation</p>
+				<div class="col-md-6 col-sm-12 col-lg-3 center-text">
+					<p class="medium-font-bold style="font-weight:bold">Orientation</p>
 					<div id="gyroData" class="graphHolder"></div>
 				</div>			
+    		</div>
+    		<div class="row">
+    			<div class="alert" id="vibrationWarning"><span>Wow! We've detected some serious shaking!</span></div>
     		</div>
     	</div>
 	</div>
