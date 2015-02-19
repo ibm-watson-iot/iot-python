@@ -332,8 +332,6 @@
 		this.maxValues = 400;
 		this.domId = domId;
 		this.properties = properties;
-		
-		this.update();
 	}
 
 	Graph.prototype.update = function() {
