@@ -38,7 +38,7 @@
 			<div class="alert alert-danger" role="alert" id="vibrationWarning">Excessive device vibration detected!</div>
 		</div>
 		
-		<div class="container">
+		<div class="container" id="visualisations">
     		<div class="row">
       			<div class="panel-body col-md-6 col-sm-12 col-lg-3 center-text">
 					<p>3D visualisation</p>
