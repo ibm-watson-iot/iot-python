@@ -11,25 +11,25 @@
 	</script>
 	
 	<div class="outer-main">
+		<!--
+			For some reason this watermark sits IN FRONT of the rest of the page, which makes it impossible to interact with the page.
+			Whoever pretties this up can fix it, or remove it!
+			<img class="watermark" src="/static/images/bg.svg" />
+		-->
 		<div class="trail left"></div>
 		<div class="trail right"></div>
 		<img class="plane left" src="/static/images/plane.svg" />
 		<img class="plane right r180" src="/static/images/plane.svg" />
-		<div id="loading" class="main">
-			<h1>Loading...</h1>
-		</div>
-		<div id="maindemo" class="main">
+		<div class="main">
 			<h1>Your device ID:</h1>
 			<h2><span id="deviceId">{{deviceId}}</span></h2>
 			<h3>Enter your 4-digit code:</h3>
-			<input id="pin" type="password" placeholder="Enter your 4-digit code" inputmode="numeric" maxlength="4"/>
+			<input id="pin" type="password" maxlength="4" size="4"/>
 			<button id="connectButton">Connect</button>
 			<p>
     		<img id="connectionImage" src="/static/images/disconnected.svg" class="iot-connected-image" style="vertical-align:middle">
     		<span id="connection">Disconnected</span>
-			</p>
-		</div>
-		<div class="main">​
+			</p>​
 			<h3>So what exactly is happening here?</h3>
 			<p>Using MQTT messaging, the accelerometer data from your phone is being sent to the IoT Foundation.</p>
 			<p>A Bluemix app is using this data to mirror your movements &mdash; go on, try moving your phone.</p>
