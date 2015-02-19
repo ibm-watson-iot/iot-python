@@ -33,6 +33,8 @@
 				var message = JSON.stringify(data);
 				ws.send(message);
 				$("#status-message").text("Connected as " + data.email)
+				// Update the graphs so even if we're not receiving data, we at least have empty charts to show
+				updateGraphs();
 			};
 			ws.onclose = function() {
 				// Reconnect in a second's time, to avoid hammering the server in the event of a chronic issue
