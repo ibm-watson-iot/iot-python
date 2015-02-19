@@ -150,6 +150,14 @@ button#connectButton{
 	max-height: 60px;
 }
 
+div#maindemo {
+	visibility: hidden;
+}
+
+div#loading {
+	visibility: visible;
+}
+
 .iot-footer {
 	position: absolute;
 	bottom: 0;
