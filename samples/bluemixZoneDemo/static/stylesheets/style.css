@@ -50,20 +50,20 @@ form.form-inline {
 
 
 /* Graph styles */
-.redline {
-	stroke: darkred;			/* the line colour for paths is steelblue */
+.primaryline {
+	stroke: #1d3649;			/* the line colour for paths*/
 	stroke-width: 2;			/* the line width for paths is 2 pixels */
 	fill: none;
 }
 
-.blueline {
-	stroke: darkblue;			/* the line colour for paths is steelblue */
+.secondaryline {
+	stroke: #41d6c3;			/* the line colour for paths*/
 	stroke-width: 2;			/* the line width for paths is 2 pixels */
 	fill: none;
 }
 
-.greenline {
-	stroke: darkgreen;			/* the line colour for paths is steelblue */
+.tertiaryline {
+	stroke: #5596e6;			/* the line colour for paths*/
 	stroke-width: 2;			/* the line width for paths is 2 pixels */
 	fill: none;
 }

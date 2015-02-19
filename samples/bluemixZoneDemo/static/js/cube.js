@@ -412,7 +412,7 @@
 		y.domain([minval, maxval]);
 
 		// Add the paths.
-		var classes = ["redline", "blueline", "greenline"];
+		var classes = ["primaryline", "secondaryline", "tertiaryline"];
 		for (var i = 0; i < valuesSet.length; i++) {
 			svg.append("path")
 				.attr("class", classes[i])
@@ -430,7 +430,7 @@
 			.attr("class", "y axis")
 			.call(yAxis);
 
-		var colors = ["darkred", "darkblue", "green"];
+		var colors = ["#1d3649", "#41d6c3", "#5596e6"];
 		for (var i = 0 ; i < valuesSet.length; i++) {
 			svg.append("svg:rect")
 					.attr("x", width - 120)
@@ -459,7 +459,7 @@
 			{ field: "accelMag", name: "Vibration" }
 		],
 		minValue: 0,
-		maxValue: 50 
+		maxValue: 70 
 	}));
 	
 	graphs.push(new Graph("accelData", {
@@ -469,8 +469,8 @@
 			{ field: "accelY", name: "Accel Y" },
 			{ field: "accelZ", name: "Accel Z" }
 		],
-		minValue: -15,
-		maxValue: 15 
+		minValue: -25,
+		maxValue: 25 
 	}));
 
 	graphs.push(new Graph("gyroData", {
@@ -480,8 +480,8 @@
 			{ field: "rotB", name: "Beta" },
 			{ field: "rotG", name: "Gamma" }
 		],
-		minValue: -400,
-		maxValue: 400 
+		minValue: -500,
+		maxValue: 500 
 	}));
 
 }(window));

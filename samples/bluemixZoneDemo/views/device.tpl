@@ -23,13 +23,11 @@
 		<div class="main">
 			<h1>Your device ID:</h1>
 			<h2><span id="deviceId">{{deviceId}}</span></h2>
-			<input id="pin" type="password" />
-			<br>
+			<input id="pin" type="password" maxlength="4" size="4"/>
 			<button id="connectButton">Connect</button>
-			
 			<p>
-    		Connection status:
     		<img id="connectionImage" src="/static/images/disconnected.svg" class="iot-connected-image" style="vertical-align:middle">
+    		<span id="connection">Disconnected</span>
 			</p>​
 			<h3>So what exactly is happening here?</h3>
 			<p>Using MQTT messaging, the accelerometer data from your phone is being sent to the IoT Foundation.</p>
