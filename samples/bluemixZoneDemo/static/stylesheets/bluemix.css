@@ -118,8 +118,14 @@ html, body {
 }
 
 .iotDemo .use-code-input-row input {
-	height: 24px;
+	height: 3.15rem;
 	margin-right: 1em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04rem;
+	justify-content: center;
+	text-align: center;
+	padding: 1rem;
 }
 
 
@@ -129,10 +135,17 @@ html, body {
 }
 
 .iotDemo .section-button {
-	padding: 5px 24px;
-	width: auto;
-	border: 1px #152935 solid;
-	font-weight: normal;
+	justify-content: center;
+	text-align: center;
+	text-decoration: none;
+	font-size: 1rem;
+	line-height: 1.45em;
+	letter-spacing: 0.04rem;
+	padding: 0.714rem 2.5rem;
+	color: #fff;
+	border: 2px solid #152935;
+	font-weight: 700;
+	text-transform: uppercase;
 }
 
 img.divider-line {
@@ -181,11 +194,11 @@ p#first-steps {
 }
 
 #name-entry-section input#username3 {
-	width: 12em;
+	width: inherit;
 }
 
 #name-entry-section input#pin3 {
-	width: 8em;
+	width: 10em;
 }
 
 #name-entry-section, #connectedPanel {
