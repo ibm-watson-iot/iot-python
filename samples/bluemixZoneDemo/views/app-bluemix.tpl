@@ -18,7 +18,7 @@
 		<p class="medium-font center-text" id="first-steps">Give your smartphone a unique name and a 4-digit code.  We’ll generate a URL for you to open in your phone’s browser.</p>
 		<div class="use-code-input-row center-text" id="connectPanel">
 			<form id="goForm">
-				<input type="text" id="username3" placeholder="ENTER DEVICE NAME" required>
+				<input type="text" id="username3" placeholder="DEVICE NAME" required>
 				<input type="password" id="pin3" placeholder="4-DIGIT CODE" inputmode="numeric" maxlength="4" required>
 				<button class="section-button black-button" type="submit">Go play!</button>
 			</form>
@@ -41,7 +41,7 @@
 			<p class="medium-font center-text">See the model and graph below mirroring your movements?</p>
 			<p class="medium-font center-text">This is made possible via MQTT messaging, the IoT Foundation, and this cool sample that's hosted on Bluemix! This is all done using secure connections.</p>
 		</div>
-		
+		<div class="alert" id="vibrationWarning"><span>Wow! We've detected some serious shaking!</span></div>
 		<div class="container" id="visualisations">
     		<div class="row">
       			<div class="col-md-6 col-sm-12 col-lg-3 center-text">
@@ -60,9 +60,6 @@
 					<p class="medium-font-bold style="font-weight:bold">Orientation</p>
 					<div id="gyroData" class="graphHolder"></div>
 				</div>			
-    		</div>
-    		<div class="row">
-    			<div class="alert" id="vibrationWarning"><span>Wow! We've detected some serious shaking!</span></div>
     		</div>
     	</div>
 	</div>

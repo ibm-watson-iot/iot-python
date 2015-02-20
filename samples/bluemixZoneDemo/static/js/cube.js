@@ -3,7 +3,7 @@
 	var cachedSize = getWindowScheme();
 	
 	function Client() {
-		var ws; // web socket to the iotzone application
+		var ws; // web socket to the sample application
 		var expectDisconnect = false; // allows the client to handle expected and unexpected disconnects from the iotzone application
 		var excessiveVibrationDetected = false; // allows the client to track excessive vibration from the phone
 		
@@ -103,15 +103,22 @@
 			updateParentIFrame()
 		}
 	}
-
+	
 	/*
 	 * Allows us to report page dimensions to a parent iframe
 	 * This is used in the bluemix theme, but is a no-op in all others
 	 */
 	function updateParentIFrame() {
 		if (isInIframe) {
-			var bodyHeight = document.body.clientHeight;
+			// TODO: Address this workaround to extend iFrame manually when bootstrap responsively renders the visualisation.
+			// Shortly we will deliver a more robust way of handling resizing in an iFrame.
+			var bootstrapExtraSize = 0;
+			if (getWindowScheme()=="xs") {bootstrapExtraSize = 980};
+			if (getWindowScheme()=="sm") {bootstrapExtraSize = 980};
+			if (getWindowScheme()=="md") {bootstrapExtraSize = 330};
+			var bodyHeight = document.body.clientHeight + bootstrapExtraSize;
 			if (bodyHeight != cachedHeight) {
+				updateGraphs(); // Ensures that graphs are drawn to correct size
 				console.log("Posting message to parent of iframe to resize to height " + bodyHeight);
 				window.parent.postMessage(bodyHeight, "*");
 				cachedHeight = bodyHeight;
