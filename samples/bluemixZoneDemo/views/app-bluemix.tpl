@@ -7,6 +7,11 @@
 		<meta charset="utf-8">
 </head>
 <body class="iotDemo">
+	<!-- divs to help us track resizing -->
+	<div class="device-xs visible-xs"></div>
+	<div class="device-sm visible-sm"></div>
+	<div class="device-md visible-md"></div>
+	<div class="device-lg visible-lg"></div>
 	<!-- Welcome Banner & Connect Panel -->
 	<div class="white-section" id="name-entry-section">
 		<div class="medium-large-font center-text">First...</div>

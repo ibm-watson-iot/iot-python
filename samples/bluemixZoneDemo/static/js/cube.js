@@ -1,4 +1,7 @@
 (function(window){
+	// Work out what size window we are in when we start - we need to know this if embedded in an iFrame
+	var cachedSize = getWindowScheme();
+	
 	function Client() {
 		var ws; // web socket to the iotzone application
 		var expectDisconnect = false; // allows the client to handle expected and unexpected disconnects from the iotzone application
@@ -269,6 +272,15 @@
 	// Allows the page to be embedded in an iframe and report resize events to the parent
 	var cachedHeight = undefined;
 	var isInIframe = (window.location != window.parent.location) ? true : false;
+	// If embedded in an iFrame, we want to ensure that any responsive resizing by Bluemix is reflected in the parent iFrame. We only do this if we 
+	// can detect a specific change in rendering.
+	$(window).resize(function () {
+		var newSize = getWindowScheme();
+		if (newSize!=cachedSize) {
+			cachedSize = newSize;
+			updateParentIFrame();
+		}
+	});
 	
 	var cli = new Client();
 	var username;
@@ -290,6 +302,14 @@
 
 	init();
 	render(0, 0, 0);
+	
+	function getWindowScheme() {
+		if ($('.device-xs').is(':visible')) {return "xs";}
+		if ($('.device-sm').is(':visible')) {return "sm";}
+		if ($('.device-md').is(':visible')) {return "md";}
+		// Assume large
+		else {return "lg";}
+	}
 
 	function init() {
 
