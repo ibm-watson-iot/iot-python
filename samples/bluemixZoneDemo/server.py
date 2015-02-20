@@ -150,12 +150,15 @@ def auth():
 		
 	else:
 		docBody = response.json()
-		if int(docBody["pin"]) != int(data["pin"]):
-			print("PIN does not match")
+		try:
+			if int(docBody["pin"]) != int(data["pin"]):
+				print("PIN does not match")
+				raise HTTPError(401)
+			else:
+				return docBody['device']
+		except ValueError:
+			print("PIN has an unexpected value: "+data["pin"])
 			raise HTTPError(401)
-		else:
-			return docBody['device']
-
 
 @app.route('/device/<id>')
 def device(id):
