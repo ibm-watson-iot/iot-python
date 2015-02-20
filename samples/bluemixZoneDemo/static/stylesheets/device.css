@@ -50,13 +50,10 @@ input {
 	color: #000
 }
 
-button#connectButton{
-	visibility: hidden;
-	color: #000
-}
 
 input#pin{
 	visibility: hidden;
+	padding: 5px 0px;
 }
 
 .outer-main {
@@ -153,6 +150,17 @@ input#pin{
 	max-width: 28px;
 	max-height: 60px;
 }
+
+button#connectButton{
+	visibility: hidden;
+	color: #fff;
+	padding: 5px 24px;
+	width: auto;
+	border: 1px #ffffff solid;
+	font-weight: normal;
+	background-color: #1d3649;
+}
+
 
 div#maindemo {
 	visibility: hidden;
