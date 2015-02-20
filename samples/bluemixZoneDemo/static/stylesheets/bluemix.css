@@ -65,9 +65,26 @@ html, body {
 }
 
 .iotDemo .medium-large-font {
-	font-size: 1.5rem;
-	line-height: 1.6em;
-	font-weight: bold;
+	font-size: 2.25rem;
+	line-height: 1.2em;
+	letter-spacing: 0.01rem;
+	font-weight: 300;
+	text-align: center;
+	width: auto;
+	margin: 0px 0px 0.3em;  
+	font-family: "Helvetica Neue","HelveticaNeue","Helvetica","Segoe UI","Segoe","Calibri","Roboto","Droid Sans","Arial Unicode MS",Arial,sans-serif;  
+	text-rendering: optimizelegibility;  
+	padding: 0px;
+	border: 0px none; 
+	font-style: inherit; 
+	font-size-adjust: inherit;
+	font-stretch: inherit;
+	font-feature-settings: inherit;
+	font-language-override: inherit;
+	font-kerning: inherit;
+	font-synthesis: inherit;
+	font-variant: inherit;  
+	vertical-align: baseline;
 }
 
 .iotDemo .medium-font {
