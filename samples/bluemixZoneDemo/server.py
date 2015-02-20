@@ -96,6 +96,10 @@ def register():
 		return bottle.HTTPResponse(status=400, body="4-digit code not provided");
 	if ' ' in data["email"]:
 		return bottle.HTTPResponse(status=400, body="Spaces are not allowed");
+	try:
+		int(data["pin"])
+	except ValueError:
+		return bottle.HTTPResponse(status=400, body="4-digit code must be numeric");
 	
 	doc = cloudantDb.document(urllib.quote(data["email"]))
 	response = doc.get().result(10)

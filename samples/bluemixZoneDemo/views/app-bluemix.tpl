@@ -13,8 +13,8 @@
 		<p class="medium-font center-text" id="first-steps">Give your smartphone a unique name and a 4-digit code.  We’ll generate a URL for you to open in your phone’s browser.</p>
 		<div class="use-code-input-row center-text" id="connectPanel">
 			<form id="goForm">
-				<input type="text" id="username3" placeholder="Enter device name" required>
-				<input type="password" id="pin3" placeholder="4-digit code" inputmode="numeric" maxlength="4" required>
+				<input type="text" id="username3" placeholder="ENTER DEVICE NAME" required>
+				<input type="password" id="pin3" placeholder="4-DIGIT CODE" inputmode="numeric" maxlength="4" required>
 				<button class="section-button black-button" type="submit">Go play!</button>
 			</form>
 		</div>

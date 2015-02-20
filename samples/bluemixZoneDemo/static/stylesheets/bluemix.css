@@ -118,10 +118,9 @@ html, body {
 }
 
 .iotDemo .use-code-input-row input {
-	height: 3.15rem;
+	height: 3.2rem;
 	margin-right: 1em;
 	font-weight: 700;
-	text-transform: uppercase;
 	letter-spacing: 0.04rem;
 	justify-content: center;
 	text-align: center;
