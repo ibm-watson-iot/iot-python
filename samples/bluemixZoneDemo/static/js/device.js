@@ -124,7 +124,13 @@
 				setInterval(publish, 100);
 			},
 			error: function(xhr, status, error) {
-				alert("Failed to authenticate! " + error);
+				if (xhr.status==403) {
+					// Authentication check succeeded and told us we're invalid
+					alert("Incorrect code!");
+				} else {
+					// Something else went wrong
+					alert("Failed to authenticate! "+error);
+				}
 			}
 		});
     }

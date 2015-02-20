@@ -6,6 +6,8 @@ import json
 import uuid
 import urllib
 import os
+import bottle
+from bottle import HTTPResponse
 
 app = Bottle()
 
@@ -85,22 +87,21 @@ else:
 @app.route('/register', method='POST')
 def register():
 	if request.json is None:
-		raise HTTPError(400)
+		return bottle.HTTPResponse(status=400, body="Invalid request");
 	
 	data = request.json
-	errors = []
 	if "email" not in data:
-		errors.append("email address not provided")
+		return bottle.HTTPResponse(status=400, body="Credentials not provided");
 	if "pin" not in data:
-		errors.append("pin not provided")
-	if len(errors) > 0:
-		raise HTTPError(400, errors)
+		return bottle.HTTPResponse(status=400, body="4-digit code not provided");
+	if ' ' in data["email"]:
+		return bottle.HTTPResponse(status=400, body="Spaces are not allowed");
 	
 	doc = cloudantDb.document(urllib.quote(data["email"]))
 	response = doc.get().result(10)
 	if response.status_code == 200:
 		print("User already registered: %s" % data["email"])
-		raise HTTPError(409)
+		return bottle.HTTPResponse(status=409, body="User already registered");
 
 	else:
 		print("Creating new registration for %s" % data["email"])
@@ -123,7 +124,7 @@ def register():
 			return HTTPResponse(status=201)
 			
 	# Shouldn't get here, if we do an error has occurred
-	raise HTTPError(500)
+	return bottle.HTTPResponse(status=500, body="Apologies - an internal error occurred :(");
 
 
 @app.route('/auth', method='POST')
@@ -146,19 +147,19 @@ def auth():
 	response = doc.get().result(10)
 	if response.status_code != 200:
 		print("User not registered: %s" % data["email"])
-		raise HTTPError(401)
+		return bottle.HTTPResponse(status=404, body="'"+data["email"]+"' does not exist");
 		
 	else:
 		docBody = response.json()
 		try:
 			if int(docBody["pin"]) != int(data["pin"]):
 				print("PIN does not match")
-				raise HTTPError(401)
+				return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
 			else:
 				return docBody['device']
 		except ValueError:
 			print("PIN has an unexpected value: "+data["pin"])
-			raise HTTPError(401)
+			return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
 
 @app.route('/device/<id>')
 def device(id):

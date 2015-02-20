@@ -146,20 +146,34 @@
 					updateQrCode();
 				},
 				error: function(xhr, status, error) {
-					// If we can't log in try to register
-					$.ajax({
-						url: "/register",
-						type: "POST",
-						data: JSON.stringify(requestData),
-						contentType: "application/json; charset=utf-8",
-						success: function(response){
-							cli.connect(requestData);
-						},
-						error: function(xhr, status, error) {
-							$("#goWarning").css("visibility", "visible");
-							$("#goWarning").html("<span>Failed to connect! Incorrect PIN entered for the registered device '" + username + "'</span>");
-						}
-					});
+					if (xhr.status==403) {
+						// Username existed, but incorrect code
+						console.log("User exists, but incorrect PIN");
+						$("#goWarning").css("visibility", "visible");
+						$("#goWarning").html("<span>Incorrect code provided for existing smartphone '"+username+"'</span>");
+					} 
+					else if (xhr.status==404) {
+						// Username doesn't exist, so let's auto register
+						console.log("User "+username+"does not exist, so autoregistering");
+						$.ajax({
+							url: "/register",
+							type: "POST",
+							data: JSON.stringify(requestData),
+							contentType: "application/json; charset=utf-8",
+							success: function(response){
+								cli.connect(requestData);
+							},
+							error: function(xhr, status, error) {
+								$("#goWarning").css("visibility", "visible");
+								$("#goWarning").html("<span>Failed to register! " + xhr.responseText + "</span>");
+							}
+						});
+					}
+					else {
+						// An unexpected error
+						$("#goWarning").css("visibility", "visible");
+						$("#goWarning").html("<span>Error authenticating: '+error</span>");
+					}
 				}
 			});
 			return false;
