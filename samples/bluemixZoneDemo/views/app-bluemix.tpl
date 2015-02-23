@@ -39,7 +39,7 @@
 			<p class="medium-large-font center-text">Watch the magic happen!</p>
 			<p class="medium-font center-text">Enter your 4-digit code on your phone and then try moving your phone around.<br />
 			<p class="medium-font center-text">See the model and graph below mirroring your movements?</p>
-			<p class="medium-font center-text">This is made possible via MQTT messaging, the IoT Foundation, and this cool sample that's hosted on Bluemix! This is all done using secure connections.</p>
+			<p class="medium-font center-text">This is made possible via MQTT messaging, the IoT Foundation, and this cool sample that's hosted on Bluemix!</p>
 		</div>
 		<div class="alert" id="vibrationWarning"><span>Wow! We've detected some serious shaking!</span></div>
 		<div class="container" id="visualisations">
