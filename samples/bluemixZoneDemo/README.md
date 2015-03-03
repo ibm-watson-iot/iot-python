@@ -1,5 +1,5 @@
 #Bluemix Zone Demo
-Sample application demonstrating how to send events to the cloud from a device and process them in an application.  The application demonstrates one approach to delegating access to sensor data in the IOT Foundation to users of an backend application utilising an IOT Foundation API key. 
+Sample application demonstrating how to send events to the cloud from a device and process them in an application.  The application demonstrates one approach to delegating access to sensor data in the IOT Foundation to users of a backend application utilising an IOT Foundation API key. 
 
 See the demo application running live: http://iot-demo.mybluemix.net/
 
@@ -16,7 +16,7 @@ The main application is a Python WSGI server which primarily exists to provide d
 
 
 ### The Simulated Device
-The second part of the application is a page designed to be ran on a users phone that uses Javascript to simulate device code running on the phone.  The device code presents the same username & PIN to the backend application for authentication, on asuccessful authentication the backend application will provide the device with the necessary crendentials required to connect securely to the IOT Foundation.
+The second part of the application is a page designed to be run on a users phone that uses JavaScript to simulate device code running on the phone.  The device code presents the same username & PIN to the backend application for authentication, on a successful authentication the backend application will provide the device with the necessary credentials required to connect securely to the IOT Foundation.
 
 
 ---
@@ -78,7 +78,7 @@ To change the theme simply set a value for the "theme" environment variable to o
 
 
 ##Local development
-The sample can also be ran outside of Bluemix, primarily this is an aid for local development prior to pushing the code into BLuemix.
+The sample can also be run outside of Bluemix, primarily this is an aid for local development prior to pushing the code into Bluemix.
 ```python
     if "VCAP_APPLICATION" in os.environ:
     	# Bluemix VCAP lookups
