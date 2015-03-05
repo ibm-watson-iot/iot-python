@@ -33,7 +33,7 @@ $ cd iot-python/samples/bluemixZoneDemo
 
 ###Create a new application
 ```bash
-$ cf push <app_name> -m 32M -b https://github.com/cloudfoundry/cf-buildpack-python.git --no-start
+$ cf push <app_name> --no-start
 ```
 
 ###Create the required services
@@ -50,7 +50,7 @@ $ cf bind-service <app_name> iotdemo-cloudant
 
 ###Start the application
 ```
-cf push <app_name> -c "python server.py"
+cf push <app_name>
 ```
 ###Launch your application
 
