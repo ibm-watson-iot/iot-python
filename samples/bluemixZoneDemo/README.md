@@ -3,6 +3,8 @@ Sample application demonstrating how to send events to the cloud from a device a
 
 See the demo application running live: http://iot-demo.mybluemix.net/
 
+You can also see the demo application running in the IBM Bluemix Internet of Things solutions page https://console.ng.bluemix.net/solutions/iot
+
 
 ---
 
