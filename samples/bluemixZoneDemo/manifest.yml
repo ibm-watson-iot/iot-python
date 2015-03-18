@@ -3,4 +3,4 @@ applications:
   path: .
   instances: 1
   memory: 32M
-  buildpack: https://github.com/cloudfoundry/cf-buildpack-python.git
+  buildpack: https://github.com/heroku/heroku-buildpack-python.git
