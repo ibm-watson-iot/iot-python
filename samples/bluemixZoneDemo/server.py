@@ -211,8 +211,8 @@ def handle_websocket():
 					# In this sample, we don't want logs from the client.
 					if (len(client.logger.handlers) > 0):
   						handler = client.logger.handlers[0]
-  						#client.logger.removeHandler(handler)
-  						#handler.close() 
+  						client.logger.removeHandler(handler)
+  						handler.close() 
 					client.connect()
 					client.deviceEventCallback = myEventCallback
 					client.subscribeToDeviceEvents(deviceType, deviceId, "+")
