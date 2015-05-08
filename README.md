@@ -3,7 +3,7 @@ IBM Internet of Things Foundation for Python
 
 Python module for interacting with the IBM Internet of Things Foundation.
 
-* [Python 3.4](https://www.python.org/download/releases/3.4.2)
+* [Python 3.4](https://www.python.org/download/releases/3.4.3)
 
 Dependencies
 ------------
