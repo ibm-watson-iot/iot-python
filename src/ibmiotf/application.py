@@ -191,9 +191,9 @@ class Client(ibmiotf.AbstractClient):
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
 		elif rc == 5:
-			self.__logAndRaiseException(ConnectionException("Not authorized: (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+			self.logAndRaiseException(ConnectionException("Not authorized: (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
-			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+			self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
 	
 	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+"):
