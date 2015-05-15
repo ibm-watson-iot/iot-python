@@ -227,7 +227,7 @@ def handle_websocket():
 			if wsock:
 				wsock.send(json.dumps(event.data))
 		except WebSocketError as e:
-			print "WebSocket Error: %s" % str(e)
+			print "WebSocket error in callback: %s" % str(e)
 			# ignore this and let any Exception in receive() terminate the loop
 
 	wsock = request.environ.get('wsgi.websocket')
@@ -270,7 +270,7 @@ def handle_websocket():
 					print ("Connect attempt failed: "+str(e))
 					wsock.close()
 	except WebSocketError as e:
-		print "WebSocket Error: %s" % str(e)
+		print "WebSocket error during subscriber setup: %s" % str(e)
 	except:
 		do_monitor()
 		print("Unexpected error:", sys.exc_info()[1])
@@ -281,8 +281,9 @@ def handle_websocket():
 			message = wsock.receive()
 			time.sleep(1)
 			#wsock.send("Your message was: %r" % message)
-		except WebSocketError:
+		except WebSocketError as e:
 			# This can occur if the browser has navigated away from the page, so the best action to take is to stop.
+			print "WebSocket error during loop: %s" % str(e)
 			break	
 	# Always ensure we disconnect. Since we are using QoS0 and cleanSession=true, we don't need to worry about cleaning up old subscriptions as we go: the IoT Foundation
 	# will handle this automatically.
