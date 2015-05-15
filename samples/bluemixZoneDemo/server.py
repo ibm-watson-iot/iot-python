@@ -1,3 +1,5 @@
+import pagerduty
+import slack
 from bottle import request, Bottle, abort, static_file, template, HTTPError, HTTPResponse
 import time
 import ibmiotf.application
@@ -7,8 +9,32 @@ import uuid
 import urllib
 import os
 import bottle
+import sys
+import traceback
 from bottle import HTTPResponse
 
+# monitoring setup
+pagerduty = None
+slack = None
+
+def do_monitor():	
+	try:
+		exception = sys.exc_info()[1]
+		stack = traceback.format_exc()
+		
+		if exception is not None:
+			# pagerduty
+			pagerduty.raiseEvent("BluemixZoneDemo incident: %s" % exception, "Exception stack:\n%s" % stack)		
+			
+			# slack
+			data = {'text': "BluemixZoneDemo incident: %s\nException stack:\n%s" % (exception, stack)}
+			slack.postToSlack(data)
+		
+	except:
+		print(sys.exc_info()[0])
+		print(traceback.format_exc())
+		
+	
 app = Bottle()
 
 
@@ -86,84 +112,100 @@ else:
 # =============================================================================
 @app.route('/register', method='POST')
 def register():
-	if request.json is None:
-		return bottle.HTTPResponse(status=400, body="Invalid request");
-	
-	data = request.json
-	if "email" not in data:
-		return bottle.HTTPResponse(status=400, body="Credentials not provided");
-	if "pin" not in data:
-		return bottle.HTTPResponse(status=400, body="4-digit code not provided");
-	if ' ' in data["email"]:
-		return bottle.HTTPResponse(status=400, body="Spaces are not allowed");
-	try:
-		int(data["pin"])
-	except ValueError:
-		return bottle.HTTPResponse(status=400, body="4-digit code must be numeric");
-	
-	doc = cloudantDb.document(urllib.quote(data["email"]))
-	response = doc.get().result(10)
-	if response.status_code == 200:
-		print("User already registered: %s" % data["email"])
-		return bottle.HTTPResponse(status=409, body="User already registered");
 
-	else:
-		print("Creating new registration for %s" % data["email"])
-		# Create doc
-		options = {"org": organization, "id": str(uuid.uuid4()), "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
-		registrationClient = ibmiotf.application.Client(options)
-		device = registrationClient.api.registerDevice("zone-sample", uuid.uuid4().hex, {"registeredTo": data["email"]} )
-		response = doc.put(params={
-			'id': data["email"],
-			'pin': data["pin"],
-			'device': {
-				'type': device['type'], 
-				'id': device['id'], 
-				'authtoken': device['password'],
-				'clientid': device['uuid'],
-				'orgid': organization
-			}
-		}).result(10)
-		if response.status_code == 201:
-			return HTTPResponse(status=201)
-			
-	# Shouldn't get here, if we do an error has occurred
-	return bottle.HTTPResponse(status=500, body="Apologies - an internal error occurred :(");
+	try:
+	
+		if request.json is None:
+			return bottle.HTTPResponse(status=400, body="Invalid request");
+		
+		data = request.json
+		if "email" not in data:
+			return bottle.HTTPResponse(status=400, body="Credentials not provided");
+		if "pin" not in data:
+			return bottle.HTTPResponse(status=400, body="4-digit code not provided");
+		if ' ' in data["email"]:
+			return bottle.HTTPResponse(status=400, body="Spaces are not allowed");
+		try:
+			int(data["pin"])
+		except ValueError:
+			return bottle.HTTPResponse(status=400, body="4-digit code must be numeric");
+		
+		doc = cloudantDb.document(urllib.quote(data["email"]))
+		response = doc.get().result(10)
+		if response.status_code == 200:
+			print("User already registered: %s" % data["email"])
+			return bottle.HTTPResponse(status=409, body="User already registered");
+
+		else:
+			print("Creating new registration for %s" % data["email"])
+			# Create doc
+			options = {"org": organization, "id": str(uuid.uuid4()), "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
+			registrationClient = ibmiotf.application.Client(options)
+			device = registrationClient.api.registerDevice("zone-sample", uuid.uuid4().hex, {"registeredTo": data["email"]} )
+			response = doc.put(params={
+				'id': data["email"],
+				'pin': data["pin"],
+				'device': {
+					'type': device['type'], 
+					'id': device['id'], 
+					'authtoken': device['password'],
+					'clientid': device['uuid'],
+					'orgid': organization
+				}
+			}).result(10)
+			if response.status_code == 201:
+				return HTTPResponse(status=201)
+				
+		# Shouldn't get here, if we do an error has occurred
+		return bottle.HTTPResponse(status=500, body="Apologies - an internal error occurred :(");
+	except:
+		do_monitor()
+		print "Unexpected error:", traceback.format_exc()
+		raise
+		
 
 
 @app.route('/auth', method='POST')
 def auth():
-	if request.json is None:
-		print "Invalid request to auth"
-		raise HTTPError(400)
+
+	try:
 	
-	data = request.json
-	errors = []
-	if "email" not in data:
-		errors.append("email address not provided")
-	if "pin" not in data:
-		errors.append("pin not provided")
-	if len(errors) > 0:
-		print "Invalid request to auth"
-		raise HTTPError(400, errors)
-	
-	doc = cloudantDb.document(urllib.quote(data["email"]))
-	response = doc.get().result(10)
-	if response.status_code != 200:
-		print("User not registered: %s" % data["email"])
-		return bottle.HTTPResponse(status=404, body="'"+data["email"]+"' does not exist");
+		if request.json is None:
+			print "Invalid request to auth"
+			raise HTTPError(400)
 		
-	else:
-		docBody = response.json()
-		try:
-			if int(docBody["pin"]) != int(data["pin"]):
-				print("PIN does not match")
+		data = request.json
+		errors = []
+		if "email" not in data:
+			errors.append("email address not provided")
+		if "pin" not in data:
+			errors.append("pin not provided")
+		if len(errors) > 0:
+			print "Invalid request to auth"
+			raise HTTPError(400, errors)
+		
+		doc = cloudantDb.document(urllib.quote(data["email"]))
+		response = doc.get().result(10)
+		if response.status_code != 200:
+			print("User not registered: %s" % data["email"])
+			return bottle.HTTPResponse(status=404, body="'"+data["email"]+"' does not exist");
+			
+		else:
+			print("User already registered: %s" % data["email"])
+			docBody = response.json()
+			try:
+				if int(docBody["pin"]) != int(data["pin"]):
+					print("PIN does not match")
+					return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
+				else:
+					return docBody['device']
+			except ValueError:
+				print("PIN has an unexpected value: "+data["pin"])
 				return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
-			else:
-				return docBody['device']
-		except ValueError:
-			print("PIN has an unexpected value: "+data["pin"])
-			return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
+	except:
+		do_monitor()
+		print "Unexpected error:", traceback.format_exc()
+		raise
 
 @app.route('/device/<id>')
 def device(id):
@@ -177,9 +219,16 @@ def applicationUi():
 	
 @app.route('/websocket')
 def handle_websocket():
+
+	client = None
+	
 	def myEventCallback(event):
-		if wsock:
-			wsock.send(json.dumps(event.data))
+		try:
+			if wsock:
+				wsock.send(json.dumps(event.data))
+		except WebSocketError as e:
+			print "WebSocket error in callback: %s" % str(e)
+			# ignore this and let any Exception in receive() terminate the loop
 
 	wsock = request.environ.get('wsgi.websocket')
 	if not wsock:
@@ -221,26 +270,46 @@ def handle_websocket():
 					print ("Connect attempt failed: "+str(e))
 					wsock.close()
 	except WebSocketError as e:
-		print "WebSocket Error: %s" % str(e)	
+		print "WebSocket error during subscriber setup: %s" % str(e)
+	except:
+		do_monitor()
+		print("Unexpected error:", sys.exc_info()[1])
+		raise
 	#Send the message back
 	while True:
 		try:
 			message = wsock.receive()
 			time.sleep(1)
 			#wsock.send("Your message was: %r" % message)
-		except WebSocketError:
+		except WebSocketError as e:
 			# This can occur if the browser has navigated away from the page, so the best action to take is to stop.
+			print "WebSocket error during loop: %s" % str(e)
 			break	
 	# Always ensure we disconnect. Since we are using QoS0 and cleanSession=true, we don't need to worry about cleaning up old subscriptions as we go: the IoT Foundation
 	# will handle this automatically.
-	client.disconnect()
+	if client is not None:
+		client.disconnect()
 	
-
 
 @app.route('/static/<path:path>')
 def service_static(path):
 	return static_file(path, root='static')
 
+@app.route('/test/monitoring')
+def test_monitoring():
+
+	monitoringTestEnabled = os.getenv('enablemonitoringtest', None)
+	
+	if monitoringTestEnabled is not None and monitoringTestEnabled == "true":
+	
+		try:
+			print " Testing monitoring"
+			raise Exception("Test Exception")
+		except:
+			do_monitor()
+			raise
+		
+	return "Monitoring testing disabled."
 
 # =============================================================================
 # Start
@@ -249,7 +318,14 @@ from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
 from geventwebsocket.handler import WebSocketHandler
 
+import pagerduty
+import slack
 
 server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
 print(" * Starting web socket server")
+
+# tell slack we are starting
+data = {'text': "BluemixZoneDemo starting"}
+slack.postToSlack(data)
+
 server.serve_forever()
