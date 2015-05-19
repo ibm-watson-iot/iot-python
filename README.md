@@ -29,5 +29,5 @@ Uninstalling the module is simple.
 
 Documentation
 -------------
-* [Device Client](http://iotf.readthedocs.org/en/latest/libraries/python_cli_for_devices.html)
-* [Application Client](http://iotf.readthedocs.org/en/latest/libraries/python_cli_for_apps.html)
+* [Device Client](https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_devices.html)
+* [Application Client](https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_apps.html)
