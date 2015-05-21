@@ -11,11 +11,15 @@ import os
 import bottle
 import sys
 import traceback
+import logging
 from bottle import HTTPResponse
 
 # monitoring setup
 pagerduty = None
 slack = None
+
+# set global logging level off for everything except ERROR
+logging.disable(logging.ERROR)
 
 def do_monitor():	
 	try:
@@ -199,7 +203,7 @@ def auth():
 					return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
 				else:
 					return docBody['device']
-			except ValueError:
+			except (ValueError, KeyError):
 				print("PIN has an unexpected value: "+data["pin"])
 				return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
 	except:
@@ -236,6 +240,9 @@ def handle_websocket():
 
 	try:
 		message = wsock.receive()
+		if message is None:
+			abort(400, 'No data or non UTF-8 data received over WebSocket')
+		
 		data = json.loads(message)
 		pin = int(data["pin"])
 	
@@ -257,11 +264,7 @@ def handle_websocket():
 				options = {"org": organization, "id": str(uuid.uuid4()), "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
 				try :
 					client = ibmiotf.application.Client(options)
-					# In this sample, we don't want logs from the client.
-					if (len(client.logger.handlers) > 0):
-  						handler = client.logger.handlers[0]
-  						client.logger.removeHandler(handler)
-  						handler.close() 
+					
 					client.connect()
 					client.deviceEventCallback = myEventCallback
 					client.subscribeToDeviceEvents(deviceType, deviceId, "+")
