@@ -1,6 +1,6 @@
 applications:
 - command: python server.py
   path: .
-  instances: 1
-  memory: 64M
+  instances: 4
+  memory: 512M
   buildpack: https://github.com/heroku/heroku-buildpack-python.git
