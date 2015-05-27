@@ -20,11 +20,11 @@ from datetime import datetime
 
 class ApiClient():
 
-	devicesUrl = 'https://internetofthings.ibmcloud.com/api/v0001/organizations/%s/devices'
-	deviceUrl = 'https://internetofthings.ibmcloud.com/api/v0001/organizations/%s/devices/%s/%s'
-	historianOrgUrl = 'https://internetofthings.ibmcloud.com/api/v0001/historian/%s'
-	historianTypeUrl = 'https://internetofthings.ibmcloud.com/api/v0001/historian/%s/%s'
-	historianDeviceUrl = 'https://internetofthings.ibmcloud.com/api/v0001/historian/%s/%s/%s'
+	devicesUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/devices'
+	deviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/devices/%s/%s'
+	historianOrgUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian'
+	historianTypeUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian/%s'
+	historianDeviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian/%s/%s'
 	
 	def __init__(self, options):
 		self.__options = options
