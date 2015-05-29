@@ -18,8 +18,9 @@ from bottle import HTTPResponse
 pagerduty = None
 slack = None
 
-# set global logging level off for everything except ERROR
-logging.disable(logging.ERROR)
+# Set global logging level off for everything.  Comment this out to get logs
+# or set to logging.<LEVEL> to get level desired.
+logging.disable(sys.maxint)
 
 def do_monitor():	
 	try:
