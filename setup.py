@@ -17,7 +17,7 @@ setup(
     url='https://github.com/ibm-messaging/iot-python',
     license=open('LICENSE').read(),
     description='IBM Internet of Things Foundation for Python',
-	long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
         "iso8601 >= 0.1.10",
         "paho-mqtt >= 1.0",
