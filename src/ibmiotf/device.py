@@ -99,9 +99,9 @@ class Client(ibmiotf.AbstractClient):
 			if self.__options['org'] != "quickstart":
 				self.__subscribeToCommands()
 		elif rc == 5:
-			self.__logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
-			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+			self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
 
 	def publishEvent(self, event, data, qos=0):
