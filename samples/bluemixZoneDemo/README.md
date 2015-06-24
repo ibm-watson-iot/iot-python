@@ -52,7 +52,7 @@ $ cf bind-service <app_name> iotdemo-cloudant
 
 ###Start the application
 ```
-cf push <app_name>
+cf start <app_name>
 ```
 ###Launch your application
 

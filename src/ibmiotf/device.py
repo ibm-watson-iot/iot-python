@@ -11,10 +11,13 @@
 # *****************************************************************************
 
 import json
-import ibmiotf
 import re
 import pytz
+
 from datetime import datetime
+
+from ibmiotf import AbstractClient, Message, InvalidEventException, UnsupportedAuthenticationMethod, ConfigurationException, ConnectionException, MissingMessageEncoderException
+from ibmiotf.codecs import jsonCodec, jsonIotfCodec
 
 # Support Python 2.7 and 3.4 versions of configparser
 try:
@@ -25,42 +28,42 @@ except ImportError:
 COMMAND_RE = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
 
 
-class Command(ibmiotf.Message):
+class Command(Message):
 	def	__init__(self, message):
 		result = COMMAND_RE.match(message.topic)
 		if result:
-			ibmiotf.Message.__init__(self, message)
+			Message.__init__(self, message)
 			
 			self.command = result.group(1)
 			self.format = result.group(2)
 		else:
-			raise ibmiotf.InvalidEventException("Received command on invalid topic: %s" % (message.topic))
+			raise InvalidEventException("Received command on invalid topic: %s" % (message.topic))
 
 
-class Client(ibmiotf.AbstractClient):
+class Client(AbstractClient):
 
 	def __init__(self, options):
 		self.__options = options
 
 		if self.__options['org'] == None:
-			raise ibmiotf.ConfigurationException("Missing required property: org")
+			raise ConfigurationException("Missing required property: org")
 		if self.__options['type'] == None: 
-			raise ibmiotf.ConfigurationException("Missing required property: type")
+			raise ConfigurationException("Missing required property: type")
 		if self.__options['id'] == None: 
-			raise ibmiotf.ConfigurationException("Missing required property: id")
+			raise ConfigurationException("Missing required property: id")
 		
 		if self.__options['org'] != "quickstart":
 			if self.__options['auth-method'] == None: 
-				raise ibmiotf.ConfigurationException("Missing required property: auth-method")
+				raise ConfigurationException("Missing required property: auth-method")
 				
 			if (self.__options['auth-method'] == "token"):
 				if self.__options['auth-token'] == None: 
-					raise ibmiotf.ConfigurationException("Missing required property for token based authentication: auth-token")
+					raise ConfigurationException("Missing required property for token based authentication: auth-token")
 			else:
-				raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
+				raise UnsupportedAuthenticationMethod(options['authMethod'])
 
 
-		ibmiotf.AbstractClient.__init__(
+		AbstractClient.__init__(
 			self, 
 			organization = options['org'],
 			clientId = "d:" + options['org'] + ":" + options['type'] + ":" + options['id'], 
@@ -77,10 +80,10 @@ class Client(ibmiotf.AbstractClient):
 		self.commandCallback = None
 
 		self.client.on_connect = self.on_connect
+		
+		self.setMessageEncoderModule('json', jsonCodec)
+		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
 
-		#self.connect()
-		
-		
 	
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
@@ -104,18 +107,20 @@ class Client(ibmiotf.AbstractClient):
 			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
 
-	def publishEvent(self, event, data, qos=0):
+	def publishEvent(self, event, msgFormat, data, qos=0):
 		if not self.connectEvent.wait():
 			self.logger.warning("Unable to send event %s because device is not currently connected")
 			return False
 		else:
 			self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
-			topic = 'iot-2/evt/'+event+'/fmt/json'
+			topic = 'iot-2/evt/'+event+'/fmt/' + msgFormat
 			
-			# Note: Python JSON serialization doesn't know what to do with a datetime object on it's own
-			payload = { 'd' : data, 'ts': datetime.now(pytz.timezone('UTC')).isoformat() }
-			self.client.publish(topic, payload=json.dumps(payload), qos=qos, retain=False)
-			return True
+			if msgFormat in self.messageEncoderModules:
+				payload = self.messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
+				self.client.publish(topic, payload=payload, qos=qos, retain=False)
+				return True
+			else:
+				raise MissingMessageEncoderException(msgFormat)
 
 
 	def __subscribeToCommands(self):
@@ -142,7 +147,7 @@ class Client(ibmiotf.AbstractClient):
 			command = Command(message)
 			self.logger.debug("Received command '%s'" % (command.command))
 			if self.commandCallback: self.commandCallback(command)
-		except ibmiotf.InvalidEventException as e:
+		except InvalidEventException as e:
 			self.logger.critical(str(e))
 
 
@@ -170,6 +175,6 @@ def ParseConfigFile(configFilePath):
 		
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
-		raise ibmiotf.ConfigurationException(reason)
+		raise ConfigurationException(reason)
 		
 	return {'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}

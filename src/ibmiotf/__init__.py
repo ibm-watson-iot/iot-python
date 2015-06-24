@@ -17,41 +17,22 @@ import json
 import socket
 import ssl
 import logging
+from logging.handlers import RotatingFileHandler
 import paho.mqtt.client as paho
 import threading
 import iso8601
 import pytz
 from datetime import datetime
 from pkg_resources import get_distribution
+from encodings.base64_codec import base64_encode
 
 __version__ = "0.0.10"
 
 class Message:
-	def __init__(self, message):
-		self.payload = json.loads(message.payload.decode("utf-8"))
-		self.timestamp = self.__parseMessageTimestamp()
-		self.data = self.__parseMessageData()
-
-		
-	def __parseMessageTimestamp(self):
-		try:
-			if 'ts' in self.payload:
-				dt = iso8601.parse_date(self.payload['ts'])
-				return dt.astimezone(pytz.timezone('UTC'))
-			else:
-				#dt = datetime.utcfromtimestamp(time.time())
-				#return pytz.utc.localize(dt)
-				return datetime.now(pytz.timezone('UTC'))
-		except iso8601.ParseError as e:
-			raise InvalidEventException("Unable to parse event timestamp: %s" % str(e))
+	def __init__(self, data, timestamp):
+		self.data = data
+		self.timestamp = timestamp
 	
-	
-	def __parseMessageData(self):
-		if 'd' in self.payload:
-			return self.payload['d']
-		else:
-			return None
-
 class AbstractClient:
 	def __init__(self, organization, clientId, username, password, logDir=None):
 		self.organization = organization
@@ -72,17 +53,17 @@ class AbstractClient:
 		self.logDir = logDir
 		
 		self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
-		self.logger.setLevel(logging.DEBUG)
+		self.logger.setLevel(logging.INFO)
 
 		logFileName = '%s.log' % (clientId.replace(":", "_"))
 		self.logFile = os.path.join(self.logDir, logFileName) if (self.logDir is not None) else logFileName 
 
 		# create file handler, set level to debug & set format
 		fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
-		fh = logging.FileHandler(self.logFile)
-		fh.setFormatter(fhFormatter)
+		rfh = RotatingFileHandler(self.logFile, mode='a', maxBytes=1024000 , backupCount=0, encoding=None, delay=True)
+		rfh.setFormatter(fhFormatter)
 		
-		self.logger.addHandler(fh)
+		self.logger.addHandler(rfh)
 
 		self.client = paho.Client(self.clientId, clean_session=True)
 		
@@ -114,8 +95,14 @@ class AbstractClient:
 		self.client.on_disconnect = self.on_disconnect
 		self.client.on_publish = self.on_publish
 
+		# Initialize default message encoders and decoders.
+		self.messageEncoderModules = {}
+		
 		self.start = time.time()
-
+	
+	def setMessageEncoderModule(self, messageFormat, module):
+		self.messageEncoderModules[messageFormat] = module
+		
 	def __logAndRaiseException(self, e):
 		self.logger.critical(str(e))
 		raise e
@@ -201,7 +188,7 @@ class UnsupportedAuthenticationMethod(ConnectionException):
 		self.method = method
 	
 	def __str__(self):
-		return "Unsupported authentication method %s" % self.method
+		return "Unsupported authentication method: %s" % self.method
 
 
 '''
@@ -212,6 +199,25 @@ class InvalidEventException(Exception):
 		self.reason = reason
 	
 	def __str__(self):
-		return "Invalid Event %s" % self.reason
+		return "Invalid Event: %s" % self.reason
 
+
+'''
+Specific exception where and Event object can not be constructed
+'''
+class MissingMessageDecoderException(Exception):
+	def __init__(self, format):
+		self.format = format
+	
+	def __str__(self):
+		return "No message decoder defined for message format: %s" % self.format
+	
+
+class MissingMessageEncoderException(Exception):
+	def __init__(self, format):
+		self.format = format
+	
+	def __str__(self):
+		return "No message encoder defined for message format: %s" % self.format
+	
 

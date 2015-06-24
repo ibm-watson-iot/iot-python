@@ -6,7 +6,7 @@
 	var clientId;
     var password;
     
-	var topic = "iot-2/evt/sensorData/fmt/json";
+	var topic = "iot-2/evt/sensorData/fmt/json-iotf";
     var isConnected = false;
 
     window.ondevicemotion = function(event) {

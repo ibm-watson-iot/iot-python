@@ -10,11 +10,13 @@
 #   David Parker - Initial Contribution
 # *****************************************************************************
 
+import getopt
 import time
 import sys
 import pprint
 from uuid import getnode as get_mac
 
+import myCustomCodec
 
 try:
 	import ibmiotf.application
@@ -32,22 +34,40 @@ except ImportError:
 	import ibmiotf.application
 	import ibmiotf.device
 
-
+	
 def myAppEventCallback(event):
 	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
 
 
-organization = "quickstart"
-deviceType = "helloWorldDevice"
-deviceId = str(hex(int(get_mac())))[2:]
-appId = deviceId + "_receiver"
-authMethod = None
-authToken = None
 
 
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "a:d:", ["app=", "device="])
+except getopt.GetoptError as err:
+	print(str(err))
+	usage()
+	sys.exit(2)
+
+appConfigFilePath = None
+deviceConfigFilePath = None
+appOptions = {}
+deviceOptions = {}
+
+# Seconds to sleep between readings
+interval = 1
+
+for o, a in opts:
+	if o in ("-a", "--app"):
+		appConfigFilePath = a
+		appOptions = ibmiotf.application.ParseConfigFile(appConfigFilePath)
+	elif o in ("-d", "--device"):
+		deviceConfigFilePath = a
+		deviceOptions = ibmiotf.device.ParseConfigFile(deviceConfigFilePath)
+	else:
+		assert False, "unhandled option" + o
+		
 # Initialize the application client.
 try:
-	appOptions = {"org": organization, "id": appId, "auth-method": authMethod, "auth-token": authToken}
 	appCli = ibmiotf.application.Client(appOptions)
 except Exception as e:
 	print(str(e))
@@ -56,15 +76,16 @@ except Exception as e:
 # Connect and configuration the application
 # - subscribe to live data from the device we created, specifically to "greeting" events
 # - use the myAppEventCallback method to process events
+appCli.setMessageEncoderModule("custom", myCustomCodec)
 appCli.connect()
-appCli.subscribeToDeviceEvents(deviceType, deviceId, "greeting")
+appCli.subscribeToDeviceEvents(deviceOptions['type'], deviceOptions['id'], "greeting")
 appCli.deviceEventCallback = myAppEventCallback
 
 	
 # Initialize the device client.
 try:
-	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
 	deviceCli = ibmiotf.device.Client(deviceOptions)
+	deviceCli.setMessageEncoderModule("custom", myCustomCodec)
 except Exception as e:
 	print(str(e))
 	sys.exit()
@@ -73,7 +94,7 @@ except Exception as e:
 deviceCli.connect()
 for x in range (0,10):
 	data = { 'hello' : 'world', 'x' : x}
-	deviceCli.publishEvent("greeting", "json", data)
+	deviceCli.publishEvent("greeting", "custom", data)
 	time.sleep(1)
 		
 

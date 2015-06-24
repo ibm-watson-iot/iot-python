@@ -15,8 +15,6 @@ import signal
 import time
 import sys
 import json
-import threading
-import pprint
 
 try:
 	import ibmiotf.application

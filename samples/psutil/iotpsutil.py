@@ -122,8 +122,8 @@ if __name__ == "__main__":
 		else:
 			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
 		client = ibmiotf.device.Client(options)
-		client.connect()
 		client.commandCallback = commandProcessor
+		client.connect()
 	except ibmiotf.ConfigurationException as e:
 		print(str(e))
 		sys.exit()
@@ -154,13 +154,15 @@ if __name__ == "__main__":
 			'name' : deviceName,
 			'cpu' : psutil.cpu_percent(percpu=False),
 			'mem' : psutil.virtual_memory().percent,
-			'network_up': round( (ioAfter.bytes_sent - ioBefore.bytes_sent) / (ioDuration*1024), 2 ), 
-			'network_down':  round( (ioAfter.bytes_recv - ioBefore.bytes_recv) / (ioDuration*1024), 2 ) 
+			'network': {
+				'up': round( (ioAfter.bytes_sent - ioBefore.bytes_sent) / (ioDuration*1024), 2 ), 
+				'down':  round( (ioAfter.bytes_recv - ioBefore.bytes_recv) / (ioDuration*1024), 2 )
+			}
 		}
 		if verbose:
 			print("Datapoint = " + json.dumps(data))
 		
-		client.publishEvent("psutil", data)
+		client.publishEvent("psutil", "json", data)
 		
 		# Update timestamp and data ready for next loop
 		ioBefore_ts = ioAfter_ts

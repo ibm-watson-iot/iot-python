@@ -17,7 +17,8 @@ import platform
 import json
 import signal
 import iso8601
-from datetime import datetime,timezone
+import pytz
+from datetime import datetime
 from uuid import getnode as get_mac
 
 
@@ -48,7 +49,7 @@ def deviceList():
 	if cliArgs.json:
 		print(deviceList)
 	else:
-		today = datetime.now(tz=timezone.utc)
+		today = datetime.now(pytz.timezone('UTC'))
 		for device in deviceList:
 			delta = today - iso8601.parse_date(device['registration']['date'])
 			print("%-40sRegistered %s days ago by %s" % (device['uuid'], delta.days, device['registration']['auth']['id']))
@@ -60,7 +61,7 @@ def deviceGet(deviceType, deviceId):
 	if cliArgs.json:
 		print(device)
 	else:
-		today = datetime.now(tz=timezone.utc)
+		today = datetime.now(pytz.timezone('UTC'))
 		delta = today - iso8601.parse_date(device['registration']['date'])
 		print("%-40sRegistered %s days ago by %s" % (device['uuid'], delta.days, device['registration']['auth']['id']))
 

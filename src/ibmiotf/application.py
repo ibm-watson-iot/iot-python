@@ -10,12 +10,16 @@
 #   David Parker - Initial Contribution
 # *****************************************************************************
 
+import os
 import re
-import ibmiotf
-import ibmiotf.api
 import json
 import iso8601
 from datetime import datetime
+
+from ibmiotf import ConnectionException, MissingMessageEncoderException
+from ibmiotf.codecs import jsonIotfCodec
+from ibmiotf.codecs import jsonCodec
+import ibmiotf.api
 
 # Support Python 2.7 and 3.4 versions of configparser
 try:
@@ -30,12 +34,11 @@ DEVICE_COMMAND_RE = re.compile("iot-2/type/(.+)/id/(.+)/cmd/(.+)/fmt/(.+)")
 DEVICE_STATUS_RE = re.compile("iot-2/type/(.+)/id/(.+)/mon")
 APP_STATUS_RE = re.compile("iot-2/app/(.+)/mon")
 
-class Status(ibmiotf.Message):
+class Status:
 	def __init__(self, message):
 		result = DEVICE_STATUS_RE.match(message.topic)
 		if result:
-			ibmiotf.Message.__init__(self, message)
-			
+			self.payload = json.loads(message.payload.decode("utf-8"))
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
 			self.device = self.deviceType + ":" + self.deviceId
@@ -83,36 +86,46 @@ class Status(ibmiotf.Message):
 			raise ibmiotf.InvalidEventException("Received device status on invalid topic: %s" % (message.topic))
 
 	
-class Event(ibmiotf.Message):
-	def __init__(self, message):
-		result = DEVICE_EVENT_RE.match(message.topic)
+class Event:
+	def __init__(self, pahoMessage, messageEncoderModules):
+		result = DEVICE_EVENT_RE.match(pahoMessage.topic)
 		if result:
-			ibmiotf.Message.__init__(self, message)
-			
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
 			self.device = self.deviceType + ":" + self.deviceId
 			
 			self.event = result.group(3)
 			self.format = result.group(4)
-		else:
-			raise ibmiotf.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
-
-
-class Command(ibmiotf.Message):
-	def	__init__(self, message):
-		result = DEVICE_COMMAND_RE.match(message.topic)
-		if result:
-			ibmiotf.Message.__init__(self, message)
 			
+			if self.format in messageEncoderModules:
+				message = messageEncoderModules[self.format].decode(pahoMessage)
+				self.timestamp = message.timestamp
+				self.data = message.data
+			else:
+				raise ibmiotf.MissingMessageDecoderException(self.format)
+		else:
+			raise ibmiotf.InvalidEventException("Received device event on invalid topic: %s" % (pahoMessage.topic))
+
+
+class Command:
+	def	__init__(self, pahoMessage, messageEncoderModules):
+		result = DEVICE_COMMAND_RE.match(pahoMessage.topic)
+		if result:
 			self.deviceType = result.group(1)
 			self.deviceId = result.group(2)
 			self.device = self.deviceType + ":" + self.deviceId
 			
 			self.command = result.group(3)
 			self.format = result.group(4)
+
+			if self.format in messageEncoderModules:
+				message = messageEncoderModules[self.format].decode(pahoMessage)
+				self.timestamp = message.timestamp
+				self.data = message.data
+			else:
+				raise ibmiotf.MissingMessageDecoderException(self.format)
 		else:
-			raise ibmiotf.InvalidEventException("Received device event on invalid topic: %s" % (message.topic))
+			raise ibmiotf.InvalidEventException("Received device event on invalid topic: %s" % (pahoMessage.topic))
 
 
 class Client(ibmiotf.AbstractClient):
@@ -171,11 +184,15 @@ class Client(ibmiotf.AbstractClient):
 		self.appStatusCallback = None
 		
 		self.client.on_connect = self.on_connect
-
+		self.setMessageEncoderModule('json', jsonCodec)
+		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		
 		# Create an api client if not connected in QuickStart mode
 		if self.__options['org'] != "quickstart":
 			self.api = ibmiotf.api.ApiClient(options)
-	
+			
+			
+		
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
 	The parameter rc is an integer giving the return code:
@@ -196,7 +213,7 @@ class Client(ibmiotf.AbstractClient):
 			self.__logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
 	
-	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+"):
+	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+"):
 		if self.__options['org'] == "quickstart" and deviceId == "+":
 			self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
 			return False
@@ -205,7 +222,7 @@ class Client(ibmiotf.AbstractClient):
 			self.logger.warning("Unable to subscribe to events (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, event))
 			return False
 		else:
-			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/json' % (deviceType, deviceId, event)
+			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
 			self.client.subscribe(topic, qos=0)
 			return True
 	
@@ -224,7 +241,7 @@ class Client(ibmiotf.AbstractClient):
 			return True
 	
 
-	def subscribeToDeviceCommands(self, deviceType="+", deviceId="+", command="+"):
+	def subscribeToDeviceCommands(self, deviceType="+", deviceId="+", command="+", msgFormat="+"):
 		if self.__options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support commands")
 			return False
@@ -233,36 +250,40 @@ class Client(ibmiotf.AbstractClient):
 			self.logger.warning("Unable to subscribe to commands (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, command))
 			return False
 		else:
-			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/json' % (deviceType, deviceId, command)
+			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
 			self.client.subscribe(topic, qos=2)
 			return True
 
 	
-	def publishEvent(self, deviceType, deviceId, event, data):
+	def publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0):
 		if not self.connectEvent.wait():
 			return False
 		else:
-			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/json' % (deviceType, deviceId, event)
+			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
 			
-			# Note: Python JSON serialization doesn't know what to do with a datetime object on it's own
-			payload = { 'd' : data, 'ts': datetime.now().isoformat() }
-			self.client.publish(topic, payload=json.dumps(payload), qos=0, retain=False)
-			return True
+			if msgFormat in self.messageEncoders:
+				payload = self.messageEncoders[msgFormat].encode(data, datetime.now())
+				self.client.publish(topic, payload=payload, qos=qos, retain=False)
+				return True
+			else:
+				raise MissingMessageEncoderException(msgFormat)
 	
 	
-	def publishCommand(self, deviceType, deviceId, command, data=None):
+	def publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0):
 		if self.__options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support sending commands")
 			return False
 		if not self.connectEvent.wait():
 			return False
 		else:
-			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/json' % (deviceType, deviceId, command)
+			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
 
-			# Note: Python JSON serialization doesn't know what to do with a datetime object on it's own
-			payload = { 'd' : data, 'ts': datetime.now().isoformat() }
-			self.client.publish(topic, payload=json.dumps(payload), qos=2, retain=False)
-			return True
+			if msgFormat in self.messageEncoders:
+				payload = self.messageEncoders[msgFormat].encode(data, datetime.now())
+				self.client.publish(topic, payload=payload, qos=qos, retain=False)
+				return True
+			else:
+				raise MissingMessageEncoderException(msgFormat)
 
 	
 	'''
@@ -278,11 +299,11 @@ class Client(ibmiotf.AbstractClient):
 	Internal callback for device event messages, parses source device from topic string and 
 	passes the information on to the registerd device event callback
 	'''
-	def __onDeviceEvent(self, client, userdata, message):
+	def __onDeviceEvent(self, client, userdata, pahoMessage):
 		self.recv = self.recv + 1
 		
 		try:
-			event = Event(message)
+			event = Event(pahoMessage, self.messageEncoderModules)
 			self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.deviceType, event.deviceId))
 			if self.deviceEventCallback: self.deviceEventCallback(event)
 		except ibmiotf.InvalidEventException as e:
@@ -293,11 +314,11 @@ class Client(ibmiotf.AbstractClient):
 	Internal callback for device command messages, parses source device from topic string and 
 	passes the information on to the registerd device command callback
 	'''
-	def __onDeviceCommand(self, client, userdata, message):
+	def __onDeviceCommand(self, client, userdata, pahoMessage):
 		self.recv = self.recv + 1
 
 		try:
-			command = Command(message)
+			command = Command(pahoMessage, self.messageEncoderModules)
 			self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.deviceType, command.deviceId))
 			if self.deviceCommandCallback: self.deviceCommandCallback(command)
 		except ibmiotf.InvalidEventException as e:
@@ -308,11 +329,11 @@ class Client(ibmiotf.AbstractClient):
 	Internal callback for device status messages, parses source device from topic string and 
 	passes the information on to the registerd device status callback
 	'''
-	def __onDeviceStatus(self, client, userdata, message):
+	def __onDeviceStatus(self, client, userdata, pahoMessage):
 		self.recv = self.recv + 1
 
 		try:
-			status= Status(message)
+			status = Status(pahoMessage)
 			self.logger.debug("Received %s action from %s:%s" % (status.action, status.deviceType, status.deviceId))
 			if self.deviceStatusCallback: self.deviceStatusCallback(status)
 		except ibmiotf.InvalidEventException as e:
@@ -365,4 +386,22 @@ def ParseConfigFile(configFilePath):
 		raise ibmiotf.ConfigurationException(reason)
 		
 	return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken}
-			
+
+
+def ParseConfigFromBluemixVCAP():
+	# Bluemix VCAP lookups
+	try:
+		application = json.loads(os.getenv('VCAP_APPLICATION'))
+		service = json.loads(os.getenv('VCAP_SERVICES'))
+	
+		appId = application['application_name'] + "-" + str(application['instance_index'])
+	
+		organization = service['iotf-service'][0]['credentials']['org']
+		authKey = service['iotf-service'][0]['credentials']['apiKey']
+		authToken = service['iotf-service'][0]['credentials']['apiToken']
+		authMethod = "apikey"
+		
+		return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken}
+	except Exception as e:
+		raise ibmiotf.ConfigurationException(str(e))
+
