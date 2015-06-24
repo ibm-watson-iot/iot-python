@@ -261,8 +261,8 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
 			
-			if msgFormat in self.messageEncoders:
-				payload = self.messageEncoders[msgFormat].encode(data, datetime.now())
+			if msgFormat in self.messageEncoderModules:
+				payload = self.messageEncoderModules[msgFormat].encode(data, datetime.now())
 				self.client.publish(topic, payload=payload, qos=qos, retain=False)
 				return True
 			else:
@@ -278,8 +278,8 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
 
-			if msgFormat in self.messageEncoders:
-				payload = self.messageEncoders[msgFormat].encode(data, datetime.now())
+			if msgFormat in self.messageEncoderModules:
+				payload = self.messageEncoderModules[msgFormat].encode(data, datetime.now())
 				self.client.publish(topic, payload=payload, qos=qos, retain=False)
 				return True
 			else:
