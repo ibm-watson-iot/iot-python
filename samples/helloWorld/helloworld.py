@@ -13,7 +13,7 @@
 import time
 import sys
 import pprint
-from uuid import getnode as get_mac
+import uuid
 
 
 try:
@@ -39,7 +39,7 @@ def myAppEventCallback(event):
 
 organization = "quickstart"
 deviceType = "helloWorldDevice"
-deviceId = str(hex(int(get_mac())))[2:]
+deviceId = str(uuid.uuid4())
 appId = deviceId + "_receiver"
 authMethod = None
 authToken = None
