@@ -1,10 +1,43 @@
-v0.0.2
+v0.1.2
 ======
 
-- Support for iot-2 topic space, applications and devices
+- Bug fixes for messageEncoderModule management & logAndRaiseException mangling
 
 
-v0.0.1
+v0.1.1
 ======
 
-- Initial Release
+- Fix packaging errors in 0.1.0
+
+
+v0.1
+======
+
+- Support for custom message formats & parsers ("json" and "json-iotf" supported out-of-the-box)
+- Switch to RotatingFileHandler for logging
+- Tune down default log level to INFO
+
+
+v0.0.9
+======
+
+- Support for MQTT over SSL (requires TLS 1.2 support in Python 3)
+- Support for HTTP API calls from application client
+
+
+v0.0.7
+======
+
+- Removed auto-connect in client constructor
+
+
+v0.0.7
+======
+
+- Update to support paho-mqtt 1.0 release
+
+
+v0.0.5
+======
+
+- First public (pre-)release

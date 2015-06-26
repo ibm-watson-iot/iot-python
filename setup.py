@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='ibmiotf',
-    version="0.1.1",
+    version="0.1.2",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -17,7 +17,7 @@ setup(
     url='https://github.com/ibm-messaging/iot-python',
     license=open('LICENSE').read(),
     description='IBM Internet of Things Foundation for Python',
-	long_description=open('README.txt').read(),
+	long_description=open('README.rst').read(),
     install_requires=[
         "iso8601 >= 0.1.10",
         "paho-mqtt >= 1.0",

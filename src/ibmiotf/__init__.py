@@ -26,7 +26,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.0.10"
+__version__ = "0.1.2"
 
 class Message:
 	def __init__(self, data, timestamp):
