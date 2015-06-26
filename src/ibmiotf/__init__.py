@@ -103,7 +103,7 @@ class AbstractClient:
 	def setMessageEncoderModule(self, messageFormat, module):
 		self.messageEncoderModules[messageFormat] = module
 		
-	def __logAndRaiseException(self, e):
+	def logAndRaiseException(self, e):
 		self.logger.critical(str(e))
 		raise e
 	
@@ -114,11 +114,11 @@ class AbstractClient:
 			self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
 			self.client.loop_start()
 			if not self.connectEvent.wait(timeout=10):
-				self.__logAndRaiseException(ConnectionException("Operation timed out connecting to the IBM Internet of Things service: %s" % (self.address)))
+				self.logAndRaiseException(ConnectionException("Operation timed out connecting to the IBM Internet of Things service: %s" % (self.address)))
 				
 		except socket.error as serr:
 			self.client.loop_stop()
-			self.__logAndRaiseException(ConnectionException("Failed to connect to the IBM Internet of Things service: %s - %s" % (self.address, str(serr))))
+			self.logAndRaiseException(ConnectionException("Failed to connect to the IBM Internet of Things service: %s - %s" % (self.address, str(serr))))
 
 	def disconnect(self):
 		#self.logger.info("Closing connection to the IBM Internet of Things Foundation")

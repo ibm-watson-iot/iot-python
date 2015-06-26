@@ -53,8 +53,7 @@ myData = { 'hello' : 'world', 'x' : x}
 deviceCli.publishEvent(event="greeting", msgFormat="json", data=myData)
 ```
 
-Also, as part of this change, events and commands sent as format "json" will not be assumed to meet the [IOTF JSON Payload Specification](https://docs.internetofthings.ibmcloud.com/messaging/payload.html#iotf-json-payload-specification).  
-The default client behaviour will be to parse commands and events with format "json" as a generic JSON object only.  Only messages sent as format "json-iotf" will default to being decoded in this specification.  This can be easily changed 
+Also, as part of this change, events and commands sent as format "json" will not be assumed to meet the [IOTF JSON Payload Specification](https://docs.internetofthings.ibmcloud.com/messaging/payload.html#iotf-json-payload-specification).  The default client behaviour will be to parse commands and events with format "json" as a generic JSON object only.  Only messages sent as format "json-iotf" will default to being decoded in this specification.  This can be easily changed 
 with the following code.
 
 ```python
