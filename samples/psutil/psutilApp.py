@@ -109,7 +109,7 @@ def sendMessage():
 	global client, deviceType, deviceId
 	message = input("Enter message to be displayed >")
 	print("")
-	client.publishCommand(deviceType, deviceId, "print", {'message': message})
+	client.publishCommand(deviceType, deviceId, "print", "json", {'message': message})
 
 
 if __name__ == "__main__":

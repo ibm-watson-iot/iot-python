@@ -59,7 +59,7 @@ def usage():
 
 def commandProcessor(cmd):
 	global interval
-	print("Command received: %s" % cmd.payload)
+	print("Command received: %s" % cmd.data)
 	if cmd.command == "setInterval":
 		if 'interval' not in cmd.data:
 			print("Error - command is missing required information: 'interval'")

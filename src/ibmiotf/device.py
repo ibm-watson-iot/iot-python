@@ -28,16 +28,21 @@ except ImportError:
 COMMAND_RE = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
 
 
-class Command(Message):
-	def	__init__(self, message):
-		result = COMMAND_RE.match(message.topic)
+class Command:
+	def __init__(self, pahoMessage, messageEncoderModules):
+		result = COMMAND_RE.match(pahoMessage.topic)
 		if result:
-			Message.__init__(self, message)
-			
 			self.command = result.group(1)
 			self.format = result.group(2)
+
+			if self.format in messageEncoderModules:
+				message = messageEncoderModules[self.format].decode(pahoMessage)
+				self.timestamp = message.timestamp
+				self.data = message.data
+			else:
+				raise MissingMessageDecoderException(self.format)
 		else:
-			raise InvalidEventException("Received command on invalid topic: %s" % (message.topic))
+			raise InvalidEventException("Received command on invalid topic: %s" % (pahoMessage.topic))
 
 
 class Client(AbstractClient):
@@ -140,11 +145,10 @@ class Client(AbstractClient):
 	Internal callback for device command messages, parses source device from topic string and 
 	passes the information on to the registerd device command callback
 	'''
-	def __onCommand(self, client, userdata, message):
+	def __onCommand(self, client, userdata, pahoMessage):
 		self.recv = self.recv + 1
-
 		try:
-			command = Command(message)
+			command = Command(pahoMessage, self.messageEncoderModules)
 			self.logger.debug("Received command '%s'" % (command.command))
 			if self.commandCallback: self.commandCallback(command)
 		except InvalidEventException as e:

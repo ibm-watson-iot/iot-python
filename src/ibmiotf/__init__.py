@@ -29,7 +29,7 @@ from encodings.base64_codec import base64_encode
 __version__ = "0.1.2"
 
 class Message:
-	def __init__(self, data, timestamp):
+	def __init__(self, data, timestamp=None):
 		self.data = data
 		self.timestamp = timestamp
 	
@@ -46,7 +46,7 @@ class AbstractClient:
 		
 		self.messages = 0
 		self.recv = 0
-
+		
 		self.clientId = clientId
 		
 		# Configure logging
@@ -54,17 +54,17 @@ class AbstractClient:
 		
 		self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
 		self.logger.setLevel(logging.INFO)
-
+		
 		logFileName = '%s.log' % (clientId.replace(":", "_"))
 		self.logFile = os.path.join(self.logDir, logFileName) if (self.logDir is not None) else logFileName 
-
+		
 		# create file handler, set level to debug & set format
 		fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
 		rfh = RotatingFileHandler(self.logFile, mode='a', maxBytes=1024000 , backupCount=0, encoding=None, delay=True)
 		rfh.setFormatter(fhFormatter)
 		
 		self.logger.addHandler(rfh)
-
+		
 		self.client = paho.Client(self.clientId, clean_session=True)
 		
 		try:
@@ -88,21 +88,22 @@ class AbstractClient:
 			else:
 				self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
 			self.client.username_pw_set(self.username, self.password)
-			
-		#attach MQTT callbacks
+		
+		# Attach MQTT callbacks
 		self.client.on_log = self.on_log
 		self.client.on_connect = self.on_connect
 		self.client.on_disconnect = self.on_disconnect
 		self.client.on_publish = self.on_publish
-
+		
 		# Initialize default message encoders and decoders.
 		self.messageEncoderModules = {}
 		
 		self.start = time.time()
 	
+	
 	def setMessageEncoderModule(self, messageFormat, module):
 		self.messageEncoderModules[messageFormat] = module
-		
+	
 	def logAndRaiseException(self, e):
 		self.logger.critical(str(e))
 		raise e
@@ -128,7 +129,7 @@ class AbstractClient:
 		self.client.loop_stop()
 		#self.stats()
 		self.logger.info("Closed connection to the IBM Internet of Things Foundation")
-			
+	
 	def stats(self):
 		elapsed = ((time.time()) - self.start)
 		
