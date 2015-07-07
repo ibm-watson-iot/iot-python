@@ -1,5 +1,3 @@
-import pagerduty
-import slack
 from bottle import request, Bottle, abort, static_file, template, HTTPError, HTTPResponse
 import time
 import ibmiotf.application
@@ -14,34 +12,11 @@ import traceback
 import logging
 from bottle import HTTPResponse
 
-# monitoring setup
-pagerduty = None
-slack = None
-
 # Set global logging level off for everything.  Comment this out to get logs
 # or set to logging.<LEVEL> to get level desired.
 logging.disable(sys.maxint)
-
-def do_monitor():	
-	try:
-		exception = sys.exc_info()[1]
-		stack = traceback.format_exc()
-		
-		if exception is not None:
-			# pagerduty
-			pagerduty.raiseEvent("BluemixZoneDemo incident: %s" % exception, "Exception stack:\n%s" % stack)		
-			
-			# slack
-			data = {'text': "BluemixZoneDemo incident: %s\nException stack:\n%s" % (exception, stack)}
-			slack.postToSlack(data)
-		
-	except:
-		print(sys.exc_info()[0])
-		print(traceback.format_exc())
-		
 	
 app = Bottle()
-
 
 # If running in Bluemix, the VCAP environment variables will be available, and hence we can look up the bound Cloudant and IoT Foundation
 # services that are required by this application.
@@ -164,7 +139,6 @@ def register():
 		# Shouldn't get here, if we do an error has occurred
 		return bottle.HTTPResponse(status=500, body="Apologies - an internal error occurred :(");
 	except:
-		do_monitor()
 		print "Unexpected error:", traceback.format_exc()
 		raise
 		
@@ -208,7 +182,6 @@ def auth():
 				print("PIN has an unexpected value: "+data["pin"])
 				return bottle.HTTPResponse(status=403, body="Incorrect code for '"+data["email"]+"'");
 	except:
-		do_monitor()
 		print "Unexpected error:", traceback.format_exc()
 		raise
 
@@ -276,7 +249,6 @@ def handle_websocket():
 	except WebSocketError as e:
 		print "WebSocket error during subscriber setup: %s" % str(e)
 	except:
-		do_monitor()
 		print("Unexpected error:", sys.exc_info()[1])
 		raise
 	#Send the message back
@@ -284,7 +256,6 @@ def handle_websocket():
 		try:
 			message = wsock.receive()
 			time.sleep(1)
-			#wsock.send("Your message was: %r" % message)
 		except WebSocketError as e:
 			# This can occur if the browser has navigated away from the page, so the best action to take is to stop.
 			print "WebSocket error during loop: %s" % str(e)
@@ -299,22 +270,6 @@ def handle_websocket():
 def service_static(path):
 	return static_file(path, root='static')
 
-@app.route('/test/monitoring')
-def test_monitoring():
-
-	monitoringTestEnabled = os.getenv('enablemonitoringtest', None)
-	
-	if monitoringTestEnabled is not None and monitoringTestEnabled == "true":
-	
-		try:
-			print " Testing monitoring"
-			raise Exception("Test Exception")
-		except:
-			do_monitor()
-			raise
-		
-	return "Monitoring testing disabled."
-
 # =============================================================================
 # Start
 # =============================================================================
@@ -322,14 +277,7 @@ from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
 from geventwebsocket.handler import WebSocketHandler
 
-import pagerduty
-import slack
-
 server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
 print(" * Starting web socket server")
-
-# tell slack we are starting
-data = {'text': "BluemixZoneDemo starting"}
-slack.postToSlack(data)
 
 server.serve_forever()
