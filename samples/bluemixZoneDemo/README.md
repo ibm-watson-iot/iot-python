@@ -1,5 +1,5 @@
-#Bluemix Zone Demo
-Sample application demonstrating how to send events to the cloud from a device and process them in an application.  The application demonstrates one approach to delegating access to sensor data in the IOT Foundation to users of a backend application utilising an IOT Foundation API key. 
+#PhoneMotion Sample Application
+Sample application demonstrating how to send events to the cloud from a device and process them in an application.  The application demonstrates one approach to delegating access to sensor data in the IOT Foundation to users of a backend application utilising an IOT Foundation API key.  A more robust version of this application, with additional error handling and monitoring, is available in the following GitHub repository: https://github.com/ibm-messaging/iotf-phonemotion
 
 See the demo application running live: http://iot-demo.mybluemix.net/
 
