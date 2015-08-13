@@ -130,7 +130,7 @@ class Command:
 
 class Client(ibmiotf.AbstractClient):
 
-	def __init__(self, options):
+	def __init__(self, options, logHandlers=None):
 		self.__options = options
 
 		username = None
@@ -160,7 +160,12 @@ class Client(ibmiotf.AbstractClient):
 
 		# Call parent constructor
 		ibmiotf.AbstractClient.__init__(
-			self, options['org'], "a:" + options['org'] + ":" + options['id'], username, password
+			self, 
+			organization = options['org'], 
+			clientId = "a:" + options['org'] + ":" + options['id'], 
+			username = username, 
+			password = password,
+			logHandlers = logHandlers
 		)
 		
 		# Add handlers for events and status
@@ -292,7 +297,9 @@ class Client(ibmiotf.AbstractClient):
 	'''
 	def __onUnsupportedMessage(self, client, userdata, message):
 		self.logger.warning("Received messaging on unsupported topic '%s' on topic '%s'" % (message.payload, message.topic))
-		self.recv = self.recv + 1
+		
+		with self.recvLock:
+			self.recv = self.recv + 1
 	
 	
 	'''
@@ -300,7 +307,8 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd device event callback
 	'''
 	def __onDeviceEvent(self, client, userdata, pahoMessage):
-		self.recv = self.recv + 1
+		with self.recvLock:
+			self.recv = self.recv + 1
 		
 		try:
 			event = Event(pahoMessage, self.messageEncoderModules)
@@ -315,8 +323,9 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd device command callback
 	'''
 	def __onDeviceCommand(self, client, userdata, pahoMessage):
-		self.recv = self.recv + 1
-
+		with self.recvLock:
+			self.recv = self.recv + 1
+		
 		try:
 			command = Command(pahoMessage, self.messageEncoderModules)
 			self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.deviceType, command.deviceId))
@@ -330,8 +339,9 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd device status callback
 	'''
 	def __onDeviceStatus(self, client, userdata, pahoMessage):
-		self.recv = self.recv + 1
-
+		with self.recvLock:
+			self.recv = self.recv + 1
+		
 		try:
 			status = Status(pahoMessage)
 			self.logger.debug("Received %s action from %s:%s" % (status.action, status.deviceType, status.deviceId))
@@ -345,8 +355,9 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd applicaion status callback
 	'''
 	def __onAppStatus(self, client, userdata, message):
-		self.recv = self.recv + 1
-
+		with self.recvLock:
+			self.recv = self.recv + 1
+		
 		statusMatchResult = self.__appStatusPattern.match(message.topic)
 		if statusMatchResult:
 			self.logger.debug("Received application status '%s' on topic '%s'" % (message.payload, message.topic))

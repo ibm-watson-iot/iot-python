@@ -26,7 +26,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 class Message:
 	def __init__(self, data, timestamp=None):
@@ -34,7 +34,7 @@ class Message:
 		self.timestamp = timestamp
 	
 class AbstractClient:
-	def __init__(self, organization, clientId, username, password, logDir=None):
+	def __init__(self, organization, clientId, username, password, logHandlers=None):
 		self.organization = organization
 		self.username = username
 		self.password = password
@@ -44,26 +44,33 @@ class AbstractClient:
 		
 		self.connectEvent = threading.Event()
 		
+		self.recvLock = threading.Lock()
+		self.messagesLock = threading.Lock()
+		
 		self.messages = 0
 		self.recv = 0
 		
 		self.clientId = clientId
 		
 		# Configure logging
-		self.logDir = logDir
-		
 		self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
 		self.logger.setLevel(logging.INFO)
 		
-		logFileName = '%s.log' % (clientId.replace(":", "_"))
-		self.logFile = os.path.join(self.logDir, logFileName) if (self.logDir is not None) else logFileName 
-		
-		# create file handler, set level to debug & set format
-		fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
-		rfh = RotatingFileHandler(self.logFile, mode='a', maxBytes=1024000 , backupCount=0, encoding=None, delay=True)
-		rfh.setFormatter(fhFormatter)
-		
-		self.logger.addHandler(rfh)
+		if logHandlers:
+			if isinstance(logHandlers, list):
+				# Add all supplied log handlers
+				for handler in logHandlers:
+					self.logger.addHandler(handler)
+			else:
+				# Add the supplied log handler
+				self.logger.addHandler(logHandlers)
+		else:
+			# Generate a default rotating file log handler
+			logFileName = '%s.log' % (clientId.replace(":", "_"))
+			fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
+			rfh = RotatingFileHandler(logFileName, mode='a', maxBytes=1024000 , backupCount=0, encoding=None, delay=True)
+			rfh.setFormatter(fhFormatter)
+			self.logger.addHandler(rfh)
 		
 		self.client = paho.Client(self.clientId, clean_session=True)
 		
@@ -136,7 +143,7 @@ class AbstractClient:
 		msgPerSecond = 0 if self.messages == 0 else elapsed/self.messages
 		recvPerSecond = 0 if self.recv == 0 else elapsed/self.recv
 		self.logger.info("Messages published : %s, life: %.0fs, rate: 1/%.2fs" % (self.messages, elapsed, msgPerSecond))
-		self.logger.info("Messages recieved  : %s, life: %.0fs, rate: 1/%.2fs" % (self.recv, elapsed, recvPerSecond))
+		self.logger.info("Messages received  : %s, life: %.0fs, rate: 1/%.2fs" % (self.recv, elapsed, recvPerSecond))
 
 		
 	def on_log(self, mqttc, obj, level, string):
@@ -151,13 +158,17 @@ class AbstractClient:
 	def on_disconnect(self, mosq, obj, rc):
 		if rc == 1:
 			self.logger.error("Unexpected disconnect from the IBM Internet of Things Foundation")
-		
+		else:
+			self.logger.info("Disconnected from the IBM Internet of Things Foundation")
+		self.stats()
+	
 	'''
 	This is called when a message from the client has been successfully sent to the broker. 
 	The mid parameter gives the message id of the successfully published message.
 	'''
 	def on_publish(self, mosq, obj, mid):
-		self.messages = self.messages + 1
+		with self.messagesLock:
+			self.messages = self.messages + 1
 
 
 '''

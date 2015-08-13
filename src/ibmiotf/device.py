@@ -47,7 +47,7 @@ class Command:
 
 class Client(AbstractClient):
 
-	def __init__(self, options):
+	def __init__(self, options, logHandlers=None):
 		self.__options = options
 
 		if self.__options['org'] == None:
@@ -73,7 +73,8 @@ class Client(AbstractClient):
 			organization = options['org'],
 			clientId = "d:" + options['org'] + ":" + options['type'] + ":" + options['id'], 
 			username = "use-token-auth" if (options['auth-method'] == "token") else None,
-			password = options['auth-token']
+			password = options['auth-token'],
+			logHandlers = logHandlers
 		)
 
 
@@ -146,7 +147,8 @@ class Client(AbstractClient):
 	passes the information on to the registerd device command callback
 	'''
 	def __onCommand(self, client, userdata, pahoMessage):
-		self.recv = self.recv + 1
+		with self.recvLock:
+			self.recv = self.recv + 1
 		try:
 			command = Command(pahoMessage, self.messageEncoderModules)
 			self.logger.debug("Received command '%s'" % (command.command))
