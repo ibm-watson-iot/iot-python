@@ -43,7 +43,7 @@ class AbstractClient:
 		self.keepAlive = 60
 		
 		self.connectEvent = threading.Event()
-		
+	
 		self.recvLock = threading.Lock()
 		self.messagesLock = threading.Lock()
 		
@@ -65,12 +65,18 @@ class AbstractClient:
 				# Add the supplied log handler
 				self.logger.addHandler(logHandlers)
 		else:
-			# Generate a default rotating file log handler
+			# Generate a default rotating file log handler and stream handler
 			logFileName = '%s.log' % (clientId.replace(":", "_"))
 			fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
 			rfh = RotatingFileHandler(logFileName, mode='a', maxBytes=1024000 , backupCount=0, encoding=None, delay=True)
 			rfh.setFormatter(fhFormatter)
+			
+			ch = logging.StreamHandler()
+			ch.setFormatter(fhFormatter)
+			ch.setLevel(logging.DEBUG)
+			
 			self.logger.addHandler(rfh)
+			self.logger.addHandler(ch)
 		
 		self.client = paho.Client(self.clientId, clean_session=True)
 		
