@@ -161,7 +161,18 @@ class Client(AbstractClient):
 			self.logger.critical(str(e))
 
 
-
+class DeviceInfo(object):
+	def __init__(self):
+		self.serialNumber = None
+		self.manufacturer = None
+		self.model = None
+		self.deviceClass = None
+		self.description = None
+		self.fwVersion = None
+		self.hwVersion = None
+		self.descriptiveLocation = None
+	
+	
 class ManagedClient(Client):
 
 	MANAGE_TOPIC = 'iotdevice-1/mgmt/manage'
@@ -170,7 +181,7 @@ class ManagedClient(Client):
 	ADD_ERROR_CODE_TOPIC = 'iotdevice-1/add/diag/errorCodes'
 	CLEAR_ERROR_CODES_TOPIC = 'iotdevice-1/clear/diag/errorCodes'
 
-	def __init__(self, options, logHandlers=None):
+	def __init__(self, options, logHandlers=None, deviceInfo=None):
 		if options['org'] == "quickstart":
 			raise Exception("Unable to create ManagedClient instance.  QuickStart devices do not support device management")
 
@@ -188,6 +199,12 @@ class ManagedClient(Client):
 		self.deviceMgmtRequestsPending = {}
 
 		# Initialize local device data model
+		self.metadata = {}
+		if deviceInfo is not None:
+			self.deviceInfo = deviceInfo
+		else:
+			self.deviceInfo = DeviceInfo()
+		
 		self.location = None
 		self.errorCode = None
 	
@@ -236,6 +253,8 @@ class ManagedClient(Client):
 					"deviceActions": supportDeviceActions,
 					"firmwareActions": supportFirmwareActions
 				},
+				"deviceInfo" : self.deviceInfo.__dict__,
+				"metadata" : self.metadata
 			},
 			'reqId': reqId
 		}
@@ -359,9 +378,15 @@ class ManagedClient(Client):
 
 			request = None
 			with self.deviceMgmtRequestsPendingLock:
-				request = self.deviceMgmtRequestsPending.pop(reqId)
-				self.logger.debug("Remaining unprocessed device management requests: %s" % (len(self.deviceMgmtRequestsPending)))
+				try:
+					request = self.deviceMgmtRequestsPending.pop(reqId)
+					self.logger.debug("Remaining unprocessed device management requests: %s" % (len(self.deviceMgmtRequestsPending)))
+				except KeyError:
+					self.logger.warning("Received unexpected response from device management: %s" % (reqId))
 			
+			if request is None:
+				return False
+				
 			if request['topic'] == ManagedClient.MANAGE_TOPIC:
 				if rc == 200:
 					self.logger.info("[%s] Manage action completed: %s" % (rc, json.dumps(request['message'])))
@@ -399,6 +424,7 @@ class ManagedClient(Client):
 			
 			# Now clear the event, allowing anyone that was waiting on this to proceed
 			request["event"].set()
+			return True
 
 		except ValueError as e:
 			raise Exception("Unable to parse JSON.  payload=\"%s\" error=%s" % (pahoMessage.payload, str(e)))
