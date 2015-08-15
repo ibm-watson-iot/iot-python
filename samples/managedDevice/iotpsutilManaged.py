@@ -17,6 +17,7 @@ import psutil
 import platform
 import json
 import signal
+import subprocess
 from uuid import getnode as get_mac
 
 
@@ -56,6 +57,26 @@ def usage():
 		"  -n, --name       Override the default device name" + "\n" + 
 		"  -v, --verbose    Be more verbose"
 	)
+
+def isDmidecodeAvailable():
+	try:
+		value = subprocess.check_output(['dmidecode', '-h'], stderr=subprocess.STDOUT).decode("utf-8").strip()
+	except subprocess.CalledProcessError as e:
+		print(str(e))
+		return False
+	except Exception as e:
+		print(str(e))
+		return False
+	return True
+	
+def dmidecode(property):
+	try:
+		value = subprocess.check_output(['dmidecode','-s', property], stderr=subprocess.STDOUT).decode("utf-8").strip()
+	except subprocess.CalledProcessError as e:
+		return None
+	except Exception:
+		return None
+	return value
 
 def commandProcessor(cmd):
 	global interval
@@ -115,10 +136,23 @@ if __name__ == "__main__":
 		else:
 			assert False, "unhandled option" + o
 
+
 	client = None
-	myDeviceInfo = ibmiotf.device.DeviceInfo()
-	myDeviceInfo.description = deviceName
 	
+	if not isDmidecodeAvailable():
+		print("dmidecode could not be found on the system path.  Device information will be based on the Python platform module alone.")
+		print(" * http://www.nongnu.org/dmidecode/")
+		print(" * http://gnuwin32.sourceforge.net/packages/dmidecode.htm")
+	
+	myDeviceInfo = ibmiotf.device.DeviceInfo()
+	myDeviceInfo.description = "%s (%s)" % (dmidecode("system-version"), deviceName) if isDmidecodeAvailable() else deviceName 
+	myDeviceInfo.deviceClass = dmidecode("system-version") if isDmidecodeAvailable() else platform.machine()
+	myDeviceInfo.manufacturer = dmidecode("system-manufacturer") if isDmidecodeAvailable() else platform.system()
+	myDeviceInfo.fwVersion = dmidecode("bios-version") if isDmidecodeAvailable() else platform.version()
+	myDeviceInfo.hwVersion = dmidecode("baseboard-product-name") if isDmidecodeAvailable() else None
+	myDeviceInfo.model = dmidecode("system-product-name") if isDmidecodeAvailable() else None
+	myDeviceInfo.serialNumber = dmidecode("system-serial-number") if isDmidecodeAvailable() else None
+
 	try:
 		if configFilePath is not None:
 			options = ibmiotf.device.ParseConfigFile(configFilePath)
