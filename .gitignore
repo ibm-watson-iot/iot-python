@@ -4,6 +4,6 @@
 *.project
 *.pydevproject
 *.zip
-src/ibmiotc.egg-info/*
+src/ibmiotf.egg-info/*
 MANIFEST
 README.txt
