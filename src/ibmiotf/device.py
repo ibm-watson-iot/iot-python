@@ -48,23 +48,25 @@ class Command:
 
 
 class Client(AbstractClient):
+	
+	COMMAND_TOPIC = "iot-2/cmd/+/fmt/+"
 
 	def __init__(self, options, logHandlers=None):
-		self.options = options
+		self._options = options
 
-		if self.options['org'] == None:
+		if self._options['org'] == None:
 			raise ConfigurationException("Missing required property: org")
-		if self.options['type'] == None: 
+		if self._options['type'] == None: 
 			raise ConfigurationException("Missing required property: type")
-		if self.options['id'] == None: 
+		if self._options['id'] == None: 
 			raise ConfigurationException("Missing required property: id")
 		
-		if self.options['org'] != "quickstart":
-			if self.options['auth-method'] == None: 
+		if self._options['org'] != "quickstart":
+			if self._options['auth-method'] == None: 
 				raise ConfigurationException("Missing required property: auth-method")
 				
-			if (self.options['auth-method'] == "token"):
-				if self.options['auth-token'] == None: 
+			if (self._options['auth-method'] == "token"):
+				if self._options['auth-token'] == None: 
 					raise ConfigurationException("Missing required property for token based authentication: auth-token")
 			else:
 				raise UnsupportedAuthenticationMethod(options['authMethod'])
@@ -81,7 +83,7 @@ class Client(AbstractClient):
 
 
 		# Add handler for commands if not connected to QuickStart
-		if self.options['org'] != "quickstart":
+		if self._options['org'] != "quickstart":
 			self.client.message_callback_add("iot-2/cmd/+/fmt/+", self.__onCommand)
 
 		self.subscriptionsAcknowledged = threading.Event()
@@ -109,7 +111,7 @@ class Client(AbstractClient):
 		if rc == 0:
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
-			if self.options['org'] != "quickstart":
+			if self._options['org'] != "quickstart":
 				self.__subscribeToCommands()
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
@@ -125,8 +127,8 @@ class Client(AbstractClient):
 			self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 			topic = 'iot-2/evt/'+event+'/fmt/' + msgFormat
 			
-			if msgFormat in self.messageEncoderModules:
-				payload = self.messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
+			if msgFormat in self._messageEncoderModules:
+				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 				self.client.publish(topic, payload=payload, qos=qos, retain=False)
 				return True
 			else:
@@ -134,7 +136,7 @@ class Client(AbstractClient):
 
 
 	def subscribeToCommands(self):
-		if self.options['org'] == "quickstart":
+		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support commands")
 			return False
 		
@@ -151,14 +153,16 @@ class Client(AbstractClient):
 	passes the information on to the registerd device command callback
 	'''
 	def __onCommand(self, client, userdata, pahoMessage):
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 		try:
-			command = Command(pahoMessage, self.messageEncoderModules)
-			self.logger.debug("Received command '%s'" % (command.command))
-			if self.commandCallback: self.commandCallback(command)
+			command = Command(pahoMessage, self._messageEncoderModules)
 		except InvalidEventException as e:
 			self.logger.critical(str(e))
+		else:
+			self.logger.debug("Received command '%s'" % (command.command))
+			if self.commandCallback: self.commandCallback(command)
+
 
 
 class DeviceInfo(object):
@@ -172,15 +176,24 @@ class DeviceInfo(object):
 		self.hwVersion = None
 		self.descriptiveLocation = None
 	
+	def __str__(self):
+		return json.dumps(self.__dict__, sort_keys=True)
+	
 	
 class ManagedClient(Client):
 
+	# Publish MQTT topics
 	MANAGE_TOPIC = 'iotdevice-1/mgmt/manage'
 	UNMANAGE_TOPIC = 'iotdevice-1/mgmt/unmanage'
 	UPDATE_LOCATION_TOPIC = 'iotdevice-1/device/update/location'
 	ADD_ERROR_CODE_TOPIC = 'iotdevice-1/add/diag/errorCodes'
 	CLEAR_ERROR_CODES_TOPIC = 'iotdevice-1/clear/diag/errorCodes'
-
+	NOTIFY_TOPIC = 'iotdevice-1/notify'
+	
+	# Subscribe MQTT topics
+	DM_RESPONSE_TOPIC = 'iotdm-1/response'
+	DM_OBSERVE_TOPIC = 'iotdm-1/observe'
+	
 	def __init__(self, options, logHandlers=None, deviceInfo=None):
 		if options['org'] == "quickstart":
 			raise Exception("Unable to create ManagedClient instance.  QuickStart devices do not support device management")
@@ -195,19 +208,81 @@ class ManagedClient(Client):
 		self.readyForDeviceMgmt = threading.Event()
 		
 		# List of DM requests that have not received a response yet
-		self.deviceMgmtRequestsPendingLock = threading.Lock()
-		self.deviceMgmtRequestsPending = {}
+		self._deviceMgmtRequestsPendingLock = threading.Lock()
+		self._deviceMgmtRequestsPending = {}
+
+		# List of DM notify hook 
+		self._deviceMgmtObservationsLock = threading.Lock()
+		self._deviceMgmtObservations = []
 
 		# Initialize local device data model
 		self.metadata = {}
 		if deviceInfo is not None:
-			self.deviceInfo = deviceInfo
+			self._deviceInfo = deviceInfo
 		else:
-			self.deviceInfo = DeviceInfo()
+			self._deviceInfo = DeviceInfo()
 		
-		self.location = None
-		self.errorCode = None
+		self._location = None
+		self._errorCode = None
 	
+	
+	def setSerialNumber(self, serialNumber):
+		self._deviceInfo.serialNumber = serialNumber
+		return self.notifyFieldChange("deviceInfo.serialNumber", serialNumber)
+
+	def setManufacturer(self, manufacturer):
+		self._deviceInfo.serialNumber = manufacturer
+		return self.notifyFieldChange("deviceInfo.manufacturer", manufacturer)
+	
+	def setModel(self, model):
+		self._deviceInfo.serialNumber = model
+		return self.notifyFieldChange("deviceInfo.model", model)
+
+	def setdeviceClass(self, deviceClass):
+		self._deviceInfo.deviceClass = deviceClass
+		return self.notifyFieldChange("deviceInfo.deviceClass", deviceClass)
+
+	def setDescription(self, description):
+		self._deviceInfo.description = description
+		return self.notifyFieldChange("deviceInfo.description", description)
+
+	def setFwVersion(self, fwVersion):
+		self._deviceInfo.fwVersion = fwVersion
+		return self.notifyFieldChange("deviceInfo.fwVersion", fwVersion)
+
+	def setHwVersion(self, hwVersion):
+		self._deviceInfo.hwVersion = hwVersion
+		return self.notifyFieldChange("deviceInfo.hwVersion", hwVersion)
+
+	def setDescriptiveLocation(self, descriptiveLocation):
+		self._deviceInfo.descriptiveLocation = descriptiveLocation
+		return self.notifyFieldChange("deviceInfo.descriptiveLocation", descriptiveLocation)
+	
+
+	def notifyFieldChange(self, field, value):
+		with self._deviceMgmtObservationsLock:
+			if field in self._deviceMgmtObservations:
+				if not self.readyForDeviceMgmt.wait():
+					self.logger.warning("Unable to publish device location because device is not ready for device management")
+					return threading.Event().set()
+		
+				reqId = str(uuid.uuid4())
+				message = {
+					"d": {
+						"field": field, 
+						"value": value
+					},
+					"reqId": reqId
+				}
+				
+				resolvedEvent = threading.Event()
+				self.client.publish(ManagedClient.NOTIFY_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+				with self._deviceMgmtRequestsPendingLock:
+					self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.NOTIFY_TOPIC, "message": message, "event": resolvedEvent}
+				
+				return resolvedEvent
+			else:
+				return threading.Event().set()
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
 	The parameter rc is an integer giving the return code:
@@ -222,8 +297,8 @@ class ManagedClient(Client):
 		if rc == 0:
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
-			if self.options['org'] != "quickstart":
-				self.client.subscribe( [('iotdm-1/response', 1), ('iot-2/cmd/+/fmt/+', 1)] )
+			if self._options['org'] != "quickstart":
+				self.client.subscribe( [(ManagedClient.DM_RESPONSE_TOPIC, 1), (ManagedClient.DM_OBSERVE_TOPIC, 1), (Client.COMMAND_TOPIC, 1)] )
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
@@ -243,7 +318,7 @@ class ManagedClient(Client):
 		
 		if not self.subscriptionsAcknowledged.wait():
 			self.logger.warning("Unable to send register for device management because device subscriptions are not in place")
-			return None
+			return threading.Event().set()
 		
 		reqId = str(uuid.uuid4())
 		message = {
@@ -253,7 +328,7 @@ class ManagedClient(Client):
 					"deviceActions": supportDeviceActions,
 					"firmwareActions": supportFirmwareActions
 				},
-				"deviceInfo" : self.deviceInfo.__dict__,
+				"deviceInfo" : self._deviceInfo.__dict__,
 				"metadata" : self.metadata
 			},
 			'reqId': reqId
@@ -261,8 +336,8 @@ class ManagedClient(Client):
 		
 		resolvedEvent = threading.Event()
 		self.client.publish(ManagedClient.MANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
-		with self.deviceMgmtRequestsPendingLock:
-			self.deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.MANAGE_TOPIC, "message": message, "event": resolvedEvent} 
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.MANAGE_TOPIC, "message": message, "event": resolvedEvent} 
 		
 		# Register the future call back to IoT Foundation 2 minutes before the device lifetime expiry
 		if lifetime != 0:
@@ -274,7 +349,7 @@ class ManagedClient(Client):
 	def unmanage(self):
 		if not self.readyForDeviceMgmt.wait():
 			self.logger.warning("Unable to set device to unmanaged because device is not ready for device management")
-			return None
+			return threading.Event().set()
 
 		reqId = str(uuid.uuid4())
 		message = {
@@ -283,42 +358,42 @@ class ManagedClient(Client):
 		
 		resolvedEvent = threading.Event()
 		self.client.publish(ManagedClient.UNMANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
-		with self.deviceMgmtRequestsPendingLock:
-			self.deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.UNMANAGE_TOPIC, "message": message, "event": resolvedEvent} 
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.UNMANAGE_TOPIC, "message": message, "event": resolvedEvent} 
 		
 		return resolvedEvent
 	
 	def setLocation(self, longitude, latitude, elevation=None, accuracy=None):
 		# TODO: Add validation (e.g. ensure numeric values)
-		if self.location is None:
-			self.location = {}
+		if self._location is None:
+			self._location = {}
 		
-		self.location['longitude'] = longitude
-		self.location['latitude'] = latitude
+		self._location['longitude'] = longitude
+		self._location['latitude'] = latitude
 		if elevation:
-			self.location['elevation'] = elevation
+			self._location['elevation'] = elevation
 		
-		self.location['measuredDateTime'] = datetime.now(pytz.timezone('UTC')).isoformat()
+		self._location['measuredDateTime'] = datetime.now(pytz.timezone('UTC')).isoformat()
 
 		if accuracy:
-			self.location['accuracy'] = accuracy
-		elif "accuracy" in self.location:
-			del self.location["accuracy"]
+			self._location['accuracy'] = accuracy
+		elif "accuracy" in self._location:
+			del self._location["accuracy"]
 
 		if not self.readyForDeviceMgmt.wait():
 			self.logger.warning("Unable to publish device location because device is not ready for device management")
-			return None
+			return threading.Event().set()
 
 		reqId = str(uuid.uuid4())
 		message = {
-			"d": self.location,
+			"d": self._location,
 			"reqId": reqId
 		}
 		
 		resolvedEvent = threading.Event()
 		self.client.publish(ManagedClient.UPDATE_LOCATION_TOPIC, payload=json.dumps(message), qos=1, retain=False)
-		with self.deviceMgmtRequestsPendingLock:
-			self.deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.UPDATE_LOCATION_TOPIC, "message": message, "event": resolvedEvent}
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.UPDATE_LOCATION_TOPIC, "message": message, "event": resolvedEvent}
 		
 		return resolvedEvent
 	
@@ -327,11 +402,11 @@ class ManagedClient(Client):
 		if errorCode is None:
 			errorCode = 0;
 			
-		self.errorCode = errorCode
+		self._errorCode = errorCode
 		
 		if not self.readyForDeviceMgmt.wait():
 			self.logger.warning("Unable to publish error code because device is not ready for device management")
-			return None
+			return threading.Event().set()
 
 		reqId = str(uuid.uuid4())
 		message = {
@@ -341,17 +416,17 @@ class ManagedClient(Client):
 		
 		resolvedEvent = threading.Event()
 		self.client.publish(ManagedClient.ADD_ERROR_CODE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
-		with self.deviceMgmtRequestsPendingLock:
-			self.deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.ADD_ERROR_CODE_TOPIC, "message": message, "event": resolvedEvent} 
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.ADD_ERROR_CODE_TOPIC, "message": message, "event": resolvedEvent} 
 		
 		return resolvedEvent
 
 	def clearErrorCodes(self):
-		self.errorCode = None
+		self._errorCode = None
 		
 		if not self.readyForDeviceMgmt.wait():
 			self.logger.warning("Unable to clear error codes because device is not ready for device management")
-			return False
+			return threading.Event().set()
 
 		reqId = str(uuid.uuid4())
 		message = {
@@ -360,14 +435,14 @@ class ManagedClient(Client):
 		
 		resolvedEvent = threading.Event()
 		self.client.publish(ManagedClient.CLEAR_ERROR_CODES_TOPIC, payload=json.dumps(message), qos=1, retain=False)
-		with self.deviceMgmtRequestsPendingLock:
-			self.deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.CLEAR_ERROR_CODES_TOPIC, "message": message, "event": resolvedEvent} 
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.CLEAR_ERROR_CODES_TOPIC, "message": message, "event": resolvedEvent} 
 		
 		return resolvedEvent
 	
 	
 	def __onDeviceMgmtResponse(self, client, userdata, pahoMessage):
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 		
 		try:
@@ -375,14 +450,18 @@ class ManagedClient(Client):
 			
 			rc = data['rc']
 			reqId = data['reqId']
-
+		except ValueError as e:
+			raise Exception("Unable to parse JSON.  payload=\"%s\" error=%s" % (pahoMessage.payload, str(e)))
+		else:
 			request = None
-			with self.deviceMgmtRequestsPendingLock:
+			with self._deviceMgmtRequestsPendingLock:
 				try:
-					request = self.deviceMgmtRequestsPending.pop(reqId)
-					self.logger.debug("Remaining unprocessed device management requests: %s" % (len(self.deviceMgmtRequestsPending)))
+					request = self._deviceMgmtRequestsPending.pop(reqId)
 				except KeyError:
 					self.logger.warning("Received unexpected response from device management: %s" % (reqId))
+				else:
+					self.logger.debug("Remaining unprocessed device management requests: %s" % (len(self._deviceMgmtRequestsPending)))
+					
 			
 			if request is None:
 				return False
@@ -426,8 +505,6 @@ class ManagedClient(Client):
 			request["event"].set()
 			return True
 
-		except ValueError as e:
-			raise Exception("Unable to parse JSON.  payload=\"%s\" error=%s" % (pahoMessage.payload, str(e)))
 	
 
 

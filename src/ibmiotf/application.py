@@ -131,31 +131,31 @@ class Command:
 class Client(ibmiotf.AbstractClient):
 
 	def __init__(self, options, logHandlers=None):
-		self.__options = options
+		self._options = options
 
 		username = None
 		password = None
 
-		if 'org' not in self.__options or self.__options['org'] == None:
+		if 'org' not in self._options or self._options['org'] == None:
 			raise ibmiotf.ConfigurationException("Missing required property: org")
-		if 'id' not in self.__options or self.__options['id'] == None: 
+		if 'id' not in self._options or self._options['id'] == None: 
 			raise ibmiotf.ConfigurationException("Missing required property: type")
 
 		# Auth method is optional.  e.g. in QuickStart there is no authentication
-		if 'auth-method' not in self.__options:
-			self.__options['auth-method'] = None
+		if 'auth-method' not in self._options:
+			self._options['auth-method'] = None
 			
-		if (self.__options['auth-method'] == "apikey"):
+		if (self._options['auth-method'] == "apikey"):
 			# Check for required API Key and authentication token
-			if 'auth-key' not in self.__options or self.__options['auth-key'] == None: 
+			if 'auth-key' not in self._options or self._options['auth-key'] == None: 
 				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
-			if 'auth-token' not in self.__options or self.__options['auth-token'] == None: 
+			if 'auth-token' not in self._options or self._options['auth-token'] == None: 
 				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
 			
-			username = self.__options['auth-key']
-			password = self.__options['auth-token']
+			username = self._options['auth-key']
+			password = self._options['auth-token']
 			
-		elif self.__options['auth-method'] is not None:
+		elif self._options['auth-method'] is not None:
 			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
 
 		# Call parent constructor
@@ -174,7 +174,7 @@ class Client(ibmiotf.AbstractClient):
 		self.client.message_callback_add("iot-2/app/+/mon", self.__onAppStatus)
 		
 		# Add handler for commands if not connected to QuickStart
-		if self.__options['org'] != "quickstart":
+		if self._options['org'] != "quickstart":
 			self.client.message_callback_add("iot-2/type/+/id/+/cmd/+/fmt/+", self.__onDeviceCommand)
 		
 		# Attach fallback handler
@@ -193,7 +193,7 @@ class Client(ibmiotf.AbstractClient):
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
 		
 		# Create an api client if not connected in QuickStart mode
-		if self.__options['org'] != "quickstart":
+		if self._options['org'] != "quickstart":
 			self.api = ibmiotf.api.ApiClient(options)
 			
 			
@@ -219,7 +219,7 @@ class Client(ibmiotf.AbstractClient):
 	
 	
 	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+"):
-		if self.__options['org'] == "quickstart" and deviceId == "+":
+		if self._options['org'] == "quickstart" and deviceId == "+":
 			self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
 			return False
 		
@@ -233,7 +233,7 @@ class Client(ibmiotf.AbstractClient):
 	
 	
 	def subscribeToDeviceStatus(self, deviceType="+", deviceId="+"):
-		if self.__options['org'] == "quickstart" and deviceId == "+":
+		if self._options['org'] == "quickstart" and deviceId == "+":
 			self.logger.warning("QuickStart applications do not support wildcard subscription to device status")
 			return False
 		
@@ -247,7 +247,7 @@ class Client(ibmiotf.AbstractClient):
 	
 
 	def subscribeToDeviceCommands(self, deviceType="+", deviceId="+", command="+", msgFormat="+"):
-		if self.__options['org'] == "quickstart":
+		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support commands")
 			return False
 		
@@ -266,8 +266,8 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
 			
-			if msgFormat in self.messageEncoderModules:
-				payload = self.messageEncoderModules[msgFormat].encode(data, datetime.now())
+			if msgFormat in self._messageEncoderModules:
+				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
 				self.client.publish(topic, payload=payload, qos=qos, retain=False)
 				return True
 			else:
@@ -275,7 +275,7 @@ class Client(ibmiotf.AbstractClient):
 	
 	
 	def publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0):
-		if self.__options['org'] == "quickstart":
+		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support sending commands")
 			return False
 		if not self.connectEvent.wait():
@@ -283,8 +283,8 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
 
-			if msgFormat in self.messageEncoderModules:
-				payload = self.messageEncoderModules[msgFormat].encode(data, datetime.now())
+			if msgFormat in self._messageEncoderModules:
+				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
 				self.client.publish(topic, payload=payload, qos=qos, retain=False)
 				return True
 			else:
@@ -298,7 +298,7 @@ class Client(ibmiotf.AbstractClient):
 	def __onUnsupportedMessage(self, client, userdata, message):
 		self.logger.warning("Received messaging on unsupported topic '%s' on topic '%s'" % (message.payload, message.topic))
 		
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 	
 	
@@ -307,11 +307,11 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd device event callback
 	'''
 	def __onDeviceEvent(self, client, userdata, pahoMessage):
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 		
 		try:
-			event = Event(pahoMessage, self.messageEncoderModules)
+			event = Event(pahoMessage, self._messageEncoderModules)
 			self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.deviceType, event.deviceId))
 			if self.deviceEventCallback: self.deviceEventCallback(event)
 		except ibmiotf.InvalidEventException as e:
@@ -323,11 +323,11 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd device command callback
 	'''
 	def __onDeviceCommand(self, client, userdata, pahoMessage):
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 		
 		try:
-			command = Command(pahoMessage, self.messageEncoderModules)
+			command = Command(pahoMessage, self._messageEncoderModules)
 			self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.deviceType, command.deviceId))
 			if self.deviceCommandCallback: self.deviceCommandCallback(command)
 		except ibmiotf.InvalidEventException as e:
@@ -339,7 +339,7 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd device status callback
 	'''
 	def __onDeviceStatus(self, client, userdata, pahoMessage):
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 		
 		try:
@@ -355,7 +355,7 @@ class Client(ibmiotf.AbstractClient):
 	passes the information on to the registerd applicaion status callback
 	'''
 	def __onAppStatus(self, client, userdata, message):
-		with self.recvLock:
+		with self._recvLock:
 			self.recv = self.recv + 1
 		
 		statusMatchResult = self.__appStatusPattern.match(message.topic)

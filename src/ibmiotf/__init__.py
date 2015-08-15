@@ -44,8 +44,8 @@ class AbstractClient:
 		
 		self.connectEvent = threading.Event()
 	
-		self.recvLock = threading.Lock()
-		self.messagesLock = threading.Lock()
+		self._recvLock = threading.Lock()
+		self._messagesLock = threading.Lock()
 		
 		self.messages = 0
 		self.recv = 0
@@ -109,13 +109,13 @@ class AbstractClient:
 		self.client.on_publish = self.on_publish
 		
 		# Initialize default message encoders and decoders.
-		self.messageEncoderModules = {}
+		self._messageEncoderModules = {}
 		
 		self.start = time.time()
 	
 	
 	def setMessageEncoderModule(self, messageFormat, module):
-		self.messageEncoderModules[messageFormat] = module
+		self._messageEncoderModules[messageFormat] = module
 	
 	def logAndRaiseException(self, e):
 		self.logger.critical(str(e))
@@ -173,7 +173,7 @@ class AbstractClient:
 	The mid parameter gives the message id of the successfully published message.
 	'''
 	def on_publish(self, mosq, obj, mid):
-		with self.messagesLock:
+		with self._messagesLock:
 			self.messages = self.messages + 1
 
 
