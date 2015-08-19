@@ -156,13 +156,15 @@ class Client(ibmiotf.AbstractClient):
 			password = self._options['auth-token']
 			
 		elif self._options['auth-method'] is not None:
-			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
+			raise ibmiotf.UnsupportedAuthenticationMethod(options['auth-method'])
+
+		clientIdPrefix = "a" if ('type' not in self._options or self._options['type'] == 'standalone') else "A" 
 
 		# Call parent constructor
 		ibmiotf.AbstractClient.__init__(
 			self, 
 			organization = options['org'], 
-			clientId = "a:" + options['org'] + ":" + options['id'], 
+			clientId = clientIdPrefix + ":" + options['org'] + ":" + options['id'], 
 			username = username, 
 			password = password,
 			logHandlers = logHandlers
@@ -380,6 +382,8 @@ def ParseConfigFile(configFilePath):
 				parms.read_file(f)
 				organization = parms.get(sectionHeader, "org", fallback=None)
 				appId = parms.get(sectionHeader, "id", fallback=None)
+				appType = parms.get(sectionHeader, "type", fallback="standalone")
+				
 				authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
 				authKey = parms.get(sectionHeader, "auth-key", fallback=None)
 				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
@@ -389,6 +393,8 @@ def ParseConfigFile(configFilePath):
 				parms.readfp(f)
 				organization = parms.get(sectionHeader, "org", None)
 				appId = parms.get(sectionHeader, "id", None)
+				appType = parms.get(sectionHeader, "type", "standalone")
+				
 				authMethod = parms.get(sectionHeader, "auth-method", None)
 				authKey = parms.get(sectionHeader, "auth-key", None)
 				authToken = parms.get(sectionHeader, "auth-token", None)
@@ -396,7 +402,7 @@ def ParseConfigFile(configFilePath):
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 		
-	return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken}
+	return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
 
 
 def ParseConfigFromBluemixVCAP():
@@ -404,15 +410,16 @@ def ParseConfigFromBluemixVCAP():
 	try:
 		application = json.loads(os.getenv('VCAP_APPLICATION'))
 		service = json.loads(os.getenv('VCAP_SERVICES'))
-	
+		
 		appId = application['application_name'] + "-" + str(application['instance_index'])
-	
+		appType = "standalone"
+		
 		organization = service['iotf-service'][0]['credentials']['org']
 		authKey = service['iotf-service'][0]['credentials']['apiKey']
 		authToken = service['iotf-service'][0]['credentials']['apiToken']
 		authMethod = "apikey"
 		
-		return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken}
+		return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
 	except Exception as e:
 		raise ibmiotf.ConfigurationException(str(e))
 
