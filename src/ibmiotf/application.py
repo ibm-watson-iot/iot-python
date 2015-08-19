@@ -218,7 +218,7 @@ class Client(ibmiotf.AbstractClient):
 			self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
 	
-	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+"):
+	def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+", qos=0):
 		if self._options['org'] == "quickstart" and deviceId == "+":
 			self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
 			return False
@@ -228,7 +228,7 @@ class Client(ibmiotf.AbstractClient):
 			return False
 		else:
 			topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
-			self.client.subscribe(topic, qos=0)
+			self.client.subscribe(topic, qos=qos)
 			return True
 	
 	
@@ -256,7 +256,7 @@ class Client(ibmiotf.AbstractClient):
 			return False
 		else:
 			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
-			self.client.subscribe(topic, qos=2)
+			self.client.subscribe(topic, qos=1)
 			return True
 
 	

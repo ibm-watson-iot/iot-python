@@ -145,7 +145,7 @@ class Client(AbstractClient):
 			return False
 		else:
 			topic = 'iot-2/cmd/+/fmt/json'
-			self.client.subscribe(topic, qos=2)
+			self.client.subscribe(topic, qos=1)
 			return True
 
 	'''
