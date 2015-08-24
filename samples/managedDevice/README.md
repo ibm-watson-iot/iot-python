@@ -7,3 +7,7 @@ The following data points are supported:
  * Memory utilization (%)
  * Outbound network utilization across all network interfaces (KB/s)
  * Inbound network utilization across all network interfaces (KB/s)
+
+## Setup
+ * [Windows](setup/windows.md)
+ * [Ubuntu](setup/ubuntu.md)
