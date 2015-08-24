@@ -1,7 +1,7 @@
 # Setup on Ubuntu
 
-Install [Python](https://www.python.org/downloads/) & the [ibmiotf](https://pypi.python.org/pypi/ibmiotf/) and 
-[psutil](https://pypi.python.org/pypi/psutil/) modules.  Note that ``python-dev`` is required to compile 
+Install [Python](https://www.python.org/downloads/) & the [``ibmiotf``](https://pypi.python.org/pypi/ibmiotf/) and 
+[``psutil``](https://pypi.python.org/pypi/psutil/) modules.  Note that ``python-dev`` is required to compile 
 the ``psutil`` module.
 
 ```
