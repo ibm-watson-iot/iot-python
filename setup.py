@@ -18,7 +18,7 @@ setup(
     license=open('LICENSE').read(),
     description='IBM Internet of Things Foundation for Python',
     long_description=open('README.rst').read(),
-    license='Eclipse Public License - v 1.0'
+    licence='Eclipse Public License - v 1.0',
     install_requires=[
         "iso8601 >= 0.1.10",
         "paho-mqtt >= 1.1",
