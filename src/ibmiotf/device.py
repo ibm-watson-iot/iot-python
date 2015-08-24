@@ -263,7 +263,7 @@ class ManagedClient(Client):
 		with self._deviceMgmtObservationsLock:
 			if field in self._deviceMgmtObservations:
 				if not self.readyForDeviceMgmt.wait():
-					self.logger.warning("Unable to publish device location because device is not ready for device management")
+					self.logger.warning("Unable to notify service of field change because device is not ready for device management")
 					return threading.Event().set()
 		
 				reqId = str(uuid.uuid4())
@@ -311,9 +311,9 @@ class ManagedClient(Client):
 		self.manage()
 	
 	
-	def manage(self, lifetime=600, supportDeviceActions=False, supportFirmwareActions=False):
-		# TODO: throw an error, minimum lifetime this client will support is 10 minutes but for now set lifetime to infinite if it's invalid
-		if lifetime < 600:
+	def manage(self, lifetime=3600, supportDeviceActions=False, supportFirmwareActions=False):
+		# TODO: throw an error, minimum lifetime this client will support is 1 hour, but for now set lifetime to infinite if it's invalid
+		if lifetime < 3600:
 			lifetime = 0
 		
 		if not self.subscriptionsAcknowledged.wait():
