@@ -1,7 +1,5 @@
 # Setup on Windows
-
-[Install Python 2.7 or 3.4](https://www.python.org/downloads/) & the library module: 
-
+Install [Python](https://www.python.org/downloads/) & the [ibmiotf](https://pypi.python.org/pypi/ibmiotf/) module.
 ```
 C:\Users\Me> pip install ibmiotf
 ```
