@@ -112,7 +112,7 @@ class Client(AbstractClient):
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
 			if self._options['org'] != "quickstart":
-				self.__subscribeToCommands()
+				self.subscribeToCommands()
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
