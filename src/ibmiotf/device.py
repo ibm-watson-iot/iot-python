@@ -112,7 +112,7 @@ class Client(AbstractClient):
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
 			if self._options['org'] != "quickstart":
-				self.subscribeToCommands()
+				self.__subscribeToCommands()
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
@@ -135,7 +135,7 @@ class Client(AbstractClient):
 				raise MissingMessageEncoderException(msgFormat)
 
 
-	def subscribeToCommands(self):
+	def __subscribeToCommands(self):
 		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support commands")
 			return False
