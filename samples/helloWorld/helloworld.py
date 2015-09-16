@@ -60,20 +60,24 @@ appCli.connect()
 appCli.subscribeToDeviceEvents(deviceType, deviceId, "greeting")
 appCli.deviceEventCallback = myAppEventCallback
 
-	
 # Initialize the device client.
 try:
 	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
 	deviceCli = ibmiotf.device.Client(deviceOptions)
 except Exception as e:
-	print(str(e))
+	print("Caught exception connecting device: %s" % str(e))
 	sys.exit()
 
 # Connect and send a datapoint "hello" with value "world" into the cloud as an event of type "greeting" 10 times
 deviceCli.connect()
 for x in range (0,10):
 	data = { 'hello' : 'world', 'x' : x}
-	deviceCli.publishEvent("greeting", "json", data)
+	def myOnPublishCallback():
+		print("Confirmed event %s received by IoTF\n" % x)
+	
+	success = deviceCli.publishEvent("greeting", "json", data, qos=0, on_publish=myOnPublishCallback)
+	if not success:
+		print("Not connected to IoTF")
 	time.sleep(1)
 		
 

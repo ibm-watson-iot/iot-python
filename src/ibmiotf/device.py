@@ -15,6 +15,7 @@ import re
 import pytz
 import uuid
 import threading
+import paho.mqtt.client as paho
 
 from datetime import datetime
 
@@ -118,8 +119,20 @@ class Client(AbstractClient):
 		else:
 			self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 	
-
-	def publishEvent(self, event, msgFormat, data, qos=0):
+	'''
+	Publish an event in IoTF.  
+	Parameters:
+		event - the name of this event
+		msgFormat - the format of the data for this event
+		data - the data for this event
+	Optional paramters:
+		qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
+		on_publish - a function that will be called when receipt of the publication is confirmed.  This
+					 has different implications depending on the qos:
+					 qos 0 - the client has asynchronously begun to send the event
+					 qos 1 and 2 - the client has confirmation of delivery from IoTF
+	'''
+	def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
 		if not self.connectEvent.wait():
 			self.logger.warning("Unable to send event %s because device is not currently connected")
 			return False
@@ -129,12 +142,25 @@ class Client(AbstractClient):
 			
 			if msgFormat in self._messageEncoderModules:
 				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-				self.client.publish(topic, payload=payload, qos=qos, retain=False)
-				return True
+				
+				try:
+					# need to take lock to ensure on_publish is not called before we know the mid
+					if on_publish is not None:
+						self._messagesLock.acquire()
+					
+					result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
+					if result[0] == paho.MQTT_ERR_SUCCESS:
+						if on_publish is not None:
+							self._onPublishCallbacks[result[1]] = on_publish
+						return True
+					else:
+						return False
+				finally:
+					if on_publish is not None:
+						self._messagesLock.release()
 			else:
 				raise MissingMessageEncoderException(msgFormat)
-
-
+						
 	def __subscribeToCommands(self):
 		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support commands")
