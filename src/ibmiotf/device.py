@@ -148,19 +148,19 @@ class Client(AbstractClient):
 					if on_publish is not None:
 						self._messagesLock.acquire()
 					
-						result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
-						if result[0] == paho.MQTT_ERR_SUCCESS:
-							if on_publish is not None:
-								self._onPublishCallbacks[result[1]] = on_publish
-							return True
-						else:
-							return False
+					result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
+					if result[0] == paho.MQTT_ERR_SUCCESS:
+						if on_publish is not None:
+							self._onPublishCallbacks[result[1]] = on_publish
+						return True
 					else:
-						raise MissingMessageEncoderException(msgFormat)
+						return False
 				finally:
 					if on_publish is not None:
 						self._messagesLock.release()
-
+			else:
+				raise MissingMessageEncoderException(msgFormat)
+						
 	def __subscribeToCommands(self):
 		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support commands")
