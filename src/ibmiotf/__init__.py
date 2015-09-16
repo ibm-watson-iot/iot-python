@@ -112,6 +112,9 @@ class AbstractClient:
 		self._messageEncoderModules = {}
 		
 		self.start = time.time()
+		
+		# initialize callbacks
+		self._onPublishCallbacks = {}
 	
 	
 	def setMessageEncoderModule(self, messageFormat, module):
@@ -175,6 +178,10 @@ class AbstractClient:
 	def on_publish(self, mosq, obj, mid):
 		with self._messagesLock:
 			self.messages = self.messages + 1
+			if mid in self._onPublishCallbacks:
+				midOnPublish = self._onPublishCallbacks.get(mid)
+				del self._onPublishCallbacks[mid]
+				midOnPublish()
 
 
 '''
