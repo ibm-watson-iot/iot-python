@@ -11,3 +11,4 @@ The following data points are supported:
 ## Setup
  * [Windows](setup/windows.md)
  * [Ubuntu](setup/ubuntu.md)
+ * [RHEL/CentOS](setup/rhel.md)
