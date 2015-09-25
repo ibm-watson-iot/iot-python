@@ -261,8 +261,22 @@ class Client(ibmiotf.AbstractClient):
 			self.client.subscribe(topic, qos=1)
 			return True
 
-	
-	def publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0):
+	'''
+	Publish an event in IoTF as if the application were a device.  
+	Parameters:
+		deviceType - the type of the device this event is to be published from
+		deviceId - the id of the device this event is to be published from
+		event - the name of this event
+		msgFormat - the format of the data for this event
+		data - the data for this event
+	Optional paramters:
+		qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
+		on_publish - a function that will be called when receipt of the publication is confirmed.  This
+					 has different implications depending on the qos:
+					 qos 0 - the client has asynchronously begun to send the event
+					 qos 1 and 2 - the client has confirmation of delivery from IoTF
+	'''
+	def publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
 		if not self.connectEvent.wait():
 			return False
 		else:
@@ -270,13 +284,40 @@ class Client(ibmiotf.AbstractClient):
 			
 			if msgFormat in self._messageEncoderModules:
 				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
-				self.client.publish(topic, payload=payload, qos=qos, retain=False)
-				return True
+				try:
+					# need to take lock to ensure on_publish is not called before we know the mid
+					if on_publish is not None:
+						self._messagesLock.acquire()
+					
+					self.client.publish(topic, payload=payload, qos=qos, retain=False)
+					if result[0] == paho.MQTT_ERR_SUCCESS:
+						if on_publish is not None:
+							self._onPublishCallbacks[result[1]] = on_publish
+						return True
+					else:
+						return False
+				finally:
+					if on_publish is not None:
+						self._messagesLock.release()
 			else:
 				raise MissingMessageEncoderException(msgFormat)
 	
-	
-	def publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0):
+	'''
+	Publish a command to a device.  
+	Parameters:
+		deviceType - the type of the device this command is to be published to
+		deviceId - the id of the device this command is to be published to
+		command - the name of the command
+		msgFormat - the format of the command payload
+		data - the command data
+	Optional paramters:
+		qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
+		on_publish - a function that will be called when receipt of the publication is confirmed.  This
+					 has different implications depending on the qos:
+					 qos 0 - the client has asynchronously begun to send the event
+					 qos 1 and 2 - the client has confirmation of delivery from IoTF
+	'''
+	def publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0, on_publish=None):
 		if self._options['org'] == "quickstart":
 			self.logger.warning("QuickStart applications do not support sending commands")
 			return False
@@ -287,8 +328,21 @@ class Client(ibmiotf.AbstractClient):
 
 			if msgFormat in self._messageEncoderModules:
 				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
-				self.client.publish(topic, payload=payload, qos=qos, retain=False)
-				return True
+				try:
+					# need to take lock to ensure on_publish is not called before we know the mid
+					if on_publish is not None:
+						self._messagesLock.acquire()
+					
+					self.client.publish(topic, payload=payload, qos=qos, retain=False)
+					if result[0] == paho.MQTT_ERR_SUCCESS:
+						if on_publish is not None:
+							self._onPublishCallbacks[result[1]] = on_publish
+						return True
+					else:
+						return False
+				finally:
+					if on_publish is not None:
+						self._messagesLock.release()
 			else:
 				raise MissingMessageEncoderException(msgFormat)
 
