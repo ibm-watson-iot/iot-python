@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2015 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -21,6 +21,7 @@ from ibmiotf.codecs import jsonIotfCodec
 from ibmiotf.codecs import jsonCodec
 import ibmiotf.api
 
+import requests
 # Support Python 2.7 and 3.4 versions of configparser
 try:
 	import configparser
@@ -301,7 +302,54 @@ class Client(ibmiotf.AbstractClient):
 						self._messagesLock.release()
 			else:
 				raise MissingMessageEncoderException(msgFormat)
+
+
+	'''
+	This method is used by the application to publish events over HTTP(s)
+	It accepts 4 parameters, deviceType, deviceId, event which denotes event type and data which is the message to be posted
+	It throws a ConnectionException with the message "Server not found" if the application is unable to reach the server
+	Otherwise it returns the HTTP status code, (200 - 207 for success)
+	'''
+	def publishEventOverHTTP(self, deviceType, deviceId, event, data):
+		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
+
+#		Kept this as a template 
+#		orgUrl = 'http://quickstart.internetofthings.ibmcloud.com/api/v0002/application/types/arduino/devices/00aabbccde02/events/status'
+		templateUrl = '%s://%s.internetofthings.ibmcloud.com/api/v0002/application/types/%s/devices/%s/events/%s'
+
+#		Extracting all the values needed for the ReST operation
+#		Checking each value for 'None' is not needed as the application itself would not have got created, if it had any 'None' values
+		orgid = self._options['org']
+		authKey = self._options['auth-key']
+		authToken = self._options['auth-token']
+
+		credentials = (authKey, authToken)
+
+		if orgid == 'quickstart':
+			protocol = 'http'
+		else:
+			protocol = 'https'
+
+#		String replacement from template to actual URL
+		intermediateUrl = templateUrl % (protocol, orgid, deviceType, deviceId, event)
+
+		try:
+			msgFormat = "json"
+			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())			
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+		except Exception as e:
+			self.logger.error("POST Failed")
+			self.logger.error(e)
+			raise ConnectionException("Server not found")
+
+#		print ("Response status = ", response.status_code, "\tResponse ", response.headers)
+		if response.status_code >= 300:
+			self.logger.warning(response.headers)
+		return response.status_code
+
+
 	
+
 	'''
 	Publish a command to a device.  
 	Parameters:
