@@ -8,6 +8,7 @@
 #
 # Contributors:
 #   David Parker - Initial Contribution
+#   Amit M Mangalvedkar - v2 API Support
 # *****************************************************************************
 
 import sys
@@ -26,7 +27,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.1.5"
+__version__ = "0.1.4"
 
 class Message:
 	def __init__(self, data, timestamp=None):
@@ -245,4 +246,19 @@ class MissingMessageEncoderException(Exception):
 	def __str__(self):
 		return "No message encoder defined for message format: %s" % self.format
 	
-
+	
+'''
+This exception has been added in V2 and provides the following
+1) The exact HTTP Status Code
+2) The error thrown
+3) The JSON message returned 
+'''
+class IoTFCReSTException(Exception):
+	def __init__(self, httpCode, message, response):
+		self.httpCode = httpCode
+		self.message = message
+		self.response = response
+		
+	def __str__(self):
+		return self.message
+	
