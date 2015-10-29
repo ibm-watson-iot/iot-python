@@ -45,7 +45,14 @@ class ApiClient():
 	
 	#Log Events
 	deviceLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/logs/connection?typeId=%s&deviceId=%s'
-				
+	
+	
+	#Diagnostics 
+	deviceDiagLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs'
+	deviceDiagLogsLogIdv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs/%s'
+	deviceDiagErrorCodesv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/errorCodes'
+					
+					
 	def __init__(self, options):
 		self.__options = options
 
@@ -455,3 +462,79 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 		
+	
+
+	def createDiagnosticLogs(self, deviceTypeId, deviceId, logs):
+		"""
+		Add Device Diagnostic Logs.
+		It accepts deviceType (string), deviceId (string) and logs (JSON) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		print("URL = ", deviceDiagnostics, "\tLogs = ", logs)
+		r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(logs), headers = {'content-type': 'application/json'} )
+		
+		status = r.status_code
+		print("Status = ", status)
+		if status == 201:
+			self.logger.info("Diagnostic entry was successfully added")
+			print("Diagnostic entry was successfully added")
+			return True
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getDiagnosticLogs(self, deviceTypeId, deviceId):
+		"""
+		Retrieves Device Diagnostic Logs.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.get(deviceDiagnostics, auth=self.credentials )
+		status = r.status_code
+		if status == 200:
+			self.logger.info("Diagnostic log successfully retrieved")
+			print("Diagnostic log successfully retrieved")
+			return r.json()
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+		
+
+	
+	def deleteDiagnosticLogs(self, deviceTypeId, deviceId):
+		"""
+		Delete Device Diagnostic Logs.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.delete(deviceDiagnostics, auth=self.credentials)
+		status = r.status_code
+		if status == 204:
+			self.logger.info("Diagnostic log successfully cleared")
+			print("Diagnostic log successfully cleared")
+			return True
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+		
+		
+			
