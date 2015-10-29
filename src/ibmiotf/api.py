@@ -27,7 +27,7 @@ class ApiClient():
 	deviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/devices/%s/%s'
 	historianOrgUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian'
 	historianTypeUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian/%s'
-	historianDeviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian/%s/%s'
+	historianDeviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/%s/%s'
 	
 	#v2 ReST URL
 	#Organization URL
@@ -44,7 +44,7 @@ class ApiClient():
 	deviceUrlMgmtv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/mgmt'
 	
 	#Log Events
-	deviceLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/logs/connection?typeId=%s&deviceId=%s'
+	deviceLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/logs/connection'
 	
 	
 	#Diagnostics 
@@ -146,8 +146,25 @@ class ApiClient():
 		else:
 			url = ApiClient.historianOrgUrl % (self.__options['org'])
 	
-		r = requests.get(url, auth=self.credentials)
-		r.status_code
+		r = requests.get(url, auth=self.credentials, params = options)
+		status = r.status_code
+		
+		print("Status code 1 = ", status)
+		return r.json()
+
+
+	def getHistoricalEvents(self, params, deviceType=None, deviceId=None, options=None):
+		if deviceId is not None and deviceType is not None:
+			url = ApiClient.historianDeviceUrl % (self.__options['org'], deviceType, deviceId)
+		elif deviceType is not None:
+			url = ApiClient.historianTypeUrl % (self.__options['org'], deviceType)
+		else:
+			url = ApiClient.historianOrgUrl % (self.__options['org'])
+	
+		r = requests.get(url, auth=self.credentials, params = options)
+		status = r.status_code
+		
+		print("Status code 2 = ", status)
 		return r.json()
 	
 	
@@ -231,7 +248,6 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
-		
 	def getDeviceType(self, deviceType):
 		"""
 		Retrieves an existing device type.
@@ -251,6 +267,29 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
 		elif status == 404:
 			raise ibmiotf.IoTFCReSTException(404, "The device type does not exist", None)			
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+		
+	def getAllDeviceTypes(self, queryParameters = None):
+		"""
+		Retrieves an existing device type.
+		It accepts deviceType (string) as the parameter
+		In case of failure it throws IoTFCReSTException			
+		"""
+		deviceTypeUrl = ApiClient.deviceTypesUrlv2 % (self.__options['org'])
+		r = requests.get(deviceTypeUrl, auth=self.credentials, params = queryParameters)
+		status = r.status_code
+		if status == 200:
+			self.logger.info("All Device types successfully retrieved")
+			print("All Device types successfully retrieved")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
 		elif status == 500:
 			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
 		else:
@@ -283,6 +322,33 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def retrieveDevices(self, deviceTypeId, expand = None):
+		"""
+		Gets device details.
+		It accepts deviceType (string) and expand (JSON) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceUrl = ApiClient.devicesUrlv2 % (self.__options['org'], deviceTypeId)
+
+		r = requests.get(deviceUrl, auth=self.credentials, params = expand)
+		status = r.status_code
+		if status == 200:
+			self.logger.info("Devices were successfully retrieved")
+			print("Devices were successfully retrieved")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "The device does not exist", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+	
 		
 
 	def registerDevice(self, deviceTypeId, deviceId, authToken, deviceInfo, location, metadata=None):
@@ -313,6 +379,32 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
+
+	def retrieveSingleDevice(self, deviceTypeId, deviceId, expand = None):
+		"""
+		Gets device details.
+		It accepts deviceType (string), deviceId (string) and expand (JSON) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceTypeId, deviceId)
+
+		r = requests.get(deviceUrl, auth=self.credentials, params = expand)
+		status = r.status_code
+		if status == 200:
+			self.logger.info("Device was successfully retrieved")
+			print("Device was successfully retrieved")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "The device does not exist", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+	
 
 	def removeDevice(self, deviceTypeId, deviceId):
 		"""
@@ -447,8 +539,9 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceLogs = ApiClient.deviceLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
-		r = requests.get(deviceLogs, auth=self.credentials)
+		deviceLogs = ApiClient.deviceLogsv2 % (self.__options['org'])
+		logParameters = { 'typeId' : deviceTypeId, 'deviceId' : deviceId}
+		r = requests.get(deviceLogs, auth=self.credentials, params = logParameters)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device Connection Logs were successfully obtained")
