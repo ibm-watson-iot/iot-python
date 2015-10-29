@@ -442,7 +442,8 @@ class ApiClient():
 
 	def getDeviceConnectionLogs(self, deviceTypeId, deviceId):
 		"""
-		Retrieve Device Location.
+		List connection log events for a device to aid in diagnosing connectivity problems. 
+		The entries record successful connection, unsuccessful connection attempts, intentional disconnection and server-initiated disconnection.
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
