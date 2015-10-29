@@ -463,8 +463,53 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 		
 	
+	def getAllDiagnosticLogs(self, deviceTypeId, deviceId):
+		"""
+		Retrieves All Device Diagnostic Logs.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.get(deviceDiagnostics, auth=self.credentials )
+		status = r.status_code
+		if status == 200:
+			self.logger.info("All Diagnostic logs successfully retrieved")
+			print("All Diagnostic logs successfully retrieved")
+			return r.json()
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+		
 
-	def createDiagnosticLogs(self, deviceTypeId, deviceId, logs):
+	
+	def deleteAllDiagnosticLogs(self, deviceTypeId, deviceId):
+		"""
+		Deletes All Device Diagnostic Logs.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.delete(deviceDiagnostics, auth=self.credentials)
+		status = r.status_code
+		if status == 204:
+			self.logger.info("All Diagnostic logs successfully cleared")
+			print("All Diagnostic logs successfully cleared")
+			return True
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def createDiagnosticLog(self, deviceTypeId, deviceId, logs):
 		"""
 		Add Device Diagnostic Logs.
 		It accepts deviceType (string), deviceId (string) and logs (JSON) as parameters
@@ -491,15 +536,16 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
-	def getDiagnosticLogs(self, deviceTypeId, deviceId):
+	def getDiagnosticLog(self, deviceTypeId, deviceId, logId):
 		"""
 		Retrieves Device Diagnostic Logs.
-		It accepts deviceType (string) and deviceId (string) as parameters
+		It accepts deviceType (string), deviceId (string) and logId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagLogsLogIdv2 % (self.__options['org'], deviceTypeId, deviceId, logId)
 		r = requests.get(deviceDiagnostics, auth=self.credentials )
 		status = r.status_code
+		print("Status = ", status)
 		if status == 200:
 			self.logger.info("Diagnostic log successfully retrieved")
 			print("Diagnostic log successfully retrieved")
@@ -513,13 +559,13 @@ class ApiClient():
 		
 
 	
-	def deleteDiagnosticLogs(self, deviceTypeId, deviceId):
+	def deleteDiagnosticLog(self, deviceTypeId, deviceId, logId):
 		"""
 		Delete Device Diagnostic Logs.
-		It accepts deviceType (string) and deviceId (string) as parameters
+		It accepts deviceType (string), deviceId (string) and logId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagLogsLogIdv2 % (self.__options['org'], deviceTypeId, deviceId, logId)
 		r = requests.delete(deviceDiagnostics, auth=self.credentials)
 		status = r.status_code
 		if status == 204:
@@ -536,5 +582,81 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 		
+
+	def addErrorCode(self, deviceTypeId, deviceId, errorCode):
+		"""
+		Adds an error code to the list of error codes for the device. The list may be pruned as the new entry is added.
+		It accepts deviceType (string), deviceId (string) and errorCode (JSON) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagErrorCodesv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(errorCode), headers = {'content-type': 'application/json'} )
 		
-			
+		status = r.status_code
+		print("Status = ", status)
+		if status == 201:
+			self.logger.info("Error code was successfully added")
+			print("Error code was successfully added")
+			return True
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Error Code not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def retrieveAllErrorCodes(self, deviceTypeId, deviceId):
+		"""
+		Gets diagnostic error codes for a device.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagErrorCodesv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.get(deviceDiagnostics, auth=self.credentials )
+		
+		status = r.status_code
+		print("Status = ", status)
+		if status == 200:
+			self.logger.info("Error codes were successfully retrieved")
+			print("Error code were successfully retrieved")
+			return r.json()
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Error Code not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def deleteAllErrorCodes(self, deviceTypeId, deviceId):
+		"""
+		Clears the list of error codes for the device. The list is replaced with a single error code of zero.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceDiagnostics = ApiClient.deviceDiagErrorCodesv2 % (self.__options['org'], deviceTypeId, deviceId)
+		r = requests.delete(deviceDiagnostics, auth=self.credentials )
+		
+		status = r.status_code
+		print("Status = ", status)
+		if status == 204:
+			self.logger.info("Error codes successfully cleared")
+			print("Error code were successfully retrieved")
+			return True
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Error Code not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+

@@ -15,6 +15,7 @@ import ibmiotf.application
 import json
 import sys
 import time
+from pip._vendor.distlib.compat import raw_input
 
 # Initialize the application client.
 try:
@@ -32,20 +33,49 @@ try:
 	
 	print("Registering a new device")	
 	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId, authToken, deviceInfo, location, metadata2))
-	time.sleep(2)
+	time.sleep(1)
 	
 	print("\nAdding device diagnostic logs")
-	logs = { "message": "string", "severity": 0, "data": "string", "timestamp": "2015-10-29T05:43:57.109Z"}
-	print("Diagnostic Logs creation = ", apiCli.createDiagnosticLogs(deviceTypeId, deviceId, logs))
-	time.sleep(2)
+	logs = { "message": "oldMessage", "severity": 0, "data": "Old log", "timestamp": "2015-10-29T05:43:57.109Z"}
+	print("Diagnostic Logs creation = ", apiCli.createDiagnosticLog(deviceTypeId, deviceId, logs))
+	time.sleep(1)
 
-	print("\nRetrieving device diagnostics")
-	print("Diagnostic Logs = ", apiCli.getDiagnosticLogs(deviceTypeId, deviceId))
-	time.sleep(2)
-		
-	print("\nDeleting device diagnostics")
-	print("Diagnostic Logs delete = ", apiCli.deleteDiagnosticLogs(deviceTypeId, deviceId))
-	time.sleep(2)
+	print("\nAdding device diagnostic logs")
+	logs = { "message": "newMessage", "severity": 1, "data": "New log", "timestamp": "2015-10-29T07:43:57.109Z"}
+	print("Diagnostic Logs creation = ", apiCli.createDiagnosticLog(deviceTypeId, deviceId, logs))
+	time.sleep(1)
+
+	print("\nRetrieving All device diagnostics")
+	print("Diagnostic Logs = ", apiCli.getAllDiagnosticLogs(deviceTypeId, deviceId))
+	time.sleep(1)
+
+#	logId1 = raw_input("Enter the log id that you want to retrieve ")
+#	print("\nRetrieving single log")
+#	print("Diagnostic Logs = ", apiCli.getDiagnosticLog(deviceTypeId, deviceId, logId1))
+#	time.sleep(1)
+
+#	logId1 = raw_input("\nEnter the log id that you want to delete ")
+#	print("Deleting single log")
+#	print("Diagnostic Logs = ", apiCli.deleteDiagnosticLog(deviceTypeId, deviceId, logId1))
+#	time.sleep(1)
+
+	print("\nAdding error code")
+	errorCode = { "errorCode": 0, "timestamp": "2015-10-29T05:43:57.112Z" }
+	print("Error code creation = ", apiCli.addErrorCode(deviceTypeId, deviceId, errorCode))
+	time.sleep(1)
+
+	print("\nRetrieving all error code")
+	print("Error codes retrieved = ", apiCli.retrieveAllErrorCodes(deviceTypeId, deviceId))
+	time.sleep(1)
+
+	print("\nDeleting all error code")
+	print("Error codes deleted = ", apiCli.deleteAllErrorCodes(deviceTypeId, deviceId))
+	time.sleep(1)
+
+	
+	print("\nDeleting All device diagnostics")
+	print("Diagnostic Logs delete = ", apiCli.deleteAllDiagnosticLogs(deviceTypeId, deviceId))
+	time.sleep(1)
 		
 	print("\nDeleting an existing device")
 	deleted = apiCli.removeDevice(deviceTypeId, deviceId)
