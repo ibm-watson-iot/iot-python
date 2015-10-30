@@ -168,10 +168,34 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 		
-	
-	def registerDeviceType(self, deviceType, description, deviceInfo, metadata):
+
+	def getAllDeviceTypes(self, queryParameters = None):
 		"""
-		Registers a new device type.
+		Retrieves al existing device types.
+		It accepts accepts an optional query parameters (Dictionary)
+		In case of failure it throws IoTFCReSTException			
+		"""
+		deviceTypeUrl = ApiClient.deviceTypesUrlv2 % (self.__options['org'])
+		r = requests.get(deviceTypeUrl, auth=self.credentials, params = queryParameters)
+		status = r.status_code
+		if status == 200:
+			self.logger.info("All Device types successfully retrieved")
+			print("All Device types successfully retrieved")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+		
+	
+	def addDeviceType(self, deviceType, description, deviceInfo, metadata):
+		"""
+		Creates a device type.
 		It accepts deviceType (string), description (string), deviceInfo(JSON) and metadata(JSON) as parameter
 		In case of failure it throws IoTFCReSTException		
 		"""
@@ -200,7 +224,7 @@ class ApiClient():
 		
 	def deleteDeviceType(self, deviceType):
 		"""
-		Deletes an existing device type.
+		Deletes a device type.
 		It accepts deviceType (string) as the parameter
 		In case of failure it throws IoTFCReSTException			
 		"""
@@ -223,7 +247,7 @@ class ApiClient():
 
 	def getDeviceType(self, deviceType):
 		"""
-		Retrieves an existing device type.
+		Gets device type details.
 		It accepts deviceType (string) as the parameter
 		In case of failure it throws IoTFCReSTException			
 		"""
@@ -246,32 +270,9 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 		
-	def getAllDeviceTypes(self, queryParameters = None):
+	def updateDeviceType(self, deviceType, description, deviceInfo, metadata = None):
 		"""
-		Retrieves an existing device type.
-		It accepts deviceType (string) as the parameter
-		In case of failure it throws IoTFCReSTException			
-		"""
-		deviceTypeUrl = ApiClient.deviceTypesUrlv2 % (self.__options['org'])
-		r = requests.get(deviceTypeUrl, auth=self.credentials, params = queryParameters)
-		status = r.status_code
-		if status == 200:
-			self.logger.info("All Device types successfully retrieved")
-			print("All Device types successfully retrieved")
-			return r.json()
-		elif status == 401:
-			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
-		elif status == 403:
-			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
-		elif status == 500:
-			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
-		else:
-			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
-
-		
-	def modifyDeviceType(self, deviceType, description, deviceInfo, metadata = None):
-		"""
-		Modifies an existing device type.
+		Updates a device type.
 		It accepts deviceType (string), description (string), deviceInfo (JSON) and metadata(JSON) as the parameters
 		In case of failure it throws IoTFCReSTException		
 		"""

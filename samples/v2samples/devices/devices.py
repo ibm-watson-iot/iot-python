@@ -28,16 +28,16 @@ try:
 #	print("Device deleted = ", deletion)
 	
 	deviceTypeId = "myDeviceType4"
-#	print("Registering a device type")
-#	print("Registered Device = ", apiCli.registerDeviceType(deviceType = deviceTypeId, description = "My first device type", deviceInfo = deviceInfo1, metadata = metadata1))
-#	time.sleep(2)
+	print("Registering a device type")
+	print("Registered Device = ", apiCli.addDeviceType(deviceType = deviceTypeId, description = "My first device type", deviceInfo = deviceInfo1, metadata = metadata1))
+	time.sleep(2)
 
 #	print("Retrieving a device type")	
 #	print("Retrieved Device = ", apiCli.getDeviceType(deviceTypeId))
 #	time.sleep(2)
 
 
-	deviceId = "200020002000"
+	deviceId = "200020002001"
 	authToken = "password"
 	metadata2 = {"customField1": "customValue3", "customField2": "customValue4"}
 	deviceInfo = {"serialNumber": "001", "manufacturer": "Blueberry", "model": "e2", "deviceClass": "A", "descriptiveLocation" : "Bangalore", "fwVersion" : "1.0.1", "hwVersion" : "12.01"}
@@ -47,6 +47,24 @@ try:
 	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId, authToken, deviceInfo, location, metadata2))
 	time.sleep(2)
 	
+	deviceId2 = "200020002000"
+	authToken = "password"
+	metadata2 = {"customField1": "customValue3", "customField2": "customValue4"}
+	deviceInfo = {"serialNumber": "001", "manufacturer": "Blueberry", "model": "e2", "deviceClass": "A", "descriptiveLocation" : "Bangalore", "fwVersion" : "1.0.1", "hwVersion" : "12.01"}
+	location = {"longitude" : "12.78", "latitude" : "45.90", "elevation" : "2000", "accuracy" : "0", "measuredDateTime" : "2015-10-28T08:45:11.662Z"}
+	
+	print("Registering a new device")	
+	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId2, authToken, deviceInfo, location, metadata2))
+	time.sleep(2)
+	
+	print("\nRetrieving an existing device")	
+	print("Retrieved Device = ", apiCli.retrieveSingleDevice(deviceTypeId, deviceId))
+	time.sleep(2)
+
+	print("\nRetrieving All existing device")	
+	print("Retrieved Devices = ", apiCli.retrieveDevices(deviceTypeId))
+	time.sleep(2)
+
 	print("\nModifying an existing device")
 	status = { "alert": { "enabled": True }  }
 	print("Device Modified = ", apiCli.modifyDevice(deviceTypeId, deviceId, deviceInfo, status, metadata2))
@@ -61,13 +79,22 @@ try:
 	print("Device Location = ", apiCli.modifyDeviceLocation(deviceTypeId, deviceId, deviceLocation))
 	time.sleep(2)
 
-	print("\nRetrieving device management information")
-	print("Device Location = ", apiCli.getDeviceManagement(deviceTypeId, deviceId))
-	time.sleep(2)
+#	print("\nRetrieving device management information")
+#	print("Device Location = ", apiCli.getDeviceManagement(deviceTypeId, deviceId))
+#	time.sleep(2)
 	
-#	print("\nDeleting an existing device")
-#	deleted = apiCli.removeDevice(deviceTypeId, deviceId)
-#	print("Device deleted = ", deleted)
+	print("\nDeleting an existing device")
+	deleted = apiCli.removeDevice(deviceTypeId, deviceId)
+	print("Device deleted = ", deleted)
+
+	print("\nDeleting an existing device")
+	deleted = apiCli.removeDevice(deviceTypeId, deviceId2)
+	print("Device deleted = ", deleted)
+
+	print("\nDeleting an existing device type")
+	deleted = apiCli.deleteDeviceType(deviceTypeId)
+	print("Device Type deleted = ", deleted)
+
 	
 except ibmiotf.IoTFCReSTException as e:
 	print(e.httpCode)
