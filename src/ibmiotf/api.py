@@ -142,7 +142,7 @@ class ApiClient():
 
 
 	#This method returns the organization
-	def getOrganization(self):
+	def getOrganizationDetails(self):
 		"""
 		Get details about an organization
 		It does not need any parameter to be passed

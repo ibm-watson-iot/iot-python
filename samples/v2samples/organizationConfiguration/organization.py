@@ -20,7 +20,7 @@ import sys
 try:
 	apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
 	apiCli = ibmiotf.api.ApiClient(apiOptions)
-	print("Organization = ", apiCli.getOrganization())
+	print("Organization = ", apiCli.getOrganizationDetails())
 
 except ibmiotf.IoTFCReSTException as e:
 	print(e.httpCode)
