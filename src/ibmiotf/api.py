@@ -27,8 +27,11 @@ class ApiClient():
 	deviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/devices/%s/%s'
 	historianOrgUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian'
 	historianTypeUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian/%s'
-	historianDeviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/%s/%s'
-	
+
+	historianOrgUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian'
+	historianTypeUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/types/%s'
+	historianDeviceUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/types/%s/devices/%s'
+		
 	#v2 ReST URL
 	#Organization URL
 	organizationUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/'
@@ -136,42 +139,12 @@ class ApiClient():
 	#Not sure why this method was written it returns only 1
 	def getDeviceTypeInfo(self, deviceType):
 		return 1
-	
-	
-	def getHistoricalEvents(self, deviceType=None, deviceId=None, options=None):
-		if deviceId is not None and deviceType is not None:
-			url = ApiClient.historianDeviceUrl % (self.__options['org'], deviceType, deviceId)
-		elif deviceType is not None:
-			url = ApiClient.historianTypeUrl % (self.__options['org'], deviceType)
-		else:
-			url = ApiClient.historianOrgUrl % (self.__options['org'])
-	
-		r = requests.get(url, auth=self.credentials, params = options)
-		status = r.status_code
-		
-		print("Status code 1 = ", status)
-		return r.json()
 
 
-	def getHistoricalEvents(self, params, deviceType=None, deviceId=None, options=None):
-		if deviceId is not None and deviceType is not None:
-			url = ApiClient.historianDeviceUrl % (self.__options['org'], deviceType, deviceId)
-		elif deviceType is not None:
-			url = ApiClient.historianTypeUrl % (self.__options['org'], deviceType)
-		else:
-			url = ApiClient.historianOrgUrl % (self.__options['org'])
-	
-		r = requests.get(url, auth=self.credentials, params = options)
-		status = r.status_code
-		
-		print("Status code 2 = ", status)
-		return r.json()
-	
-	
 	#This method returns the organization
 	def getOrganization(self):
 		"""
-		Returns the organization details.
+		Get details about an organization
 		It does not need any parameter to be passed
 		In case of failure it throws IoTFCReSTException
 		"""
@@ -754,3 +727,19 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
+
+	def getHistoricalEvents(self, deviceType=None, deviceId=None, options=None):
+		if deviceId is not None and deviceType is not None:
+			url = ApiClient.historianDeviceUrlv2 % (self.__options['org'], deviceType, deviceId)
+		elif deviceType is not None:
+			url = ApiClient.historianTypeUrlv2 % (self.__options['org'], deviceType)
+		else:
+			url = ApiClient.historianOrgUrlv2 % (self.__options['org'])
+		print ("URL = ", url)	
+		r = requests.get(url, auth=self.credentials, params = options)
+		status = r.status_code
+		
+		print("Status code 2 = ", status)
+		return r.json()
+	
+	
