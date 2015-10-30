@@ -32,25 +32,35 @@ class ApiClient():
 	historianTypeUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/types/%s'
 	historianDeviceUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/types/%s/devices/%s'
 		
+	
 	#v2 ReST URL
 	#Organization URL
 	organizationUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/'
 	
-	#Device Types
+	
+	#Bulk Operations URL
+	bulkRetrievev2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/bulk/devices'
+	bulkAddUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/bulk/devices/add'	
+	bulkRemoveUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/bulk/devices/remove'
+	
+	
+	#Device Types URL
 	deviceTypesUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types'
 	deviceTypeUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s'		
 
-	#Device
+	
+	#Device URL
 	devicesUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices'
 	deviceUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s'
 	deviceUrlLocationv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/location'
 	deviceUrlMgmtv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/mgmt'
 	
-	#Log Events
+	
+	#Log Events URL
 	deviceLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/logs/connection'
 	
 	
-	#Diagnostics 
+	#Diagnostics URL
 	deviceDiagLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs'
 	deviceDiagLogsLogIdv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs/%s'
 	deviceDiagErrorCodesv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/errorCodes'
@@ -168,6 +178,96 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 		
+
+	def getAllDevices(self, parameters = None):
+		"""
+		Retrieve bulk devices
+		It accepts accepts a list of devices (List of Dictionary of Devices)
+		In case of failure it throws IoTFCReSTException
+		"""
+		bulkRetrieve = ApiClient.bulkRetrievev2 % (self.__options['org'] )
+		r = requests.get(bulkRetrieve, auth = self.credentials, params = parameters)
+		
+		status = r.status_code
+
+		print("Status = ", status)
+
+		if status == 200:
+			self.logger.info("Bulk retrieval successful")
+			print("Bulk retrieval successful")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)			
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the API key used does not exist", None)
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "The organization or device type does not exist", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+		 
+		
+
+	def addMultipleDevices(self, listOfDevices):
+		"""
+		Register multiple new devices, each request can contain a maximum of 512KB.
+		The response body will contain the generated authentication tokens for all devices. 
+		You must make sure to record these tokens when processing the response. 
+		We are not able to retrieve lost authentication tokens
+		It accepts accepts a list of devices (List of Dictionary of Devices)
+		In case of failure it throws IoTFCReSTException
+		"""
+		bulkAdd = ApiClient.bulkAddUrlv2 % (self.__options['org'] )
+		r = requests.post(bulkAdd, auth = self.credentials, data = json.dumps(listOfDevices), headers = {'content-type': 'application/json'})
+		
+		status = r.status_code
+
+		print("Status = ", status)
+		print("List = ", listOfDevices)
+		if status == 201:
+			self.logger.info("Bulk registration successful")
+			print("Bulk registration successful")
+			return r.json()
+		elif status == 202:
+			raise ibmiotf.IoTFCReSTException(400, "Some devices registered successfully", r.json())			
+		elif status == 400:
+			raise ibmiotf.IoTFCReSTException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "Maximum number of devices exceeded", r.json())
+		elif status == 413:
+			raise ibmiotf.IoTFCReSTException(413, "Request content exceeds 512KB", r.json())
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+		
+	def deleteMultipleDevices(self, listOfDevices):
+		"""
+		Delete multiple devices, each request can contain a maximum of 512Kb
+		It accepts accepts a list of devices (List of Dictionary of Devices)
+		In case of failure it throws IoTFCReSTException
+		"""
+		bulkRemove = ApiClient.bulkRemoveUrlv2 % (self.__options['org'] )
+		r = requests.post(bulkRemove, auth = self.credentials, data = json.dumps(listOfDevices), headers = {'content-type': 'application/json'})
+		
+		status = r.status_code
+		if status == 202:
+			self.logger.info("Some devices deleted successfully")
+			print("Some devices deleted successfully")
+			return r.json()
+		elif status == 400:
+			raise ibmiotf.IoTFCReSTException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())
+		elif status == 413:
+			raise ibmiotf.IoTFCReSTException(413, "Request content exceeds 512KB", r.json())
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+		
+
 
 	def getAllDeviceTypes(self, queryParameters = None):
 		"""
