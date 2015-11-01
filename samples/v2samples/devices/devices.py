@@ -23,19 +23,10 @@ try:
 	deviceInfo1 = {"serialNumber": "100087", "manufacturer": "ACME Co.", "model": "7865", "deviceClass": "A", "description": "My shiny device", "fwVersion": "1.0.0", "hwVersion": "1.0", "descriptiveLocation": "Office 5, D Block"}
 	metadata1 = {"customField1": "customValue1", "customField2": "customValue2"}
 
-#	print("Deleting a device type")	
-#	deletion = apiCli.deleteDeviceType("myDeviceType4")
-#	print("Device deleted = ", deletion)
-	
 	deviceTypeId = "myDeviceType4"
 	print("Registering a device type")
 	print("Registered Device = ", apiCli.addDeviceType(deviceType = deviceTypeId, description = "My first device type", deviceInfo = deviceInfo1, metadata = metadata1))
 	time.sleep(2)
-
-#	print("Retrieving a device type")	
-#	print("Retrieved Device = ", apiCli.getDeviceType(deviceTypeId))
-#	time.sleep(2)
-
 
 	deviceId = "200020002001"
 	authToken = "password"
@@ -82,23 +73,18 @@ try:
 	deviceLocation = { "longitude": 0, "latitude": 0, "elevation": 0, "accuracy": 0, "measuredDateTime": "2015-10-28T08:45:11.673Z"}
 	print("Device Location = ", apiCli.modifyDeviceLocation(deviceTypeId, deviceId, deviceLocation))
 	time.sleep(2)
-
-#	print("\nRetrieving device management information")
-#	print("Device Location = ", apiCli.getDeviceManagement(deviceTypeId, deviceId))
-#	time.sleep(2)
 	
 	print("\nDeleting an existing device")
-	deleted = apiCli.removeDevice(deviceTypeId, deviceId)
+	deleted = apiCli.deleteDevice(deviceTypeId, deviceId)
 	print("Device deleted = ", deleted)
 
 	print("\nDeleting an existing device")
-	deleted = apiCli.removeDevice(deviceTypeId, deviceId2)
+	deleted = apiCli.deleteDevice(deviceTypeId, deviceId2)
 	print("Device deleted = ", deleted)
 
 	print("\nDeleting an existing device type")
 	deleted = apiCli.deleteDeviceType(deviceTypeId)
 	print("Device Type deleted = ", deleted)
-
 	
 except ibmiotf.IoTFCReSTException as e:
 	print(e.httpCode)

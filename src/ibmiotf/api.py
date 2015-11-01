@@ -100,13 +100,29 @@ class ApiClient():
 		r.status_code
 		return r.json()
 
-		
-	def deleteDevice(self, deviceType, deviceId):
-		url = ApiClient.deviceUrl % (self.__options['org'], deviceType, deviceId)
 
-		r = requests.delete(url, auth=self.credentials)
-		if r.status_code != 204:
-			raise Exception("Unable to delete device %s:%s" % (deviceType, deviceId))
+	def deleteDevice(self, deviceTypeId, deviceId):
+		"""
+		Delete an existing device.
+		It accepts deviceType (string) and deviceId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceTypeId, deviceId)
+
+		r = requests.delete(deviceUrl, auth=self.credentials)
+		status = r.status_code
+		if status == 204:
+			self.logger.info("Device was successfully removed")
+			print("Device was successfully removed")
+			return True
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 		
 	def getDevices(self, parameters = None):
@@ -324,6 +340,7 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
 
 	def getDeviceType(self, deviceType):
 		"""

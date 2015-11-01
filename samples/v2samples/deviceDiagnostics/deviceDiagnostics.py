@@ -78,7 +78,7 @@ try:
 	time.sleep(1)
 		
 	print("\nDeleting an existing device")
-	deleted = apiCli.removeDevice(deviceTypeId, deviceId)
+	deleted = apiCli.deleteDevice(deviceTypeId, deviceId)
 	print("Device deleted = ", deleted)
 	
 except ibmiotf.IoTFCReSTException as e:
