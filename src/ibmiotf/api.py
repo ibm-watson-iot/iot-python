@@ -91,15 +91,6 @@ class ApiClient():
 		elif self.__options['auth-method'] is not None:
 			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
 
-
-	def registerDevice(self, deviceType, deviceId, metadata=None):
-		url = ApiClient.devicesUrl % (self.__options['org'])
-		payload = {'type': deviceType, 'id': deviceId, 'metadata': metadata}
-
-		r = requests.post(url, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'})
-		r.status_code
-		return r.json()
-
 		
 	def updateDevice(self, deviceType, deviceId, metadata):
 		url = ApiClient.deviceUrl % (self.__options['org'], deviceType, deviceId)
@@ -414,7 +405,7 @@ class ApiClient():
 	
 		
 
-	def registerDevice(self, deviceTypeId, deviceId, authToken, deviceInfo, location, metadata=None):
+	def registerDevice(self, deviceTypeId, deviceId, authToken = None, deviceInfo = None, location = None, metadata=None):
 		"""
 		Registers a new device.
 		It accepts deviceType (string), deviceId (string), authToken (string), location (JSON) and metadata (JSON) as parameters

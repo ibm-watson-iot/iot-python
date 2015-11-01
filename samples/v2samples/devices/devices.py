@@ -53,8 +53,8 @@ try:
 	deviceInfo = {"serialNumber": "001", "manufacturer": "Blueberry", "model": "e2", "deviceClass": "A", "descriptiveLocation" : "Bangalore", "fwVersion" : "1.0.1", "hwVersion" : "12.01"}
 	location = {"longitude" : "12.78", "latitude" : "45.90", "elevation" : "2000", "accuracy" : "0", "measuredDateTime" : "2015-10-28T08:45:11.662Z"}
 	
-	print("\nRegistering a new device")	
-	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId2, authToken, deviceInfo, location, metadata2))
+	print("\nRegistering a new device with just deviceType and deviceId")	
+	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId2))
 	time.sleep(2)
 	
 	print("\nRetrieving an existing device")	
