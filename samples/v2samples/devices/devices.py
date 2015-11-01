@@ -43,7 +43,7 @@ try:
 	deviceInfo = {"serialNumber": "001", "manufacturer": "Blueberry", "model": "e2", "deviceClass": "A", "descriptiveLocation" : "Bangalore", "fwVersion" : "1.0.1", "hwVersion" : "12.01"}
 	location = {"longitude" : "12.78", "latitude" : "45.90", "elevation" : "2000", "accuracy" : "0", "measuredDateTime" : "2015-10-28T08:45:11.662Z"}
 	
-	print("Registering a new device")	
+	print("\nRegistering a new device")	
 	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId, authToken, deviceInfo, location, metadata2))
 	time.sleep(2)
 	
@@ -53,7 +53,7 @@ try:
 	deviceInfo = {"serialNumber": "001", "manufacturer": "Blueberry", "model": "e2", "deviceClass": "A", "descriptiveLocation" : "Bangalore", "fwVersion" : "1.0.1", "hwVersion" : "12.01"}
 	location = {"longitude" : "12.78", "latitude" : "45.90", "elevation" : "2000", "accuracy" : "0", "measuredDateTime" : "2015-10-28T08:45:11.662Z"}
 	
-	print("Registering a new device")	
+	print("\nRegistering a new device")	
 	print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId2, authToken, deviceInfo, location, metadata2))
 	time.sleep(2)
 	
@@ -61,8 +61,12 @@ try:
 	print("Retrieved Device = ", apiCli.retrieveSingleDevice(deviceTypeId, deviceId))
 	time.sleep(2)
 
-	print("\nRetrieving All existing device")	
+	print("\nRetrieving All existing devices")	
 	print("Retrieved Devices = ", apiCli.retrieveDevices(deviceTypeId))
+	time.sleep(2)
+
+	print("\nRetrieving All existing devices with getDevices() for backward compatibility")	
+	print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))
 	time.sleep(2)
 
 	print("\nModifying an existing device")

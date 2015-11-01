@@ -118,25 +118,14 @@ class ApiClient():
 			raise Exception("Unable to delete device %s:%s" % (deviceType, deviceId))
 
 		
-	def getDevices(self):
-		'''
-		Sample reponse:
-		[{
-			'registration': {
-				'auth': {'type': 'person', 'id': 'parkerda@uk.ibm.com'}, 
-				'date': '2014-12-01T17:31:30Z'
-			},
-			'type': '001', 
-			'metadata': {}, 
-			'uuid': 'd:hldtxx:001:001', 
-			'id': '001'
-		}]
-		'''	
-		url = ApiClient.devicesUrl % (self.__options['org'])
-		
-		r = requests.get(url, auth=self.credentials)
-		r.status_code
-		return r.json()
+	def getDevices(self, parameters = None):
+		"""
+		Retrieve bulk devices
+		This method needs to be deprecated and has been maintained just for backward deprecation
+		It accepts accepts a list of devices (List of Dictionary of Devices)
+		In case of failure it throws IoTFCReSTException
+		"""
+		return getAllDevices(self)
 
 		
 	def getDevice(self, deviceType, deviceId):
