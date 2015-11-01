@@ -537,13 +537,13 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 		
-	def modifyDeviceLocation(self, deviceTypeId, deviceId, deviceLocation):
+	def updateDeviceLocation(self, deviceType, deviceId, deviceLocation):
 		"""
-		Modify Device Location.
+		Updates the location information for a device. If no date is supplied, the entry is added with the current date and time.
 		It accepts deviceType (string), deviceId (string) and deviceLocation (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlLocationv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrlLocationv2 % (self.__options['org'], deviceType, deviceId)
 
 		r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(deviceLocation), headers = {'content-type': 'application/json'} )
 		status = r.status_code

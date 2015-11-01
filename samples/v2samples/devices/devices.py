@@ -60,7 +60,7 @@ try:
 	print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))
 	time.sleep(2)
 
-	print("\nModifying an existing device")
+	print("\nUpdating an existing device")
 	status = { "alert": { "enabled": True }  }
 	print("Device Modified = ", apiCli.updateDevice(deviceTypeId, deviceId, metadata2, deviceInfo, status))
 	time.sleep(2)
@@ -69,9 +69,9 @@ try:
 	print("Device Location = ", apiCli.getDeviceLocation(deviceTypeId, deviceId))
 	time.sleep(2)
 	
-	print("\nModifying device location")
+	print("\nUpdating device location")
 	deviceLocation = { "longitude": 0, "latitude": 0, "elevation": 0, "accuracy": 0, "measuredDateTime": "2015-10-28T08:45:11.673Z"}
-	print("Device Location = ", apiCli.modifyDeviceLocation(deviceTypeId, deviceId, deviceLocation))
+	print("Device Location = ", apiCli.updateDeviceLocation(deviceTypeId, deviceId, deviceLocation))
 	time.sleep(2)
 	
 	print("\nDeleting an existing device")
