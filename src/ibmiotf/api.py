@@ -90,16 +90,7 @@ class ApiClient():
 			self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
 		elif self.__options['auth-method'] is not None:
 			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
-
-		
-	def updateDevice(self, deviceType, deviceId, metadata):
-		url = ApiClient.deviceUrl % (self.__options['org'], deviceType, deviceId)
-		payload = {'metadata': json.dumps(metadata)}
-
-		r = requests.post(url, auth=self.credentials, data=payload)
-		r.status_code
-		return r.json()
-
+	
 
 	def deleteDevice(self, deviceType, deviceId):
 		"""
@@ -128,7 +119,7 @@ class ApiClient():
 	def getDevices(self, parameters = None):
 		"""
 		Retrieve bulk devices
-		This method needs to be deprecated and has been maintained just for backward deprecation
+		This method needs to be deprecated and has been maintained just for backward compatibility
 		It accepts accepts a list of devices (List of Dictionary of Devices)
 		In case of failure it throws IoTFCReSTException
 		"""
@@ -494,13 +485,13 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 	
 	
-	def modifyDevice(self, deviceTypeId, deviceId, deviceInfo, status, metadata = None):
+	def updateDevice(self, deviceType, deviceId, metadata, deviceInfo = None, status = None):
 		"""
-		Modify an existing device.
-		It accepts deviceTypeId (string), deviceId (string), deviceInfo (JSON), metadata (JSON) and status(JSON) as parameters
+		Updates a device.
+		It accepts deviceType (string), deviceId (string), metadata (JSON), deviceInfo (JSON) and status(JSON) as parameters
 		In case of failure it throws IoTFCReSTException
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceType, deviceId)
 
 		payload = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
 		r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'})

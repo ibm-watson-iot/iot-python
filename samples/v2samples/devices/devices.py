@@ -62,7 +62,7 @@ try:
 
 	print("\nModifying an existing device")
 	status = { "alert": { "enabled": True }  }
-	print("Device Modified = ", apiCli.modifyDevice(deviceTypeId, deviceId, deviceInfo, status, metadata2))
+	print("Device Modified = ", apiCli.updateDevice(deviceTypeId, deviceId, metadata2, deviceInfo, status))
 	time.sleep(2)
 	
 	print("\nRetrieving device location")
