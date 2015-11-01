@@ -49,7 +49,7 @@ try:
 	time.sleep(2)
 	
 	print("\nRetrieving an existing device")	
-	print("Retrieved Device = ", apiCli.retrieveSingleDevice(deviceTypeId, deviceId))
+	print("Retrieved Device = ", apiCli.getDevice(deviceTypeId, deviceId))
 	time.sleep(2)
 
 	print("\nRetrieving All existing devices")	

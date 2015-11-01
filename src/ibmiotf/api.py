@@ -134,14 +134,7 @@ class ApiClient():
 		"""
 		return getAllDevices(self)
 
-		
-	def getDevice(self, deviceType, deviceId):
-		url = ApiClient.deviceUrl % (self.__options['org'], deviceType, deviceId)
-		
-		r = requests.get(url, auth=self.credentials)
-		r.status_code
-		return r.json()
-	
+
 	#Not sure why this method was written it returns only 1
 	def getDeviceTypeInfo(self, deviceType):
 		return 1
@@ -451,13 +444,13 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
-	def retrieveSingleDevice(self, deviceTypeId, deviceId, expand = None):
+	def getDevice(self, deviceType, deviceId, expand = None):
 		"""
 		Gets device details.
 		It accepts deviceType (string), deviceId (string) and expand (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceType, deviceId)
 
 		r = requests.get(deviceUrl, auth=self.credentials, params = expand)
 		status = r.status_code
