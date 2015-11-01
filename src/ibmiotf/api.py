@@ -101,13 +101,13 @@ class ApiClient():
 		return r.json()
 
 
-	def deleteDevice(self, deviceTypeId, deviceId):
+	def deleteDevice(self, deviceType, deviceId):
 		"""
 		Delete an existing device.
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceType, deviceId)
 
 		r = requests.delete(deviceUrl, auth=self.credentials)
 		status = r.status_code
