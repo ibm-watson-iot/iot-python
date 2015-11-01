@@ -251,7 +251,7 @@ class ApiClient():
 
 	def getAllDeviceTypes(self, queryParameters = None):
 		"""
-		Retrieves al existing device types.
+		Retrieves all existing device types.
 		It accepts accepts an optional query parameters (Dictionary)
 		In case of failure it throws IoTFCReSTException			
 		"""
@@ -379,9 +379,11 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
+#	This has been purposely named as retrieveDevices to differentiate it with getDevices() / getAllDevices() which have similar arguments
 	def retrieveDevices(self, deviceTypeId, expand = None):
 		"""
 		Gets device details.
+
 		It accepts deviceType (string) and expand (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
