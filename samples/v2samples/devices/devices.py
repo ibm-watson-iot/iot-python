@@ -77,7 +77,12 @@ try:
 	print("\nDeleting an existing device")
 	deleted = apiCli.deleteDevice(deviceTypeId, deviceId)
 	print("Device deleted = ", deleted)
-
+	
+#	This has been commented as the ReST URL needs to be fixed	
+#	print("\nRetrieving device management information")
+#	info = apiCli.getDeviceManagementInformation("iotsample-arduino", "00aabbccde03")
+#	print("Device management info retrieved = ", info)
+	
 	print("\nDeleting an existing device")
 	deleted = apiCli.deleteDevice(deviceTypeId, deviceId2)
 	print("Device deleted = ", deleted)

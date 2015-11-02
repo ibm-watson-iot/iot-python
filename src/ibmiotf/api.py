@@ -563,13 +563,13 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
-	def getDeviceManagement(self, deviceTypeId, deviceId):
+	def getDeviceManagementInformation(self, deviceType, deviceId):
 		"""
-		Retrieve Device Location.
+		Gets device management information for a device.
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlMgmtv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrlMgmtv2 % (self.__options['org'], deviceType, deviceId)
 		print("DeviceURL = ", deviceUrl)
 		r = requests.get(deviceUrl, auth=self.credentials)
 		status = r.status_code
