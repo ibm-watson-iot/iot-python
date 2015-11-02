@@ -760,7 +760,7 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
-	def retrieveAllErrorCodes(self, deviceTypeId, deviceId):
+	def getAllDiagnosticErrorCodes(self, deviceTypeId, deviceId):
 		"""
 		Gets diagnostic error codes for a device.
 		It accepts deviceType (string) and deviceId (string) as parameters

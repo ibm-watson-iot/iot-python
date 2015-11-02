@@ -65,7 +65,7 @@ try:
 	time.sleep(1)
 
 	print("\nRetrieving all error code")
-	print("Error codes retrieved = ", apiCli.retrieveAllErrorCodes(deviceTypeId, deviceId))
+	print("Error codes retrieved = ", apiCli.getAllDiagnosticErrorCodes(deviceTypeId, deviceId))
 	time.sleep(1)
 
 	print("\nDeleting all error code")
