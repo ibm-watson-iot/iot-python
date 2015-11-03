@@ -37,12 +37,12 @@ try:
 	
 	print("\nAdding device diagnostic logs")
 	logs = { "message": "oldMessage", "severity": 0, "data": "Old log", "timestamp": "2015-10-29T05:43:57.109Z"}
-	print("Diagnostic Logs creation = ", apiCli.createDiagnosticLog(deviceTypeId, deviceId, logs))
+	print("Diagnostic Logs creation = ", apiCli.addDiagnosticLog(deviceTypeId, deviceId, logs))
 	time.sleep(1)
 
 	print("\nAdding device diagnostic logs")
 	logs = { "message": "newMessage", "severity": 1, "data": "New log", "timestamp": "2015-10-29T07:43:57.109Z"}
-	print("Diagnostic Logs creation = ", apiCli.createDiagnosticLog(deviceTypeId, deviceId, logs))
+	print("Diagnostic Logs creation = ", apiCli.addDiagnosticLog(deviceTypeId, deviceId, logs))
 	time.sleep(1)
 
 	print("\nRetrieving All device diagnostics")

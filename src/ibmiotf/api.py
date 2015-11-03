@@ -660,7 +660,7 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
-	def createDiagnosticLog(self, deviceTypeId, deviceId, logs):
+	def addDiagnosticLog(self, deviceTypeId, deviceId, logs):
 		"""
 		Add Device Diagnostic Logs.
 		It accepts deviceType (string), deviceId (string) and logs (JSON) as parameters
