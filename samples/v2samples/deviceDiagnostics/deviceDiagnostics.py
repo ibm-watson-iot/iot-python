@@ -69,12 +69,12 @@ try:
 	time.sleep(1)
 
 	print("\nDeleting all error code")
-	print("Error codes deleted = ", apiCli.deleteAllErrorCodes(deviceTypeId, deviceId))
+	print("Error codes deleted = ", apiCli.clearAllErrorCodes(deviceTypeId, deviceId))
 	time.sleep(1)
 
 	
 	print("\nDeleting All device diagnostics")
-	print("Diagnostic Logs delete = ", apiCli.deleteAllDiagnosticLogs(deviceTypeId, deviceId))
+	print("Diagnostic Logs delete = ", apiCli.clearAllDiagnosticLogs(deviceTypeId, deviceId))
 	time.sleep(1)
 		
 	print("\nDeleting an existing device")

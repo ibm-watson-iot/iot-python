@@ -636,7 +636,7 @@ class ApiClient():
 		
 
 	
-	def deleteAllDiagnosticLogs(self, deviceTypeId, deviceId):
+	def clearAllDiagnosticLogs(self, deviceTypeId, deviceId):
 		"""
 		Deletes All Device Diagnostic Logs.
 		It accepts deviceType (string) and deviceId (string) as parameters
@@ -710,7 +710,7 @@ class ApiClient():
 		
 
 	
-	def deleteDiagnosticLog(self, deviceTypeId, deviceId, logId):
+	def clearDiagnosticLog(self, deviceTypeId, deviceId, logId):
 		"""
 		Delete Device Diagnostic Logs.
 		It accepts deviceType (string), deviceId (string) and logId (string) as parameters
@@ -786,7 +786,7 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 
-	def deleteAllErrorCodes(self, deviceTypeId, deviceId):
+	def clearAllErrorCodes(self, deviceTypeId, deviceId):
 		"""
 		Clears the list of error codes for the device. The list is replaced with a single error code of zero.
 		It accepts deviceType (string) and deviceId (string) as parameters
