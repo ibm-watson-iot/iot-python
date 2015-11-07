@@ -94,18 +94,15 @@ In order to pass the *_bookmark* or any other condition, the overloaded method m
 	import ibmiotf
 	import ibmiotf.application
     
-    ...
+        ...
     
-try:
-	apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
-	apiCli = ibmiotf.api.ApiClient(apiOptions)
+        try:
+	    apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
+	    apiCli = ibmiotf.api.ApiClient(apiOptions)
     
-    ...
+            ...
+	    print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))		
 
-	print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))		
-
-
-The above snippet sorts the response based on device id and uses the bookmark to page through the results.
 
 Register Devices in bulk
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,17 +115,16 @@ Method addMultipleDevices() can be used to register one or more devices to Inter
 	import ibmiotf
 	import ibmiotf.application
     
-    ...
- 
-try:
-	apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
-	apiCli = ibmiotf.api.ApiClient(apiOptions)
+        ...
     
-    ...
-
-	print("\nBulk Registering new devices 4")	
-	listOfDevices = [{'typeId' : deviceTypeId, 'deviceId' : '200020002004'}, {'typeId' : deviceTypeId, 'deviceId' : '200020002005'}]
-	print("Registered Device = ", apiCli.addMultipleDevices(listOfDevices))
+        try:
+	    apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
+	    apiCli = ibmiotf.api.ApiClient(apiOptions)
+    
+            ...
+            print("\nBulk Registering new devices 4")	
+            listOfDevices = [{'typeId' : deviceTypeId, 'deviceId' : '200020002004'}, {'typeId' : deviceTypeId, 'deviceId' : '200020002005'}]
+            print("Registered Device = ", apiCli.addMultipleDevices(listOfDevices))
 
     
 The response will contain the generated authentication tokens for all devices. Application must make sure to record these tokens when processing the response. The Internet of Things Foundation will not able to retrieve lost authentication tokens. 
@@ -139,23 +135,21 @@ Delete Devices in bulk
 Method deleteMultipleDevices() can be used to delete multiple devices from Internet of Things Foundation Connect, each request can contain a maximum of 512KB. For example, the following sample shows how to delete 2 devices using the bulk operation.
 
 
+
 .. code:: python
 
 	import ibmiotf
 	import ibmiotf.application
     
-    ...
- 
-try:
-	apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
-	apiCli = ibmiotf.api.ApiClient(apiOptions)
+        ...
     
-    ...
+        try:
+	    apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
+	    apiCli = ibmiotf.api.ApiClient(apiOptions)
+            ...
+            print("\nDeleting bulk devices")
+            listOfDevices = [ {'typeId' : deviceTypeId, 'deviceId' : '200020002004'}, {'typeId' : deviceTypeId, 'deviceId' : '200020002005'} ]
+            deleted = apiCli.deleteMultipleDevices(listOfDevices)
+            print("Device deleted = ", deleted)
 
-	print("\nDeleting bulk devices")
-	listOfDevices = [ {'typeId' : deviceTypeId, 'deviceId' : '200020002004'}, {'typeId' : deviceTypeId, 'deviceId' : '200020002005'} ]
-	deleted = apiCli.deleteMultipleDevices(listOfDevices)
-	print("Device deleted = ", deleted)
-
-	
 ----
