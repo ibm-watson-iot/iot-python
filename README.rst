@@ -4,8 +4,9 @@ IBM Internet of Things Foundation for Python
 Python module for interacting with the `IBM Internet of Things
 Foundation <https://internetofthings.ibmcloud.com>`__.
 
+-  `Python 3.5 <https://www.python.org/downloads/release/python-350/>`__
 -  `Python 3.4 <https://www.python.org/downloads/release/python-343/>`__
--  `Python 2.7 <https://www.python.org/downloads/release/python-279/>`__
+-  `Python 2.7 <https://www.python.org/downloads/release/python-2710/>`__
 
 Note: Support for MQTT over SSL requires at least Python v2.7.9 or v3.4,
 and openssl v1.0.1
