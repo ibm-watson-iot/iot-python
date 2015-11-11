@@ -71,3 +71,4 @@ Documentation
 -------------
 * [Device Client](https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_devices.html)
 * [Application Client](https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_apps.html)
+* [API Client](https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_api.html)
