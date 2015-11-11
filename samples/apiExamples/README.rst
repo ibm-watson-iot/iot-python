@@ -372,7 +372,7 @@ Device diagnostic operations
 
 Applications can use Device diagnostic operations to clear logs, retrieve logs, add log information, delete logs, get specific log, clear error codes, get device error codes and add an error code to Internet of Things Foundation.
 
-Refer to the Device Diagnostics section of the `IBM IoT Foundation Connect API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+Refer to the Device Diagnostics section of the `IBM IoT Foundation API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
 
 Get Diagnostic logs
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -456,4 +456,20 @@ Method addErrorCode() can be used to add an error code to the list of error code
      print("\nAdding error code")
      errorCode = { "errorCode": 0, "timestamp": "2015-10-29T05:43:57.112Z" }
      print("Error code creation = ", apiCli.addErrorCode(deviceTypeId, deviceId, errorCode))
+
+----
+
+Connection problem determination
+----------------------------------
+
+Method getDeviceConnectionLogs() can be used to list connection log events for a device to aid in diagnosing connectivity problems. The entries record successful connection, unsuccessful connection attempts, intentional disconnection and server-initiated disconnection.
+
+.. code:: python
+
+     deviceTypeId = "iotsample-arduino"
+     deviceId = "00aabbccde03"
+     print("Device Logs = ", apiCli.getDeviceConnectionLogs(deviceTypeId, deviceId))
+
+Refer to the Problem Determination section of the `IBM IoT Foundation Connect API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
 ----
