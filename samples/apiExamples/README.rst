@@ -473,3 +473,58 @@ Method getDeviceConnectionLogs() can be used to list connection log events for a
 Refer to the Problem Determination section of the `IBM IoT Foundation Connect API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
 
 ----
+
+Historical Event Retrieval
+----------------------------------
+Application can use this operation to view events from all devices, view events from a device type or to view events for a specific device.
+
+Refer to the Historical Event Retrieval section of the `IBM IoT Foundation Connect API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
+View events from all devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getHistoricalEvents() can be used to view events across all devices registered to the organization.
+
+.. code:: python
+
+     print("Historical Events = ", apiCli.getHistoricalEvents())
+
+The response will contain some parameters and the application needs to retrieve the JSON element *events* from the response to get the array of events returned. Other parameters in the response are required to make further call, for example, the *_bookmark* element can be used to page through results. Issue the first request without specifying a bookmark, then take the bookmark returned in the response and provide it on the request for the next page. Repeat until the end of the result set indicated by the absence of a bookmark. Each request must use exactly the same values for the other parameters, or the results are undefined.
+
+In order to pass the *_bookmark* or any other condition, the overloaded method must be used. The overloaded method takes the parameters in the form of dictionary as shown below,
+
+.. code:: python
+
+     startTime = math.floor(time.mktime((2013, 10, 10, 17, 3, 38, 0, 0, 0)) * 1000)
+     endTime =  math.floor(time.mktime((2015, 10, 29, 17, 3, 38, 0, 0, 0)) * 1000)
+     duration = {'start' : startTime, 'end' : endTime }
+     print("Historical Events = ", apiCli.getHistoricalEvents(options = duration))
+
+The above snippet returns the events between the start and end time.
+
+View events from a device type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getHistoricalEvents() can be used to view events from all the devices of a particular device type. 
+
+.. code:: python
+
+     print("\nOnly device type passed")	
+     print("Historical Events = ", apiCli.getHistoricalEvents(deviceType = 'iotsample-arduino', options = duration))
+
+The response will contain some parameters and the application needs to retrieve the JSON element *events* from the response to get the array of events returned. As mentioned in the *view events from all devices* section, the overloaded method can be used to control the output.
+
+
+View events from a device
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getHistoricalEvents() can be used to view events from a specific device.
+
+.. code:: python
+
+     print("\nBoth device type and device passed")				
+     print("Historical Events = ", apiCli.getHistoricalEvents(deviceType = 'iotsample-arduino', deviceId = '00aabbccde03', options = duration))
+
+The response will contain more parameters and application needs to retrieve the JSON element *events* from the response to get the array of events returned. 
+
+----
