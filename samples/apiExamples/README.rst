@@ -188,7 +188,7 @@ Method addDeviceType() can be used to register a device type to Internet of Thin
 
 .. code:: python
 
-     apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KAY", "auth-token": "SOME TOKEN"}
+     apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KEY", "auth-token": "SOME TOKEN"}
      apiCli = ibmiotf.api.ApiClient(apiOptions)
      deviceInfo1 = {"serialNumber": "100087", "manufacturer": "ACME Co.", "model": "7865", "deviceClass": "A", "description": "My shiny device", "fwVersion": "1.0.0", "hwVersion": "1.0", "descriptiveLocation": "Office 5, D Block"}
      metadata1 = {"customField1": "customValue1", "customField2": "customValue2"}
@@ -365,4 +365,95 @@ Method getDeviceManagementInformation() can be used to get the device management
      info = apiCli.getDeviceManagementInformation("iotsample-arduino", "00aabbccde03")
      print("Device management info retrieved = ", info)
 
+----
+
+Device diagnostic operations
+----------------------------------------------------
+
+Applications can use Device diagnostic operations to clear logs, retrieve logs, add log information, delete logs, get specific log, clear error codes, get device error codes and add an error code to Internet of Things Foundation.
+
+Refer to the Device Diagnostics section of the `IBM IoT Foundation Connect API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
+Get Diagnostic logs
+~~~~~~~~~~~~~~~~~~~~~~
+
+Method getAllDiagnosticLogs() can be used to get all diagnostic logs of the device. For example,
+
+.. code:: python
+
+     print("\nRetrieving All device diagnostics")
+     print("Diagnostic Logs = ", apiCli.getAllDiagnosticLogs(deviceTypeId, deviceId)));
+    
+Clear Diagnostic logs 
+~~~~~~~~~~~~~~~~~~~~~~
+
+Method clearAllDiagnosticLogs() can be used to clear the diagnostic logs of the device. For example,
+
+.. code:: python
+
+     print("\nClearing All device diagnostics")
+     print("Diagnostic Logs = ", apiCli.clearAllDiagnosticLogs(deviceTypeId, deviceId)));
+    
+Add a Diagnostic log
+~~~~~~~~~~~~~~~~~~~~~~
+
+Method addDiagnosticLog() can be used to add an entry in the log of diagnostic information for the device. The log may be pruned as the new entry is added. If no date is supplied, the entry is added with the current date and time. For example,
+
+.. code:: python
+
+     logs = { "message": "newMessage", "severity": 1, "data": "New log", "timestamp": "2015-10-29T07:43:57.109Z"}
+     print("Diagnostic Logs creation = ", apiCli.addDiagnosticLog(deviceTypeId, deviceId, logs))
+
+Get single Diagnostic log
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDiagnosticLog() can be used to retrieve a diagnostic log based on the log id. For example,
+
+.. code:: python
+
+     print("\nRetrieving single log")
+     print("Diagnostic Logs = ", apiCli.getDiagnosticLog(deviceTypeId, deviceId, logId1))
+    
+Delete a Diagnostic log
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method deleteDiagnosticLog() can be used to delete a diagnostic log based on the log id. For example,
+
+.. code:: python
+
+     print("Deleting single log")
+     print("Diagnostic Logs = ", apiCli.deleteDiagnosticLog(deviceTypeId, deviceId, logId1))
+    
+
+Clear Diagnostic ErrorCodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method clearAllErrorCodes() can be used to clear the list of error codes of the device. The list is replaced with a single error code of zero. For example,
+
+.. code:: python
+
+     print("\nDeleting all error code")
+     print("Error codes deleted = ", apiCli.clearAllErrorCodes(deviceTypeId, deviceId))
+    
+Get Diagnostic ErrorCodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getAllDiagnosticErrorCodes() can be used to retrieve all diagnostic ErrorCodes of the device. For example,
+
+.. code:: python
+
+     print("\nRetrieving all error code")
+     print("Error codes retrieved = ", apiCli.getAllDiagnosticErrorCodes(deviceTypeId, deviceId))
+
+
+Add single Diagnostic ErrorCode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method addErrorCode() can be used to add an error code to the list of error codes for the device. The list may be pruned as the new entry is added. For example,
+
+.. code:: python
+
+     print("\nAdding error code")
+     errorCode = { "errorCode": 0, "timestamp": "2015-10-29T05:43:57.112Z" }
+     print("Error code creation = ", apiCli.addErrorCode(deviceTypeId, deviceId, errorCode))
 ----
