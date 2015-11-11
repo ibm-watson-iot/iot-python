@@ -153,3 +153,80 @@ Method deleteMultipleDevices() can be used to delete multiple devices from Inter
             print("Device deleted = ", deleted)
 
 ----
+
+
+Device Type operations
+----------------------------------------------------
+
+Applications can use device type operations to list all, create, delete, view and update device types in Internet of Things Foundation Connect.
+
+Refer to the Device Types section of the `IBM IoT Foundation API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
+Get all Device Types
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getAllDeviceTypes() can be used to retrieve all the registered device types in an organization from Internet of Things Foundation. For example,
+
+.. code:: python
+
+    response = apiCli.getAllDeviceTypes();
+    
+In order to pass the *_bookmark* or any other condition, the overloaded method must be used. The overloaded method takes the parameters in the form of a dictionary as shown below,
+
+.. code:: python
+
+     parameter = {'_limit' : 2}	
+     print("All Retrieved Device = ", apiCli.getAllDeviceTypes(parameter))
+		
+
+Add a Device Type
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method addDeviceType() can be used to register a device type to Internet of Things Foundation Connect. For example,
+
+.. code:: python
+
+     apiOptions = {"org": "uguhsp", "id": "myapp", "auth-method": "apikey", "auth-key": "SOME KAY", "auth-token": "SOME TOKEN"}
+     apiCli = ibmiotf.api.ApiClient(apiOptions)
+     deviceInfo1 = {"serialNumber": "100087", "manufacturer": "ACME Co.", "model": "7865", "deviceClass": "A", "description": "My shiny device", "fwVersion": "1.0.0", "hwVersion": "1.0", "descriptiveLocation": "Office 5, D Block"}
+     metadata1 = {"customField1": "customValue1", "customField2": "customValue2"}
+
+     print("Registering a device type")
+     print("Registered Device = ", apiCli.addDeviceType(deviceType = "myDeviceType5", description = "My first device type", deviceInfo = deviceInfo1, metadata = metadata1))
+    
+
+Delete a Device Type
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method deleteDeviceType() can be used to delete a device type from Internet of Things Foundation. For example,
+
+.. code:: python
+
+     print("\nDeleting a device type")	
+     deletion = apiCli.deleteDeviceType("myDeviceType5")
+     print("Device Type deleted = ", deletion)
+    
+Get a Device Type
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to retrieve information about a given device type, use the method getDeviceType() and pass the deviceTypeId as a parameter as shown below
+
+.. code:: python
+
+     print("Retrieved Device = ", apiCli.getDeviceType("myDeviceType5"))
+
+    
+Update a Device Type
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method updateDeviceType() can be used to modify one or more properties of a device type. The properties that needs to be modified should be passed in the form of a dictionary, as shown below
+
+.. code:: python
+    
+     print("\nUpdating a device type")
+     description = "mydescription"
+     metadata2 = {"customField1": "customValue3", "customField2": "customValue4"}
+     deviceInfo = {"serialNumber": "string", "manufacturer": "string", "model": "string", "deviceClass": "string", "fwVersion": "string", "hwVersion": "string","descriptiveLocation": "string"}
+     print("Modified Device = ", apiCli.updateDeviceType("myDeviceType5", description, deviceInfo, metadata2))
+
+----
