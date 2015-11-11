@@ -85,7 +85,7 @@ Method getAllDevices() can be used to retrieve all the registered devices in an 
     response = apiClient.getAllDevices();
     
 
-The response will contain more parameters and application needs to retrieve the JSON element *results* from the response to get a list of devices. Other parameters in the response are required to make further call, for example, the *_bookmark* element can be used to page through results. Issue the first request without specifying a bookmark, then take the bookmark returned in the response and provide it on the request for the next page. Repeat until the end of the result set indicated by the absence of a bookmark. Each request must use exactly the same values for the other parameters, or the results are undefined.
+The response contains parameters and application needs to retrieve the dictionary *results* from the response to get the array of devices returned. Other parameters in the response are required to make further call, for example, the *_bookmark* element can be used to page through results. Issue the first request without specifying a bookmark, then take the bookmark returned in the response and provide it on the request for the next page. Repeat until the end of the result set indicated by the absence of a bookmark. Each request must use exactly the same values for the other parameters, or the results are undefined.
 
 In order to pass the *_bookmark* or any other condition, the overloaded method must be used. The overloaded method takes the parameters in the form of org.apache.http.message.BasicNameValuePair as shown below,
 
@@ -154,7 +154,6 @@ Method deleteMultipleDevices() can be used to delete multiple devices from Inter
 
 ----
 
-
 Device Type operations
 ----------------------------------------------------
 
@@ -170,6 +169,9 @@ Method getAllDeviceTypes() can be used to retrieve all the registered device typ
 .. code:: python
 
     response = apiCli.getAllDeviceTypes();
+
+
+The response contains parameters and application needs to retrieve the dictionary *results* from the response to get the array of devices returned. Other parameters in the response are required to make further call, for example, the *_bookmark* element can be used to page through results. Issue the first request without specifying a bookmark, then take the bookmark returned in the response and provide it on the request for the next page. Repeat until the end of the result set indicated by the absence of a bookmark. Each request must use exactly the same values for the other parameters, or the results are undefined.
     
 In order to pass the *_bookmark* or any other condition, the overloaded method must be used. The overloaded method takes the parameters in the form of a dictionary as shown below,
 
@@ -228,5 +230,139 @@ Method updateDeviceType() can be used to modify one or more properties of a devi
      metadata2 = {"customField1": "customValue3", "customField2": "customValue4"}
      deviceInfo = {"serialNumber": "string", "manufacturer": "string", "model": "string", "deviceClass": "string", "fwVersion": "string", "hwVersion": "string","descriptiveLocation": "string"}
      print("Modified Device = ", apiCli.updateDeviceType("myDeviceType5", description, deviceInfo, metadata2))
+
+----
+
+Device operations
+----------------------------------------------------
+
+Applications can use device operations to list, add, remove, view, update, view location and view management information of a device in Internet of Things Foundation.
+
+Refer to the Device section of the `IBM IoT Foundation API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
+Get Devices of a particular Device Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method retrieveDevices() can be used to retrieve all the devices of a particular device type in an organization from Internet of Things Foundation. For example,
+
+.. code:: python
+
+     print("\nRetrieving All existing devices")	
+     print("Retrieved Devices = ", apiCli.retrieveDevices(deviceTypeId))
+    
+The response contains parameters and application needs to retrieve the dictionary *results* from the response to get the array of devices returned. Other parameters in the response are required to make further call, for example, the *_bookmark* element can be used to page through results. Issue the first request without specifying a bookmark, then take the bookmark returned in the response and provide it on the request for the next page. Repeat until the end of the result set indicated by the absence of a bookmark. Each request must use exactly the same values for the other parameters, or the results are undefined.
+
+In order to pass the *_bookmark* or any other condition, the overloaded method must be used. The overloaded method takes the parameters in the form of dictionary as shown below,
+
+.. code:: python
+
+    response = apiClient.retrieveDevices("iotsample-ardunio", parameters);
+		
+The above snippet sorts the response based on device id and uses the bookmark to page through the results.
+
+Add a Device
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Method registerDevice() can be used to register a device to Internet of Things Foundation. For example,
+
+.. code:: python
+
+     deviceId2 = "200020002000"
+     authToken = "password"
+     metadata2 = {"customField1": "customValue3", "customField2": "customValue4"}
+     deviceInfo = {"serialNumber": "001", "manufacturer": "Blueberry", "model": "e2", "deviceClass": "A", "descriptiveLocation" : "Bangalore", "fwVersion" : "1.0.1", "hwVersion" : "12.01"}
+     location = {"longitude" : "12.78", "latitude" : "45.90", "elevation" : "2000", "accuracy" : "0", "measuredDateTime" : "2015-10-28T08:45:11.662Z"}
+	
+     print("\nRegistering a new device with just deviceType and deviceId")	
+     print("Registered Device = ", apiCli.registerDevice(deviceTypeId, deviceId2))
+
+
+Delete a Device
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method deleteDevice() can be used to delete a device from Internet of Things Foundation. For example,
+
+.. code:: java
+
+     deleted = apiCli.deleteDevice(deviceTypeId, deviceId)
+     print("Device deleted = ", deleted)
+
+    
+Get a Device
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDevice() can be used to retrieve a device from Internet of Things Foundation. For example,
+
+.. code:: python
+
+     print("\nRetrieving an existing device")	
+     print("Retrieved Device = ", apiCli.getDevice(deviceTypeId, deviceId))
+    
+
+Get all Devices
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getAllDevices() can be used to retrieve all the device from Internet of Things Foundation. For example,
+
+.. code:: python
+
+     print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))
+
+
+Update a Device
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method updateDevice() can be used to modify one or more properties of a device. For Example
+
+.. code:: python
+    
+     print("\nUpdating an existing device")
+     status = { "alert": { "enabled": True }  }
+     print("Device Modified = ", apiCli.updateDevice(deviceTypeId, deviceId, metadata2, deviceInfo, status))
+
+
+Get Location Information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDeviceLocation() can be used to get the location information of a device. For example, 
+
+.. code:: python
+    
+    JsonObject response = apiClient.getDeviceLocation("iotsample-ardunio", "ardunio01");
+
+Update Location Information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method updateDeviceLocation() can be used to modify the location information for a device. For example,
+
+.. code:: python
+    
+     print("\nUpdating device location")
+     deviceLocation = { "longitude": 0, "latitude": 0, "elevation": 0, "accuracy": 0, "measuredDateTime": "2015-10-28T08:45:11.673Z"}
+     print("Device Location = ", apiCli.updateDeviceLocation(deviceTypeId, deviceId, deviceLocation))
+
+If no date is supplied, the entry is added with the current date and time. 
+
+Get Device Location
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDeviceLocation() can be used to retrieve the device location. For example,
+
+.. code:: python
+    
+     print("\nRetrieving device location")
+     print("Device Location = ", apiCli.getDeviceLocation(deviceTypeId, deviceId))
+
+
+Get Device Management Information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDeviceManagementInformation() can be used to get the device management information for a device. For example, 
+
+.. code:: python
+    
+     print("\nRetrieving device management information")
+     info = apiCli.getDeviceManagementInformation("iotsample-arduino", "00aabbccde03")
+     print("Device management info retrieved = ", info)
 
 ----
