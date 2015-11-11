@@ -528,3 +528,14 @@ Method getHistoricalEvents() can be used to view events from a specific device.
 The response will contain more parameters and application needs to retrieve the JSON element *events* from the response to get the array of events returned. 
 
 ----
+
+
+Examples
+-------------
+* `bulkOperations.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/bulkOperations.py>`__ - Sample that showcases how to get, add or remove devices in bulk from Internet of Things Foundation.
+* `deviceDiagnostics.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/deviceDiagnostics.py>`__ - A sample that showcases various Device Diagnostic operations like clear logs, retrieve logs, add log information, delete logs, get specific log, clear error codes, get device error codes and add an error code to Internet of Things Foundation.
+* `deviceTypes.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/deviceTypes.py>`__ - Sample that showcases various Device Type API operations like list all, create, delete, view and update device types in Internet of Things Foundation.
+* `devices.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/devices.py>`__ - A sample that showcases various Device operations like list, add, remove, view, update, view location and view management information of a device in Internet of Things Foundation.
+* `historian.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/historian.py>`__ - A sample that showcases how to retrieve historical events from Internet of Things Foundation.
+* `logConnection.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/logConnection.py>`__ - A sample that showcases device connectivity log operations that can be performed on Internet of Things Foundation.
+* `organization.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/organization.py>`__ - A sample that showcases organization operations that can be performed on Internet of Things Foundation.
