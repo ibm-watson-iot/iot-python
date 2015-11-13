@@ -7,8 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html 
 #
 # Contributors:
-#   David Parker - Initial Contribution
-#   Amit M Mangalvedkar - v2 API Support
+#   David Parker 		- Initial Contribution		- 0.1.4		- 25th Aug 2015
+#   Amit M Mangalvedkar 	- v2 API Support		- 0.1.5		- 04th Nov 2015
 # *****************************************************************************
 
 import ibmiotf
@@ -64,7 +64,13 @@ class ApiClient():
 	deviceDiagLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs'
 	deviceDiagLogsLogIdv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs/%s'
 	deviceDiagErrorCodesv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/errorCodes'
-					
+	
+	
+	#Usage Management
+	usageMgmtv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/usage'
+	
+	#Service Status
+	serviceStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/service-status'
 					
 	def __init__(self, options):
 		self.__options = options
@@ -827,3 +833,84 @@ class ApiClient():
 		return r.json()
 	
 	
+	def getServiceStatus(self):
+		"""
+		Retrieve the organization-specific status of each of the services offered by the Internet of Things Foundation.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		serviceStatus = ApiClient.serviceStatusv2 % (self.__options['org'])
+		r = requests.get(serviceStatus, auth=self.credentials )
+		
+		status = r.status_code
+		
+		if status == 200:
+			self.logger.info("Service status successfully retrieved")
+			return r.json()
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getActiveDevices(self, options):
+		"""
+		Retrieve the number of active devices over a period of time.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		activeDevices = (ApiClient.usageMgmtv2 + '/active-devices') % (self.__options['org'])
+		r = requests.get(activeDevices, auth=self.credentials, params=options )
+		
+		status = r.status_code
+		
+		if status == 200:
+			self.logger.info("Active Devices = ", r.json() )
+			return r.json()
+		elif status == 400:
+			raise ibmiotf.IoTFCReSTException(400, "Bad Request", r.json())
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getDataTraffic(self, options):
+		"""
+		Retrieve the amount of data used.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		dataTraffic = (ApiClient.usageMgmtv2 + '/data-traffic') % (self.__options['org'])
+		r = requests.get(dataTraffic, auth=self.credentials, params=options )
+		
+		status = r.status_code
+		
+		if status == 200:
+			self.logger.info("Data Traffic = ", r.json() )
+			return r.json()
+		elif status == 400:
+			raise ibmiotf.IoTFCReSTException(400, "Bad Request", r.json())
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getHistoricalDataUsage(self, options):
+		"""
+		Retrieve the amount of storage being used by historical event data.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		historicalData = (ApiClient.usageMgmtv2 + '/historical-data') % (self.__options['org'])
+		r = requests.get(historicalData, auth=self.credentials, params=options )
+		
+		status = r.status_code
+		
+		if status == 200:
+			self.logger.info("Historical Data = ", r.json() )
+			return r.json()
+		elif status == 400:
+			raise ibmiotf.IoTFCReSTException(400, "Bad Request", r.json())
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
