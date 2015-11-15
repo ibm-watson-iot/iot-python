@@ -65,12 +65,18 @@ class ApiClient():
 	deviceDiagLogsLogIdv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs/%s'
 	deviceDiagErrorCodesv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/errorCodes'
 	
-	
-	#Usage Management
+	#Usage Management URL
 	usageMgmtv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/usage'
 	
-	#Service Status
+	#Service Status URL
 	serviceStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/service-status'
+
+	#Device Management URL
+	mgmtRequestsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests'
+	mgmtSingleRequestv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests/%s'
+	mgmtRequestStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests/%s/deviceStatus'
+	mgmtRequestSingleDeviceStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests/%s/deviceStatus/%s/%s'
+		
 					
 	def __init__(self, options):
 		self.__options = options
@@ -914,3 +920,143 @@ class ApiClient():
 		else:
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
+
+	def getAllDeviceManagementRequests(self):
+		"""
+		Gets a list of device management requests, which can be in progress or recently completed.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		mgmtRequests = ApiClient.mgmtRequestsv2 % (self.__options['org'])
+		r = requests.get(mgmtRequests, auth=self.credentials )
+		
+		status = r.status_code
+		
+		if status == 200:
+			self.logger.info("Retrieved all device management requests")
+			return r.json()
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def initiateDeviceManagementRequest(self, deviceManagementRequest):
+		"""
+		Initiates a device management request, such as reboot.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		mgmtRequests = ApiClient.mgmtRequestsv2 % (self.__options['org'])
+		r = requests.post(mgmtRequests, auth=self.credentials, data=json.dumps(deviceManagementRequest), headers = {'content-type': 'application/json'})
+		
+		status = r.status_code
+		print("Status = ", status)
+		print("Response = ", r.json())
+		if status == 202:
+			self.logger.info("The request has been accepted for processing")
+			return r.json()
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(500, "Devices don't support the requested operation", r.json())
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def deleteDeviceManagementRequest(self, requestId):
+		"""
+		Clears the status of a device management request. 
+		You can use this operation to clear the status for a completed request, or for an in-progress request which may never complete due to a problem.
+		It accepts requestId (string) as parameters
+		In case of failure it throws IoTFCReSTException		
+		"""
+		mgmtRequests = ApiClient.mgmtSingleRequestv2 % (self.__options['org'], requestId)
+		r = requests.delete(mgmtRequests, auth=self.credentials )
+		
+		status = r.status_code
+		print("Status = ", status)
+		if status == 204:
+			self.logger.info("Request status cleared")
+			print("Request status cleared")
+			return True
+		#403 and 404 error code needs to be added in Swagger documentation
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Request Id not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getDeviceManagementRequest(self, requestId):
+		"""
+		Gets details of a device management request.
+		It accepts requestId (string) as parameters		
+		In case of failure it throws IoTFCReSTException		
+		"""
+		mgmtRequests = ApiClient.mgmtSingleRequestv2 % (self.__options['org'], requestId)
+		r = requests.get(mgmtRequests, auth=self.credentials )
+		
+		status = r.status_code
+		
+		if status == 200:
+			print("Retrieving single management request")
+			self.logger.info("Retrieving single management request")
+			return r.json()
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Request Id not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getDeviceManagementRequestStatus(self, requestId):
+		"""
+		Get a list of device management request device statuses.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		mgmtRequests = ApiClient.mgmtRequestStatusv2 % (self.__options['org'], requestId)
+		r = requests.get(mgmtRequests, auth=self.credentials )
+		
+		status = r.status_code
+		
+		if status == 200:
+			print("Retrieved all device management request statuses")
+			self.logger.info("Retrieved all device management request statuses")
+			return r.json()
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Request status not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
+
+	def getDeviceManagementRequestStatusByDevice(self, requestId, deviceType, deviceId):
+		"""
+		Get an individual device mangaement request device status.
+		In case of failure it throws IoTFCReSTException		
+		"""
+		mgmtRequests = ApiClient.mgmtRequestSingleDeviceStatusv2 % (self.__options['org'], requestId, deviceType, deviceId)
+		r = requests.get(mgmtRequests, auth=self.credentials )
+		
+		status = r.status_code
+		
+		if status == 200:
+			print("Retrieved device management request status of single device")
+			self.logger.info("Retrieved device management request status of single device")
+			return r.json()
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "Request status not found", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
