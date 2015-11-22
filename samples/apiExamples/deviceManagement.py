@@ -64,11 +64,6 @@ try:
 	print("Request id retrieved = ", apiCli.getDeviceManagementRequest(requestId))
 	time.sleep(1)
 
-	requestId = raw_input("\nEnter the request Id whose status needs to be found out = ")
-	print("Retrieving the status")
-	print("Status retrieved = ", apiCli.getAllDeviceManagementRequestStatus(requestId))
-	time.sleep(1)
-	
 	requestId = raw_input("\nEnter the request Id to be deleted = ")
 	print("Removing the request id")
 	print("Request id removed = ", apiCli.deleteDeviceManagementRequest(requestId))
