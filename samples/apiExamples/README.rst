@@ -529,6 +529,140 @@ The response will contain more parameters and application needs to retrieve the 
 
 ----
 
+Device Management request operations
+----------------------------------------------------
+
+Applications can use the device management operations to list all device management requests, initiate a request, clear request status, get details of a request, get list of request statuses for each affected device and get request status for a specific device.
+
+Refer to the Device Management Requests section of the `IBM IoT Foundation API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
+Get all Device management requests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getAllDeviceManagementRequests() can be used to retrieve the list of device management requests, which can be in progress or recently completed. For example,
+
+.. code:: python
+
+      print("\nRetrieving device management requests")
+      print("Device Management Requests = ", apiCli.getAllDeviceManagementRequests())
+    
+
+Initiate a Device management request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method initiateDeviceManagementRequest() can be used to initiate a device management request, such as reboot. For example,
+
+.. code:: java
+
+      print("\nInitiating device management requests")
+      mgmtRequest = {"action": "device/reboot", "parameters": [{"name": "string","value": "string" }], "devices": [{ "typeId": deviceTypeId, "deviceId": deviceId }]}
+      print("Device Management Requests = ", apiCli.initiateDeviceManagementRequest(mgmtRequest))
+
+
+The above snippet triggers a reboot request on device *raspi01*. Similarly use the following dictionary to initiate a firmware download request,
+
+.. code:: js
+
+    {
+	"action": "firmware/download",
+	"parameters": [
+	{
+	    "name": "version",
+	    "value": "<Firmware Version>"
+	},
+	{
+	    "name": "name",
+	    "value": "<Firmware Name>"
+	},
+	{
+	    "name": "verifier",
+            "value": "<MD5 checksum to verify the firmware image>"
+	},
+	{
+	    "name": "uri",
+	    "value": "<URL location from where the firmware to be download>"
+	}
+	],
+	"devices": [
+	{
+	    "typeId": "iotsample-raspberrypi",
+	    "deviceId": "raspi01"
+	}
+	]
+    }
+    
+And use the following JSON message to initiate a firmware update request on *raspi01*,
+
+.. code:: js
+
+    {
+ 	"action": "firmware/update",
+ 	"devices": [
+ 	{
+ 	    "typeId": "iotsample-raspberrypi",
+ 	    "deviceId": "raspi01"
+ 	}
+ 	]
+    }
+
+
+Delete a Device management request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method deleteDeviceManagementRequest() can be used to clear the status of a device management request. Application can use this operation to clear the status of a completed request, or an in-progress request which may never complete due to a problem. For example,
+
+.. code:: python
+
+      requestId = raw_input("\nEnter the request Id to be deleted = ")
+      print("Removing the request id")
+      print("Request id removed = ", apiCli.deleteDeviceManagementRequest(requestId))
+    
+
+Get details of a Device management request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDeviceManagementRequest() can be used to get the details of the device management request. For example,
+
+.. code:: python
+
+      requestId = raw_input("\nEnter the request Id to be deleted = ")
+      print("Removing the request id")
+      print("Request id removed = ", apiCli.deleteDeviceManagementRequest(requestId))
+    
+
+Get status of a Device management request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDeviceManagementRequestStatus() can be used to get a list of device management request device statuses. For example,
+
+.. code:: python
+
+    // Pass the Request ID of a device management request
+    details = apiCli.getDeviceManagementRequestStatus(id);
+
+The status is returned as integer and will contain one of the following possible values,
+
+* Success
+* In progress
+* Failure
+* Time out
+
+Other parameters in the response are required to make further call, for example, the *_bookmark* element can be used to page through results. Issue the first request without specifying a bookmark, then take the bookmark returned in the response and provide it on the request for the next page. Repeat until the end of the result set indicated by the absence of a bookmark. Each request must use exactly the same values for the other parameters, or the results are undefined.
+
+
+Get status of a Device management request by Device
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDeviceManagementRequestStatusByDevice() can be used to get an individual device management request device status. For example,
+
+.. code:: python
+
+    response = apiCli.getDeviceManagementRequestStatusByDevice(id, "iotsample-raspberrypi", "raspi01");
+
+----
+
+
+
 Usage management
 ----------------------------------------------------
 
@@ -609,8 +743,9 @@ Examples
 -------------
 * `bulkOperations.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/bulkOperations.py>`__ - Sample that showcases how to get, add or remove devices in bulk from Internet of Things Foundation Connect.
 * `deviceDiagnostics.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/deviceDiagnostics.py>`__ - A sample that showcases various Device Diagnostic operations like clear logs, retrieve logs, add log information, delete logs, get specific log, clear error codes, get device error codes and add an error code to Internet of Things Foundation Connect.
-* `deviceTypes.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/deviceTypes.py>`__ - Sample that showcases various Device Type API operations like list all, create, delete, view and update device types in Internet of Things Foundation Connect.
+* `deviceManagement.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/deviceManagement.py>`__ - A sample that showcases various device management request operations that can be performed on Internet of Things Foundation Connect.
 * `devices.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/devices.py>`__ - A sample that showcases various Device operations like list, add, remove, view, update, view location and view management information of a device in Internet of Things Foundation Connect.
+* `deviceTypes.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/deviceTypes.py>`__ - Sample that showcases various Device Type API operations like list all, create, delete, view and update device types in Internet of Things Foundation Connect.
 * `historian.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/historian.py>`__ - A sample that showcases how to retrieve historical events from Internet of Things Foundation Connect.
 * `logConnection.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/logConnection.py>`__ - A sample that showcases device connectivity log operations that can be performed on Internet of Things Foundation Connect.
 * `organization.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/organization.py>`__ - A sample that showcases organization operations that can be performed on Internet of Things Foundation Connect.
