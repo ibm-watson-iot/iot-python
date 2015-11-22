@@ -529,6 +529,67 @@ The response will contain more parameters and application needs to retrieve the 
 
 ----
 
+Usage management
+----------------------------------------------------
+
+Applications can use the usage management operations to retrieve the number of active devices over a period of time, retrieve amount of storage used by historical event data, retrieve total amount of data used.
+
+Refer to the Usage management section of the `IBM IoT Foundation API <https://docs.internetofthings.ibmcloud.com/swagger/v0002.html>`__ for information about the list of query parameters, the request & response model and http status code.
+
+Get active devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getActiveDevices() can be used to retrieve the number of active devices over a period of time. For example,
+
+.. code:: python
+    
+      startTime = '2014-01-01'
+      endTime =  '2015-11-01'
+
+      duration = {'start' : startTime, 'end' : endTime }
+	
+      print("\nRetrieving active devices")				
+      print("Active Devices = ", apiCli.getActiveDevices(options = duration))
+
+The above snippet returns the devices that are active between 2014-01-01 and 2015-11-01 with a daily breakdown.
+
+Get Historical data usage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getHistoricalDataUsage() can be used to retrieve the amount of storage being used by historical event data for a specified period of time. For example,
+
+.. code:: python
+    
+      startTime = '2014-01-01'
+      endTime =  '2015-11-01'
+
+      duration = {'start' : startTime, 'end' : endTime }
+	
+      print("\nHistorical Data Usage")				
+      print("Historical Data Usage = ", apiCli.getHistoricalDataUsage(options = duration))
+
+The above snippet returns the amount of storage being used by historical event data between 2014-01-01 and 2015-11-01 without a daily breakdown.
+
+Get data traffic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Method getDataTraffic() can be used to retrieve the amount of data used for a specified period of time. For example,
+
+.. code:: python
+    
+      startTime = '2014-01-01'
+      endTime =  '2015-11-01'
+
+      duration = {'start' : startTime, 'end' : endTime }
+	
+      print("\nRetrieving data traffic")				
+      print("Data Traffic = ", apiCli.getDataTraffic(options = duration))
+
+The above snippet returns the amount of data traffic between 2014-01-01 and 2015-11-01 but without a daily breakdown.
+
+----
+
+
 Service status
 ----------------------------------------------------
 
@@ -544,7 +605,6 @@ Refer to the Service status section of the `IBM IoT Foundation Connect API <http
 ----
 
 
-
 Examples
 -------------
 * `bulkOperations.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/bulkOperations.py>`__ - Sample that showcases how to get, add or remove devices in bulk from Internet of Things Foundation Connect.
@@ -554,4 +614,5 @@ Examples
 * `historian.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/historian.py>`__ - A sample that showcases how to retrieve historical events from Internet of Things Foundation Connect.
 * `logConnection.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/logConnection.py>`__ - A sample that showcases device connectivity log operations that can be performed on Internet of Things Foundation Connect.
 * `organization.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/organization.py>`__ - A sample that showcases organization operations that can be performed on Internet of Things Foundation Connect.
+* `usageManagement.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/usageManagement.py>`__ - A sample that showcases various Usage management operations that can be performed on Internet of Things Foundation Connect.
 * `serviceStatus.py <https://github.com/ibm-messaging/iot-python/blob/master/samples/apiExamples/serviceStatus.py>`__ - A sample that showcases organization operations that can be performed on Internet of Things Foundation Connect.
