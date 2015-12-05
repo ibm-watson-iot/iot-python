@@ -7,8 +7,9 @@
 # http://www.eclipse.org/legal/epl-v10.html 
 #
 # Contributors:
-#   David Parker 		- Initial Contribution		- 0.1.4		- 25th Aug 2015
-#   Amit M Mangalvedkar 	- v2 API Support		- 0.1.5		- 04th Nov 2015
+#   David Parker
+#   Paul Slater
+#   Amit M Mangalvedkar
 # *****************************************************************************
 
 import ibmiotf
@@ -22,60 +23,48 @@ from symbol import parameters
 
 
 class ApiClient():
-
-	devicesUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/devices'
-	deviceUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/devices/%s/%s'
-	historianOrgUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian'
-	historianTypeUrl = 'https://%s.internetofthings.ibmcloud.com/api/v0001/historian/%s'
-
-	historianOrgUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian'
-	historianTypeUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/types/%s'
-	historianDeviceUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/historian/types/%s/devices/%s'
-		
-	
-	#v2 ReST URL
 	#Organization URL
-	organizationUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/'
-	
+	organizationUrl = 'https://%s/api/v0002/'
 	
 	#Bulk Operations URL
-	bulkRetrievev2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/bulk/devices'
-	bulkAddUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/bulk/devices/add'	
-	bulkRemoveUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/bulk/devices/remove'
-	
+	bulkRetrieve = 'https://%s/api/v0002/bulk/devices'
+	bulkAddUrl = 'https://%s/api/v0002/bulk/devices/add'
+	bulkRemoveUrl = 'https://%s/api/v0002/bulk/devices/remove'
 	
 	#Device Types URL
-	deviceTypesUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types'
-	deviceTypeUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s'		
-
+	deviceTypesUrl = 'https://%s/api/v0002/device/types'
+	deviceTypeUrl = 'https://%s/api/v0002/device/types/%s'
 	
 	#Device URL
-	devicesUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices'
-	deviceUrlv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s'
-	deviceUrlLocationv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/location'
-	deviceUrlMgmtv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/mgmt'
-	
+	devicesUrl = 'https://%s/api/v0002/device/types/%s/devices'
+	deviceUrl = 'https://%s/api/v0002/device/types/%s/devices/%s'
+	deviceUrlLocation = 'https://%s/api/v0002/device/types/%s/devices/%s/location'
+	deviceUrlMgmt = 'https://%s/api/v0002/device/types/%s/devices/%s/mgmt'
 	
 	#Log Events URL
-	deviceLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/logs/connection'
-	
+	deviceLogs = 'https://%s/api/v0002/logs/connection'
 	
 	#Diagnostics URL
-	deviceDiagLogsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs'
-	deviceDiagLogsLogIdv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/logs/%s'
-	deviceDiagErrorCodesv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/diag/errorCodes'
+	deviceDiagLogs = 'https://%s/api/v0002/device/types/%s/devices/%s/diag/logs'
+	deviceDiagLogsLogId = 'https://%s/api/v0002/device/types/%s/devices/%s/diag/logs/%s'
+	deviceDiagErrorCodes = 'https://%s/api/v0002/device/types/%s/devices/%s/diag/errorCodes'
 	
 	#Usage Management URL
-	usageMgmtv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/usage'
+	usageMgmt = 'https://%s/api/v0002/usage'
+	
+	# Historian
+	historianOrgUrl = 'https://%s/api/v0002/historian'
+	historianTypeUrl = 'https://%s/api/v0002/historian/types/%s'
+	historianDeviceUrl = 'https://%s/api/v0002/historian/types/%s/devices/%s'
 	
 	#Service Status URL
-	serviceStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/service-status'
-
+	serviceStatus = 'https://%s/api/v0002/service-status'
+	
 	#Device Management URL
-	mgmtRequestsv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests'
-	mgmtSingleRequestv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests/%s'
-	mgmtRequestStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests/%s/deviceStatus'
-	mgmtRequestSingleDeviceStatusv2 = 'https://%s.internetofthings.ibmcloud.com/api/v0002/mgmt/requests/%s/deviceStatus/%s/%s'
+	mgmtRequests = 'https://%s/api/v0002/mgmt/requests'
+	mgmtSingleRequest = 'https://%s/api/v0002/mgmt/requests/%s'
+	mgmtRequestStatus = 'https://%s/api/v0002/mgmt/requests/%s/deviceStatus'
+	mgmtRequestSingleDeviceStatus = 'https://%s/api/v0002/mgmt/requests/%s/deviceStatus/%s/%s'
 		
 					
 	def __init__(self, options):
@@ -99,6 +88,7 @@ class ApiClient():
 			if 'auth-token' not in self.__options or self.__options['auth-token'] == None: 
 				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
 			
+			self.host = self.__options['org'] + ".internetofthings.ibmcloud.com"
 			self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
 		elif self.__options['auth-method'] is not None:
 			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
@@ -110,13 +100,12 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceType, deviceId)
+		deviceUrl = ApiClient.deviceUrl % (self.host, deviceType, deviceId)
 
 		r = requests.delete(deviceUrl, auth=self.credentials)
 		status = r.status_code
 		if status == 204:
 			self.logger.info("Device was successfully removed")
-			print("Device was successfully removed")
 			return True
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -138,11 +127,6 @@ class ApiClient():
 		return getAllDevices(self)
 
 
-	#Not sure why this method was written it returns only 1
-	def getDeviceTypeInfo(self, deviceType):
-		return 1
-
-
 	#This method returns the organization
 	def getOrganizationDetails(self):
 		"""
@@ -153,7 +137,7 @@ class ApiClient():
 		if self.__options['org'] is None:
 			raise ibmiotf.ConfigurationException("Missing required property: org")
 		else:
-			url = ApiClient.organizationUrlv2 % (self.__options['org'])
+			url = ApiClient.organizationUrl % (self.host)
 		r = requests.get(url, auth=self.credentials)
 		status = r.status_code
 		if status == 200:
@@ -177,16 +161,13 @@ class ApiClient():
 		It accepts accepts a list of devices (List of Dictionary of Devices)
 		In case of failure it throws IoTFCReSTException
 		"""
-		bulkRetrieve = ApiClient.bulkRetrievev2 % (self.__options['org'] )
+		bulkRetrieve = ApiClient.bulkRetrieve % (self.host )
 		r = requests.get(bulkRetrieve, auth = self.credentials, params = parameters)
 		
 		status = r.status_code
 
-		print("Status = ", status)
-
 		if status == 200:
 			self.logger.info("Bulk retrieval successful")
-			print("Bulk retrieval successful")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)			
@@ -211,16 +192,13 @@ class ApiClient():
 		It accepts accepts a list of devices (List of Dictionary of Devices)
 		In case of failure it throws IoTFCReSTException
 		"""
-		bulkAdd = ApiClient.bulkAddUrlv2 % (self.__options['org'] )
+		bulkAdd = ApiClient.bulkAddUrl % (self.host )
 		r = requests.post(bulkAdd, auth = self.credentials, data = json.dumps(listOfDevices), headers = {'content-type': 'application/json'})
 		
 		status = r.status_code
-
-		print("Status = ", status)
-		print("List = ", listOfDevices)
+		
 		if status == 201:
 			self.logger.info("Bulk registration successful")
-			print("Bulk registration successful")
 			return r.json()
 		elif status == 202:
 			raise ibmiotf.IoTFCReSTException(400, "Some devices registered successfully", r.json())			
@@ -242,13 +220,12 @@ class ApiClient():
 		It accepts accepts a list of devices (List of Dictionary of Devices)
 		In case of failure it throws IoTFCReSTException
 		"""
-		bulkRemove = ApiClient.bulkRemoveUrlv2 % (self.__options['org'] )
+		bulkRemove = ApiClient.bulkRemoveUrl % (self.host )
 		r = requests.post(bulkRemove, auth = self.credentials, data = json.dumps(listOfDevices), headers = {'content-type': 'application/json'})
 		
 		status = r.status_code
 		if status == 202:
 			self.logger.info("Some devices deleted successfully")
-			print("Some devices deleted successfully")
 			return r.json()
 		elif status == 400:
 			raise ibmiotf.IoTFCReSTException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())
@@ -267,12 +244,11 @@ class ApiClient():
 		It accepts accepts an optional query parameters (Dictionary)
 		In case of failure it throws IoTFCReSTException			
 		"""
-		deviceTypeUrl = ApiClient.deviceTypesUrlv2 % (self.__options['org'])
+		deviceTypeUrl = ApiClient.deviceTypesUrl % (self.host)
 		r = requests.get(deviceTypeUrl, auth=self.credentials, params = queryParameters)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("All Device types successfully retrieved")
-			print("All Device types successfully retrieved")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -291,14 +267,13 @@ class ApiClient():
 		It accepts deviceType (string), description (string), deviceInfo(JSON) and metadata(JSON) as parameter
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceTypesUrl = ApiClient.deviceTypesUrlv2 % (self.__options['org'])
+		deviceTypesUrl = ApiClient.deviceTypesUrl % (self.host)
 		payload = {'id' : deviceType, 'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata}
 
 		r = requests.post(deviceTypesUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'})
 		status = r.status_code
 		if status == 201:
 			self.logger.info("Device Type Created")
-			print("Device Type created")
 			return r.json()
 		elif status == 400:
 			raise ibmiotf.IoTFCReSTException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())			
@@ -320,13 +295,12 @@ class ApiClient():
 		It accepts deviceType (string) as the parameter
 		In case of failure it throws IoTFCReSTException			
 		"""
-		deviceTypeUrl = ApiClient.deviceTypeUrlv2 % (self.__options['org'], deviceType)
+		deviceTypeUrl = ApiClient.deviceTypeUrl % (self.host, deviceType)
 
 		r = requests.delete(deviceTypeUrl, auth=self.credentials)
 		status = r.status_code
 		if status == 204:
 			self.logger.info("Device type was successfully deleted")
-			print("Device type was successfully deleted")
 			return True
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -344,12 +318,11 @@ class ApiClient():
 		It accepts deviceType (string) as the parameter
 		In case of failure it throws IoTFCReSTException			
 		"""
-		deviceTypeUrl = ApiClient.deviceTypeUrlv2 % (self.__options['org'], deviceType)
+		deviceTypeUrl = ApiClient.deviceTypeUrl % (self.host, deviceType)
 		r = requests.get(deviceTypeUrl, auth=self.credentials)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device type was successfully retrieved")
-			print("Device type was successfully retrieved")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -369,13 +342,12 @@ class ApiClient():
 		It accepts deviceType (string), description (string), deviceInfo (JSON) and metadata(JSON) as the parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceTypeUrl = ApiClient.deviceTypeUrlv2 % (self.__options['org'], deviceType)
+		deviceTypeUrl = ApiClient.deviceTypeUrl % (self.host, deviceType)
 		deviceTypeUpdate = {'description' : description, 'deviceInfo' : deviceInfo, 'metadata' : metadata}
 		r = requests.put(deviceTypeUrl, auth=self.credentials, data=json.dumps(deviceTypeUpdate), headers = {'content-type': 'application/json'})
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device type was successfully modified")
-			print("Device type was successfully modified")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -399,13 +371,12 @@ class ApiClient():
 		It accepts deviceType (string) and expand (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.devicesUrlv2 % (self.__options['org'], deviceTypeId)
+		deviceUrl = ApiClient.devicesUrl % (self.host, deviceTypeId)
 
 		r = requests.get(deviceUrl, auth=self.credentials, params = expand)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Devices were successfully retrieved")
-			print("Devices were successfully retrieved")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -426,14 +397,13 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string), authToken (string), location (JSON) and metadata (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		devicesUrl = ApiClient.devicesUrlv2 % (self.__options['org'], deviceTypeId)
+		devicesUrl = ApiClient.devicesUrl % (self.host, deviceTypeId)
 		payload = {'deviceId' : deviceId, 'authToken' : authToken, 'deviceInfo' : deviceInfo, 'location' : location, 'metadata': metadata}
 
 		r = requests.post(devicesUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'})
 		status = r.status_code
 		if status == 201:
 			self.logger.info("Device Instance Created")
-			print("Device Instance created")
 			return r.json()
 		elif status == 400:
 			raise ibmiotf.IoTFCReSTException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())			
@@ -455,13 +425,12 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string) and expand (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceType, deviceId)
+		deviceUrl = ApiClient.deviceUrl % (self.host, deviceType, deviceId)
 
 		r = requests.get(deviceUrl, auth=self.credentials, params = expand)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device was successfully retrieved")
-			print("Device was successfully retrieved")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -481,13 +450,12 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrl % (self.host, deviceTypeId, deviceId)
 
 		r = requests.delete(deviceUrl, auth=self.credentials)
 		status = r.status_code
 		if status == 204:
 			self.logger.info("Device was successfully removed")
-			print("Device was successfully removed")
 			return True
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -505,7 +473,7 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string), metadata (JSON), deviceInfo (JSON) and status(JSON) as parameters
 		In case of failure it throws IoTFCReSTException
 		"""
-		deviceUrl = ApiClient.deviceUrlv2 % (self.__options['org'], deviceType, deviceId)
+		deviceUrl = ApiClient.deviceUrl % (self.host, deviceType, deviceId)
 
 		payload = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
 		r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'})
@@ -513,7 +481,6 @@ class ApiClient():
 		status = r.status_code		
 		if status == 200:
 			self.logger.info("Device was successfully modified")
-			print("Device was successfully modified")
 			return r.json()
 		elif status == 401:
 			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)
@@ -535,13 +502,12 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlLocationv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceUrl = ApiClient.deviceUrlLocation % (self.host, deviceTypeId, deviceId)
 
 		r = requests.get(deviceUrl, auth=self.credentials)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device Location was successfully obtained")
-			print("Device Location was successfully obtained")
 			return r.json()
 		elif status == 404:
 			raise ibmiotf.IoTFCReSTException(404, "Device location information not found", None)
@@ -557,13 +523,12 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string) and deviceLocation (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlLocationv2 % (self.__options['org'], deviceType, deviceId)
+		deviceUrl = ApiClient.deviceUrlLocation % (self.host, deviceType, deviceId)
 
 		r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(deviceLocation), headers = {'content-type': 'application/json'} )
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device Location was successfully modified")
-			print("Device Location was successfully modified")
 			return r.json()
 		elif status == 404:
 			raise ibmiotf.IoTFCReSTException(404, "Device location information not found", None)
@@ -581,14 +546,11 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceUrl = ApiClient.deviceUrlMgmtv2 % (self.__options['org'], deviceType, deviceId)
-		print("DeviceURL = ", deviceUrl)
+		deviceUrl = ApiClient.deviceUrlMgmt % (self.host, deviceType, deviceId)
 		r = requests.get(deviceUrl, auth=self.credentials)
 		status = r.status_code
-		print("Status = ", status)
 		if status == 200:
 			self.logger.info("Device Management Information was successfully obtained")
-			print("Device Management Information was successfully obtained")
 			return r.json()
 		#This also throws a 403, which has not been documented
 		elif status == 403:
@@ -608,13 +570,12 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceLogs = ApiClient.deviceLogsv2 % (self.__options['org'])
+		deviceLogs = ApiClient.deviceLogs % (self.host)
 		logParameters = { 'typeId' : deviceTypeId, 'deviceId' : deviceId}
 		r = requests.get(deviceLogs, auth=self.credentials, params = logParameters)
 		status = r.status_code
 		if status == 200:
 			self.logger.info("Device Connection Logs were successfully obtained")
-			print("Device Connection Logs were successfully obtained")
 			return r.json()
 		elif status == 403:
 			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
@@ -632,12 +593,11 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, deviceTypeId, deviceId)
 		r = requests.get(deviceDiagnostics, auth=self.credentials )
 		status = r.status_code
 		if status == 200:
 			self.logger.info("All Diagnostic logs successfully retrieved")
-			print("All Diagnostic logs successfully retrieved")
 			return r.json()
 		elif status == 404:
 			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
@@ -654,12 +614,11 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, deviceTypeId, deviceId)
 		r = requests.delete(deviceDiagnostics, auth=self.credentials)
 		status = r.status_code
 		if status == 204:
 			self.logger.info("All Diagnostic logs successfully cleared")
-			print("All Diagnostic logs successfully cleared")
 			return True
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -678,15 +637,12 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string) and logs (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsv2 % (self.__options['org'], deviceTypeId, deviceId)
-		print("URL = ", deviceDiagnostics, "\tLogs = ", logs)
+		deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, deviceTypeId, deviceId)
 		r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(logs), headers = {'content-type': 'application/json'} )
 		
 		status = r.status_code
-		print("Status = ", status)
 		if status == 201:
 			self.logger.info("Diagnostic entry was successfully added")
-			print("Diagnostic entry was successfully added")
 			return True
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -705,13 +661,11 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string) and logId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsLogIdv2 % (self.__options['org'], deviceTypeId, deviceId, logId)
+		deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, deviceTypeId, deviceId, logId)
 		r = requests.get(deviceDiagnostics, auth=self.credentials )
 		status = r.status_code
-		print("Status = ", status)
 		if status == 200:
 			self.logger.info("Diagnostic log successfully retrieved")
-			print("Diagnostic log successfully retrieved")
 			return r.json()
 		elif status == 404:
 			raise ibmiotf.IoTFCReSTException(404, "Device not found", None)
@@ -728,12 +682,11 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string) and logId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagLogsLogIdv2 % (self.__options['org'], deviceTypeId, deviceId, logId)
+		deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, deviceTypeId, deviceId, logId)
 		r = requests.delete(deviceDiagnostics, auth=self.credentials)
 		status = r.status_code
 		if status == 204:
 			self.logger.info("Diagnostic log successfully cleared")
-			print("Diagnostic log successfully cleared")
 			return True
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -752,14 +705,12 @@ class ApiClient():
 		It accepts deviceType (string), deviceId (string) and errorCode (JSON) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagErrorCodesv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, deviceTypeId, deviceId)
 		r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(errorCode), headers = {'content-type': 'application/json'} )
 		
 		status = r.status_code
-		print("Status = ", status)
 		if status == 201:
 			self.logger.info("Error code was successfully added")
-			print("Error code was successfully added")
 			return True
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -778,14 +729,12 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagErrorCodesv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, deviceTypeId, deviceId)
 		r = requests.get(deviceDiagnostics, auth=self.credentials )
 		
 		status = r.status_code
-		print("Status = ", status)
 		if status == 200:
 			self.logger.info("Error codes were successfully retrieved")
-			print("Error code were successfully retrieved")
 			return r.json()
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -804,14 +753,12 @@ class ApiClient():
 		It accepts deviceType (string) and deviceId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		deviceDiagnostics = ApiClient.deviceDiagErrorCodesv2 % (self.__options['org'], deviceTypeId, deviceId)
+		deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, deviceTypeId, deviceId)
 		r = requests.delete(deviceDiagnostics, auth=self.credentials )
 		
 		status = r.status_code
-		print("Status = ", status)
 		if status == 204:
 			self.logger.info("Error codes successfully cleared")
-			print("Error code were successfully retrieved")
 			return True
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -826,17 +773,18 @@ class ApiClient():
 
 	def getHistoricalEvents(self, deviceType=None, deviceId=None, options=None):
 		if deviceId is not None and deviceType is not None:
-			url = ApiClient.historianDeviceUrlv2 % (self.__options['org'], deviceType, deviceId)
+			url = ApiClient.historianDeviceUrl % (self.host, deviceType, deviceId)
 		elif deviceType is not None:
-			url = ApiClient.historianTypeUrlv2 % (self.__options['org'], deviceType)
+			url = ApiClient.historianTypeUrl % (self.host, deviceType)
 		else:
-			url = ApiClient.historianOrgUrlv2 % (self.__options['org'])
-		print ("URL = ", url)	
+			url = ApiClient.historianOrgUrl % (self.host)
 		r = requests.get(url, auth=self.credentials, params = options)
 		status = r.status_code
 		
-		print("Status code 2 = ", status)
-		return r.json()
+		if status == 200:
+			return r.json()
+		else:
+			raise ibmiotf.IoTFCReSTException(status, "Unexpected error", None)
 	
 	
 	def getServiceStatus(self):
@@ -844,7 +792,7 @@ class ApiClient():
 		Retrieve the organization-specific status of each of the services offered by the Internet of Things Foundation.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		serviceStatus = ApiClient.serviceStatusv2 % (self.__options['org'])
+		serviceStatus = ApiClient.serviceStatus % (self.host)
 		r = requests.get(serviceStatus, auth=self.credentials )
 		
 		status = r.status_code
@@ -863,7 +811,7 @@ class ApiClient():
 		Retrieve the number of active devices over a period of time.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		activeDevices = (ApiClient.usageMgmtv2 + '/active-devices') % (self.__options['org'])
+		activeDevices = (ApiClient.usageMgmt + '/active-devices') % (self.host)
 		r = requests.get(activeDevices, auth=self.credentials, params=options )
 		
 		status = r.status_code
@@ -884,7 +832,7 @@ class ApiClient():
 		Retrieve the amount of data used.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		dataTraffic = (ApiClient.usageMgmtv2 + '/data-traffic') % (self.__options['org'])
+		dataTraffic = (ApiClient.usageMgmt + '/data-traffic') % (self.host)
 		r = requests.get(dataTraffic, auth=self.credentials, params=options )
 		
 		status = r.status_code
@@ -905,7 +853,7 @@ class ApiClient():
 		Retrieve the amount of storage being used by historical event data.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		historicalData = (ApiClient.usageMgmtv2 + '/historical-data') % (self.__options['org'])
+		historicalData = (ApiClient.usageMgmt + '/historical-data') % (self.host)
 		r = requests.get(historicalData, auth=self.credentials, params=options )
 		
 		status = r.status_code
@@ -926,7 +874,7 @@ class ApiClient():
 		Gets a list of device management requests, which can be in progress or recently completed.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		mgmtRequests = ApiClient.mgmtRequestsv2 % (self.__options['org'])
+		mgmtRequests = ApiClient.mgmtRequests % (self.host)
 		r = requests.get(mgmtRequests, auth=self.credentials )
 		
 		status = r.status_code
@@ -945,12 +893,10 @@ class ApiClient():
 		Initiates a device management request, such as reboot.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		mgmtRequests = ApiClient.mgmtRequestsv2 % (self.__options['org'])
+		mgmtRequests = ApiClient.mgmtRequests % (self.host)
 		r = requests.post(mgmtRequests, auth=self.credentials, data=json.dumps(deviceManagementRequest), headers = {'content-type': 'application/json'})
 		
 		status = r.status_code
-		print("Status = ", status)
-		print("Response = ", r.json())
 		if status == 202:
 			self.logger.info("The request has been accepted for processing")
 			return r.json()
@@ -969,14 +915,12 @@ class ApiClient():
 		It accepts requestId (string) as parameters
 		In case of failure it throws IoTFCReSTException		
 		"""
-		mgmtRequests = ApiClient.mgmtSingleRequestv2 % (self.__options['org'], requestId)
+		mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
 		r = requests.delete(mgmtRequests, auth=self.credentials )
 		
 		status = r.status_code
-		print("Status = ", status)
 		if status == 204:
 			self.logger.info("Request status cleared")
-			print("Request status cleared")
 			return True
 		#403 and 404 error code needs to be added in Swagger documentation
 		elif status == 403:
@@ -995,13 +939,12 @@ class ApiClient():
 		It accepts requestId (string) as parameters		
 		In case of failure it throws IoTFCReSTException		
 		"""
-		mgmtRequests = ApiClient.mgmtSingleRequestv2 % (self.__options['org'], requestId)
+		mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
 		r = requests.get(mgmtRequests, auth=self.credentials )
 		
 		status = r.status_code
 		
 		if status == 200:
-			print("Retrieving single management request")
 			self.logger.info("Retrieving single management request")
 			return r.json()
 		elif status == 403:
@@ -1019,13 +962,12 @@ class ApiClient():
 		Get a list of device management request device statuses.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		mgmtRequests = ApiClient.mgmtRequestStatusv2 % (self.__options['org'], requestId)
+		mgmtRequests = ApiClient.mgmtRequestStatus % (self.host, requestId)
 		r = requests.get(mgmtRequests, auth=self.credentials )
 		
 		status = r.status_code
 		
 		if status == 200:
-			print("Retrieved all device management request statuses")
 			self.logger.info("Retrieved all device management request statuses")
 			return r.json()
 		elif status == 403:
@@ -1043,17 +985,16 @@ class ApiClient():
 		Get an individual device mangaement request device status.
 		In case of failure it throws IoTFCReSTException		
 		"""
-		mgmtRequests = ApiClient.mgmtRequestSingleDeviceStatusv2 % (self.__options['org'], requestId, deviceType, deviceId)
+		mgmtRequests = ApiClient.mgmtRequestSingleDeviceStatus % (self.host, requestId, deviceType, deviceId)
 		r = requests.get(mgmtRequests, auth=self.credentials )
 		
 		status = r.status_code
 		
 		if status == 200:
-			print("Retrieved device management request status of single device")
 			self.logger.info("Retrieved device management request status of single device")
 			return r.json()
 		elif status == 403:
-			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)			
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the api key used does not exist", None)
 		elif status == 404:
 			raise ibmiotf.IoTFCReSTException(404, "Request status not found", None)
 		elif status == 500:
