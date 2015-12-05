@@ -7,8 +7,10 @@
 # http://www.eclipse.org/legal/epl-v10.html 
 #
 # Contributors:
-#   David Parker - Initial Contribution
-#   Amit M Mangalvedkar - v2 API Support
+#   David Parker
+#   Paul Slater
+#   Ben Bakowski
+#   Amit M Mangalvedkar
 # *****************************************************************************
 
 import sys
@@ -27,7 +29,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.2.0"
+__version__ = "0.1.6"
 
 class Message:
 	def __init__(self, data, timestamp=None):
