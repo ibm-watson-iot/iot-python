@@ -120,14 +120,6 @@ class ApiClient():
 			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
 
 		
-	def getDevices(self, parameters = None):
-		"""
-		Retrieve bulk devices
-		This method needs to be deprecated and has been maintained just for backward compatibility
-		It accepts accepts a list of devices (List of Dictionary of Devices)
-		In case of failure it throws IoTFCReSTException
-		"""
-		return getAllDevices(self)
 
 
 	#This method returns the organization
@@ -185,6 +177,32 @@ class ApiClient():
 
 		 
 		
+	def getDevices(self, parameters = None):
+		"""
+		Retrieve bulk devices
+		This method needs to be deprecated and has been maintained just for backward compatibility
+		It accepts accepts a list of devices (List of Dictionary of Devices)
+		In case of failure it throws IoTFCReSTException
+		"""
+		bulkRetrieve = ApiClient.bulkRetrieve % (self.host )
+		r = requests.get(bulkRetrieve, auth = self.credentials, params = parameters, verify=self.verify)
+		
+		status = r.status_code
+
+		if status == 200:
+			self.logger.info("Bulk retrieval successful")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.IoTFCReSTException(401, "The authentication token is empty or invalid", None)			
+		elif status == 403:
+			raise ibmiotf.IoTFCReSTException(403, "The authentication method is invalid or the API key used does not exist", None)
+		elif status == 404:
+			raise ibmiotf.IoTFCReSTException(404, "The organization or device type does not exist", None)
+		elif status == 500:
+			raise ibmiotf.IoTFCReSTException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.IoTFCReSTException(None, "Unexpected error", None)
+
 
 	def addMultipleDevices(self, listOfDevices):
 		"""
