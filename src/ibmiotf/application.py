@@ -20,6 +20,7 @@ from ibmiotf import ConnectionException, MissingMessageEncoderException
 from ibmiotf.codecs import jsonIotfCodec
 from ibmiotf.codecs import jsonCodec
 import ibmiotf.api
+import paho.mqtt.client as paho
 
 import requests
 # Support Python 2.7 and 3.4 versions of configparser
@@ -292,7 +293,7 @@ class Client(ibmiotf.AbstractClient):
 					if on_publish is not None:
 						self._messagesLock.acquire()
 					
-					self.client.publish(topic, payload=payload, qos=qos, retain=False)
+					result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
 					if result[0] == paho.MQTT_ERR_SUCCESS:
 						if on_publish is not None:
 							self._onPublishCallbacks[result[1]] = on_publish
