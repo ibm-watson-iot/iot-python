@@ -70,7 +70,7 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, interruptHandler)
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:t:c:T:I:E:", ["help", "org=", "id=", "key=", "token=", "config=", "devicetype", "deviceid", "event"])
+		opts, args = getopt.getopt(sys.argv[1:], "h:o:i:k:t:c:T:I:E:", ["help", "org=", "id=", "key=", "token=", "config=", "devicetype", "deviceid", "event"])
 	except getopt.GetoptError as err:
 		print(str(err))
 		usage()

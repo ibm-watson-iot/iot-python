@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2015 IBM Corporation and other Contributors.
+# Copyright (c) 2016 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -70,7 +70,13 @@ try:
 	print("Retrieved Devices = ", apiCli.retrieveDevices(deviceTypeId))
 	time.sleep(2)
 
+	print("\nRetrieving All existing devices with getAllDevices() for backward compatibility")	
+	print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))
+	time.sleep(2)
+
 	print("\nRetrieving All existing devices with getDevices() for backward compatibility")	
+	print("Retrieved Devices = ", apiCli.getDevices({'typeId' : deviceTypeId}))
+	print("\nRetrieving All existing devices with getAllDevices() for backward compatibility")	
 	print("Retrieved Devices = ", apiCli.getAllDevices({'typeId' : deviceTypeId}))
 	time.sleep(2)
 

@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2016 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -7,7 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html 
 #
 # Contributors:
-#   David Parker - Initial Contribution
+#   David Parker 			- Initial Contribution
+#   Amit M Mangalvedkar		- Modified as per ReST v2
 # *****************************************************************************
 
 import argparse
@@ -45,14 +46,17 @@ def interruptHandler(signal, frame):
 
 def deviceList():
 	global client, cliArgs
-	deviceList = client.api.getDevices()
+	deviceList = client.api.getAllDevices()
 	if cliArgs.json:
 		print(deviceList)
 	else:
 		today = datetime.now(pytz.timezone('UTC'))
-		for device in deviceList:
+		print ("Today = ", today)
+		resultArray = deviceList['results']
+		for device in resultArray:
+			#print("Device = ",device['uuid'])
 			delta = today - iso8601.parse_date(device['registration']['date'])
-			print("%-40sRegistered %s days ago by %s" % (device['uuid'], delta.days, device['registration']['auth']['id']))
+			print("%-40sRegistered %s days ago by %s" % (device['deviceId'], delta.days, device['registration']['auth']['id']))
 
 
 def deviceGet(deviceType, deviceId):
@@ -63,7 +67,7 @@ def deviceGet(deviceType, deviceId):
 	else:
 		today = datetime.now(pytz.timezone('UTC'))
 		delta = today - iso8601.parse_date(device['registration']['date'])
-		print("%-40sRegistered %s days ago by %s" % (device['uuid'], delta.days, device['registration']['auth']['id']))
+		print("%-40sRegistered %s days ago by %s" % (device['deviceId'], delta.days, device['registration']['auth']['id']))
 
 
 def deviceAdd(deviceType, deviceId, metadata):
@@ -72,7 +76,7 @@ def deviceAdd(deviceType, deviceId, metadata):
 	if cliArgs.json:
 		print(device)
 	else:
-		print("%-40sGenerated Authentication Token = %s" % (device['uuid'], device['password']))
+		print("%-40sGenerated Authentication Token = %s" % (device['deviceId'], device['authToken']))
 
 def deviceRemove(deviceType, deviceId):
 	global client
@@ -93,7 +97,7 @@ def historian(args):
 		print(result)
 	else:
 		i = 0
-		for event in result:
+		for event in result['events']:
 			i = i + 1
 			if 'device_id' not in event:
 				event['device_id'] = args[1]
@@ -177,7 +181,7 @@ def processCommandInput(words):
 			metadata = None
 			if len(words) == 5:
 				metadata = json.loads(words[4])
-			deviceUpdate(words[2], words[3], metadata)
+			updateDevice(words[2], words[3], metadata)
 			return True
 	
 	cmdUsage()
