@@ -86,8 +86,6 @@ Documentation
 -------------
 
 -  `Device
-   Client <https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_devices.html>`__
+   Client <https://docs.internetofthings.ibmcloud.com/devices/libraries/python.html>`__
 -  `Application
-   Client <https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_apps.html>`__
--  `API
-   Client <https://docs.internetofthings.ibmcloud.com/libraries/python_cli_for_api.html>`__
+   Client <https://docs.internetofthings.ibmcloud.com/applications/libraries/python.html>`__
