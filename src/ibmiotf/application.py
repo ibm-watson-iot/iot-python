@@ -122,6 +122,8 @@ class Command:
 			self.command = result.group(3)
 			self.format = result.group(4)
 
+			self.payload = pahoMessage.payload
+
 			if self.format in messageEncoderModules:
 				message = messageEncoderModules[self.format].decode(pahoMessage)
 				self.timestamp = message.timestamp
