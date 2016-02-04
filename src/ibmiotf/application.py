@@ -384,7 +384,7 @@ class Client(ibmiotf.AbstractClient):
 					if on_publish is not None:
 						self._messagesLock.acquire()
 					
-					self.client.publish(topic, payload=payload, qos=qos, retain=False)
+					result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
 					if result[0] == paho.MQTT_ERR_SUCCESS:
 						if on_publish is not None:
 							self._onPublishCallbacks[result[1]] = on_publish
