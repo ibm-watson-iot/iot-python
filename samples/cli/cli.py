@@ -44,9 +44,9 @@ def interruptHandler(signal, frame):
 	sys.exit(0)
 
 
-def deviceList():
+def deviceList(limit = 25):
 	global client, cliArgs
-	deviceList = client.api.getAllDevices()
+	deviceList = client.api.getAllDevices(parameters = {"_limit": limit})
 	if cliArgs.json:
 		print(deviceList)
 	else:
@@ -125,7 +125,7 @@ options:
 def cmdUsage():
 	print("""
 commands:
-  device list
+  device list [MAX RESULTS, (25)]
   device add TYPE ID
   device get TYPE ID
   device remove TYPE ID
@@ -147,7 +147,16 @@ def processCommandInput(words):
 			return False
 			
 		elif words[1] == "list":
-			deviceList()
+			if len(words) == 2:
+				deviceList()
+			else:
+				try:
+					int(words[2])
+					deviceList(words[2])
+				except ValueError:
+					cmdUsage()
+					return False
+                
 			return True
 			
 		elif words[1] == "get":
