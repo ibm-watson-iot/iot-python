@@ -59,6 +59,9 @@ class AbstractClient:
 		self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
 		self.logger.setLevel(logging.INFO)
 		
+		# Remove any existing log handlers we may have picked up from getLogger()
+		self.logger.handlers = []
+		
 		if logHandlers:
 			if isinstance(logHandlers, list):
 				# Add all supplied log handlers
