@@ -44,20 +44,36 @@ def interruptHandler(signal, frame):
 	sys.exit(0)
 
 
-def deviceList(limit = 25):
+def deviceList(maxResults = 100):
+	today = datetime.now(pytz.timezone('UTC'))
+	_deviceListPage(maxResults, None, today, 0)
+
+def _deviceListPage(maxResults, bookmark, today, count=0):
 	global client, cliArgs
-	deviceList = client.api.getAllDevices(parameters = {"_limit": limit})
-	if cliArgs.json:
-		print(deviceList)
-	else:
-		today = datetime.now(pytz.timezone('UTC'))
-		print ("Today = ", today)
-		resultArray = deviceList['results']
-		for device in resultArray:
+	# Check whether we've already met the request
+	if count >= maxResults:
+		return
+	
+	# Only retrieve the number of results that we need to complete the request
+	# Maximum page size of 10 at a time (no need to be this low, however it's
+	# useful to demonstrate how paging works to set this to a low value)
+	limit = min(maxResults-count, 10)
+	
+	deviceList = client.api.getAllDevices(parameters = {"_limit": limit, "_bookmark": bookmark, "_sort": "typeId,deviceId"})
+	resultArray = deviceList['results']
+	for device in resultArray:
+		if cliArgs.json:
+			print(device)
+		else:
+			count += 1;
 			#print("Device = ",device['uuid'])
 			delta = today - iso8601.parse_date(device['registration']['date'])
-			print("%-40sRegistered %s days ago by %s" % (device['deviceId'], delta.days, device['registration']['auth']['id']))
-
+			print("%3s %-60sRegistered %s days ago by %s" % (count, device['typeId'] + ":" + device['deviceId'], delta.days, device['registration']['auth']['id']))
+	# Next page
+	if "bookmark" in deviceList:
+		bookmark = deviceList["bookmark"]
+		_deviceListPage(maxResults, bookmark, today, count)
+	
 
 def deviceGet(deviceType, deviceId):
 	global client, cliArgs
@@ -125,7 +141,7 @@ options:
 def cmdUsage():
 	print("""
 commands:
-  device list [MAX RESULTS, (25)]
+  device list [MAX RESULTS(100)]
   device add TYPE ID
   device get TYPE ID
   device remove TYPE ID
@@ -151,8 +167,8 @@ def processCommandInput(words):
 				deviceList()
 			else:
 				try:
-					int(words[2])
-					deviceList(words[2])
+					maxResults = int(words[2])
+					deviceList(maxResults)
 				except ValueError:
 					cmdUsage()
 					return False
