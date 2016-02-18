@@ -251,7 +251,21 @@ class DeviceInfo(object):
 	
 	def __str__(self):
 		return json.dumps(self.__dict__, sort_keys=True)
+
 	
+class DeviceFirmware(object):
+	def __init__(self):
+		self.version = None
+		self.name = None
+		self.url = None
+		self.verifier = None
+		self.state = None
+		self.updateStatus = None
+		self.updatedDateTime = None
+
+	def __str__(self):
+		return json.dumps(self.__dict__, sort_keys=True)
+
 	
 class ManagedClient(Client):
 

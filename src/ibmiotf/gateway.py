@@ -197,7 +197,7 @@ class Client(AbstractClient):
 		else:
 			self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 			topic = 'iot-2/type/' + gatewayType + '/id/' + gatewayId +'/evt/'+event+'/fmt/' + msgFormat
-			
+
 			if msgFormat in self._messageEncoderModules:
 				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 				
@@ -359,7 +359,7 @@ class Client(AbstractClient):
 
 
 
-class GatewayInfo(object):
+class DeviceInfo(object):
 	def __init__(self):
 		self.serialNumber = None
 		self.manufacturer = None
@@ -373,10 +373,11 @@ class GatewayInfo(object):
 	def __str__(self):
 		return json.dumps(self.__dict__, sort_keys=True)
 	
-'''	
-class ManagedClient(Client):
+	
+class ManagedGateway(Client):
 
 	# Publish MQTT topics
+	'''
 	MANAGE_TOPIC = 'iotdevice-1/mgmt/manage'
 	UNMANAGE_TOPIC = 'iotdevice-1/mgmt/unmanage'
 	UPDATE_LOCATION_TOPIC = 'iotdevice-1/device/update/location'
@@ -387,10 +388,22 @@ class ManagedClient(Client):
 	# Subscribe MQTT topics
 	DM_RESPONSE_TOPIC = 'iotdm-1/response'
 	DM_OBSERVE_TOPIC = 'iotdm-1/observe'
+	'''
+
+	MANAGE_TOPIC_TEMPLATE = 'iotdevice-1/type/%s/id/%s/mgmt/manage'
+	UNMANAGE_TOPIC_TEMPLATE = 'iotdevice-1/type/%s/id/%s/mgmt/unmanage'
+	UPDATE_LOCATION_TOPIC_TEMPLATE = 'iotdevice-1/type/%s/id/%s/device/update/location'
+	ADD_ERROR_CODE_TOPIC_TEMPLATE = 'iotdevice-1/type/%s/id/%s/add/diag/errorCodes'
+	CLEAR_ERROR_CODES_TOPIC_TEMPLATE = 'iotdevice-1/type/%s/id/%s/clear/diag/errorCodes'
+	NOTIFY_TOPIC_TEMPLATE = 'iotdevice-1/type/%s/id/%s/notify'
 	
-	def __init__(self, options, logHandlers=None, gatewayInfo=None):
+	# Subscribe MQTT topics
+	DM_RESPONSE_TOPIC_TEMPLATE = 'iotdm-1/type/%s/id/%s/response'
+	DM_OBSERVE_TOPIC_TEMPLATE = 'iotdm-1/type/%s/id/%s/observe'
+	
+	def __init__(self, options, logHandlers=None, deviceInfo=None):
 		if options['org'] == "quickstart":
-			raise Exception("Unable to create ManagedClient instance.  QuickStart devices do not support device management")
+			raise Exception("Unable to create ManagedGateway instance.  QuickStart devices do not support device management")
 
 		Client.__init__(self, options, logHandlers)
 		# TODO: Raise fatal exception if tries to create managed device client for QuickStart
@@ -411,53 +424,56 @@ class ManagedClient(Client):
 
 		# Initialize local device data model
 		self.metadata = {}
-		if gatewayInfo is not None:
-			self._gatewayInfo = gatewayInfo
+		if deviceInfo is not None:
+			self._deviceInfo = deviceInfo
 		else:
-			self._gatewayInfo = GatewayInfo()
+			self._deviceInfo = DeviceInfo()
 		
 		self._location = None
 		self._errorCode = None
 	
-	
+		self._gatewayType = self._options['type']
+		self._gatewayId = self._options['id']
+
+
 	def setSerialNumber(self, serialNumber):
-		self._gatewayInfo.serialNumber = serialNumber
-		return self.notifyFieldChange("gatewayInfo.serialNumber", serialNumber)
+		self._deviceInfo.serialNumber = serialNumber
+		return self.notifyFieldChange("deviceInfo.serialNumber", serialNumber)
 
 	def setManufacturer(self, manufacturer):
-		self._gatewayInfo.serialNumber = manufacturer
-		return self.notifyFieldChange("gatewayInfo.manufacturer", manufacturer)
+		self._deviceInfo.serialNumber = manufacturer
+		return self.notifyFieldChange("deviceInfo.manufacturer", manufacturer)
 	
 	def setModel(self, model):
-		self._gatewayInfo.serialNumber = model
-		return self.notifyFieldChange("gatewayInfo.model", model)
+		self._deviceInfo.serialNumber = model
+		return self.notifyFieldChange("deviceInfo.model", model)
 
 	def setdeviceClass(self, deviceClass):
-		self._gatewayInfo.deviceClass = deviceClass
-		return self.notifyFieldChange("gatewayInfo.deviceClass", deviceClass)
+		self._deviceInfo.deviceClass = deviceClass
+		return self.notifyFieldChange("deviceInfo.deviceClass", deviceClass)
 
 	def setDescription(self, description):
-		self._gatewayInfo.description = description
-		return self.notifyFieldChange("gatewayInfo.description", description)
+		self._deviceInfo.description = description
+		return self.notifyFieldChange("deviceInfo.description", description)
 
 	def setFwVersion(self, fwVersion):
-		self._gatewayInfo.fwVersion = fwVersion
-		return self.notifyFieldChange("gatewayInfo.fwVersion", fwVersion)
+		self._deviceInfo.fwVersion = fwVersion
+		return self.notifyFieldChange("deviceInfo.fwVersion", fwVersion)
 
 	def setHwVersion(self, hwVersion):
-		self._gatewayInfo.hwVersion = hwVersion
-		return self.notifyFieldChange("gatewayInfo.hwVersion", hwVersion)
+		self._deviceInfo.hwVersion = hwVersion
+		return self.notifyFieldChange("deviceInfo.hwVersion", hwVersion)
 
 	def setDescriptiveLocation(self, descriptiveLocation):
-		self._gatewayInfo.descriptiveLocation = descriptiveLocation
-		return self.notifyFieldChange("gatewayInfo.descriptiveLocation", descriptiveLocation)
+		self._deviceInfo.descriptiveLocation = descriptiveLocation
+		return self.notifyFieldChange("deviceInfo.descriptiveLocation", descriptiveLocation)
 	
 
 	def notifyFieldChange(self, field, value):
 		with self._deviceMgmtObservationsLock:
 			if field in self._deviceMgmtObservations:
 				if not self.readyForDeviceMgmt.wait():
-					self.logger.warning("Unable to notify service of field change because device is not ready for device management")
+					self.logger.warning("Unable to notify service of field change because gateway is not ready for gateway management")
 					return threading.Event().set()
 		
 				reqId = str(uuid.uuid4())
@@ -469,10 +485,12 @@ class ManagedClient(Client):
 					"reqId": reqId
 				}
 				
+				notify_topic = ManagedGateway.NOTIFY_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)				
 				resolvedEvent = threading.Event()
-				self.client.publish(ManagedClient.NOTIFY_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+				
+				self.client.publish(notify_topic, payload=json.dumps(message), qos=1, retain=False)
 				with self._deviceMgmtRequestsPendingLock:
-					self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.NOTIFY_TOPIC, "message": message, "event": resolvedEvent}
+					self._deviceMgmtRequestsPending[reqId] = {"topic": notify_topic, "message": message, "event": resolvedEvent}
 				
 				return resolvedEvent
 			else:
@@ -483,7 +501,9 @@ class ManagedClient(Client):
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
 			if self._options['org'] != "quickstart":
-				self.client.subscribe( [(ManagedClient.DM_RESPONSE_TOPIC, 1), (ManagedClient.DM_OBSERVE_TOPIC, 1), (Client.COMMAND_TOPIC, 1)] )
+				dm_response_topic = ManagedGateway.DM_RESPONSE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+				dm_observe_topic = ManagedGateway.DM_OBSERVE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+				self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (Client.COMMAND_TOPIC, 1)] )
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
@@ -513,16 +533,18 @@ class ManagedClient(Client):
 					"deviceActions": supportDeviceActions,
 					"firmwareActions": supportFirmwareActions
 				},
-				"gatewayInfo" : self._gatewayInfo.__dict__,
+				"deviceInfo" : self._deviceInfo.__dict__,
 				"metadata" : self.metadata
 			},
 			'reqId': reqId
 		}
-		
+
+		manage_topic = ManagedGateway.MANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)		
 		resolvedEvent = threading.Event()
-		self.client.publish(ManagedClient.MANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+		
+		self.client.publish(manage_topic, payload=json.dumps(message), qos=1, retain=False)
 		with self._deviceMgmtRequestsPendingLock:
-			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.MANAGE_TOPIC, "message": message, "event": resolvedEvent} 
+			self._deviceMgmtRequestsPending[reqId] = {"topic": manage_topic, "message": message, "event": resolvedEvent} 
 		
 		# Register the future call back to IoT Foundation 2 minutes before the device lifetime expiry
 		if lifetime != 0:
@@ -541,10 +563,12 @@ class ManagedClient(Client):
 			'reqId': reqId
 		}
 		
+		unmanage_topic = ManagedGateway.UNMANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
 		resolvedEvent = threading.Event()
-		self.client.publish(ManagedClient.UNMANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+				
+		self.client.publish(unmanage_topic, payload=json.dumps(message), qos=1, retain=False)
 		with self._deviceMgmtRequestsPendingLock:
-			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.UNMANAGE_TOPIC, "message": message, "event": resolvedEvent} 
+			self._deviceMgmtRequestsPending[reqId] = {"topic": unmanage_topic, "message": message, "event": resolvedEvent} 
 		
 		return resolvedEvent
 	
@@ -574,11 +598,13 @@ class ManagedClient(Client):
 			"d": self._location,
 			"reqId": reqId
 		}
-		
+
+		update_location_topic = ManagedGateway.UPDATE_LOCATION_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)		
 		resolvedEvent = threading.Event()
-		self.client.publish(ManagedClient.UPDATE_LOCATION_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+
+		self.client.publish(update_location_topic, payload=json.dumps(message), qos=1, retain=False)
 		with self._deviceMgmtRequestsPendingLock:
-			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.UPDATE_LOCATION_TOPIC, "message": message, "event": resolvedEvent}
+			self._deviceMgmtRequestsPending[reqId] = {"topic": update_location_topic, "message": message, "event": resolvedEvent}
 		
 		return resolvedEvent
 	
@@ -598,11 +624,13 @@ class ManagedClient(Client):
 			"d": { "errorCode": errorCode },
 			"reqId": reqId
 		}
-		
+
+		add_error_code_topic = ManagedGateway.ADD_ERROR_CODE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)		
 		resolvedEvent = threading.Event()
-		self.client.publish(ManagedClient.ADD_ERROR_CODE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+
+		self.client.publish(add_error_code_topic, payload=json.dumps(message), qos=1, retain=False)
 		with self._deviceMgmtRequestsPendingLock:
-			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.ADD_ERROR_CODE_TOPIC, "message": message, "event": resolvedEvent} 
+			self._deviceMgmtRequestsPending[reqId] = {"topic": add_error_code_topic, "message": message, "event": resolvedEvent} 
 		
 		return resolvedEvent
 
@@ -618,10 +646,12 @@ class ManagedClient(Client):
 			"reqId": reqId
 		}
 		
+		clear_error_codes_topic = ManagedGateway.CLEAR_ERROR_CODES_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)		
 		resolvedEvent = threading.Event()
-		self.client.publish(ManagedClient.CLEAR_ERROR_CODES_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+
+		self.client.publish(clear_error_codes_topic, payload=json.dumps(message), qos=1, retain=False)
 		with self._deviceMgmtRequestsPendingLock:
-			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.CLEAR_ERROR_CODES_TOPIC, "message": message, "event": resolvedEvent} 
+			self._deviceMgmtRequestsPending[reqId] = {"topic": clear_error_codes_topic, "message": message, "event": resolvedEvent} 
 		
 		return resolvedEvent
 	
@@ -650,34 +680,40 @@ class ManagedClient(Client):
 			
 			if request is None:
 				return False
-				
-			if request['topic'] == ManagedClient.MANAGE_TOPIC:
+			
+			manage_topic = ManagedGateway.MANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			unmanage_topic = ManagedGateway.UNMANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			update_location_topic = ManagedGateway.UPDATE_LOCATION_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			add_error_code_topic = ManagedGateway.ADD_ERROR_CODE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			clear_error_codes_topic = ManagedGateway.CLEAR_ERROR_CODES_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+						
+			if request['topic'] == manage_topic:
 				if rc == 200:
 					self.logger.info("[%s] Manage action completed: %s" % (rc, json.dumps(request['message'])))
 					self.readyForDeviceMgmt.set()
 				else:
 					self.logger.critical("[%s] Manage action failed: %s" % (rc, json.dumps(request['message'])))
-					
-			elif request['topic'] == ManagedClient.UNMANAGE_TOPIC:
+
+			elif request['topic'] == unmanage_topic:
 				if rc == 200:
 					self.logger.info("[%s] Unmanage action completed: %s" % (rc, json.dumps(request['message'])))
 					self.readyForDeviceMgmt.clear()
 				else:
 					self.logger.critical("[%s] Unmanage action failed: %s" % (rc, json.dumps(request['message'])))
 			
-			elif request['topic'] == ManagedClient.UPDATE_LOCATION_TOPIC:
+			elif request['topic'] == update_location_topic:
 				if rc == 200:
 					self.logger.info("[%s] Location update action completed: %s" % (rc, json.dumps(request['message'])))
 				else:
 					self.logger.critical("[%s] Location update action failed: %s" % (rc, json.dumps(request['message'])))
 
-			elif request['topic'] == ManagedClient.ADD_ERROR_CODE_TOPIC:
+			elif request['topic'] == add_error_code_topic:
 				if rc == 200:
 					self.logger.info("[%s] Add error code action completed: %s" % (rc, json.dumps(request['message'])))
 				else:
 					self.logger.critical("[%s] Add error code action failed: %s" % (rc, json.dumps(request['message'])))
 
-			elif request['topic'] == ManagedClient.CLEAR_ERROR_CODES_TOPIC:
+			elif request['topic'] == clear_error_codes_topic:
 				if rc == 200:
 					self.logger.info("[%s] Clear error codes action completed: %s" % (rc, json.dumps(request['message'])))
 				else:
@@ -690,7 +726,7 @@ class ManagedClient(Client):
 			request["event"].set()
 			return True
 
-'''	
+	
 
 def ParseConfigFile(configFilePath):
 	parms = configparser.ConfigParser()
