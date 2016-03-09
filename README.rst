@@ -45,6 +45,7 @@ wish to update your device or application code for the 0.2 release simply instal
 
 - The library now uses ``typeId``, ``deviceId``, and ``eventId`` consistently
 - Changes to API support:
+
   - Mixed use of ``queryParameters`` & ``parameters`` consolidated to always use ``parameters``
   - ``retrieveDevices()`` & ``getAllDevices()`` removed.  Single ``getDevices()`` method remains
   - ``addMultipleDevices`` renamed to ``registerDevices()`` for consistency with ``registerDevice()`` method
