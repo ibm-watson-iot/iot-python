@@ -37,50 +37,21 @@ Uninstalling the module is simple.
 
     [root@localhost ~]# pip uninstall ibmiotf
 
-Migrating from v0.0.x to v0.1.x
+Migrating from v0.1.x to v0.2.x
 -------------------------------
 
-There is a significant change between the 0.0.x releases and 0.1.x that
-will require changes to client code. Now that the library properly
-supports multiple message formats you will want to update calls to
-deviceClient.publishEvent, appClient.publishEvent and
-appClient.publishCommand to also supply the desired message format.
+There is a significant change between the 0.1.x releases and 0.2.x that may require changes to client code.  Version 0.1 of the lirbary will remain available, if you do not 
+wish to update your device or application code for the 0.2 release simply install the library using ``pip install ibmiotf==0.1.8``
 
-Sample code v0.0.9:
-
-.. code:: python
-
-    deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-    deviceCli = ibmiotf.device.Client(deviceOptions)
-    myData = { 'hello' : 'world', 'x' : x}
-    deviceCli.publishEvent(event="greeting", data=myData)
-
-Sample code v0.1.1:
-
-.. code:: python
-
-    deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-    deviceCli = ibmiotf.device.Client(deviceOptions)
-    myData = { 'hello' : 'world', 'x' : x}
-    deviceCli.publishEvent(event="greeting", msgFormat="json", data=myData)
-
-Also, as part of this change, events and commands sent as format "json"
-will not be assumed to meet the `IOTF JSON Payload
-Specification <https://docs.internetofthings.ibmcloud.com/messaging/payload.html#iotf-json-payload-specification>`__.
-The default client behaviour will be to parse commands and events with
-format "json" as a generic JSON object only. Only messages sent as
-format "json-iotf" will default to being decoded in this specification.
-This can be easily changed with the following code.
-
-.. code:: python
-
-    import ibmiotf.device
-    from ibmiotf.codecs import jsonIotfCodec
-
-    deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-    deviceCli = ibmiotf.device.Client(deviceOptions)
-    # Revert to v0.0.x parsing for json messages -- assume all JSON events and commands use the IOTF JSON payload specification
-    deviceCli.setMessageEncoderModule('json', jsonIotfCodec) 
+- The library now uses ``typeId``, ``deviceId``, and ``eventId`` consistently
+- Changes to API support:
+  - Mixed use of ``queryParameters`` & ``parameters`` consolidated to always use ``parameters``
+  - ``retrieveDevices()`` & ``getAllDevices()`` removed.  Single ``getDevices()`` method remains
+  - ``addMultipleDevices`` renamed to ``registerDevices()`` for consistency with ``registerDevice()`` method
+  - ``getAllDeviceTypes()`` renamed to ``getDeviceTypes()`` for consistency with other getResourceTypePlural methods
+  - ``IoTFCReSTException`` now ``APIException``
+  - ``getDeviceConnectionLogs()`` renamed ``getConnectionLogs`` & restructured to support parameters object instead of ``deviceTypeId`` and ``deviceId``
+  
 
 Documentation
 -------------
