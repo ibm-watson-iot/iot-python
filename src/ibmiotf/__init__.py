@@ -29,7 +29,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.1.9"
+__version__ = "0.2.0"
 
 class Message:
 	def __init__(self, data, timestamp=None):
@@ -123,6 +123,9 @@ class AbstractClient:
 		self._onPublishCallbacks = {}
 	
 	
+	def getMessageEncoderModule(self, messageFormat):
+		return self._messageEncoderModules[messageFormat]
+
 	def setMessageEncoderModule(self, messageFormat, module):
 		self._messageEncoderModules[messageFormat] = module
 	
@@ -258,12 +261,12 @@ This exception has been added in V2 and provides the following
 2) The error thrown
 3) The JSON message returned 
 '''
-class IoTFCReSTException(Exception):
+class APIException(Exception):
 	def __init__(self, httpCode, message, response):
 		self.httpCode = httpCode
 		self.message = message
 		self.response = response
 		
 	def __str__(self):
-		return self.message
+		return "[%s] %s" % (self.httpCode, self.message)
 	

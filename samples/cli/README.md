@@ -20,51 +20,101 @@ A basic command line interface for interacting with your Watson IoT organization
  12 smartthings:f45909dc-8747-4781-a26b-51ab1b234ae1            Registered 3 days ago by a-hld45t-nreszl3hzx
 ```
 
+## Interactive Mode:
+
+The cli supports an interactive mode, simply specify the ``-i`` command line parameter.
+
+```
+[me@localhost ~]$ python cli.py -c app.cfg -i 
+a-hld45t-nreszl3hzx@hld45t > help
+
+commands:
+  type list [MAX RESULTS(100)]
+  device list [MAX RESULTS(100)]
+  device add TYPE_ID DEVICE_ID
+  device get TYPE_ID DEVICE_ID
+  device remove TYPE_ID DEVICE_ID
+  device update TYPE_ID DEVICE_ID METADATA
+  lastevent TYPE_ID DEVICE_ID [EVENT_ID]
+  historian [TYPE_ID [DEVICE_ID]]
+  usage START_DATE END_DATE
+```
+
+
 ## Supported Commands:
+
+### type list MAX_RESULTS
+Prints a list of all (up to ``MAX_RESULTS``) device types
+
+```
+[me@localhost ~]$ python cli.py -c app.cfg type list 12
+```
 
 ### device list MAX_RESULTS
 Prints a list of all (up to ``MAX_RESULTS``) registered devices
 
 ```
-[me@localhost ~]$ python cli.py -c app-production.cfg device list 12
+[me@localhost ~]$ python cli.py -c app.cfg device list 12
 ```
 
 
-### device add TYPE ID
+### device add TYPE_ID DEVICE_ID
 Registers a new device with an auto-generated authentication token
 
 ```
-[me@localhost ~]$ python cli.py -c app-production.cfg device add myType myId
+[me@localhost ~]$ python cli.py -c app.cfg device add myType myId
 ```
 
 
-### device get TYPE ID
+### device get TYPE_ID DEVICE_ID
 Prints the details of a specific registered device
 
 ```
-[me@localhost ~]$ python cli.py -c app-production.cfg device get myType myId
+[me@localhost ~]$ python cli.py -c app.cfg device get myType myId
 ```
 
 
-### device remove TYPE ID
+### device remove TYPE_ID DEVICE_ID
 Revoke the registration of the specified device 
 
 ```
-[me@localhost ~]$ python cli.py -c app-production.cfg device remove myType myId
+[me@localhost ~]$ python cli.py -c app.cfg device remove myType myId
 ```
 
 
-### device update TYPE ID METADATA
+### device update TYPE_ID DEVICE_ID METADATA
 Update the device registration record with the provided metadata
 
 ```
-[me@localhost ~]$ python cli.py -c app-production.cfg device update myType myId '{"colour": "red"}'
+[me@localhost ~]$ python cli.py -c app.cfg device update myType myId '{"colour": "red"}'
 ```
 
 
-### historian [TYPE [ID]]
+### lastevent TYPE_ID DEVICE_ID [EVENT_ID]
+Retrieve the last event from a specific device.  If ``EVENT_ID`` is provided then a single event is returned, otherwise the last event for all events emitted by the device is returned.
+
+```
+[me@localhost ~]$ python cli.py -c app.cfg lastevent myType myId
+battery              {"battery": 0.77, "timestamp": "2016-02-28T08:38:49.160Z"}
+temperature          {"timestamp": "2016-02-28T13:50:04.594Z", "temperature": 13}
+```
+
+
+### usage START_DATE END_DATE
+Return usage/metering information over a period of time.  Dates should be provided in the format ``YYYY-MM-DD``, ``YYYY-MM``, or ``YYYY``.
+
+```
+[me@localhost ~]$ python cli.py -c app.cfg usage 2016-01 2016-01
+Average daily active devices = 2.00
+Average daily data usage     = 2801 kb
+Total data usage             = 84 mb
+Average daily storage usage  = 29.20 gb
+```
+
+
+### historian [TYPE_ID [DEVICE_ID]]
 Retrieve historical events.  If no options are supplied it will return the most recent 100 events across all devices.  If type is suppied the result set will be restricted to only devices of that type.  If both type and id are set then only events from a single device will be returned
 
 ```
-[me@localhost ~]$ python cli.py -c app-production.cfg historian
+[me@localhost ~]$ python cli.py -c app.cfg historian
 ```

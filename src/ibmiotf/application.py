@@ -202,7 +202,7 @@ class Client(ibmiotf.AbstractClient):
 		
 		# Create an api client if not connected in QuickStart mode
 		if self._options['org'] != "quickstart":
-			self.api = ibmiotf.api.ApiClient(options)
+			self.api = ibmiotf.api.ApiClient(options, self.logger)
 			
 			
 		

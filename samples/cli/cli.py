@@ -44,6 +44,35 @@ def interruptHandler(signal, frame):
 	sys.exit(0)
 
 
+def typeList(maxResults = 100):
+	_typeListPage(maxResults, None, 0)
+
+def _typeListPage(maxResults, bookmark, count=0):
+	global client, cliArgs
+	# Check whether we've already met the request
+	if count >= maxResults:
+		return
+	
+	# Only retrieve the number of results that we need to complete the request
+	# Maximum page size of 10 at a time (no need to be this low, however it's
+	# useful to demonstrate how paging works to set this to a low value)
+	limit = min(maxResults-count, 10)
+	
+	typeList = client.api.getDeviceTypes(parameters = {"_limit": limit, "_bookmark": bookmark, "_sort": "id"})
+	resultArray = typeList['results']
+	for deviceType in resultArray:
+		if cliArgs.json:
+			print(deviceType)
+		else:
+			count += 1;
+			if 'description' not in deviceType:
+				deviceType['description'] = None
+			print("%3s %-24s %-32s" % (count, deviceType['id'], deviceType['description']))
+	# Next page
+	if "bookmark" in typeList and len(resultArray) > 0:
+		bookmark = typeList["bookmark"]
+		_typeListPage(maxResults, bookmark, count)
+
 def deviceList(maxResults = 100):
 	today = datetime.now(pytz.timezone('UTC'))
 	_deviceListPage(maxResults, None, today, 0)
@@ -59,7 +88,7 @@ def _deviceListPage(maxResults, bookmark, today, count=0):
 	# useful to demonstrate how paging works to set this to a low value)
 	limit = min(maxResults-count, 10)
 	
-	deviceList = client.api.getAllDevices(parameters = {"_limit": limit, "_bookmark": bookmark, "_sort": "typeId,deviceId"})
+	deviceList = client.api.getDevices(parameters = {"_limit": limit, "_bookmark": bookmark, "_sort": "typeId,deviceId"})
 	resultArray = deviceList['results']
 	for device in resultArray:
 		if cliArgs.json:
@@ -75,9 +104,9 @@ def _deviceListPage(maxResults, bookmark, today, count=0):
 		_deviceListPage(maxResults, bookmark, today, count)
 	
 
-def deviceGet(deviceType, deviceId):
+def deviceGet(typeId, deviceId):
 	global client, cliArgs
-	device = client.api.getDevice(deviceType, deviceId)
+	device = client.api.getDevice(typeId, deviceId)
 	if cliArgs.json:
 		print(device)
 	else:
@@ -86,27 +115,72 @@ def deviceGet(deviceType, deviceId):
 		print("%-40sRegistered %s days ago by %s" % (device['deviceId'], delta.days, device['registration']['auth']['id']))
 
 
-def deviceAdd(deviceType, deviceId, metadata):
+def deviceAdd(typeId, deviceId, metadata):
 	global client, cliArgs
-	device = client.api.registerDevice(deviceType, deviceId, metadata)
+	device = client.api.registerDevice(typeId, deviceId, metadata)
 	if cliArgs.json:
 		print(device)
 	else:
 		print("%-40sGenerated Authentication Token = %s" % (device['deviceId'], device['authToken']))
 
-def deviceRemove(deviceType, deviceId):
+def deviceRemove(typeId, deviceId):
 	global client
 	try:
-		client.api.deleteDevice(deviceType, deviceId)
+		client.api.deleteDevice(typeId, deviceId)
 	except Exception as e:
 		print(str(e))
+
+def connectionLogsForDevice(args):
+	global client
+	result = client.api.getConnectionLogs({"typeId": args[0], "deviceId": args[1]})
+	
+	if cliArgs.json:
+		print(result)
+	else:
+		for log in result:
+			print("%-30s %s" % (log["timestamp"], log["message"]))
+
+def lastEvent(args):
+	global client
+	result = None
+	if len(args) == 2:
+		result = client.api.getLastEvent(args[0], args[1])
+	elif len(args) == 3:
+		result = client.api.getLastEvent(args[0], args[1], args[2])
+	
+	if cliArgs.json:
+		print(result)
+	else:
+		for event in result:
+			if "data" in event:
+				# The API will attempt to parse the payload back into a python dictionary, if it 
+				# was able to then the content of the payload will be available as a python 
+				# dictionary as well ... so let's print that out instead of the base64 encoded payload
+				print("%-20s %s" % (event["eventId"], json.dumps(event["data"])))
+			else:
+				# The library wasn't able to parse the payload itself, it's up to your application to decide
+				# how to decode the payload
+				print("%-20s %s // %s" % (event["eventId"], event["format"], event["payload"]))
+
+def metering(args):
+	global client
+	period = {'start' : args[0], 'end' : args[1] }
+	
+	adc = client.api.getActiveDevices(options = period)
+	traffic = client.api.getDataTraffic(options = period)
+	storage = client.api.getHistoricalDataUsage(options = period)
+	
+	print("Average daily active devices = %.2f" % (adc["average"]))
+	print("Average daily data usage     = %s kb" % (traffic["average"]/1024))
+	print("Total data usage             = %s mb" % (traffic["total"]/1024/1024))
+	print("Average daily storage usage  = %.2f gb" % (storage["average"]/1024))
 	
 def historian(args):
 	global client, cliArgs
 	if len(args) == 2:
-		result = client.api.getHistoricalEvents(deviceType=args[0], deviceId=args[1])
+		result = client.api.getHistoricalEvents(typeId=args[0], deviceId=args[1])
 	elif len(args) == 1:
-		result = client.api.getHistoricalEvents(deviceType=args[0])
+		result = client.api.getHistoricalEvents(typeId=args[0])
 	else:
 		result = client.api.getHistoricalEvents()
 	if cliArgs.json:
@@ -141,27 +215,75 @@ options:
 def cmdUsage():
 	print("""
 commands:
+  type list [MAX RESULTS(100)]
   device list [MAX RESULTS(100)]
-  device add TYPE ID
-  device get TYPE ID
-  device remove TYPE ID
-  device update TYPE ID METADATA
-  historian [TYPE [ID]]""")
+  device add TYPE_ID DEVICE_ID
+  device get TYPE_ID DEVICE_ID
+  device remove TYPE_ID DEVICE_ID
+  device update TYPE_ID DEVICE_ID METADATA
+  device log connection TYPE_ID DEVICE_ID
+  lastevent TYPE_ID DEVICE_ID [EVENT_ID]
+  historian [TYPE_ID [DEVICE_ID]]
+  usage START_DATE END_DATE""")
 
 def processCommandInput(words):
 	if len(words) < 1:
 		cmdUsage()
 		return False
 	
+	elif words[0] == "usage":
+		if len(words) < 3:
+			cmdUsage()
+			return False
+		metering(words[1:])
+		return True
+	
 	elif words[0] == "historian":
 		historian(words[1:])
 		return True
+
+	elif words[0] == "lastevent":
+		if len(words) < 3:
+			cmdUsage()
+			return False
+		lastEvent(words[1:])
+		return True
 		
+	elif words[0] == "type":
+		if len(words) < 2:
+			cmdUsage()
+			return False
+			
+		elif words[1] == "list":
+			if len(words) == 2:
+				typeList()
+			else:
+				try:
+					maxResults = int(words[2])
+					typeList(maxResults)
+				except ValueError:
+					cmdUsage()
+					return False
+                
+			return True
+	
 	elif words[0] == "device":
 		if len(words) < 2:
 			cmdUsage()
 			return False
 			
+		elif words[1] == "log":
+			if len(words) < 5:
+				cmdUsage()
+				return False
+			else:
+				if words[2] == "connection" or words[2] == "connect":
+					connectionLogsForDevice(words[3:])
+					return True
+				else:
+					cmdUsage()
+					return False				
+					
 		elif words[1] == "list":
 			if len(words) == 2:
 				deviceList()
@@ -256,7 +378,7 @@ if __name__ == "__main__":
 		
 		while True:
 			try:
-				command = input("%s@%s >" % (options['auth-key'], options['org']))
+				command = raw_input("%s@%s > " % (options['auth-key'], options['org']))
 				words = command.split()
 				processCommandInput(words)
 
