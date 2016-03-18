@@ -311,6 +311,8 @@ class ManagedClient(Client):
 		
 		self._location = None
 		self._errorCode = None
+		
+		self.manageTimer = None
 	
 	
 	def setSerialNumber(self, serialNumber):
@@ -428,7 +430,10 @@ class ManagedClient(Client):
 		
 		# Register the future call back to IoT Foundation 2 minutes before the device lifetime expiry
 		if lifetime != 0:
-			threading.Timer(lifetime-120, self.manage, [lifetime, supportDeviceActions, supportFirmwareActions]).start()
+			if self.manageTimer is not None:
+				self._logger.debug("Cancelling existing manage timer")
+				self.manageTimer.cancel()
+			self.manageTimer = threading.Timer(lifetime-120, self.manage, [lifetime, supportDeviceActions, supportFirmwareActions]).start()
 		
 		return resolvedEvent
 	
