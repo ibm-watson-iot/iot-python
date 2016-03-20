@@ -5,11 +5,9 @@ Python module for interacting with the `IBM Internet of Things
 Foundation <https://internetofthings.ibmcloud.com>`__.
 
 -  `Python 3.5 <https://www.python.org/downloads/release/python-350/>`__
--  `Python 3.4 <https://www.python.org/downloads/release/python-343/>`__
 -  `Python 2.7 <https://www.python.org/downloads/release/python-2710/>`__
 
-Note: Support for MQTT over SSL requires at least Python v2.7.9 or v3.4,
-and openssl v1.0.1
+Note: Support for MQTT over SSL requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
 
 Dependencies
 ------------
@@ -52,12 +50,12 @@ wish to update your device or application code for the 0.2 release simply instal
   - ``getAllDeviceTypes()`` renamed to ``getDeviceTypes()`` for consistency with other getResourceTypePlural methods
   - ``IoTFCReSTException`` now ``APIException``
   - ``getDeviceConnectionLogs()`` renamed ``getConnectionLogs`` & restructured to support parameters object instead of ``deviceTypeId`` and ``deviceId``
+
+- As of v0.2.1 the application client only requires two properties to be passed in ``options``: ``auth-token`` and ``auth-key``, ``orgId`` and ``auth-method`` are now determined from the API key provided. 
   
 
 Documentation
 -------------
 
--  `Device
-   Client <https://docs.internetofthings.ibmcloud.com/devices/libraries/python.html>`__
--  `Application
-   Client <https://docs.internetofthings.ibmcloud.com/applications/libraries/python.html>`__
+-  `Device Client <https://docs.internetofthings.ibmcloud.com/devices/libraries/python.html>`__
+-  `Application Client <https://docs.internetofthings.ibmcloud.com/applications/libraries/python.html>`__
