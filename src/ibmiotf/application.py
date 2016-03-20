@@ -14,6 +14,7 @@ import os
 import re
 import json
 import iso8601
+import uuid
 from datetime import datetime
 
 from ibmiotf import ConnectionException, MissingMessageEncoderException
@@ -142,27 +143,22 @@ class Client(ibmiotf.AbstractClient):
 		username = None
 		password = None
 
-		if 'org' not in self._options or self._options['org'] == None:
-			raise ibmiotf.ConfigurationException("Missing required property: org")
-		if 'id' not in self._options or self._options['id'] == None: 
-			raise ibmiotf.ConfigurationException("Missing required property: type")
-
-		# Auth method is optional.  e.g. in QuickStart there is no authentication
-		if 'auth-method' not in self._options:
-			self._options['auth-method'] = None
+		if 'auth-key' not in self._options or self._options['auth-key'] is None:
+			# Configure for Quickstart
+			self._options['org'] = "quickstart"
+		else:
+			# Get the orgId from the apikey
+			self._options['org'] = self._options['auth-key'][2:8]
 			
-		if (self._options['auth-method'] == "apikey"):
-			# Check for required API Key and authentication token
-			if 'auth-key' not in self._options or self._options['auth-key'] == None: 
-				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
 			if 'auth-token' not in self._options or self._options['auth-token'] == None: 
 				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
 			
 			username = self._options['auth-key']
 			password = self._options['auth-token']
 			
-		elif self._options['auth-method'] is not None:
-			raise ibmiotf.UnsupportedAuthenticationMethod(options['auth-method'])
+		# Generate an application ID if one is not supplied
+		if 'id' not in self._options or self._options['id'] == None: 
+			self._options['id'] = str(uuid.uuid4())
 
 		clientIdPrefix = "a" if ('type' not in self._options or self._options['type'] == 'standalone') else "A" 
 
@@ -202,9 +198,11 @@ class Client(ibmiotf.AbstractClient):
 		
 		# Create an api client if not connected in QuickStart mode
 		if self._options['org'] != "quickstart":
-			self.api = ibmiotf.api.ApiClient(options, self.logger)
-			
-			
+			self.api = ibmiotf.api.ApiClient(self._options, self.logger)
+		
+		
+		self.orgId = self._options['org']
+		self.appId = self._options['id']
 		
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
@@ -487,29 +485,26 @@ def ParseConfigFile(configFilePath):
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
-				organization = parms.get(sectionHeader, "org", fallback=None)
 				appId = parms.get(sectionHeader, "id", fallback=None)
 				appType = parms.get(sectionHeader, "type", fallback="standalone")
 				
-				authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
 				authKey = parms.get(sectionHeader, "auth-key", fallback=None)
 				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
-				organization = parms.get(sectionHeader, "org", None)
+
 				appId = parms.get(sectionHeader, "id", None)
 				appType = parms.get(sectionHeader, "type", "standalone")
 				
-				authMethod = parms.get(sectionHeader, "auth-method", None)
 				authKey = parms.get(sectionHeader, "auth-key", None)
 				authToken = parms.get(sectionHeader, "auth-token", None)
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 		
-	return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
+	return {'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
 
 
 def ParseConfigFromBluemixVCAP():
@@ -521,12 +516,10 @@ def ParseConfigFromBluemixVCAP():
 		appId = application['application_name'] + "-" + str(application['instance_index'])
 		appType = "standalone"
 		
-		organization = service['iotf-service'][0]['credentials']['org']
 		authKey = service['iotf-service'][0]['credentials']['apiKey']
 		authToken = service['iotf-service'][0]['credentials']['apiToken']
-		authMethod = "apikey"
 		
-		return {'org': organization, 'id': appId, 'auth-method': authMethod, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
+		return {'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
 	except Exception as e:
 		raise ibmiotf.ConfigurationException(str(e))
 

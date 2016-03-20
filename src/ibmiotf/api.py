@@ -79,25 +79,19 @@ class ApiClient():
 		# Configure logging
 		self.logger = logger
 		
-		if 'org' not in self.__options or self.__options['org'] == None:
-			raise ibmiotf.ConfigurationException("Missing required property: org")
-		if 'auth-method' not in self.__options:
-			raise ibmiotf.ConfigurationException("Missing required property: auth-method")
-			
-		if (self.__options['auth-method'] == "apikey"):
-			# Check for required API Key and authentication token
-			if 'auth-key' not in self.__options or self.__options['auth-key'] == None: 
-				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
-			if 'auth-token' not in self.__options or self.__options['auth-token'] == None: 
-				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
-			
-			self.host = self.__options['org'] + ".internetofthings.ibmcloud.com"
-			self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
-			
-			# To support development systems this can be overridden to False
-			self.verify = True
-		else:
-			raise ibmiotf.UnsupportedAuthenticationMethod(options['authMethod'])
+		if 'auth-key' not in self.__options or self.__options['auth-key'] is None: 
+			raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
+		if 'auth-token' not in self.__options or self.__options['auth-token'] is None: 
+			raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
+		
+		# Get the orgId from the apikey
+		self.__options['org'] = self.__options['auth-key'][2:8]
+		
+		self.host = self.__options['org'] + ".internetofthings.ibmcloud.com"
+		self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
+		
+		# To support development systems this can be overridden to False
+		self.verify = True
 	
 
 	def deleteDevice(self, typeId, deviceId):
