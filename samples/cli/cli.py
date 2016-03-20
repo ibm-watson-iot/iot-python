@@ -142,11 +142,11 @@ def connectionLogsForDevice(args):
 
 def lastEvent(args):
 	global client
-	result = None
+	result = []
 	if len(args) == 2:
-		result = client.api.getLastEvent(args[0], args[1])
+		result = client.api.getLastEvents(args[0], args[1])
 	elif len(args) == 3:
-		result = client.api.getLastEvent(args[0], args[1], args[2])
+		result.append(client.api.getLastEvent(args[0], args[1], args[2]))
 	
 	if cliArgs.json:
 		print(result)

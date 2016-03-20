@@ -474,26 +474,46 @@ class ApiClient():
 	===========================================================================
 	"""
 	
-	def getLastEvent(self, typeId, deviceId, eventId=None):
+	def getLastEvent(self, typeId, deviceId, eventId):
 		"""
 		Retrieves Last Cached Event.
 		"""
-		if eventId is not None:
-			events = ApiClient.deviceEventCacheUrl % (self.host, typeId, deviceId, eventId)
-		else:
-			events = ApiClient.deviceEventListCacheUrl % (self.host, typeId, deviceId)
-		
+		events = ApiClient.deviceEventCacheUrl % (self.host, typeId, deviceId, eventId)
 		r = requests.get(events, auth=self.credentials, verify=self.verify)
 		
 		status = r.status_code
 		if status == 200:
 			response = r.json()
-			for event in response["events"]:
+			if response["format"] == "json":
+				# Convert from base64 to byte to string to dictionary
+				jsonPayload = json.loads(base64.b64decode(response["payload"]))
+				response["data"] = jsonPayload
+			return response
+					
+		elif status == 404:
+			raise ibmiotf.APIException(404, "Event not found", None)
+		elif status == 500:
+			raise ibmiotf.APIException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.APIException(None, "Unexpected error", None)
+
+			
+	def getLastEvents(self, typeId, deviceId):
+		"""
+		Retrieves all last cached events
+		"""
+		events = ApiClient.deviceEventListCacheUrl % (self.host, typeId, deviceId)
+		r = requests.get(events, auth=self.credentials, verify=self.verify)
+		
+		status = r.status_code
+		if status == 200:
+			response = r.json()
+			for event in response:
 				if event["format"] == "json":
 					# Convert from base64 to byte to string to dictionary
 					jsonPayload = json.loads(base64.b64decode(event["payload"]))
 					event["data"] = jsonPayload
-			return response["events"]
+			return response
 					
 		elif status == 404:
 			raise ibmiotf.APIException(404, "Event not found", None)
