@@ -1,3 +1,7 @@
+v0.2.2
+======
+- Application client remembers & automatically restores subscriptions on disconnect/reconnect
+
 v0.2.1
 ======
 - Application client only requires api key and token
