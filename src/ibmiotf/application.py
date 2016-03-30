@@ -226,7 +226,7 @@ class Client(ibmiotf.AbstractClient):
 			# Restoring previous subscriptions
 			if len(self._subscriptions) > 0:
 				for subscription in self._subscriptions:
-					self.client.subscribe(subscriptions["topic"], qos=subscriptions["qos"])
+					self.client.subscribe(subscription["topic"], qos=subscription["qos"])
 				self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
 					
 		elif rc == 5:
@@ -261,7 +261,7 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			topic = 'iot-2/type/%s/id/%s/mon' % (deviceType, deviceId)
 			self.client.subscribe(topic, qos=0)
-			self._subscriptions.append({"topic": topic, "qos": qos})
+			self._subscriptions.append({"topic": topic, "qos": 0})
 			return True
 	
 
