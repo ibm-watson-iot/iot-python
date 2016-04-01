@@ -185,15 +185,19 @@ if __name__ == "__main__":
 	# Initiate DM action to set error codes to 1, wait for it to be completed (sync) and then clear all error codes
 	client.setErrorCode(1).wait()
 	client.clearErrorCodes()
-		
+	
+	# Initiate DM action to add log, wait for it to be completed (sync) and then clear all error codes
+	client.addLog(msg="test",data="testdata",sensitivity=0).wait()
+	client.clearLog()
+
 	while True:
 		time.sleep(interval)
 		ioAfter_ts = time.time()
 		ioAfter = psutil.net_io_counters()
-		
+  		
 		# Calculate the time taken between IO checksor do 
 		ioDuration = ioAfter_ts - ioBefore_ts
-
+  
 		data = { 
 			'cpu' : psutil.cpu_percent(percpu=False),
 			'mem' : psutil.virtual_memory().percent,
@@ -204,10 +208,10 @@ if __name__ == "__main__":
 		}
 		if verbose:
 			print("Datapoint = " + json.dumps(data))
-		
+  		
 		client.publishEvent("psutil", "json", data)
-		
+  		
 		# Update timestamp and data ready for next loop
 		ioBefore_ts = ioAfter_ts
 		ioBefore = ioAfter
-	
+ 	

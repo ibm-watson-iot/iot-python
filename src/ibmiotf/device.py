@@ -23,6 +23,7 @@ from datetime import datetime
 from ibmiotf import AbstractClient, InvalidEventException, UnsupportedAuthenticationMethod, ConfigurationException, ConnectionException, MissingMessageEncoderException, MissingMessageDecoderException
 from ibmiotf.codecs import jsonCodec, jsonIotfCodec
 
+
 # Support Python 2.7 and 3.4 versions of configparser
 try:
 	import configparser
@@ -254,15 +255,15 @@ class DeviceInfo(object):
 
 	
 class DeviceFirmware(object):
-	def __init__(self):
-		self.version = None
-		self.name = None
-		self.url = None
-		self.verifier = None
-		self.state = None
-		self.updateStatus = None
-		self.updatedDateTime = None
-
+	def __init__(self,version = None,name = None,url = None,verifier = None,state = None,updateStatus = None,updatedDateTime = None):
+		self.version = version
+		self.name = name
+		self.url = url
+		self.verifier = verifier
+		self.state = state
+		self.updateStatus = updateStatus
+		self.updatedDateTime = updatedDateTime
+		
 	def __str__(self):
 		return json.dumps(self.__dict__, sort_keys=True)
 
@@ -276,10 +277,37 @@ class ManagedClient(Client):
 	ADD_ERROR_CODE_TOPIC = 'iotdevice-1/add/diag/errorCodes'
 	CLEAR_ERROR_CODES_TOPIC = 'iotdevice-1/clear/diag/errorCodes'
 	NOTIFY_TOPIC = 'iotdevice-1/notify'
+	RESPONSE_TOPIC = 'iotdevice-1/response'
+	ADD_LOG_TOPIC = 'iotdevice-1/add/diag/log'
+	CLEAR_LOG_TOPIC = 'iotdevice-1/clear/diag/log'
 	
 	# Subscribe MQTT topics
 	DM_RESPONSE_TOPIC = 'iotdm-1/response'
 	DM_OBSERVE_TOPIC = 'iotdm-1/observe'
+	DM_REBOOT_TOPIC = 'iotdm-1/mgmt/initiate/device/reboot'
+	DM_FACTORY_REESET ='iotdm-1/mgmt/initiate/device/factory_reset'
+	DM_UPDATE_TOPIC = 'iotdm-1/device/update'
+	DM_CANCEL_OBSERVE_TOPIC = 'iotdm-1/cancel'
+	DM_FIRMWARE_DOWNLOAD_TOPIC = 'iotdm-1/mgmt/initiate/firmware/download'
+	DM_FIRMWARE_UPDATE_TOPIC = 'iotdm-1/mgmt/initiate/firmware/update'
+	
+	#ResponceCode 
+	RESPONSECODE_FUNCTION_NOT_SUPPORTED = 501
+	RESPONSECODE_ACCEPTED = 202
+	RESPONSECODE_INTERNAL_ERROR = 500
+	RESPONSECODE_BAD_REQUEST = 400
+	
+	UPDATESTATE_IDLE = 0
+	UPDATESTATE_DOWNLOADING = 1
+	UPDATESTATE_DOWNLOADED = 2
+	UPDATESTATE_SUCCESS = 0
+	UPDATESTATE_IN_PROGRESS = 1
+	UPDATESTATE_OUT_OF_MEMORY = 2
+	UPDATESTATE_CONNECTION_LOST = 3
+	UPDATESTATE_VERIFICATION_FAILED = 4
+	UPDATESTATE_UNSUPPORTED_IMAGE = 5
+	UPDATESTATE_INVALID_URI = 6
+	
 	
 	def __init__(self, options, logHandlers=None, deviceInfo=None):
 		if options['org'] == "quickstart":
@@ -288,8 +316,20 @@ class ManagedClient(Client):
 		Client.__init__(self, options, logHandlers)
 		# TODO: Raise fatal exception if tries to create managed device client for QuickStart
 		
+		# Initialize user supplied callback
+		self.deviceActionCallback = None
+		self.firmwereActionCallback  = None
+	
 		# Add handler for supported device management commands
 		self.client.message_callback_add("iotdm-1/#", self.__onDeviceMgmtResponse)
+		self.client.message_callback_add(ManagedClient.DM_REBOOT_TOPIC, self.__onRebootRequest)
+		self.client.message_callback_add(ManagedClient.DM_FACTORY_REESET, self.__onFactoryResetRequest)
+		self.client.message_callback_add(ManagedClient.DM_FIRMWARE_UPDATE_TOPIC,self.__onFirmwereUpdate)
+		self.client.message_callback_add(ManagedClient.DM_OBSERVE_TOPIC,self.__onFirmwereObserve)
+		self.client.message_callback_add(ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC,self.__onFirmwereDownload)
+		self.client.message_callback_add(ManagedClient.DM_UPDATE_TOPIC,self.__onUpdatedDevice)
+		self.client.message_callback_add(ManagedClient.DM_CANCEL_OBSERVE_TOPIC,self.__onFirmwereCancel)
+		
 		self.client.on_subscribe = self.on_subscribe
 		
 		self.readyForDeviceMgmt = threading.Event()
@@ -311,10 +351,10 @@ class ManagedClient(Client):
 		
 		self._location = None
 		self._errorCode = None
+		self.__firmwareUpdate = None
 		
 		self.manageTimer = None
-	
-	
+
 	def setSerialNumber(self, serialNumber):
 		self._deviceInfo.serialNumber = serialNumber
 		return self.notifyFieldChange("deviceInfo.serialNumber", serialNumber)
@@ -387,7 +427,7 @@ class ManagedClient(Client):
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
 			if self._options['org'] != "quickstart":
-				self.client.subscribe( [(ManagedClient.DM_RESPONSE_TOPIC, 1), (ManagedClient.DM_OBSERVE_TOPIC, 1), (Client.COMMAND_TOPIC, 1)] )
+				self.client.subscribe( [(ManagedClient.DM_RESPONSE_TOPIC, 1), (ManagedClient.DM_OBSERVE_TOPIC, 1),(ManagedClient.DM_REBOOT_TOPIC,1),(ManagedClient.DM_FACTORY_REESET,1),(ManagedClient.DM_UPDATE_TOPIC,1), (ManagedClient.DM_FIRMWARE_UPDATE_TOPIC,1),(ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC,1),(ManagedClient.DM_CANCEL_OBSERVE_TOPIC,1),(Client.COMMAND_TOPIC, 1)] )
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
@@ -400,7 +440,7 @@ class ManagedClient(Client):
 		self.manage()
 	
 	
-	def manage(self, lifetime=3600, supportDeviceActions=False, supportFirmwareActions=False):
+	def manage(self, lifetime=3600, supportDeviceActions=True, supportFirmwareActions=True):
 		# TODO: throw an error, minimum lifetime this client will support is 1 hour, but for now set lifetime to infinite if it's invalid
 		if lifetime < 3600:
 			lifetime = 0
@@ -434,7 +474,7 @@ class ManagedClient(Client):
 				self._logger.debug("Cancelling existing manage timer")
 				self.manageTimer.cancel()
 			self.manageTimer = threading.Timer(lifetime-120, self.manage, [lifetime, supportDeviceActions, supportFirmwareActions]).start()
-		
+	
 		return resolvedEvent
 	
 	
@@ -532,14 +572,58 @@ class ManagedClient(Client):
 		
 		return resolvedEvent
 	
+	def addLog(self, msg="",data="",sensitivity=0):
+		timestamp = datetime.now().isoformat()
+		if not self.readyForDeviceMgmt.wait():
+			self.logger.warning("Unable to publish error code because device is not ready for device management")
+			return threading.Event().set()
+
+		reqId = str(uuid.uuid4())
+		message = {
+			"d": {  
+				"message": msg,
+                "timestamp": timestamp,
+                "data": data,
+                "severity": sensitivity
+                 },
+			"reqId": reqId
+		}
+		
+		resolvedEvent = threading.Event()
+		self.client.publish(ManagedClient.ADD_LOG_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.ADD_LOG_TOPIC, "message": message, "event": resolvedEvent} 
+		
+		return resolvedEvent
+
+	def clearLog(self):
+		
+		if not self.readyForDeviceMgmt.wait():
+			self.logger.warning("Unable to clear log because device is not ready for device management")
+			return threading.Event().set()
+
+		reqId = str(uuid.uuid4())
+		message = {
+			"reqId": reqId
+		}
+		
+		resolvedEvent = threading.Event()
+		self.client.publish(ManagedClient.CLEAR_LOG_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+		with self._deviceMgmtRequestsPendingLock:
+			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.CLEAR_LOG_TOPIC, "message": message, "event": resolvedEvent} 
+		
+		return resolvedEvent
+	
 	
 	def __onDeviceMgmtResponse(self, client, userdata, pahoMessage):
+		
 		with self._recvLock:
 			self.recv = self.recv + 1
 		
 		try:
 			data = json.loads(pahoMessage.payload.decode("utf-8"))
-			
+			if 'rc' not in data:
+				return True
 			rc = data['rc']
 			reqId = data['reqId']
 		except ValueError as e:
@@ -590,13 +674,125 @@ class ManagedClient(Client):
 				else:
 					self.logger.critical("[%s] Clear error codes action failed: %s" % (rc, json.dumps(request['message'])))
 			
+			elif request['topic'] == ManagedClient.ADD_LOG_TOPIC:
+				if rc == 200:
+					self.logger.info("[%s] Add log action completed: %s" % (rc, json.dumps(request['message'])))
+				else:
+					self.logger.critical("[%s] Add log action failed: %s" % (rc, json.dumps(request['message'])))
+			
+			elif request['topic'] == ManagedClient.CLEAR_LOG_TOPIC:
+				if rc == 200:
+					self.logger.info("[%s] Clear log action completed: %s" % (rc, json.dumps(request['message'])))
+				else:
+					self.logger.critical("[%s] Clear log action failed: %s" % (rc, json.dumps(request['message'])))
+			
 			else:		
 				self.logger.warning("[%s] Unknown action response: %s" % (rc, json.dumps(request['message'])))
 			
 			# Now clear the event, allowing anyone that was waiting on this to proceed
 			request["event"].set()
 			return True
+		
+	#Device Action Handlers
+	def __onRebootRequest(self,client,userdata,pahoMessage):
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_REBOOT_TOPIC,pahoMessage.payload.decode("utf-8")))
+		try:
+			data = json.loads(pahoMessage.payload.decode("utf-8"))
+			reqId = data['reqId']
+			if self.deviceActionCallback : self.deviceActionCallback(reqId,"reboot")
+		except ValueError as e:
+			raise Exception("Unable to process Reboot request.  payload=\"%s\" error=%s" % (pahoMessage.payload, str(e)))
+	
+	def __onFactoryResetRequest(self,client,userdata,pahoMessage):
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_FACTORY_REESET,pahoMessage.payload.decode("utf-8")))
+		try:
+			data = json.loads(pahoMessage.payload.decode("utf-8"))
+			reqId = data['reqId']
+			if self.deviceActionCallback : self.deviceActionCallback(reqId,"reset")
+		except ValueError as e:
+			raise Exception("Unable to process Factory Reset request.  payload=\"%s\" error=%s" % (pahoMessage.payload, str(e)))
+		
+	def respondDeviceAction(self,reqId,responseCode=202,message=""):
+		response ={
+				        "rc": responseCode,
+				        "message": message,
+				        "reqId": reqId
+				}
+		payload=json.dumps(response)
+		self.logger.info("Publishing Device Action response with payload :%s" % payload)
+		self.client.publish('iotdevice-1/response', payload,qos=1, retain=False)
 
+	#Firmware Handlers
+	def __onFirmwereDownload(self,client,userdata,pahoMessage):
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC,pahoMessage.payload.decode("utf-8")))
+		data = json.loads(pahoMessage.payload.decode("utf-8"))
+		reqId = data['reqId']
+		rc = ManagedClient.RESPONSECODE_ACCEPTED
+		msg =""
+		if self.__firmwareUpdate.state != ManagedClient.UPDATESTATE_IDLE :
+			rc = ManagedClient.RESPONSECODE_BAD_REQUEST
+			msg = "Cannot download as the device is not in idle state"
+		threading.Thread(target= self.respondDeviceAction,args=(reqId,rc,msg)).start()
+		if self.firmwereActionCallback : 
+			self.firmwereActionCallback("download",self.__firmwareUpdate)
+
+			
+	def __onFirmwereCancel(self,client,userdata,pahoMessage):
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_CANCEL_OBSERVE_TOPIC,pahoMessage.payload.decode("utf-8")))
+		data = json.loads(pahoMessage.payload.decode("utf-8"))
+		reqId = data['reqId']
+		threading.Thread(target= self.respondDeviceAction,args=(reqId,200,"")).start()
+		
+	def __onFirmwereObserve(self,client,userdata,pahoMessage):
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_OBSERVE_TOPIC,pahoMessage.payload.decode("utf-8")))
+		data = json.loads(pahoMessage.payload.decode("utf-8"))
+		reqId = data['reqId']
+		#TODO : Proprer validation for fields in payload
+		threading.Thread(target= self.respondDeviceAction,args=(reqId,200,"")).start()
+		
+	def __onUpdatedDevice(self,client,userdata,pahoMessage):	
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_UPDATE_TOPIC,pahoMessage.payload.decode("utf-8")))
+		data = json.loads(pahoMessage.payload.decode("utf-8"))
+		reqId = data['reqId']
+		d=data['d']
+		value = None
+		for obj in d['fields'] :
+			if 'field' in obj :
+				if obj['field'] == "mgmt.firmware" :
+					value = obj["value"]
+		if value != None :
+			self.__firmwareUpdate = DeviceFirmware(value['version'],value['name'],value['uri'],value['verifier'],value['state'],value['updateStatus'],value['updatedDateTime'])
+		threading.Thread(target= self.respondDeviceAction,args=(reqId,204,"")).start()
+	
+	def setState(self,status):
+		notify = {"d":{"fields":[{"field":"mgmt.firmware","value":{"state":status}}]}}
+		if self.__firmwareUpdate != None :
+			self.__firmwareUpdate.state = status
+			
+		self.logger.info("Publishing state Update with payload :%s" % json.dumps(notify))	
+		threading.Thread(target= self.client.publish,args=('iotdevice-1/notify',json.dumps(notify),1, False)).start()
+	
+	def setUpdateStatus(self,status):
+		notify = {"d":{"fields":[{"field":"mgmt.firmware","value":{"state":ManagedClient.UPDATESTATE_IDLE,"updateStatus":status}}]}}
+		if self.__firmwareUpdate != None :
+			self.__firmwareUpdate.state = ManagedClient.UPDATESTATE_IDLE
+			self.__firmwareUpdate.updateStatus = status
+			
+		self.logger.info("Publishing  Update Status  with payload :%s" % json.dumps(notify))	
+		threading.Thread(target= self.client.publish,args=('iotdevice-1/notify',json.dumps(notify),1, False)).start() 
+		
+	def __onFirmwereUpdate(self,client,userdata,pahoMessage):
+		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_FIRMWARE_UPDATE_TOPIC,pahoMessage.payload.decode("utf-8")))
+		data = json.loads(pahoMessage.payload.decode("utf-8"))
+		reqId = data['reqId']
+		rc = ManagedClient.RESPONSECODE_ACCEPTED
+		msg =""
+		if self.__firmwareUpdate.state != ManagedClient.UPDATESTATE_DOWNLOADED :
+			rc = ManagedClient.RESPONSECODE_BAD_REQUEST
+			msg = "Firmware is still not successfully downloaded."
+		threading.Thread(target= self.respondDeviceAction,args=(reqId,rc,msg)).start() 
+		if self.firmwereActionCallback : 
+			self.firmwereActionCallback("update",self.__firmwareUpdate)
 	
 
 
