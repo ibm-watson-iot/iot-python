@@ -4,7 +4,6 @@ Python Client Library - Managed Device
 
 Introduction
 -------------
-
 This client library describes how to use devices with the Python ibmiotf client library. For a basic introduction to the broader module, see `Python Client Library - Introduction <https://github.com/ibm-messaging/iot-python>`__.
 
 This section contains information on how devices can connect to the IBM Watson IoT Platform Device Management service using Python and perform device management operations like firmware update, location update, and diagnostics update.
@@ -171,7 +170,6 @@ The device diagnostics operations are intended to provide information on device 
 Refer to the `documentation <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/index.html#/update-location#update-location>`__ for more information about the Diagnostics operation.
 
 
-
 Firmware Actions
 -------------------------------------------------------------
 The firmware update process is separated into two distinct actions:
@@ -220,20 +218,22 @@ Once the support is informed to the DM server, the server then forwards the firm
 **3. Create the Firmware Action Callback**
 
 In order to support the Firmware action, the device needs to create a callback and assign it to firmwereActionCallback. The call back will be called with two parameters:
- *action : 'download' or  'update'
- * info : device info object
+
+* action : download or  update
+* info : device info object
 
 .. code:: python
-def firmwereCallback(action,info):
+
+    def firmwereCallback(action,info):
     if action is 'download' :
         threading.Thread(target=  downloadHandler,args=(client,info)).start();
     if action is 'update' :
         client.setUpdateStatus(ManagedClient.UPDATESTATE_IN_PROGRESS)
         threading.Timer(5,client.setUpdateStatus,[ManagedClient.UPDATESTATE_SUCCESS]).start()
 
-    .......
-    .......
-    .......
+    ......
+    ......
+    ......
 
     client = ibmiotf.device.ManagedClient(options, logHandlers=None, deviceInfo=myDeviceInfo)
     client.firmwereActionCallback = firmwereCallback
@@ -252,7 +252,8 @@ If an error occurs during Firmware Download the state should be set to IDLE and 
 A sample Firmware Download implementation is shown below:
 
 .. code:: python
-def downloadHandler(client,info):
+
+	def downloadHandler(client,info):
     try:
         client.setState(ManagedClient.UPDATESTATE_DOWNLOADING)
         url = info.url
@@ -290,7 +291,7 @@ def downloadHandler(client,info):
 
 
 
-def firmwereCallback(action,info):
+	def firmwereCallback(action,info):
     if action is 'download' :
         threading.Thread(target=  downloadHandler,args=(client,info)).start();
     if action is 'update' :
@@ -301,21 +302,21 @@ Device can check the integrity of the downloaded firmware image using the verifi
 
 .. code:: python
 
-def md5(fname):
-    hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+	def md5(fname):
+		hash_md5 = hashlib.md5()
+		with open(fname, "rb") as f:
+			for chunk in iter(lambda: f.read(4096), b""):
+				hash_md5.update(chunk)
+		return hash_md5.hexdigest()
 
-def verifiyImage(client,info,filename):
-    if info.verifier != None :
-        hashVal = md5(filename)
-        if hashVal != info.verifier :
-            client.setUpdateStatus(ManagedClient.UPDATESTATE_VERIFICATION_FAILED)
+	def verifiyImage(client,info,filename):
+		if info.verifier != None :
+			hashVal = md5(filename)
+			if hashVal != info.verifier :
+				client.setUpdateStatus(ManagedClient.UPDATESTATE_VERIFICATION_FAILED)
 
 
-The complete code can be found in the device management sample ` <>`__.
+The complete code can be found in the device management sample `<https://github.com/ibm-messaging/iot-python/tree/master/samples/managedDevice>`__.
 
 **3.2 Sample implementation of updateFirmware**
 
@@ -330,26 +331,25 @@ A sample Firmware Update implementation is shown below:
 
 .. code:: python
 
-def updateHandler(client,info):
-    try:
-        client.setUpdateStatus(ManagedClient.UPDATESTATE_IN_PROGRESS)
-        threading.Timer(5,client.setUpdateStatus,[ManagedClient.UPDATESTATE_SUCCESS]).start()
-    except MemoryError:
-        client.setUpdateStatus(ManagedClient.UPDATESTATE_OUT_OF_MEMORY)
-    except Exception :
-        client.setUpdateStatus(ManagedClient.UPDATESTATE_UNSUPPORTED_IMAGE)
+	def updateHandler(client,info):
+		try:
+			client.setUpdateStatus(ManagedClient.UPDATESTATE_IN_PROGRESS)
+			threading.Timer(5,client.setUpdateStatus,[ManagedClient.UPDATESTATE_SUCCESS]).start()
+		except MemoryError:
+			client.setUpdateStatus(ManagedClient.UPDATESTATE_OUT_OF_MEMORY)
+		except Exception :
+			client.setUpdateStatus(ManagedClient.UPDATESTATE_UNSUPPORTED_IMAGE)
 
-def firmwereCallback(action,info):
-    if action is 'download' :
-        threading.Thread(target= downloadHandler,args=(client,info)).start();
-    if action is 'update' :
-        threading.Thread(target= updateHandler,args=(client,info)).start();
+	def firmwereCallback(action,info):
+		if action is 'download' :
+			threading.Thread(target= downloadHandler,args=(client,info)).start();
+		if action is 'update' :
+			threading.Thread(target= updateHandler,args=(client,info)).start();
 
 
-The complete code can be found in the device management sample ` <>`__.
+The complete code can be found in the device management sample `<https://github.com/ibm-messaging/iot-python/tree/master/samples/managedDevice>`__.
 
 Refer to the `documentation <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/requests.html#/firmware-actions#firmware-actions>`__ for more information about the Firmware Actions
-
 Device Actions
 ------------------------------------
 The IBM Watson Internet of Things Platform supports the following device actions:
@@ -364,6 +364,7 @@ The device needs to do the following activities to support Device Actions:
 In order to perform Reboot and Factory Reset, the device needs to inform the IBM Watson Internet of Things Platform about its support first. This can be achieved by invoking the manage() method with a True value for supportDeviceActions parameter,
 
 .. code:: python
+
 	// Second parameter represents the device action support
     	client.manage(3600, True, True)
 
@@ -377,19 +378,19 @@ In order to support the device action, the device needs to create a callback and
 
 .. code:: python
 
-def deviceActionCallback(reqId,action):
-    print ("got action %s" % action)
-    if isdeviceActionNotSupport :
-        client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_FUNCTION_NOT_SUPPORTED,"not supported")
-        return False
+	def deviceActionCallback(reqId,action):
+		print ("got action %s" % action)
+		if isdeviceActionNotSupport :
+			client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_FUNCTION_NOT_SUPPORTED,"not supported")
+			return False
 
-    if action is 'reboot' :
-        client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_INTERNAL_ERROR,"reboot failed")
-        #os.execl(sys.executable, sys.executable, *sys.argv)
+		if action is 'reboot' :
+			client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_INTERNAL_ERROR,"reboot failed")
+			#os.execl(sys.executable, sys.executable, *sys.argv)
 
-    if action is 'reset' :
-        client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_ACCEPTED,"Factory Reset Sucess")
-        print("do you factory reset work here")
+		if action is 'reset' :
+			client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_ACCEPTED,"Factory Reset Sucess")
+			print("do you factory reset work here")
 
     ......
     ......
@@ -403,26 +404,27 @@ def deviceActionCallback(reqId,action):
 
 In order to inform the WIOTP about the device action status we need to call respondDeviceAction method in client object to with request Id , status and message.
 There are three device action status available :
+
 *FUNCTION_NOT_SUPPORTED
 *ACCEPTED
 *INTERNAL_ERROR
 
 .. code:: python
 
-def deviceActionCallback(reqId,action):
-    print ("got action %s" % action)
-    if isdeviceActionNotSupport :
-        client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_FUNCTION_NOT_SUPPORTED,"not supported")
-        return False
+	def deviceActionCallback(reqId,action):
+		print ("got action %s" % action)
+		if isdeviceActionNotSupport :
+			client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_FUNCTION_NOT_SUPPORTED,"not supported")
+			return False
 
-    if action is 'reboot' :
-        client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_INTERNAL_ERROR,"reboot failed")
-        #os.execl(sys.executable, sys.executable, *sys.argv)
+		if action is 'reboot' :
+			client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_INTERNAL_ERROR,"reboot failed")
+			#os.execl(sys.executable, sys.executable, *sys.argv)
 
-    if action is 'reset' :
-        client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_ACCEPTED,"Factory Reset Sucess")
-        print("do you factory reset work here")
+		if action is 'reset' :
+			client.respondDeviceAction(reqId,ManagedClient.RESPONSECODE_ACCEPTED,"Factory Reset Sucess")
+			print("do you factory reset work here")
 
-The complete code can be found in the device management sample ` <>`__.
+The complete code can be found in the device management sample `<https://github.com/ibm-messaging/iot-python/tree/master/samples/managedDevice>`__.
 
-Refer to the `documentation <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/requests.html#/device-actions-reboot#device-actions-reboot>`__ for more information about the Device Actions
+Refer to the `documentation <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/requests.html#/device-actions-reboot#device-actions-reboot>`__ for more information about the Device Actions.
