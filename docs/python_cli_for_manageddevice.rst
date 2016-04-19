@@ -158,11 +158,12 @@ Devices can choose to notify the Internet of Things Platform Connect about chang
 
 .. code:: python
 
-client.addLog(msg="test",data="testdata",sensitivity=0).wait()
+	client.addLog(msg="test",data="testdata",sensitivity=0).wait()
 
 Also, the log messages can be cleared from Internet of Things Platform Connect by calling the clear method as follows:
 
 .. code:: python
+
 	client.clearLog()
 
 The device diagnostics operations are intended to provide information on device errors, and does not provide diagnostic information relating to the devices connection to the Internet of Things Platform Connect.
@@ -253,7 +254,7 @@ A sample Firmware Download implementation is shown below:
 
 .. code:: python
 
-	def downloadHandler(client,info):
+  def downloadHandler(client,info):
     try:
         client.setState(ManagedClient.UPDATESTATE_DOWNLOADING)
         url = info.url
@@ -291,7 +292,7 @@ A sample Firmware Download implementation is shown below:
 
 
 
-	def firmwereCallback(action,info):
+  def firmwereCallback(action,info):
     if action is 'download' :
         threading.Thread(target=  downloadHandler,args=(client,info)).start();
     if action is 'update' :
