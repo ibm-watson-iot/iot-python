@@ -132,4 +132,5 @@ class TestApplication:
   
         commandData={'rebootDelay' : 50}
         assert_true(self.appClient.publishCommand(self.deviceType, self.deviceId, "reboot", "json", commandData, on_publish=appCmdPublishCallback))
-                   
+                  
+ 

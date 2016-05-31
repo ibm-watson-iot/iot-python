@@ -1020,5 +1020,6 @@ class TestApi:
             apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
             apiClient.getDeviceManagementRequestStatusByDevice({'reqId':'req-id'},self.deviceType,self.deviceId)
         assert_equal(e.exception.msg, 'Unexpected Error')  
-        
+       
+ 
                             

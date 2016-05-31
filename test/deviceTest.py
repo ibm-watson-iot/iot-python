@@ -361,4 +361,5 @@ class TestDevice:
         assert_true(self.apiClient.deleteDeviceManagementRequest(reqId))
       
         self.managedClient.disconnect()        
-        
+       
+ 
