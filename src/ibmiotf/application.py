@@ -276,7 +276,7 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
 			self.client.subscribe(topic, qos=1)
-			self._subscriptions.append({"topic": topic, "qos": qos})
+			self._subscriptions.append({"topic": topic, "qos": 1})
 			return True
 
 	'''
