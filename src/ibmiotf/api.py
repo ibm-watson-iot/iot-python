@@ -259,7 +259,7 @@ class ApiClient():
 		In case of failure it throws APIException	
 		"""
 		deviceTypesUrl = ApiClient.deviceTypesUrl % (self.host)
-		payload = {'id' : typeId, 'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata}
+		payload = {'id' : typeId, 'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata,'classId': classId}
 
 		r = requests.post(deviceTypesUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'}, verify=self.verify)
 		status = r.status_code
