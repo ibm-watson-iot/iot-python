@@ -1021,5 +1021,54 @@ class TestApi:
             apiClient.getDeviceManagementRequestStatusByDevice({'reqId':'req-id'},self.deviceType,self.deviceId)
         assert_equal(e.exception.msg, 'Unexpected Error')  
        
+    def testGatewayAPISupport(self):
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
+        gwTypeId = "add-gw-device-type-test"
+        devId = "reg-dev-undr-gw-test"
+        
+        #Add new gateway device type
+        addResult = apiClient.addGatewayDeviceType(gwTypeId)
+        assert_equal(addResult['id'],gwTypeId)
+        
+        #Get devices under above added gateway device type                    
+        getResult = apiClient.getDevicesConnectedThroughGateway(gwTypeId)
+        assert_equal(getResult['results'],[])
+        
+        #Add new device through above added gateway
+        addResult = apiClient.registerDeviceUnderGateway(gwTypeId,devId)
+        assert_equal(addResult['typeId'],gwTypeId)
+        assert_equal(addResult['deviceId'],devId)
+        
+        #Get devices under above added gateway device type                    
+        getResult = apiClient.getDevicesConnectedThroughGateway(gwTypeId)
+        assert_equal(getResult['results'][0]['typeId'],gwTypeId)
+        assert_equal(getResult['results'][0]['deviceId'],devId)
+        
+        getResult = apiClient.getDevicesConnectedThroughGateway(gwTypeId,devId)
+        assert_equal(getResult['typeId'],gwTypeId)
+        assert_equal(getResult['deviceId'],devId)
+        
+        #Remove the added device followed by the removal of gateway device type
+        assert_true(apiClient.deleteDevice(gwTypeId, devId))
+        assert_true(apiClient.deleteDeviceType(gwTypeId))
+                    
+    @raises(Exception)    
+    def testgetDevicesConnectedThroughGatewayInvalidAuthKey(self):
+        with assert_raises(APIException) as e:
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.invalidAuthKey},self.logger)
+            apiClient.getDevicesConnectedThroughGateway(self.gatewayType)
+        assert_equal(e.exception.msg, 'The authentication method is invalid or the api key used does not exist')                
+
+    @raises(Exception)    
+    def testgetDevicesConnectedThroughGatewayAuthTokenEmpty(self):
+        with assert_raises(APIException) as e:
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken[0:-1], "auth-key": self.authKey},self.logger)
+            apiClient.getDevicesConnectedThroughGateway(self.gatewayType)
+        assert_equal(e.exception.msg, 'The authentication token is empty or invalid')                
  
-                            
+    @raises(Exception)    
+    def testgetDevicesConnectedThroughGatewayNotExistingDevice(self):
+        with assert_raises(APIException) as e:
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
+            apiClient.getDevicesConnectedThroughGateway(self.gatewayType,"device-not-exists")
+        assert_equal(e.exception.msg, 'The device does not exist')
