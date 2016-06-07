@@ -159,13 +159,16 @@ class Client(ibmiotf.AbstractClient):
 			
 			username = self._options['auth-key']
 			password = self._options['auth-token']
-			
+
 		# Generate an application ID if one is not supplied
 		if 'id' not in self._options or self._options['id'] == None: 
 			self._options['id'] = str(uuid.uuid4())
 
 		clientIdPrefix = "a" if ('type' not in self._options or self._options['type'] == 'standalone') else "A" 
 
+		# Include staging
+		self._options['staging'] = options['staging'] if 'staging' in options else None
+			
 		# Call parent constructor
 		ibmiotf.AbstractClient.__init__(
 			self, 
@@ -173,9 +176,10 @@ class Client(ibmiotf.AbstractClient):
 			clientId = clientIdPrefix + ":" + options['org'] + ":" + options['id'], 
 			username = username, 
 			password = password,
-			logHandlers = logHandlers
+			logHandlers = logHandlers,
+			staging = options['staging']
 		)
-		
+
 		# Add handlers for events and status
 		self.client.message_callback_add("iot-2/type/+/id/+/evt/+/fmt/+", self.__onDeviceEvent)
 		self.client.message_callback_add("iot-2/type/+/id/+/mon", self.__onDeviceStatus)
@@ -203,7 +207,6 @@ class Client(ibmiotf.AbstractClient):
 		# Create an api client if not connected in QuickStart mode
 		if self._options['org'] != "quickstart":
 			self.api = ibmiotf.api.ApiClient(self._options, self.logger)
-		
 		
 		self.orgId = self._options['org']
 		self.appId = self._options['id']
@@ -332,7 +335,7 @@ class Client(ibmiotf.AbstractClient):
 
 #		Kept this as a template 
 #		orgUrl = 'http://quickstart.internetofthings.ibmcloud.com/api/v0002/application/types/arduino/devices/00aabbccde02/events/status'
-		templateUrl = '%s://%s.internetofthings.ibmcloud.com/api/v0002/application/types/%s/devices/%s/events/%s'
+		templateUrl = '%s://%s%s.internetofthings.ibmcloud.com/api/v0002/application/types/%s/devices/%s/events/%s'
 
 #		Extracting all the values needed for the ReST operation
 #		Checking each value for 'None' is not needed as the application itself would not have got created, if it had any 'None' values
@@ -347,8 +350,11 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			protocol = 'https'
 
+		# Modify URL is staging 
+   		stagingAddress = ".staging" if ('staging' in self._options and self._options['staging'] == '1') else ""
+
 #		String replacement from template to actual URL
-		intermediateUrl = templateUrl % (protocol, orgid, deviceType, deviceId, event)
+		intermediateUrl = templateUrl % (protocol, orgid, stagingAddress, deviceType, deviceId, event)
 
 		try:
 			msgFormat = "json"
@@ -504,6 +510,7 @@ def ParseConfigFile(configFilePath):
 				
 				authKey = parms.get(sectionHeader, "auth-key", fallback=None)
 				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
+				staging = parms.get(sectionHeader, "staging", fallback=None)
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
@@ -514,12 +521,12 @@ def ParseConfigFile(configFilePath):
 				
 				authKey = parms.get(sectionHeader, "auth-key", None)
 				authToken = parms.get(sectionHeader, "auth-token", None)
+				staging = parms.get(sectionHeader, "staging", None)
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 		
-	return {'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
-
+	return {'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType, 'staging': staging	}
 
 def ParseConfigFromBluemixVCAP():
 	# Bluemix VCAP lookups

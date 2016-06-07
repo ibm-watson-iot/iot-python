@@ -75,14 +75,18 @@ class Client(AbstractClient):
 			else:
 				raise UnsupportedAuthenticationMethod(options['authMethod'])
 		self._options['subscriptionList'] = {}
-		
+
+		# Include staging
+		self._options['staging'] = options['staging'] if 'staging' in options else None
+			
 		AbstractClient.__init__(
 			self, 
 			organization = options['org'],
 			clientId = "g:" + options['org'] + ":" + options['type'] + ":" + options['id'], 
 			username = "use-token-auth" if (options['auth-method'] == "token") else None,
 			password = options['auth-token'],
-			logHandlers = logHandlers
+			logHandlers = logHandlers,
+			staging = options['staging']
 		)
 
 
@@ -232,7 +236,7 @@ class Client(AbstractClient):
 
 #		Kept this as a template 
 #		orgUrl = 'http://quickstart.internetofthings.ibmcloud.com/api/v0002/device/types/arduino/devices/00aabbccde02/events/status'
-		templateUrl = '%s://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/events/%s'
+		templateUrl = '%s://%s%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/events/%s'
 
 #		Extracting all the values needed for the ReST operation
 #		Checking each value for 'None' is not needed as the device itself would not have got created, if it had any 'None' values
@@ -248,8 +252,11 @@ class Client(AbstractClient):
 		else:
 			protocol = 'https'
 
+		# Modify URL is staging 
+   		stagingAddress = ".staging" if ('staging' in self._options and self._options['staging'] == '1') else ""
+
 #		String replacement from template to actual URL
-		intermediateUrl = templateUrl % (protocol, orgid, deviceType, deviceId, event)
+		intermediateUrl = templateUrl % (protocol, orgid, stagingAddress, deviceType, deviceId, event)
 
 		try:
 			msgFormat = "json"
@@ -740,6 +747,7 @@ def ParseConfigFile(configFilePath):
 				deviceId = parms.get(sectionHeader, "id", fallback=None)
 				authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
 				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
+				staging = parms.get(sectionHeader, "staging", fallback=None)
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
@@ -749,9 +757,10 @@ def ParseConfigFile(configFilePath):
 				deviceId = parms.get(sectionHeader, "id", None)
 				authMethod = parms.get(sectionHeader, "auth-method", None)
 				authToken = parms.get(sectionHeader, "auth-token", None)
+				staging = parms.get(sectionHeader, "staging", None)
 		
 	except IOError as e:
 		reason = "Error reading gateway configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 		
-	return {'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}
+	return {'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'staging': staging}
