@@ -62,7 +62,7 @@ class TestApplication:
                                               "auth-method": "token", "auth-token": self.authToken, "auth-key":self.authKey})
         assert_is_instance(client , ibmiotf.application.Client)
         
-        assert_equals(client.clientId , "A:"+self.org+":"+self.deviceId)
+        assert_equals(client.clientId , "a:"+self.org+":"+self.deviceId)
         
     @raises(Exception)
     def testMissingAuthToken1(self):
