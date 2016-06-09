@@ -8,6 +8,7 @@
 #
 # Contributors:
 #   Amit M Mangalvedkar  - Initial Contribution
+#   Lokesh K Haralakatta - Added API Support for Gateway
 # *****************************************************************************
 
 import json
@@ -16,12 +17,14 @@ import pytz
 import uuid
 import threading
 import requests
+import logging
 import paho.mqtt.client as paho
 
 from datetime import datetime
 
 from ibmiotf import AbstractClient, InvalidEventException, UnsupportedAuthenticationMethod, ConfigurationException, ConnectionException, MissingMessageEncoderException, MissingMessageDecoderException
 from ibmiotf.codecs import jsonCodec, jsonIotfCodec
+from ibmiotf import api
 
 # Support Python 2.7 and 3.4 versions of configparser
 try:
@@ -105,7 +108,12 @@ class Client(AbstractClient):
 		self.client.on_connect = self.on_connect
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
-
+		
+		# Create api key for gateway authentication
+		self.gatewayApiKey = "g/" + self._options['org'] + '/' + self._options['type'] + '/' + self._options['id']
+		self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
+		self.logger.setLevel(logging.INFO)
+		self.apiClient = api.ApiClient({"org": self._options['org'], "auth-token": self._options['auth-token'], "auth-key": self.gatewayApiKey },self.logger)
 	
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect(). 
