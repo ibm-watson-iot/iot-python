@@ -283,4 +283,29 @@ class TestGateway:
         appClient.disconnect()
         gatewayClient.disconnect()
    
- 
+    def testGatewayApiClientSupport(self):
+        gatewayFile="gateway.conf"
+        options = ibmiotf.gateway.ParseConfigFile(gatewayFile)
+        gatewayClient = ibmiotf.gateway.Client(options)
+        assert_is_instance(gatewayClient.apiClient, ibmiotf.api.ApiClient)
+        
+        #Add new device through given gateway
+        gatewayType = options['type']
+        gatewayDevice = "test-gateway-api-support"
+        addResult = gatewayClient.apiClient.registerDeviceUnderGateway(gatewayType,gatewayDevice)
+        assert_equal(addResult['typeId'],gatewayType)
+        assert_equal(addResult['deviceId'],gatewayDevice)
+        
+        #Get devices under given gateway type                   
+        getResult = gatewayClient.apiClient.getDevicesConnectedThroughGateway(gatewayType)
+        assert_equal(getResult['results'][0]['typeId'],gatewayType)
+        assert_equal(getResult['results'][0]['deviceId'],gatewayDevice)
+        
+        #Remove the added device under given gateway
+        appConfFile="application.conf"
+        logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
+        logger.setLevel(logging.INFO)
+        options = ibmiotf.application.ParseConfigFile(appConfFile)
+        apiClient = ibmiotf.api.ApiClient(options,logger)
+        assert_true(apiClient.deleteDevice(gatewayType, gatewayDevice))
+        
