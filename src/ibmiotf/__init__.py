@@ -37,11 +37,16 @@ class Message:
 		self.timestamp = timestamp
 	
 class AbstractClient:
-	def __init__(self, organization, clientId, username, password, logHandlers=None):
+	def __init__(self, organization, clientId, username, password, logHandlers=None, staging=None):
 		self.organization = organization
 		self.username = username
 		self.password = password
-		self.address = organization + ".messaging.internetofthings.ibmcloud.com"
+
+		# Modify address if staging
+		self.staging = staging
+		stagingAddress = "staging." if (staging != None and staging == '1') else ""
+		
+		self.address = organization + ".messaging." + stagingAddress + "internetofthings.ibmcloud.com"
 		self.port = 1883
 		self.keepAlive = 60
 		
