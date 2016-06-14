@@ -1,3 +1,7 @@
+v0.2.4
+======
+- Introduced support for dedicated and local offerings (via 'domain' configuration option)
+
 v0.2.3
 ======
 - Fixed bug in application re-subscribe logic on connect

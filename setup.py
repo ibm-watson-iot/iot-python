@@ -8,15 +8,15 @@ except ImportError:
 
 setup(
     name='ibmiotf',
-    version="0.2.3",
+    version="0.2.4",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
     packages=['ibmiotf', 'ibmiotf.codecs'],
     package_data={'ibmiotf': ['*.pem']},
-    url='https://github.com/ibm-messaging/iot-python',
+    url='https://github.com/ibm-watson-iot/iot-python',
     license=open('LICENSE').read(),
-    description='IBM Internet of Things Foundation Client for Python',
+    description='IBM Watson IoT Platform Client for Python',
     long_description=open('README.rst').read(),
     install_requires=[
         "iso8601 >= 0.1.10",

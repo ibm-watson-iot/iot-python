@@ -87,7 +87,11 @@ class ApiClient():
 		# Get the orgId from the apikey
 		self.__options['org'] = self.__options['auth-key'][2:8]
 		
-		self.host = self.__options['org'] + ".internetofthings.ibmcloud.com"
+		if "domain" not in self.__options:
+			# Default to the domain for the public cloud offering
+			self.__options['domain'] = "internetofthings.ibmcloud.com"
+		
+		self.host = self.__options['org'] + "." + self.__options['domain']
 		self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
 		
 		# To support development systems this can be overridden to False

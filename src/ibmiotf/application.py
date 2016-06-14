@@ -146,6 +146,10 @@ class Client(ibmiotf.AbstractClient):
 		
 		username = None
 		password = None
+		
+		if "domain" not in self._options:
+			# Default to the domain for the public cloud offering
+			self._options['domain'] = "internetofthings.ibmcloud.com"
 
 		if 'auth-key' not in self._options or self._options['auth-key'] is None:
 			# Configure for Quickstart
@@ -169,8 +173,9 @@ class Client(ibmiotf.AbstractClient):
 		# Call parent constructor
 		ibmiotf.AbstractClient.__init__(
 			self, 
-			organization = options['org'], 
-			clientId = clientIdPrefix + ":" + options['org'] + ":" + options['id'], 
+			domain = self._options['domain'],
+			organization = self._options['org'], 
+			clientId = clientIdPrefix + ":" + self._options['org'] + ":" + self._options['id'], 
 			username = username, 
 			password = password,
 			logHandlers = logHandlers
@@ -330,16 +335,11 @@ class Client(ibmiotf.AbstractClient):
 	def publishEventOverHTTP(self, deviceType, deviceId, event, data):
 		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 
-#		Kept this as a template 
-#		orgUrl = 'http://quickstart.internetofthings.ibmcloud.com/api/v0002/application/types/arduino/devices/00aabbccde02/events/status'
-		templateUrl = '%s://%s.internetofthings.ibmcloud.com/api/v0002/application/types/%s/devices/%s/events/%s'
+		templateUrl = '%s://%s.%s/api/v0002/application/types/%s/devices/%s/events/%s'
 
-#		Extracting all the values needed for the ReST operation
-#		Checking each value for 'None' is not needed as the application itself would not have got created, if it had any 'None' values
 		orgid = self._options['org']
 		authKey = self._options['auth-key']
 		authToken = self._options['auth-token']
-
 		credentials = (authKey, authToken)
 
 		if orgid == 'quickstart':
@@ -348,7 +348,7 @@ class Client(ibmiotf.AbstractClient):
 			protocol = 'https'
 
 #		String replacement from template to actual URL
-		intermediateUrl = templateUrl % (protocol, orgid, deviceType, deviceId, event)
+		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
 
 		try:
 			msgFormat = "json"
@@ -499,6 +499,8 @@ def ParseConfigFile(configFilePath):
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
+				
+				domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
 				appId = parms.get(sectionHeader, "id", fallback=None)
 				appType = parms.get(sectionHeader, "type", fallback="standalone")
 				
@@ -509,6 +511,7 @@ def ParseConfigFile(configFilePath):
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 
+				domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
 				appId = parms.get(sectionHeader, "id", None)
 				appType = parms.get(sectionHeader, "type", "standalone")
 				
@@ -518,7 +521,7 @@ def ParseConfigFile(configFilePath):
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 		
-	return {'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
+	return {'domain': domain, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
 
 
 def ParseConfigFromBluemixVCAP():
@@ -527,13 +530,16 @@ def ParseConfigFromBluemixVCAP():
 		application = json.loads(os.getenv('VCAP_APPLICATION'))
 		service = json.loads(os.getenv('VCAP_SERVICES'))
 		
+		# For now, this method only supports the public cloud offering registered in public Bluemix
+		domain = "internetofthings.ibmcloud.com"
+		
 		appId = application['application_name'] + "-" + str(application['instance_index'])
 		appType = "standalone"
 		
 		authKey = service['iotf-service'][0]['credentials']['apiKey']
 		authToken = service['iotf-service'][0]['credentials']['apiToken']
 		
-		return {'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
+		return {'domain': domain, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
 	except Exception as e:
 		raise ibmiotf.ConfigurationException(str(e))
 

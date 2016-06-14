@@ -57,6 +57,10 @@ class Client(AbstractClient):
 	def __init__(self, options, logHandlers=None):
 		self._options = options
 
+		if "domain" not in self._options:
+			# Default to the domain for the public cloud offering
+			self._options['domain'] = "internetofthings.ibmcloud.com"
+			
 		if self._options['org'] == None:
 			raise ConfigurationException("Missing required property: org")
 		if self._options['type'] == None: 
@@ -77,10 +81,11 @@ class Client(AbstractClient):
 
 		AbstractClient.__init__(
 			self, 
-			organization = options['org'],
-			clientId = "d:" + options['org'] + ":" + options['type'] + ":" + options['id'], 
-			username = "use-token-auth" if (options['auth-method'] == "token") else None,
-			password = options['auth-token'],
+			domain = self._options['domain'],
+			organization = self._options['org'],
+			clientId = "d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'], 
+			username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
+			password = self._options['auth-token'],
 			logHandlers = logHandlers
 		)
 
@@ -173,12 +178,8 @@ class Client(AbstractClient):
 	def publishEventOverHTTP(self, event, data):
 		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 
-#		Kept this as a template 
-#		orgUrl = 'http://quickstart.internetofthings.ibmcloud.com/api/v0002/device/types/arduino/devices/00aabbccde02/events/status'
-		templateUrl = '%s://%s.internetofthings.ibmcloud.com/api/v0002/device/types/%s/devices/%s/events/%s'
+		templateUrl = '%s://%s.%s/api/v0002/device/types/%s/devices/%s/events/%s'
 
-#		Extracting all the values needed for the ReST operation
-#		Checking each value for 'None' is not needed as the device itself would not have got created, if it had any 'None' values
 		orgid = self._options['org']
 		deviceType = self._options['type']
 		deviceId = self._options['id']
@@ -191,8 +192,7 @@ class Client(AbstractClient):
 		else:
 			protocol = 'https'
 
-#		String replacement from template to actual URL
-		intermediateUrl = templateUrl % (protocol, orgid, deviceType, deviceId, event)
+		intermediateUrl = templateUrl % (protocol, self._options['domain'], orgid, deviceType, deviceId, event)
 
 		try:
 			msgFormat = "json"
@@ -804,6 +804,8 @@ def ParseConfigFile(configFilePath):
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
+				
+				domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
 				organization = parms.get(sectionHeader, "org", fallback=None)
 				deviceType = parms.get(sectionHeader, "type", fallback=None)
 				deviceId = parms.get(sectionHeader, "id", fallback=None)
@@ -813,6 +815,8 @@ def ParseConfigFile(configFilePath):
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
+				
+				domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
 				organization = parms.get(sectionHeader, "org", None)
 				deviceType = parms.get(sectionHeader, "type", None)
 				deviceId = parms.get(sectionHeader, "id", None)
@@ -823,4 +827,4 @@ def ParseConfigFile(configFilePath):
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 		
-	return {'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}
+	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}
