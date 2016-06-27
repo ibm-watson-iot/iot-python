@@ -12,3 +12,4 @@ The following data points are supported:
  * [Windows](setup/windows.md)
  * [Ubuntu](setup/ubuntu.md)
  * [RHEL/CentOS](setup/rhel.md)
+ * [Raspbian](setup/raspbian.md)
