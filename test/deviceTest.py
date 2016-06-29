@@ -316,7 +316,8 @@ class TestDevice:
         assert_true(self.apiClient.deleteDeviceManagementRequest(reqId))
       
         self.managedClient.disconnect()
-        
+    
+    @SkipTest    
     def testFirmwareUpdateAction(self):
         def updateHandler(client,info):
             try:
