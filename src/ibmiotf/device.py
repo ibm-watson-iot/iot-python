@@ -192,7 +192,7 @@ class Client(AbstractClient):
 		else:
 			protocol = 'https'
 
-		intermediateUrl = templateUrl % (protocol, self._options['domain'], orgid, deviceType, deviceId, event)
+		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
 
 		try:
 			msgFormat = "json"

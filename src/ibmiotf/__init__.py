@@ -191,6 +191,17 @@ class AbstractClient:
 				midOnPublish = self._onPublishCallbacks.get(mid)
 				del self._onPublishCallbacks[mid]
 				midOnPublish()
+				
+	'''
+	Setter and Getter methods to set and get user defined keepAlive Interval  value to 
+	override the MQTT default value of 60
+	'''
+	def setKeepAliveInterval(self, newKeepAliveInterval):
+		self.keepAlive = newKeepAliveInterval
+		
+	def getKeepAliveInterval(self):
+		return(self.keepAlive)
+		
 
 
 '''
