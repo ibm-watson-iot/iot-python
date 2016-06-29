@@ -361,5 +361,13 @@ class TestDevice:
         assert_true(self.apiClient.deleteDeviceManagementRequest(reqId))
       
         self.managedClient.disconnect()        
-       
+     
+    def testKeepAliveIntervalMethods(self):
+        assert_equals(self.deviceClient.getKeepAliveInterval(),60)
+        self.deviceClient.setKeepAliveInterval(120)
+        self.deviceClient.connect()
+        assert_equals(self.deviceClient.getKeepAliveInterval(),120)
+        self.deviceClient.disconnect()
+        
+    
  
