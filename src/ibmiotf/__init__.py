@@ -43,7 +43,7 @@ class AbstractClient:
 		self.password = password
 		self.address = organization + ".messaging." + domain
 		self.port = 1883
-		self.keepAlive = 60 //Default MQTT keepAlive interval  value
+		self.keepAlive = 60
 		
 		self.connectEvent = threading.Event()
 	
