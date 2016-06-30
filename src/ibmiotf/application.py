@@ -492,7 +492,8 @@ class Client(ibmiotf.AbstractClient):
 Parse a standard application configuration file
 '''
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser()
+	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
+	                                   "type": "standalone"})
 	sectionHeader = "application"
 
 	try:
@@ -500,23 +501,23 @@ def ParseConfigFile(configFilePath):
 			try:
 				parms.read_file(f)
 				
-				domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
-				appId = parms.get(sectionHeader, "id", fallback=None)
-				appType = parms.get(sectionHeader, "type", fallback="standalone")
+				domain = parms.get(sectionHeader, "domain")
+				appId = parms.get(sectionHeader, "id")
+				appType = parms.get(sectionHeader, "type")
 				
-				authKey = parms.get(sectionHeader, "auth-key", fallback=None)
-				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
+				authKey = parms.get(sectionHeader, "auth-key")
+				authToken = parms.get(sectionHeader, "auth-token")
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 
-				domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
-				appId = parms.get(sectionHeader, "id", None)
-				appType = parms.get(sectionHeader, "type", "standalone")
+				domain = parms.get(sectionHeader, "domain")
+				appId = parms.get(sectionHeader, "id")
+				appType = parms.get(sectionHeader, "type")
 				
-				authKey = parms.get(sectionHeader, "auth-key", None)
-				authToken = parms.get(sectionHeader, "auth-token", None)
+				authKey = parms.get(sectionHeader, "auth-key")
+				authToken = parms.get(sectionHeader, "auth-token")
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
