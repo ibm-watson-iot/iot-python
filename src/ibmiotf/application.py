@@ -147,10 +147,14 @@ class Client(ibmiotf.AbstractClient):
 		username = None
 		password = None
 		
+		### DEFAULTS ###
 		if "domain" not in self._options:
 			# Default to the domain for the public cloud offering
 			self._options['domain'] = "internetofthings.ibmcloud.com"
-
+		if "clean-session" not in self._options:
+		    self._options['clean-session'] = "true"
+		
+		### REQUIRED ###
 		if 'auth-key' not in self._options or self._options['auth-key'] is None:
 			# Configure for Quickstart
 			self._options['org'] = "quickstart"
@@ -178,7 +182,8 @@ class Client(ibmiotf.AbstractClient):
 			clientId = clientIdPrefix + ":" + self._options['org'] + ":" + self._options['id'], 
 			username = username, 
 			password = password,
-			logHandlers = logHandlers
+			logHandlers = logHandlers,
+			cleanSession = self._options['clean-session']
 		)
 		
 		# Add handlers for events and status
@@ -493,7 +498,8 @@ Parse a standard application configuration file
 '''
 def ParseConfigFile(configFilePath):
 	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
-	                                   "type": "standalone"})
+										"type": "standalone",
+										"clean-session": "true"})
 	sectionHeader = "application"
 
 	try:
@@ -507,6 +513,7 @@ def ParseConfigFile(configFilePath):
 				
 				authKey = parms.get(sectionHeader, "auth-key")
 				authToken = parms.get(sectionHeader, "auth-token")
+				cleanSession = parms.get(sectionHeader, "clean-session")
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
@@ -518,11 +525,12 @@ def ParseConfigFile(configFilePath):
 				
 				authKey = parms.get(sectionHeader, "auth-key")
 				authToken = parms.get(sectionHeader, "auth-token")
+				cleanSession = parms.get(sectionHeader, "clean-session")
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 		
-	return {'domain': domain, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
+	return {'domain': domain, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType, 'clean-session': cleanSession}
 
 
 def ParseConfigFromBluemixVCAP():
