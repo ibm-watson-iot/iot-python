@@ -506,26 +506,19 @@ def ParseConfigFile(configFilePath):
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
-				
-				domain = parms.get(sectionHeader, "domain")
-				appId = parms.get(sectionHeader, "id")
-				appType = parms.get(sectionHeader, "type")
-				
-				authKey = parms.get(sectionHeader, "auth-key")
-				authToken = parms.get(sectionHeader, "auth-token")
-				cleanSession = parms.get(sectionHeader, "clean-session")
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 
-				domain = parms.get(sectionHeader, "domain")
-				appId = parms.get(sectionHeader, "id")
-				appType = parms.get(sectionHeader, "type")
+		domain = parms.get(sectionHeader, "domain")
+		appId = parms.get(sectionHeader, "id")
+		appType = parms.get(sectionHeader, "type")
+		
+		authKey = parms.get(sectionHeader, "auth-key")
+		authToken = parms.get(sectionHeader, "auth-token")
+		cleanSession = parms.get(sectionHeader, "clean-session")
 				
-				authKey = parms.get(sectionHeader, "auth-key")
-				authToken = parms.get(sectionHeader, "auth-token")
-				cleanSession = parms.get(sectionHeader, "clean-session")
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)

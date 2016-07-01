@@ -809,27 +809,19 @@ def ParseConfigFile(configFilePath):
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
-				
-				domain = parms.get(sectionHeader, "domain")
-				organization = parms.get(sectionHeader, "org")
-				deviceType = parms.get(sectionHeader, "type")
-				deviceId = parms.get(sectionHeader, "id")
-				authMethod = parms.get(sectionHeader, "auth-method")
-				authToken = parms.get(sectionHeader, "auth-token")
-				cleanSession = parms.get(sectionHeader, "clean-session")
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 				
-				domain = parms.get(sectionHeader, "domain")
-				organization = parms.get(sectionHeader, "org")
-				deviceType = parms.get(sectionHeader, "type")
-				deviceId = parms.get(sectionHeader, "id")
-				authMethod = parms.get(sectionHeader, "auth-method")
-				authToken = parms.get(sectionHeader, "auth-token")
-				cleanSession = parms.get(sectionHeader, "clean-session")
-		
+		domain = parms.get(sectionHeader, "domain")
+		organization = parms.get(sectionHeader, "org")
+		deviceType = parms.get(sectionHeader, "type")
+		deviceId = parms.get(sectionHeader, "id")
+		authMethod = parms.get(sectionHeader, "auth-method")
+		authToken = parms.get(sectionHeader, "auth-token")
+		cleanSession = parms.get(sectionHeader, "clean-session")
+				
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
