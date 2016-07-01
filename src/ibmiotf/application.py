@@ -147,10 +147,14 @@ class Client(ibmiotf.AbstractClient):
 		username = None
 		password = None
 		
+		### DEFAULTS ###
 		if "domain" not in self._options:
 			# Default to the domain for the public cloud offering
 			self._options['domain'] = "internetofthings.ibmcloud.com"
-
+		if "clean-session" not in self._options:
+		    self._options['clean-session'] = "true"
+		
+		### REQUIRED ###
 		if 'auth-key' not in self._options or self._options['auth-key'] is None:
 			# Configure for Quickstart
 			self._options['org'] = "quickstart"
@@ -178,7 +182,8 @@ class Client(ibmiotf.AbstractClient):
 			clientId = clientIdPrefix + ":" + self._options['org'] + ":" + self._options['id'], 
 			username = username, 
 			password = password,
-			logHandlers = logHandlers
+			logHandlers = logHandlers,
+			cleanSession = self._options['clean-session']
 		)
 		
 		# Add handlers for events and status
@@ -492,36 +497,33 @@ class Client(ibmiotf.AbstractClient):
 Parse a standard application configuration file
 '''
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser()
+	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
+										"type": "standalone",
+										"clean-session": "true"})
 	sectionHeader = "application"
 
 	try:
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
-				
-				domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
-				appId = parms.get(sectionHeader, "id", fallback=None)
-				appType = parms.get(sectionHeader, "type", fallback="standalone")
-				
-				authKey = parms.get(sectionHeader, "auth-key", fallback=None)
-				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 
-				domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
-				appId = parms.get(sectionHeader, "id", None)
-				appType = parms.get(sectionHeader, "type", "standalone")
+		domain = parms.get(sectionHeader, "domain")
+		appId = parms.get(sectionHeader, "id")
+		appType = parms.get(sectionHeader, "type")
+		
+		authKey = parms.get(sectionHeader, "auth-key")
+		authToken = parms.get(sectionHeader, "auth-token")
+		cleanSession = parms.get(sectionHeader, "clean-session")
 				
-				authKey = parms.get(sectionHeader, "auth-key", None)
-				authToken = parms.get(sectionHeader, "auth-token", None)
 	except IOError as e:
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 		
-	return {'domain': domain, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType}
+	return {'domain': domain, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType, 'clean-session': cleanSession}
 
 
 def ParseConfigFromBluemixVCAP():

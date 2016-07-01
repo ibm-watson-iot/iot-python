@@ -57,10 +57,14 @@ class Client(AbstractClient):
 	def __init__(self, options, logHandlers=None):
 		self._options = options
 
+		### DEFAULTS ###
 		if "domain" not in self._options:
 			# Default to the domain for the public cloud offering
 			self._options['domain'] = "internetofthings.ibmcloud.com"
+		if "clean-session" not in self._options:
+			self._options['clean-session'] = "true"
 			
+		### REQUIRED ###	
 		if self._options['org'] == None:
 			raise ConfigurationException("Missing required property: org")
 		if self._options['type'] == None: 
@@ -86,9 +90,9 @@ class Client(AbstractClient):
 			clientId = "d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'], 
 			username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
 			password = self._options['auth-token'],
-			logHandlers = logHandlers
+			logHandlers = logHandlers,
+			cleanSession = self._options['clean-session']
 		)
-
 
 		# Add handler for commands if not connected to QuickStart
 		if self._options['org'] != "quickstart":
@@ -798,33 +802,28 @@ class ManagedClient(Client):
 
 
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser()
+	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
+	                                   "clean-session": "true"})
 	sectionHeader = "device"
 	try:
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
-				
-				domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
-				organization = parms.get(sectionHeader, "org", fallback=None)
-				deviceType = parms.get(sectionHeader, "type", fallback=None)
-				deviceId = parms.get(sectionHeader, "id", fallback=None)
-				authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
-				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 				
-				domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
-				organization = parms.get(sectionHeader, "org", None)
-				deviceType = parms.get(sectionHeader, "type", None)
-				deviceId = parms.get(sectionHeader, "id", None)
-				authMethod = parms.get(sectionHeader, "auth-method", None)
-				authToken = parms.get(sectionHeader, "auth-token", None)
-		
+		domain = parms.get(sectionHeader, "domain")
+		organization = parms.get(sectionHeader, "org")
+		deviceType = parms.get(sectionHeader, "type")
+		deviceId = parms.get(sectionHeader, "id")
+		authMethod = parms.get(sectionHeader, "auth-method")
+		authToken = parms.get(sectionHeader, "auth-token")
+		cleanSession = parms.get(sectionHeader, "clean-session")
+				
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 		
-	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}
+	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'clean-session': cleanSession}
