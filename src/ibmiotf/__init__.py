@@ -37,6 +37,7 @@ class Message:
 		self.timestamp = timestamp
 	
 class AbstractClient:
+	def __init__(self, domain, organization, clientId, username, password, logHandlers=None, cleanSession="true"):
 		self.organization = organization
 		self.username = username
 		self.password = password
