@@ -1074,23 +1074,8 @@ class TestApi:
         assert_equal(e.exception.msg, 'The device does not exist')
 
     def testDeviceManagementExtensionMethods(self):
-        def doDMEAction(topic,data,reqId):
-            print("In DME Action Callabck")
-            print("Received topic = "+topic)
-            print("Received reqId = "+reqId)
-            print("Received data = %s" %data)
-            return True
-
         apiClient = ibmiotf.api.ApiClient({"auth-method": "token",
            "auth-token": self.authToken, "auth-key": self.authKey},self.logger)
-
-        #Instantiate required device managed client
-        deviceConfFile="device.conf"
-        deviceOptions = ibmiotf.device.ParseConfigFile(deviceConfFile)
-        deviceInfoObj = ibmiotf.device.DeviceInfo()
-        managedClient = ibmiotf.device.ManagedClient(deviceOptions,deviceInfo=deviceInfoObj)
-        managedClient.connect()
-        managedClient.unmanage()
 
         dmeData = {"bundleId": "example-dme-actions-v1",
                    "displayName": {"en_US": "example-dme Actions v1"},
@@ -1102,18 +1087,8 @@ class TestApi:
         addResult = apiClient.createDeviceManagementExtensionPkg(dmeData)
         assert_equal(addResult['bundleId'],'example-dme-actions-v1')
 
-        managedClient.dmeActionCallback = doDMEAction;
-        managedClient.manage(lifetime=0,supportDeviceMgmtExtActions=True,bundleId='example-dme-actions-v1')
-        mgmtRequest = {"action": "example-dme-actions-v1/installPlugin",
-                       "parameters": [{ "name": "pluginURI",
-                                         "value": "http://example.dme.com",}],
-                       "devices": [{ "typeId": self.deviceType, "deviceId": self.deviceId }]}
-        initResult = apiClient.initiateDeviceManagementRequest(mgmtRequest)
-        reqId = initResult['reqId']
-
         getResult = apiClient.getAllDeviceManagementExtensionPkgs();
         assert_equal(getResult['results'][0]['bundleId'],'edgeanalytics')
-
 
         getResult = apiClient.getDeviceManagementExtensionPkg('example-dme-actions-v1')
         assert_equal(getResult['bundleId'],'example-dme-actions-v1')
@@ -1129,11 +1104,7 @@ class TestApi:
         assert_equal(updResult['version'],'1.1')
 
         assert_true(apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v1'))
-        assert_true(apiClient.deleteDeviceManagementRequest(reqId))
-
-        managedClient.unmanage()
-        managedClient.disconnect()
-
+        
     @raises(Exception)
     def testgetAllDeviceManagementExtensionPkgsException(self):
         with assert_raises(APIException) as e:
