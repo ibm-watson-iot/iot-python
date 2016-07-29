@@ -817,9 +817,9 @@ class ManagedClient(Client):
 			if self.dmeActionCallback(pahoMessage.topic,data,reqId):
 				msg = "DME Action successfully completed from Callback"
 				threading.Thread(target= self.respondDeviceAction,args=(reqId,200,msg)).start()
-		   	else:
+			else:
 				msg = "Unexpected device error"
-			   	threading.Thread(target= self.respondDeviceAction,args=(reqId,500,msg)).start()
+				threading.Thread(target= self.respondDeviceAction,args=(reqId,500,msg)).start()
 
 		else :
 			threading.Thread(target= self.respondDeviceAction,args=(reqId,501,"Operation not implemented")).start()
