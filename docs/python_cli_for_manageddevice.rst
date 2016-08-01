@@ -446,39 +446,9 @@ A device specifies what types of actions it supports when it publishes a manage 
 allow a device to receive custom actions defined in a particular extension package, the device must specify that extension’s
 bundle identifier in the supports object when publishing a manage request.
 
-Here is the sample python code to publish a mange request to indicate to IoT Platform that device supports DME Actions:
+Here is the sample python code to publish a manage request to indicate to IoT Platform that device supports DME Actions:
 
 .. code:: python
-
-	#Setup logger instance
-	logger = logging.getLogger(“DME”)
-	logger.setLevel(logging.INFO)
-
-	#Initialize Client for API to carry out REST Calls
-	appConfFile="application.conf"
-	appOptions = ibmiotf.application.ParseConfigFile(appConfFile)
-	apiClient = ibmiotf.api.ApiClient(appOptions , logger)
-
-	#Initialize DME Package Information
-	dmeData = {"bundleId": "example-dme-actions-v1",
-                   "displayName": { "en_US": "example-dme Actions v1" },
-                   "version": "1.0",
-		   "actions": {
-			"installPlugin": {
-              			"actionDisplayName": { "en_US": "Install Plug-in" },
-                   		"parameters": [ 
-						{ 
-						"name": "pluginURI",
-                                     		"value": "http://example.dme.com",
-                                    		"required": "true" 
-						} 
-					       ] 
-					} 
-				} 
-		}
-
-	# Create DME Package on the platform using API REST Call
-	addResult = apiClient.createDeviceManagementExtensionPkg(dmeData)
 
 	# Initialize ManagedClient
 	deviceFile="device.conf"
@@ -490,53 +460,17 @@ Here is the sample python code to publish a mange request to indicate to IoT Pla
 
 	# Send Manage request with DME actions set to true along with the bundle id to platform
 	managedClient.connect()
-	managedClient.unmanage()
 	managedClient.manage(lifetime=0,supportDeviceMgmtExtActions=True,bundleId='example-dme-actions-v1')
 
 In return, IoT Platform sends back response with rc=200 to device. For additional information about device manage requests,
 refer to `Device Management Protocol <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/index.html>`__.
 
-Initiating Custom Device Management Actions
---------------------------------------------------
-Custom device management actions are initiated using the same REST API as the default device management actions. The
-following information must be provided when initiating a request:
-
-* The action <bundleId>/<actionId>
-
-* A list of devices to initiate the action against, with a maximum of 5000 devices
-
-* A list of parameters as defined in the custom action definition
-
-Here is the sample python code to initiate DM request:
-
-.. code:: python
-
-	mgmtRequest = {
-		"action": "example-dme-actions-v1/installPlugin",
-                "parameters": [
-				{ 
-				"name": "pluginURI",
-                                "value": "http://example.dme.com",
-				}
-				],
-                "devices": [
-				{ 
-				"typeId": deviceType, 
-				"deviceId": deviceId 
-				}
-			    ]
-			}
-        
-	initResult = apiClient.initiateDeviceManagementRequest(mgmtRequest)
-	reqId = initResult['reqId']
-	
 Handling Custom Device Management Actions
 -------------------------------------------------
-When a custom action is initiated against a device, an MQTT message will be published to the device. The message will
-contain any parameters that were specified as part of the request. When the device receives this message, it is expected to
-either execute the action or respond with an error code indicating that it cannot complete the action at this time.
-
-To indicate that the action was completed successfully, a device should publish a response with rc set to 200.
+When a custom action is initiated against a device to the IoT Platform, an MQTT message will be published to the device. The
+message will contain any parameters that were specified as part of the request. When the device receives this message, it is
+expected to either execute the action or respond with an error code indicating that it cannot complete the action at this
+time. To indicate that the action was completed successfully, a device should publish a response with rc set to 200.
 
 As the device receives the MQTT message from the IoT Platform, the user registered DME callback function is expected to be
 called and executed. The user defined DME callback function exactly receives 3 parameters from the device:
@@ -562,21 +496,6 @@ Below given is the sample python code for user defined DME callback function:
             print("Received data = %s" %data)
             return True
         
-Clearing of Custom Device Management Action
--------------------------------------------------------
-As we finish of the custom device management action flow, we can clear of the requests from the IoT Platform and disconnect
-the managed client instance as shown in the below given python code snippet:
-
-.. code:: python
-
-	# Remove the completed requests from the platform
-	apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v1')
-	apiClient.deleteDeviceManagementRequest(reqId)
-
-	# Unmanaged and disconnect the client
-	managedClient.unmanage()
-	managedClient.disconnect() 
-
-The complete code can be found in the device management sample `<https://github.com/ibm-messaging/iot-python/tree/master/samples/managedDevice>`__.
+The complete code can be found in the device management samples `<https://github.com/ibm-messaging/iot-python/tree/master/samples/managedDevice/>`__.
 
 For complete details on Device Management Extension, refer to `Extending Device Management <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/custom_actions.html>`__.	
