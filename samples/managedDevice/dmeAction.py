@@ -36,10 +36,9 @@ options = ibmiotf.device.ParseConfigFile(deviceFile)
 deviceType = options['type']
 deviceId = options['id']
 
-# Create ManagedClient Instance, connect follwed by unmanage
+# Create ManagedClient Instance,connect 
 managedClient = ibmiotf.device.ManagedClient(options,logger)
 managedClient.connect()
-managedClient.unmanage()
 
 # Parse application config file
 options = ibmiotf.application.ParseConfigFile(appConfFile)
