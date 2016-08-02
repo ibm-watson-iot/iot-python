@@ -379,20 +379,40 @@ class TestDevice:
             return True
 
         self.managedClient.connect()
-        self.managedClient.unmanage()
 
-        dmeData = {"bundleId": "example-dme-actions-v1",
+        dmeData1 = {"bundleId": "example-dme-actions-v1",
                    "displayName": {"en_US": "example-dme Actions v1"},
                    "version": "1.0","actions": {"installPlugin": {
                    "actionDisplayName": { "en_US": "Install Plug-in"},
                    "parameters": [ { "name": "pluginURI",
                                      "value": "http://example.dme.com",
                                     "required": "true" } ] } } }
-        addResult = self.apiClient.createDeviceManagementExtensionPkg(dmeData)
+        dmeData2 = {"bundleId": "example-dme-actions-v2",
+                   "displayName": {"en_US": "example-dme Actions v2"},
+                   "version": "1.0","actions": {"installPlugin": {
+                   "actionDisplayName": { "en_US": "Install Plug-in"},
+                   "parameters": [ { "name": "pluginURI",
+                                     "value": "http://example.dme.com",
+                                    "required": "true" } ] } } }
+        dmeData3 = {"bundleId": "example-dme-actions-v3",
+                   "displayName": {"en_US": "example-dme Actions v3"},
+                   "version": "1.0","actions": {"installPlugin": {
+                   "actionDisplayName": { "en_US": "Install Plug-in"},
+                   "parameters": [ { "name": "pluginURI",
+                                     "value": "http://example.dme.com",
+                                    "required": "true" } ] } } }
+        addResult = self.apiClient.createDeviceManagementExtensionPkg(dmeData1)
         assert_equal(addResult['bundleId'],'example-dme-actions-v1')
+        addResult = self.apiClient.createDeviceManagementExtensionPkg(dmeData2)
+        assert_equal(addResult['bundleId'],'example-dme-actions-v2')
+        addResult = self.apiClient.createDeviceManagementExtensionPkg(dmeData3)
+        assert_equal(addResult['bundleId'],'example-dme-actions-v3')
 
         self.managedClient.dmeActionCallback = doDMEAction;
-        self.managedClient.manage(lifetime=0,supportDeviceMgmtExtActions=True,bundleId='example-dme-actions-v1')
+        self.managedClient.manage(lifetime=0,supportDeviceMgmtExtActions=True,
+                                        bundleIds=['example-dme-actions-v1',
+                                                   'example-dme-actions-v2',
+                                                   'example-dme-actions-v3'])
         mgmtRequest = {"action": "example-dme-actions-v1/installPlugin",
                        "parameters": [{ "name": "pluginURI",
                                          "value": "http://example.dme.com",}],
@@ -401,6 +421,8 @@ class TestDevice:
         reqId = initResult['reqId']
 
         assert_true(self.apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v1'))
+        assert_true(self.apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v2'))
+        assert_true(self.apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v3'))
         assert_true(self.apiClient.deleteDeviceManagementRequest(reqId))
 
         self.managedClient.unmanage()

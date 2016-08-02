@@ -452,7 +452,7 @@ class ManagedClient(Client):
 
 
 	def manage(self, lifetime=3600, supportDeviceActions=True, supportFirmwareActions=True,
-					supportDeviceMgmtExtActions=False, bundleId=None):
+					supportDeviceMgmtExtActions=False, bundleIds=[]):
 		# TODO: throw an error, minimum lifetime this client will support is 1 hour, but for now set lifetime to infinite if it's invalid
 		if lifetime < 3600:
 			lifetime = 0
@@ -474,8 +474,9 @@ class ManagedClient(Client):
 						},
 					'reqId': reqId
 				}
-		if supportDeviceMgmtExtActions and bundleId is not None:
-			message['d']['supports'][bundleId] = supportDeviceMgmtExtActions
+		if supportDeviceMgmtExtActions and len(bundleIds) > 0:
+			for bundleId in bundleIds:
+				message['d']['supports'][bundleId] = supportDeviceMgmtExtActions
 
 		resolvedEvent = threading.Event()
 		self.client.publish(ManagedClient.MANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
@@ -488,7 +489,7 @@ class ManagedClient(Client):
 				self._logger.debug("Cancelling existing manage timer")
 				self.manageTimer.cancel()
 			self.manageTimer = threading.Timer(lifetime-120, self.manage,
-		    [lifetime, supportDeviceActions, supportFirmwareActions, supportDeviceMgmtExtActions, bundleId]).start()
+		    [lifetime, supportDeviceActions, supportFirmwareActions, supportDeviceMgmtExtActions, bundleIds]).start()
 
 		return resolvedEvent
 
