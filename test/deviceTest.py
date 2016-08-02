@@ -401,6 +401,11 @@ class TestDevice:
                    "parameters": [ { "name": "pluginURI",
                                      "value": "http://example.dme.com",
                                     "required": "true" } ] } } }
+
+        self.apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v1')
+        self.apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v2')
+        self.apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v3')
+
         addResult = self.apiClient.createDeviceManagementExtensionPkg(dmeData1)
         assert_equal(addResult['bundleId'],'example-dme-actions-v1')
         addResult = self.apiClient.createDeviceManagementExtensionPkg(dmeData2)
