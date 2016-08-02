@@ -446,6 +446,9 @@ A device specifies what types of actions it supports when it publishes a manage 
 allow a device to receive custom actions defined in a particular extension package, the device must specify that extension’s
 bundle identifier in the supports object when publishing a manage request.
 
+Device can call manage with supportDeviceMgmtExtActions=True and set of bundleIds to inform the IoT Platform that the device
+supports Device Management Extension  Actions for the provided list of bundle Ids present in the manage request.
+
 Here is the sample python code to publish a manage request to indicate to IoT Platform that device supports DME Actions:
 
 .. code:: python
@@ -460,7 +463,10 @@ Here is the sample python code to publish a manage request to indicate to IoT Pl
 
 	# Send Manage request with DME actions set to true along with the bundle id to platform
 	managedClient.connect()
-	managedClient.manage(lifetime=0,supportDeviceMgmtExtActions=True,bundleId='example-dme-actions-v1')
+	managedClient.manage(lifetime=0,supportDeviceMgmtExtActions=True,
+                                        		bundleIds=['example-dme-actions-v1',
+                                                   		   'example-dme-actions-v2',
+                                                   		   'example-dme-actions-v3'])
 
 In return, IoT Platform sends back response with rc=200 to device. For additional information about device manage requests,
 refer to `Device Management Protocol <https://docs.internetofthings.ibmcloud.com/devices/device_mgmt/index.html>`__.
