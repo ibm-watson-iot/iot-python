@@ -147,13 +147,13 @@ class AbstractClient:
 			self.logAndRaiseException(ConnectionException("Failed to connect to the IBM Internet of Things service: %s - %s" % (self.address, str(serr))))
 
 	def disconnect(self):
-		#self.logger.info("Closing connection to the IBM Internet of Things Foundation")
+		#self.logger.info("Closing connection to the IBM Watson IoT Platform")
 		self.client.disconnect()
 		# If we don't call loop_stop() it appears we end up with a zombie thread which continues to process 
 		# network traffic, preventing any subsequent attempt to reconnect using connect()
 		self.client.loop_stop()
 		#self.stats()
-		self.logger.info("Closed connection to the IBM Internet of Things Foundation")
+		self.logger.info("Closed connection to the IBM Watson IoT Platform")
 	
 	def stats(self):
 		elapsed = ((time.time()) - self.start)
@@ -175,9 +175,9 @@ class AbstractClient:
 	'''
 	def on_disconnect(self, mosq, obj, rc):
 		if rc == 1:
-			self.logger.error("Unexpected disconnect from the IBM Internet of Things Foundation")
+			self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform")
 		else:
-			self.logger.info("Disconnected from the IBM Internet of Things Foundation")
+			self.logger.info("Disconnected from the IBM Watson IoT Platform")
 		self.stats()
 	
 	'''
