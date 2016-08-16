@@ -77,10 +77,14 @@ class ApiClient():
 	dmeRequests = 'https://%s/api/v0002/mgmt/custom/bundle'
 	dmeSingleRequest = 'https://%s/api/v0002/mgmt/custom/bundle/%s'
 
-	def __init__(self, options, logger):
+	def __init__(self, options, logger=None):
 		self.__options = options
 
 		# Configure logging
+		if logger is None:
+			logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
+			logger.setLevel(logging.INFO)
+
 		self.logger = logger
 
 		if 'auth-key' not in self.__options or self.__options['auth-key'] is None:

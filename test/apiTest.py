@@ -1075,7 +1075,7 @@ class TestApi:
 
     def testDeviceManagementExtensionMethods(self):
         apiClient = ibmiotf.api.ApiClient({"auth-method": "token",
-           "auth-token": self.authToken, "auth-key": self.authKey},self.logger)
+           "auth-token": self.authToken, "auth-key": self.authKey})
 
         dmeData = {"bundleId": "example-dme-actions-v1",
                    "displayName": {"en_US": "example-dme Actions v1"},
@@ -1104,7 +1104,7 @@ class TestApi:
         assert_equal(updResult['version'],'1.1')
 
         assert_true(apiClient.deleteDeviceManagementExtensionPkg('example-dme-actions-v1'))
-        
+
     @raises(Exception)
     def testgetAllDeviceManagementExtensionPkgsException(self):
         with assert_raises(APIException) as e:
@@ -1141,6 +1141,6 @@ class TestApi:
     def testupdateDeviceManagementExtensionPkg(self):
         with assert_raises(APIException) as e:
             apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,
-                                               "auth-key": self.invalidAuthKey},self.logger)
+                                               "auth-key": self.invalidAuthKey})
             apiClient.updateDeviceManagementExtensionPkg(None,None)
         assert_equal(e.exception.msg, 'HTTP Error in updateDeviceManagementExtensionPkg')
