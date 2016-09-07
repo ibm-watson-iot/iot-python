@@ -811,26 +811,10 @@ class TestApi:
             apiClient.clearAllErrorCodes(self.deviceType,None)
         assert_equal(e.exception.msg, 'Error Code not found')
 
-    def testGetHistoricalEvents(self):
-        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
-
-        #Call getHistoricalEvents with both - deviceType and device
-        apiClient.getHistoricalEvents(typeId=self.deviceType, deviceId=self.deviceId)
-
-        #Call getHistoricalEvents only with both - deviceType
-        apiClient.getHistoricalEvents(typeId=self.deviceType)
-
-        #Call getHistoricalEvents with no parameters
-        apiClient.getHistoricalEvents()
-
     def testGetServiceStatus(self):
         apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
 
         statusData = apiClient.getServiceStatus()
-
-        #assert_equal(statusData['us']['messaging'],'green')
-        #assert_equal(statusData['us']['historian'],'green')
-        #assert_equal(statusData['us']['dashboard'],'green')
 
     @raises(Exception)
     def testGetServiceStatusUnexpectedError(self):
@@ -867,18 +851,6 @@ class TestApi:
         with assert_raises(APIException) as e:
             apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
             apiClient.getDataTraffic({'start':'2017-01-01','end':'2016-05-01'})
-        assert_equal(e.exception.msg, 'Bad Request')
-
-    @SkipTest
-    def testGetHistoricalDataUsage(self):
-        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
-        apiClient.getHistoricalDataUsage({'start':'2016-01-01','end':'2016-05-01'})
-
-    @raises(Exception)
-    def testGetHistoricalDataUsageBadRequest(self):
-        with assert_raises(APIException) as e:
-            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
-            apiClient.getHistoricalDataUsage({'start':'2017-01-01','end':'2016-05-01'})
         assert_equal(e.exception.msg, 'Bad Request')
 
     def testDeviceManagementAPIs(self):

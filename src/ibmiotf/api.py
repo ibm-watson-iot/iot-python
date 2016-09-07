@@ -59,11 +59,6 @@ class ApiClient():
 	#Usage Management URL
 	usageMgmt = 'https://%s/api/v0002/usage'
 
-	# Historian
-	historianOrgUrl = 'https://%s/api/v0002/historian'
-	historianTypeUrl = 'https://%s/api/v0002/historian/types/%s'
-	historianDeviceUrl = 'https://%s/api/v0002/historian/types/%s/devices/%s'
-
 	#Service Status URL
 	serviceStatus = 'https://%s/api/v0002/service-status'
 
@@ -837,29 +832,6 @@ class ApiClient():
 
 	"""
 	===========================================================================
-	Device Diagnostics - Historian
-	- Retrieve historical events
-	===========================================================================
-	"""
-
-	def getHistoricalEvents(self, typeId=None, deviceId=None, options=None):
-		if deviceId is not None and typeId is not None:
-			url = ApiClient.historianDeviceUrl % (self.host, typeId, deviceId)
-		elif typeId is not None:
-			url = ApiClient.historianTypeUrl % (self.host, typeId)
-		else:
-			url = ApiClient.historianOrgUrl % (self.host)
-		r = requests.get(url, auth=self.credentials, params = options, verify=self.verify)
-		status = r.status_code
-
-		if status == 200:
-			return r.json()
-		else:
-			raise ibmiotf.APIException(status, "Unexpected error", None)
-
-
-	"""
-	===========================================================================
 	Service Status API
 	- Retrieve service status
 	===========================================================================
@@ -925,27 +897,6 @@ class ApiClient():
 
 		if status == 200:
 			self.logger.debug("Data Traffic = ", r.json() )
-			return r.json()
-		elif status == 400:
-			raise ibmiotf.APIException(400, "Bad Request", r.json())
-		elif status == 500:
-			raise ibmiotf.APIException(500, "Unexpected error", None)
-		else:
-			raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-	def getHistoricalDataUsage(self, options):
-		"""
-		Retrieve the amount of storage being used by historical event data.
-		In case of failure it throws APIException
-		"""
-		historicalData = (ApiClient.usageMgmt + '/historical-data') % (self.host)
-		r = requests.get(historicalData, auth=self.credentials, params=options, verify=self.verify)
-
-		status = r.status_code
-
-		if status == 200:
-			self.logger.debug("Historical Data = ", r.json() )
 			return r.json()
 		elif status == 400:
 			raise ibmiotf.APIException(400, "Bad Request", r.json())
