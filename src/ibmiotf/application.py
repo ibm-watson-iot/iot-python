@@ -497,9 +497,12 @@ class Client(ibmiotf.AbstractClient):
 Parse a standard application configuration file
 '''
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
-										"type": "standalone",
-										"clean-session": "true"})
+	parms = configparser.ConfigParser({
+		"id": str(uuid.uuid4()),
+		"domain": "internetofthings.ibmcloud.com",
+		"type": "standalone",
+		"clean-session": "true"
+	})
 	sectionHeader = "application"
 
 	try:
