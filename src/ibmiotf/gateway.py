@@ -61,10 +61,25 @@ class Client(AbstractClient):
 	def __init__(self, options, logHandlers=None):
 		self._options = options
 
+		### DEFAULTS ###
 		if "domain" not in self._options:
 			# Default to the domain for the public cloud offering
-			self._options['domain'] = "internetofthings.ibmcloud.com"
+			self._options['domain'] = "messaging.internetofthings.ibmcloud.com"
 
+		if "org" not in self._options:
+			# Default to the quickstart ode
+			self._options['org'] = "quickstart"
+
+		if "clean-session" not in self._options:
+			self._options['clean-session'] = "true"
+
+		if "port" not in self._options and self._options["org"] != "quickstart":
+			self._options["port"] = 8883;
+
+		if self._options["org"] == "quickstart":
+			self._options["port"] = 1883;
+
+		### REQUIRED ###
 		if self._options['org'] == None:
 			raise ConfigurationException("Missing required property: org")
 		if self._options['type'] == None:
@@ -90,7 +105,9 @@ class Client(AbstractClient):
 			clientId = "g:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
 			username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
 			password = self._options['auth-token'],
-			logHandlers = logHandlers
+			logHandlers = logHandlers,
+			cleanSession = self._options['clean-session'],
+			port = self._options['port']
 		)
 
 
@@ -133,7 +150,7 @@ class Client(AbstractClient):
 	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s" % self.clientId)
+			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
 			#if self._options['org'] != "quickstart":
 				#self.subscribeToGatewayCommands()
 		elif rc == 5:
@@ -232,48 +249,6 @@ class Client(AbstractClient):
 			else:
 				raise MissingMessageEncoderException(msgFormat)
 
-
-
-	'''
-	This method is used by the device to publish events over HTTP(s)
-	It accepts 2 parameters, event which denotes event type and data which is the message to be posted
-	It throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
-	Otherwise it returns the HTTP status code, (200 - 207 for success)
-	'''
-	def publishEventOverHTTP(self, event, data):
-		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
-
-		templateUrl = '%s://%s.%s/api/v0002/device/types/%s/devices/%s/events/%s'
-
-#		Extracting all the values needed for the ReST operation
-#		Checking each value for 'None' is not needed as the device itself would not have got created, if it had any 'None' values
-		orgid = self._options['org']
-		deviceType = self._options['type']
-		deviceId = self._options['id']
-		authMethod = self._options['auth-method']
-		authToken = self._options['auth-token']
-		credentials = (authMethod, authToken)
-
-		if orgid == 'quickstart':
-			protocol = 'http'
-		else:
-			protocol = 'https'
-
-#		String replacement from template to actual URL
-		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
-
-		try:
-			msgFormat = "json"
-			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
-		except Exception as e:
-			self.logger.error("POST Failed")
-			self.logger.error(e)
-			raise ConnectionException("Server not found")
-
-		if response.status_code >= 300:
-			self.logger.warning(response.headers)
-		return response.status_code
 
 	def subscribeToDeviceCommands(self, deviceType, deviceId, command='+', format='json', qos=1):
 		if self._options['org'] == "quickstart":
@@ -740,33 +715,40 @@ class ManagedGateway(Client):
 
 
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com"})
+	parms = configparser.ConfigParser({"domain": "messaging.internetofthings.ibmcloud.com",
+	                                   "port": "8883","clean-session": "true"})
 	sectionHeader = "device"
 	try:
 		with open(configFilePath) as f:
 			try:
 				parms.read_file(f)
 
-				domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
+				domain = parms.get(sectionHeader, "domain", fallback="messaging.internetofthings.ibmcloud.com")
 				organization = parms.get(sectionHeader, "org", fallback=None)
 				deviceType = parms.get(sectionHeader, "type", fallback=None)
 				deviceId = parms.get(sectionHeader, "id", fallback=None)
 				authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
 				authToken = parms.get(sectionHeader, "auth-token", fallback=None)
+				cleanSession = parms.get(sectionHeader, "clean-session")
+				port = parms.get(sectionHeader, "port")
 			except AttributeError:
 				# Python 2.7 support
 				# https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
 				parms.readfp(f)
 
-				domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
+				domain = parms.get(sectionHeader, "domain", "messaging.internetofthings.ibmcloud.com")
 				organization = parms.get(sectionHeader, "org", None)
 				deviceType = parms.get(sectionHeader, "type", None)
 				deviceId = parms.get(sectionHeader, "id", None)
 				authMethod = parms.get(sectionHeader, "auth-method", None)
 				authToken = parms.get(sectionHeader, "auth-token", None)
+				cleanSession = parms.get(sectionHeader, "clean-session",None)
+				port = parms.get(sectionHeader, "port",None)
 
 	except IOError as e:
 		reason = "Error reading gateway configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 
-	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken}
+	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId,
+	        'auth-method': authMethod, 'auth-token': authToken,
+			'clean-session': cleanSession, 'port': port}

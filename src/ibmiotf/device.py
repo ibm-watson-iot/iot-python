@@ -22,7 +22,7 @@ import paho.mqtt.client as paho
 from datetime import datetime
 
 from ibmiotf import AbstractClient, InvalidEventException, UnsupportedAuthenticationMethod, ConfigurationException, ConnectionException, MissingMessageEncoderException, MissingMessageDecoderException
-from ibmiotf.codecs import jsonCodec, jsonIotfCodec
+from ibmiotf.codecs import jsonCodec, jsonIotfCodec, utf8Codec, binaryCodec
 
 
 # Support Python 2.7 and 3.4 versions of configparser
@@ -61,9 +61,20 @@ class Client(AbstractClient):
 		### DEFAULTS ###
 		if "domain" not in self._options:
 			# Default to the domain for the public cloud offering
-			self._options['domain'] = "internetofthings.ibmcloud.com"
+			self._options['domain'] = "messaging.internetofthings.ibmcloud.com"
+
+		if "org" not in self._options:
+			# Default to the quickstart ode
+			self._options['org'] = "quickstart"
+
 		if "clean-session" not in self._options:
 			self._options['clean-session'] = "true"
+
+		if "port" not in self._options and self._options["org"] != "quickstart":
+			self._options["port"] = 8883;
+
+		if self._options["org"] == "quickstart":
+			self._options["port"] = 1883;
 
 		### REQUIRED ###
 		if self._options['org'] == None:
@@ -92,7 +103,8 @@ class Client(AbstractClient):
 			username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
 			password = self._options['auth-token'],
 			logHandlers = logHandlers,
-			cleanSession = self._options['clean-session']
+			cleanSession = self._options['clean-session'],
+			port = self._options['port']
 		)
 
 		# Add handler for commands if not connected to QuickStart
@@ -108,6 +120,9 @@ class Client(AbstractClient):
 
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		self.setMessageEncoderModule('text', utf8Codec)
+		self.setMessageEncoderModule('xml', utf8Codec)
+		self.setMessageEncoderModule('bin', binaryCodec)
 
 
 	'''
@@ -123,7 +138,7 @@ class Client(AbstractClient):
 	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s" % self.clientId)
+			self.logger.info("Connected successfully: %s Port: %s" % (self.clientId,self.port))
 			if self._options['org'] != "quickstart":
 				self.__subscribeToCommands()
 		elif rc == 5:
@@ -176,39 +191,49 @@ class Client(AbstractClient):
 
 	'''
 	This method is used by the device to publish events over HTTP(s)
-	It accepts 2 parameters, event which denotes event type and data which is the message to be posted
-	It throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
+	It accepts 3 parameters, event which denotes event type,data which is the
+	message to be posted and dataFormat can be either of these - json, text, xml,
+	bin. The default data format is json.
+	It throws a ConnectionException with the message "Server not found" if the
+	client is unable to reach the server
 	Otherwise it returns the HTTP status code, (200 - 207 for success)
 	'''
-	def publishEventOverHTTP(self, event, data):
-		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
+	def publishEventOverHTTP(self, event, data, dataFormat="json"):
+		self.logger.debug("Sending event %s with data format %s" % (event, dataFormat))
 
-		templateUrl = '%s://%s.%s/api/v0002/device/types/%s/devices/%s/events/%s'
+		templateUrl = 'https://%s.%s/api/v0002/device/types/%s/devices/%s/events/%s'
 
 		orgid = self._options['org']
 		deviceType = self._options['type']
 		deviceId = self._options['id']
-		authMethod = self._options['auth-method']
+		authMethod = "use-token-auth"
 		authToken = self._options['auth-token']
 		credentials = (authMethod, authToken)
 
 		if orgid == 'quickstart':
-			protocol = 'http'
-		else:
-			protocol = 'https'
+			authMethod = None
+			authToken = None
 
-		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
+
+		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
 
 		try:
-			msgFormat = "json"
-			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+			contentType = getContentType(dataFormat)
+			self.logger.debug("Content-type:")
+			self.logger.debug(contentType)
+			payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now(pytz.timezone('UTC')))
+			self.logger.debug("Payload:")
+			self.logger.debug(payload)
+			self.logger.debug("URL:")
+			self.logger.debug(intermediateUrl)
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
+			self.logger.debug("Status Code returned for publishEventOverHTTP: ")
+			self.logger.debug(response.status_code)
 		except Exception as e:
 			self.logger.error("POST Failed")
 			self.logger.error(e)
 			raise ConnectionException("Server not found")
 
-#		print ("Response status = ", response.status_code, "\tResponse ", response.headers)
 		if response.status_code >= 300:
 			self.logger.warning(response.headers)
 		return response.status_code
@@ -827,8 +852,8 @@ class ManagedClient(Client):
 
 
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
-	                                   "clean-session": "true"})
+	parms = configparser.ConfigParser({"domain": "messaging.internetofthings.ibmcloud.com",
+	                                   "port": "8883","clean-session": "true"})
 	sectionHeader = "device"
 	try:
 		with open(configFilePath) as f:
@@ -846,9 +871,31 @@ def ParseConfigFile(configFilePath):
 		authMethod = parms.get(sectionHeader, "auth-method")
 		authToken = parms.get(sectionHeader, "auth-token")
 		cleanSession = parms.get(sectionHeader, "clean-session")
+		port = parms.get(sectionHeader, "port")
 
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 
-	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'clean-session': cleanSession}
+	return {'domain': domain, 'org': organization, 'type': deviceType,
+	        'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken,
+			'clean-session': cleanSession, 'port': port}
+
+'''
+   Method to detect content type using given data format
+'''
+def getContentType(dataFormat):
+	# Default content type is json
+	contentType = "application/json"
+
+	if dataFormat == "text":
+		contentType = "text/plain; charset=utf-8"
+	elif dataFormat == "xml":
+		contentType = "application/xml"
+	elif dataFormat == "bin":
+		contentType = "application/octet-stream"
+	else:
+		contentType = "application/json"
+
+	# Return derived content type
+	return contentType
