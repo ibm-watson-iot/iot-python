@@ -6,6 +6,7 @@
 *.pydevproject
 *.zip
 *.json
+.DS_Store
 src/ibmiotf.egg-info/*
 MANIFEST
 README.txt
