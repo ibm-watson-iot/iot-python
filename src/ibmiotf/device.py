@@ -522,7 +522,7 @@ class ManagedClient(Client):
 		with self._deviceMgmtRequestsPendingLock:
 			self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.MANAGE_TOPIC, "message": message, "event": resolvedEvent}
 
-		# Register the future call back to IoT Foundation 2 minutes before the device lifetime expiry
+		# Register the future call back to Watson IoT Platform 2 minutes before the device lifetime expiry
 		if lifetime != 0:
 			if self.manageTimer is not None:
 				self._logger.debug("Cancelling existing manage timer")

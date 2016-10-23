@@ -202,7 +202,7 @@ usage: cli -h
        cli -c CONFIG [-j] COMMAND
        cli -c CONFIG -i [-j]
 
-Simple CLI for IBM IOT Foundation API
+Simple CLI for IBM Watson IoT Platform
 
 options:
   -h, --help                   show this help message and exit

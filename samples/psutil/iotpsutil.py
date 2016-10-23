@@ -42,7 +42,7 @@ def interruptHandler(signal, frame):
 
 def usage():
 	print(
-		"IOT-PSUTIL: Publish basic system utilization statistics to the IBM Internet of Things Foundation." + "\n" +
+		"IOT-PSUTIL: Publish basic system utilization statistics to IBM Watson IoT Platform." + "\n" +
 		"\n" +
 		"Datapoints sent:" + "\n" +
 		"  name          The name of this device.  Defaults to hostname ('%s')" % platform.node() + "\n" +

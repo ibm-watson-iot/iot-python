@@ -557,7 +557,7 @@ class ManagedGateway(Client):
 		with self._deviceMgmtRequestsPendingLock:
 			self._deviceMgmtRequestsPending[reqId] = {"topic": manage_topic, "message": message, "event": resolvedEvent}
 
-		# Register the future call back to IoT Foundation 2 minutes before the device lifetime expiry
+		# Register the future call back to Watson IoT Platform 2 minutes before the device lifetime expiry
 		if lifetime != 0:
 			threading.Timer(lifetime-120, self.manage, [lifetime, supportDeviceActions, supportFirmwareActions]).start()
 

@@ -839,7 +839,7 @@ class ApiClient():
 
 	def getServiceStatus(self):
 		"""
-		Retrieve the organization-specific status of each of the services offered by the Internet of Things Foundation.
+		Retrieve the organization-specific status of each of the services offered by the IBM Watson IoT Platform.
 		In case of failure it throws APIException
 		"""
 		serviceStatus = ApiClient.serviceStatus % (self.host)
