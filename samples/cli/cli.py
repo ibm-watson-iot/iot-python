@@ -175,26 +175,6 @@ def metering(args):
 	print("Total data usage             = %s mb" % (traffic["total"]/1024/1024))
 	print("Average daily storage usage  = %.2f gb" % (storage["average"]/1024))
 	
-def historian(args):
-	global client, cliArgs
-	if len(args) == 2:
-		result = client.api.getHistoricalEvents(typeId=args[0], deviceId=args[1])
-	elif len(args) == 1:
-		result = client.api.getHistoricalEvents(typeId=args[0])
-	else:
-		result = client.api.getHistoricalEvents()
-	if cliArgs.json:
-		print(result)
-	else:
-		i = 0
-		for event in result['events']:
-			i = i + 1
-			if 'device_id' not in event:
-				event['device_id'] = args[1]
-			deviceId = event['device_id']
-			print("%-4s%-20s%-20s%s" % (i, deviceId, event['evt_type'], event['evt']))
-		
-
 	
 def usage():
 	print("""
@@ -223,7 +203,6 @@ commands:
   device update TYPE_ID DEVICE_ID METADATA
   device log connection TYPE_ID DEVICE_ID
   lastevent TYPE_ID DEVICE_ID [EVENT_ID]
-  historian [TYPE_ID [DEVICE_ID]]
   usage START_DATE END_DATE""")
 
 def processCommandInput(words):
@@ -238,10 +217,6 @@ def processCommandInput(words):
 		metering(words[1:])
 		return True
 	
-	elif words[0] == "historian":
-		historian(words[1:])
-		return True
-
 	elif words[0] == "lastevent":
 		if len(words) < 3:
 			cmdUsage()

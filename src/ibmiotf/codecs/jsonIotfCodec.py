@@ -13,8 +13,8 @@ from ibmiotf import Message, InvalidEventException
 
 
 '''
-Convert a Python dictionary object into a UTF-8 encoded JSON string. Compatible with the 
-the IOTF historian JSON format.
+Convert a Python dictionary object into a UTF-8 encoded JSON string. The data is placed 
+inside a top levle "d" element with a timestamp added to "ts".
 
 * The entire message is converted to JSON
 * The top level d element is considered as the message data
@@ -28,7 +28,7 @@ def encode(data=None, timestamp=None):
     return json.dumps(payload)
 
 '''
-Convert a JSON message using the IOTF historian-compatible format
+Convert a JSON message where all data is under a top level "d" element and an optional "ts" element exists, containing a timestamp for the message.
 
 * The entire message is converted to JSON
 * The top level d element is considered as the message data

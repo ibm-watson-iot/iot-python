@@ -36,7 +36,6 @@ commands:
   device remove TYPE_ID DEVICE_ID
   device update TYPE_ID DEVICE_ID METADATA
   lastevent TYPE_ID DEVICE_ID [EVENT_ID]
-  historian [TYPE_ID [DEVICE_ID]]
   usage START_DATE END_DATE
 ```
 
@@ -111,10 +110,3 @@ Total data usage             = 84 mb
 Average daily storage usage  = 29.20 gb
 ```
 
-
-### historian [TYPE_ID [DEVICE_ID]]
-Retrieve historical events.  If no options are supplied it will return the most recent 100 events across all devices.  If type is suppied the result set will be restricted to only devices of that type.  If both type and id are set then only events from a single device will be returned
-
-```
-[me@localhost ~]$ python cli.py -c app.cfg historian
-```
