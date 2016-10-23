@@ -159,8 +159,8 @@ class Client(ibmiotf.AbstractClient):
 			# Configure for Quickstart
 			self._options['org'] = "quickstart"
 		else:
-			# Get the orgId from the apikey
-			self._options['org'] = self._options['auth-key'][2:8]
+			# Get the orgId from the apikey (format: a-orgid-randomness)
+			self._options['org'] = self._options['auth-key'].split("-")[1]
 			
 			if 'auth-token' not in self._options or self._options['auth-token'] == None: 
 				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
@@ -472,8 +472,8 @@ class HttpClient(ibmiotf.AbstractClient):
 			# Configure for Quickstart
 			self._options['org'] = "quickstart"
 		else:
-			# Get the orgId from the apikey
-			self._options['org'] = self._options['auth-key'][2:8]
+			# Get the orgId from the apikey (format: a-orgid-randomness)
+			self._options['org'] = self._options['auth-key'].split("-")[1]
 			
 			if 'auth-token' not in self._options or self._options['auth-token'] == None: 
 				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
