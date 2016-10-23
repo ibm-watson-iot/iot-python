@@ -110,17 +110,18 @@ class Client(AbstractClient):
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
 
 
-	'''
-	This is called after the client has received a CONNACK message from the broker in response to calling connect().
-	The parameter rc is an integer giving the return code:
-	0: Success
-	1: Refused - unacceptable protocol version
-	2: Refused - identifier rejected
-	3: Refused - server unavailable
-	4: Refused - bad user name or password
-	5: Refused - not authorised
-	'''
 	def on_connect(self, client, userdata, flags, rc):
+		'''
+		This is called after the client has received a CONNACK message from the broker in response to calling connect().
+		The parameter rc is an integer giving the return code:
+		
+		0: Success
+		1: Refused - unacceptable protocol version
+		2: Refused - identifier rejected
+		3: Refused - server unavailable
+		4: Refused - bad user name or password
+		5: Refused - not authorised
+		'''
 		if rc == 0:
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s" % self.clientId)
@@ -131,20 +132,22 @@ class Client(AbstractClient):
 		else:
 			self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
-	'''
-	Publish an event in IoTF.
-	Parameters:
-		event - the name of this event
-		msgFormat - the format of the data for this event
-		data - the data for this event
-	Optional paramters:
-		qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
-		on_publish - a function that will be called when receipt of the publication is confirmed.  This
-					 has different implications depending on the qos:
-					 qos 0 - the client has asynchronously begun to send the event
-					 qos 1 and 2 - the client has confirmation of delivery from IoTF
-	'''
 	def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
+		'''
+		Publish an event in IoTF.
+		
+		Parameters:
+			event - the name of this event
+			msgFormat - the format of the data for this event
+			data - the data for this event
+		
+		Optional paramters:
+			qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
+			on_publish - a function that will be called when receipt of the publication is confirmed.  This
+						 has different implications depending on the qos:
+						 qos 0 - the client has asynchronously begun to send the event
+						 qos 1 and 2 - the client has confirmation of delivery from IoTF
+		'''
 		if not self.connectEvent.wait():
 			self.logger.warning("Unable to send event %s because device is not currently connected")
 			return False
@@ -174,16 +177,81 @@ class Client(AbstractClient):
 				raise MissingMessageEncoderException(msgFormat)
 
 
-	'''
-	This method is used by the device to publish events over HTTP(s)
-	It accepts 2 parameters, event which denotes event type and data which is the message to be posted
-	It throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
-	Otherwise it returns the HTTP status code, (200 - 207 for success)
-	'''
-	def publishEventOverHTTP(self, event, data):
+	def __subscribeToCommands(self):
+		'''
+		Subscribe to commands sent to this device.
+		'''
+		if self._options['org'] == "quickstart":
+			self.logger.warning("QuickStart applications do not support commands")
+			return False
+
+		if not self.connectEvent.wait():
+			self.logger.warning("Unable to subscribe to commands because device is not currently connected")
+			return False
+		else:
+			self.client.subscribe(COMMAND_TOPIC, qos=1)
+			return True
+
+	def __onCommand(self, client, userdata, pahoMessage):
+		'''
+		Internal callback for device command messages, parses source device from topic string and
+		passes the information on to the registerd device command callback
+		'''
+		with self._recvLock:
+			self.recv = self.recv + 1
+		try:
+			command = Command(pahoMessage, self._messageEncoderModules)
+		except InvalidEventException as e:
+			self.logger.critical(str(e))
+		else:
+			self.logger.debug("Received command '%s'" % (command.command))
+			if self.commandCallback: self.commandCallback(command)
+
+			
+class HttpClient(object):
+	"""
+	A basic device client with limited capabilies that forgoes an active MQTT connection to the service.
+	"""
+	
+	def __init__(self, options, logHandlers=None):
+		self._options = options
+
+		### DEFAULTS ###
+		if "domain" not in self._options:
+			# Default to the domain for the public cloud offering
+			self._options['domain'] = "internetofthings.ibmcloud.com"
+		if "clean-session" not in self._options:
+			self._options['clean-session'] = "true"
+
+		### REQUIRED ###
+		if self._options['org'] == None:
+			raise ConfigurationException("Missing required property: org")
+		if self._options['id'] == None:
+			raise ConfigurationException("Missing required property: id")
+
+		if self._options['org'] != "quickstart":
+			if self._options['auth-method'] == None:
+				raise ConfigurationException("Missing required property: auth-method")
+
+			if (self._options['auth-method'] == "token"):
+				if self._options['auth-token'] == None:
+					raise ConfigurationException("Missing required property for token based authentication: auth-token")
+			else:
+				raise UnsupportedAuthenticationMethod(options['authMethod'])
+
+		self.setMessageEncoderModule('json', jsonCodec)
+
+
+
+	def publishEvent(self, event, data):
+		"""
+		Publish an event over HTTP(s) as JSON
+		Throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
+		Otherwise it returns the HTTP status code, (200 - 207 for success)
+		"""
 		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 
-		templateUrl = '%s://%s.%s/api/v0002/device/types/%s/devices/%s/events/%s'
+		templateUrl = '%s://%s.messaging.%s/api/v0002/device/types/%s/devices/%s/events/%s'
 
 		orgid = self._options['org']
 		deviceType = self._options['type']
@@ -212,35 +280,6 @@ class Client(AbstractClient):
 		if response.status_code >= 300:
 			self.logger.warning(response.headers)
 		return response.status_code
-
-
-	def __subscribeToCommands(self):
-		if self._options['org'] == "quickstart":
-			self.logger.warning("QuickStart applications do not support commands")
-			return False
-
-		if not self.connectEvent.wait():
-			self.logger.warning("Unable to subscribe to commands because device is not currently connected")
-			return False
-		else:
-			topic = 'iot-2/cmd/+/fmt/json'
-			self.client.subscribe(topic, qos=1)
-			return True
-
-	'''
-	Internal callback for device command messages, parses source device from topic string and
-	passes the information on to the registerd device command callback
-	'''
-	def __onCommand(self, client, userdata, pahoMessage):
-		with self._recvLock:
-			self.recv = self.recv + 1
-		try:
-			command = Command(pahoMessage, self._messageEncoderModules)
-		except InvalidEventException as e:
-			self.logger.critical(str(e))
-		else:
-			self.logger.debug("Received command '%s'" % (command.command))
-			if self.commandCallback: self.commandCallback(command)
 
 
 

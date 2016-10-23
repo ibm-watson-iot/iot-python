@@ -329,47 +329,6 @@ class Client(ibmiotf.AbstractClient):
 						self._messagesLock.release()
 			else:
 				raise MissingMessageEncoderException(msgFormat)
-
-
-	'''
-	This method is used by the application to publish events over HTTP(s)
-	It accepts 4 parameters, deviceType, deviceId, event which denotes event type and data which is the message to be posted
-	It throws a ConnectionException with the message "Server not found" if the application is unable to reach the server
-	Otherwise it returns the HTTP status code, (200 - 207 for success)
-	'''
-	def publishEventOverHTTP(self, deviceType, deviceId, event, data):
-		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
-
-		templateUrl = '%s://%s.%s/api/v0002/application/types/%s/devices/%s/events/%s'
-
-		orgid = self._options['org']
-		authKey = self._options['auth-key']
-		authToken = self._options['auth-token']
-		credentials = (authKey, authToken)
-
-		if orgid == 'quickstart':
-			protocol = 'http'
-		else:
-			protocol = 'https'
-
-#		String replacement from template to actual URL
-		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
-
-		try:
-			msgFormat = "json"
-			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())			
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
-		except Exception as e:
-			self.logger.error("POST Failed")
-			self.logger.error(e)
-			raise ConnectionException("Server not found")
-
-#		print ("Response status = ", response.status_code, "\tResponse ", response.headers)
-		if response.status_code >= 300:
-			self.logger.warning(response.headers)
-		return response.status_code
-
-
 	
 
 	'''
@@ -492,11 +451,91 @@ class Client(ibmiotf.AbstractClient):
 		else:
 			self.logger.warning("Received application status on invalid topic: %s" % (message.topic))
 
+			
+class HttpClient(ibmiotf.AbstractClient):
 
-'''
-Parse a standard application configuration file
-'''
+	def __init__(self, options, logHandlers=None):
+		self._options = options
+		
+		username = None
+		password = None
+		
+		### DEFAULTS ###
+		if "domain" not in self._options:
+			# Default to the domain for the public cloud offering
+			self._options['domain'] = "internetofthings.ibmcloud.com"
+		if "clean-session" not in self._options:
+		    self._options['clean-session'] = "true"
+		
+		### REQUIRED ###
+		if 'auth-key' not in self._options or self._options['auth-key'] is None:
+			# Configure for Quickstart
+			self._options['org'] = "quickstart"
+		else:
+			# Get the orgId from the apikey
+			self._options['org'] = self._options['auth-key'][2:8]
+			
+			if 'auth-token' not in self._options or self._options['auth-token'] == None: 
+				raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
+			
+			username = self._options['auth-key']
+			password = self._options['auth-token']
+			
+		self.setMessageEncoderModule('json', jsonCodec)
+		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		
+
+		# Create an api client if not connected in QuickStart mode
+		if self._options['org'] != "quickstart":
+			self.api = ibmiotf.api.ApiClient(self._options, self.logger)
+		
+		self.orgId = self._options['org']
+		self.appId = self._options['id']
+		
+	def publishEvent(self, deviceType, deviceId, event, data):
+		'''
+		This method is used by the application to publish events over HTTP(s)
+		It accepts 4 parameters, deviceType, deviceId, event which denotes event type and data which is the message to be posted
+		It throws a ConnectionException with the message "Server not found" if the application is unable to reach the server
+		Otherwise it returns the HTTP status code, (200 - 207 for success)
+		'''
+		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
+
+		templateUrl = '%s://%s.messaging.%s/api/v0002/application/types/%s/devices/%s/events/%s'
+
+		orgid = self._options['org']
+		authKey = self._options['auth-key']
+		authToken = self._options['auth-token']
+		credentials = (authKey, authToken)
+
+		if orgid == 'quickstart':
+			protocol = 'http'
+		else:
+			protocol = 'https'
+
+#		String replacement from template to actual URL
+		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
+
+		try:
+			msgFormat = "json"
+			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())			
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+		except Exception as e:
+			self.logger.error("POST Failed")
+			self.logger.error(e)
+			raise ConnectionException("Server not found")
+
+#		print ("Response status = ", response.status_code, "\tResponse ", response.headers)
+		if response.status_code >= 300:
+			self.logger.warning(response.headers)
+		return response.status_code
+
+
+
 def ParseConfigFile(configFilePath):
+	'''
+	Parse a standard application configuration file
+	'''
 	parms = configparser.ConfigParser({
 		"id": str(uuid.uuid4()),
 		"domain": "internetofthings.ibmcloud.com",
