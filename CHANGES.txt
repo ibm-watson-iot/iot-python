@@ -1,3 +1,10 @@
+v0.2.6
+======
+ - Support for "play" organization
+ - Independent HttpClient for application and device
+ - Switch to new URL for HTTP messaging API
+ - Clean up lingering references to sunset historian service in samples
+
 v0.2.5
 ======
  - TDB
