@@ -81,7 +81,7 @@ class Client(AbstractClient):
 				if self._options['auth-token'] == None:
 					raise ConfigurationException("Missing required property for token based authentication: auth-token")
 			else:
-				raise UnsupportedAuthenticationMethod(options['authMethod'])
+				raise UnsupportedAuthenticationMethod(options['auth-method'])
 
 
 		AbstractClient.__init__(
