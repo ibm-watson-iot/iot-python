@@ -189,7 +189,7 @@ class Client(AbstractClient):
 			self.logger.warning("Unable to subscribe to commands because device is not currently connected")
 			return False
 		else:
-			self.client.subscribe(COMMAND_TOPIC, qos=1)
+			self.client.subscribe(Client.COMMAND_TOPIC, qos=1)
 			return True
 
 	def __onCommand(self, client, userdata, pahoMessage):
