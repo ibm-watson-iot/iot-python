@@ -19,6 +19,7 @@ import logging
 
 class TestDevice:
     deviceClient=None
+    httpClient=None
     managedClient=None
     options=None
 
@@ -32,6 +33,7 @@ class TestDevice:
         self.authToken = self.options['auth-token']
 
         self.deviceClient = ibmiotf.device.Client(self.options)
+        self.httpClient = ibmiotf.device.HttpClient(self.options)
 
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
         deviceInfoObj = ibmiotf.device.DeviceInfo()
@@ -51,6 +53,7 @@ class TestDevice:
     @classmethod
     def teardown_class(self):
         self.deviceClient=None
+        self.httpClient=None
         self.managedClient=None
         self.options=None
 
@@ -149,17 +152,13 @@ class TestDevice:
 
     def testPublishEventOverHTTPs(self):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        self.deviceClient.connect()
-        assert_equals(self.deviceClient.publishEventOverHTTP("testPublishEventHTTPs", myData),200)
-        self.deviceClient.disconnect()
+        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", myData),200)
 
     def testPublishEventOverHTTP(self):
-        client = ibmiotf.device.Client({"org": "quickstart", "type": self.deviceType, "id": self.deviceId,
+        client = ibmiotf.device.HttpClient({"org": "quickstart", "type": self.deviceType, "id": self.deviceId,
                                         "auth-method":"None", "auth-token":"None" })
-        client.connect()
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_equals(client.publishEventOverHTTP("testPublishEventHTTP", myData),200)
-        client.disconnect()
+        assert_equals(client.publishEvent("testPublishEventHTTP", myData),200)
 
     def testDeviceInfoInstance(self):
         deviceInfoObj = ibmiotf.device.DeviceInfo()
@@ -183,6 +182,7 @@ class TestDevice:
             ibmiotf.device.ManagedClient(options)
         assert_equals(e.exception, Exception)
 
+    @SkipTest
     def testManagedClientSetMethods(self):
         self.managedClient.connect()
         #Define device properties to be notified whenever reset
@@ -227,6 +227,7 @@ class TestDevice:
         appClient.disconnect()
         self.deviceClient.disconnect()
 
+    @SkipTest
     def testDeviceRebootAction(self):
         def rebootActionCB(reqId,action):
             print("Device rebootActionCB called")
@@ -250,6 +251,7 @@ class TestDevice:
 
         self.managedClient.disconnect()
 
+    @SkipTest
     def testDeviceFactoryResetAction(self):
         def factoryResetActionCB(reqId,action):
             print("Device factoryResetActionCB called")
@@ -272,6 +274,7 @@ class TestDevice:
 
         self.managedClient.disconnect()
 
+    @SkipTest
     def testFirmwareDownloadAction(self):
         def downloadHandler(client,info):
             try:
@@ -370,6 +373,7 @@ class TestDevice:
         assert_equals(self.deviceClient.getKeepAliveInterval(),120)
         self.deviceClient.disconnect()
 
+    @SkipTest
     def testDMEAction(self):
         def doDMEAction(topic,data,reqId):
             print("In DME Action Callabck")
