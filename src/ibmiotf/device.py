@@ -21,7 +21,7 @@ import paho.mqtt.client as paho
 
 from datetime import datetime
 
-from ibmiotf import AbstractClient, InvalidEventException, UnsupportedAuthenticationMethod, ConfigurationException, ConnectionException, MissingMessageEncoderException, MissingMessageDecoderException
+from ibmiotf import AbstractClient, HttpAbstractClient, InvalidEventException, UnsupportedAuthenticationMethod,ConfigurationException, ConnectionException, MissingMessageEncoderException,MissingMessageDecoderException
 from ibmiotf.codecs import jsonCodec, jsonIotfCodec
 
 
@@ -65,6 +65,16 @@ class Client(AbstractClient):
 		if "clean-session" not in self._options:
 			self._options['clean-session'] = "true"
 
+		if "org" not in self._options:
+			# Default to the quickstart
+			self._options['org'] = "quickstart"
+
+		if "port" not in self._options and self._options["org"] != "quickstart":
+			self._options["port"] = 8883;
+
+		if self._options["org"] == "quickstart":
+			self._options["port"] = 1883;
+
 		### REQUIRED ###
 		if self._options['org'] == None:
 			raise ConfigurationException("Missing required property: org")
@@ -83,7 +93,6 @@ class Client(AbstractClient):
 			else:
 				raise UnsupportedAuthenticationMethod(options['auth-method'])
 
-
 		AbstractClient.__init__(
 			self,
 			domain = self._options['domain'],
@@ -92,7 +101,8 @@ class Client(AbstractClient):
 			username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
 			password = self._options['auth-token'],
 			logHandlers = logHandlers,
-			cleanSession = self._options['clean-session']
+			cleanSession = self._options['clean-session'],
+			port = self._options['port']
 		)
 
 		# Add handler for commands if not connected to QuickStart
@@ -114,7 +124,7 @@ class Client(AbstractClient):
 		'''
 		This is called after the client has received a CONNACK message from the broker in response to calling connect().
 		The parameter rc is an integer giving the return code:
-		
+
 		0: Success
 		1: Refused - unacceptable protocol version
 		2: Refused - identifier rejected
@@ -124,7 +134,7 @@ class Client(AbstractClient):
 		'''
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s" % self.clientId)
+			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
 			if self._options['org'] != "quickstart":
 				self.__subscribeToCommands()
 		elif rc == 5:
@@ -135,12 +145,12 @@ class Client(AbstractClient):
 	def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
 		'''
 		Publish an event in IoTF.
-		
+
 		Parameters:
 			event - the name of this event
 			msgFormat - the format of the data for this event
 			data - the data for this event
-		
+
 		Optional paramters:
 			qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
 			on_publish - a function that will be called when receipt of the publication is confirmed.  This
@@ -207,12 +217,12 @@ class Client(AbstractClient):
 			self.logger.debug("Received command '%s'" % (command.command))
 			if self.commandCallback: self.commandCallback(command)
 
-			
-class HttpClient(object):
+
+class HttpClient(HttpAbstractClient):
 	"""
 	A basic device client with limited capabilies that forgoes an active MQTT connection to the service.
 	"""
-	
+
 	def __init__(self, options, logHandlers=None):
 		self._options = options
 
@@ -226,6 +236,8 @@ class HttpClient(object):
 		### REQUIRED ###
 		if self._options['org'] == None:
 			raise ConfigurationException("Missing required property: org")
+		if self._options['type'] == None:
+			raise ConfigurationException("Missing required property: type")
 		if self._options['id'] == None:
 			raise ConfigurationException("Missing required property: id")
 
@@ -239,6 +251,9 @@ class HttpClient(object):
 			else:
 				raise UnsupportedAuthenticationMethod(options['authMethod'])
 
+		HttpAbstractClient.__init__(self,
+		clientId = "httpDevClient:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
+ 		logHandlers = logHandlers)
 		self.setMessageEncoderModule('json', jsonCodec)
 
 
@@ -251,22 +266,21 @@ class HttpClient(object):
 		"""
 		self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 
-		templateUrl = '%s://%s.messaging.%s/api/v0002/device/types/%s/devices/%s/events/%s'
+		templateUrl = 'https://%s.messaging.%s/api/v0002/device/types/%s/devices/%s/events/%s'
 
 		orgid = self._options['org']
 		deviceType = self._options['type']
 		deviceId = self._options['id']
-		authMethod = self._options['auth-method']
+		authMethod = "use-token-auth"
 		authToken = self._options['auth-token']
 		credentials = (authMethod, authToken)
 
 		if orgid == 'quickstart':
-			protocol = 'http'
-		else:
-			protocol = 'https'
+			authMethod = None
+			authToken = None
 
-		intermediateUrl = templateUrl % (protocol, orgid, self._options['domain'], deviceType, deviceId, event)
-
+		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
+		self.logger.debug("URL: %s",intermediateUrl)
 		try:
 			msgFormat = "json"
 			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
@@ -276,7 +290,6 @@ class HttpClient(object):
 			self.logger.error(e)
 			raise ConnectionException("Server not found")
 
-#		print ("Response status = ", response.status_code, "\tResponse ", response.headers)
 		if response.status_code >= 300:
 			self.logger.warning(response.headers)
 		return response.status_code
@@ -472,7 +485,7 @@ class ManagedClient(Client):
 	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s" % self.clientId)
+			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
 			if self._options['org'] != "quickstart":
 				self.client.subscribe( [(ManagedClient.DM_RESPONSE_TOPIC, 1), (ManagedClient.DM_OBSERVE_TOPIC, 1),
 				(ManagedClient.DM_REBOOT_TOPIC,1),(ManagedClient.DM_FACTORY_REESET,1),(ManagedClient.DM_UPDATE_TOPIC,1),
@@ -867,7 +880,7 @@ class ManagedClient(Client):
 
 def ParseConfigFile(configFilePath):
 	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
-	                                   "clean-session": "true"})
+	                                   "port": "8883","clean-session": "true"})
 	sectionHeader = "device"
 	try:
 		with open(configFilePath) as f:
@@ -885,9 +898,12 @@ def ParseConfigFile(configFilePath):
 		authMethod = parms.get(sectionHeader, "auth-method")
 		authToken = parms.get(sectionHeader, "auth-token")
 		cleanSession = parms.get(sectionHeader, "clean-session")
+		port = parms.get(sectionHeader, "port")
 
 	except IOError as e:
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 
-	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'clean-session': cleanSession}
+	return {'domain': domain, 'org': organization, 'type': deviceType,
+	        'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken,
+			'clean-session': cleanSession, 'port': port}
