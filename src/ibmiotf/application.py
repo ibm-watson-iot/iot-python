@@ -538,11 +538,43 @@ class HttpClient(HttpAbstractClient):
 			self.logger.error(e)
 			raise ConnectionException("Server not found")
 
-#		print ("Response status = ", response.status_code, "\tResponse ", response.headers)
 		if response.status_code >= 300:
 			self.logger.warning(response.headers)
 		return response.status_code
 
+
+	def publishCommand(self, deviceType, deviceId, event, cmdData):
+		'''
+		This method is used by the application to publish device command over HTTP(s)
+		It accepts 4 parameters, deviceType, deviceId, event which denotes event type
+		and cmdData which is the command to be posted.
+		It throws a ConnectionException with the message "Server not found" if the
+		application is unable to reach the server, Otherwise it returns the
+		HTTP status code, (200 - 207 for success)
+		'''
+		self.logger.debug("Sending event %s with command format %s" % (event, json.dumps(cmdData)))
+		templateUrl = 'https://%s.messaging.%s/api/v0002/application/types/%s/devices/%s/commands/%s'
+		orgid = self._options['org']
+		if orgid == 'quickstart':
+			authKey = None
+			authToken = None
+		else:
+			authKey = self._options['auth-key']
+			authToken = self._options['auth-token']
+		credentials = (authKey, authToken)
+		#String replacement from template to actual URL
+		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
+		try:
+			cmdFormat = "json"
+			payload = self._messageEncoderModules[cmdFormat].encode(cmdData, datetime.now())
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+		except Exception as e:
+			self.logger.error("POST Failed")
+			self.logger.error(e)
+			raise ConnectionException("Server not found")
+		if response.status_code >= 300:
+			self.logger.warning(response.headers)
+		return response.status_code
 
 
 def ParseConfigFile(configFilePath):
