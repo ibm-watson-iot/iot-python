@@ -46,12 +46,13 @@ class TestApplication:
         assert_equals(client.organization,"quickstart")
 
         client  = ibmiotf.application.Client({"org": "quickstart", "type": "standalone","id": "MyFirstDevice"})
+        hclient  = ibmiotf.application.HttpClient({"org": "quickstart", "type": "standalone","id": "MyFirstDevice"})
+
         assert_is_instance(client , ibmiotf.application.Client)
+        assert_is_instance(hclient , ibmiotf.application.HttpClient)
+
         assert_equals(client.organization,"quickstart")
         assert_equals(client.clientId , "a:quickstart:MyFirstDevice")
-
-        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_equals(self.httpClient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPs", myData),200)
 
         assert_false(client.subscribeToDeviceEvents())
         assert_false(client.subscribeToDeviceStatus())
@@ -59,8 +60,6 @@ class TestApplication:
 
         commandData={'rebootDelay' : 50}
         assert_false(client.publishCommand(self.deviceType, self.deviceId, "reboot", "json", commandData))
-
-
 
     def testApplicationClientInstance(self):
         client  = ibmiotf.application.Client({"org": self.org, "type": self.deviceType, "id": self.deviceId,
@@ -120,9 +119,20 @@ class TestApplication:
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert(self.appClient.publishEvent(self.deviceType,self.deviceId,"testPublishEvent", "json", myData, on_publish=appEventPublishCallback))
 
-    def testPublishEventOverHTTPs(self):
+    def testPublishOverHTTPs(self):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_equals(self.httpClient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPs", myData),200)
+
+        myCMD={'command':'Reboot'}
+        assert_equals(self.httpClient.publishCommand(self.deviceType,self.deviceId,"testPublishCMDHTTPQS", myCMD),200)
+
+    def testPublishOverHTTPQS(self):
+        hclient  = ibmiotf.application.HttpClient({"org": "quickstart", "type": "standalone","id": "MyFirstDevice"})
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        assert_equals(hclient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPQS", myData),200)
+
+        myCMD={'command':'Reboot'}
+        assert_equals(hclient.publishCommand(self.deviceType,self.deviceId,"testPublishCMDHTTPQS", myCMD),200)
 
     @raises(Exception)
     def testMissingMessageEncoderForPublishCommand(self):
