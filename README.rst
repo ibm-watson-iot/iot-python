@@ -16,6 +16,8 @@ Dependencies
 -  `iso8601 <https://pypi.python.org/pypi/iso8601>`__
 -  `pytz <https://pypi.python.org/pypi/pytz>`__
 -  `requests <https://pypi.python.org/pypi/requests>`__
+-  `dicttoxml <https://pypi.python.org/pypi/dicttoxml>`__
+-  `xmltodict <https://pypi.python.org/pypi/xmltodict>`__
 
 Installation
 ------------
