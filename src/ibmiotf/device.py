@@ -7,8 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # Contributors:
-#   David Parker  - Initial Contribution
-#   Lokesh Haralakatta - Added DME Support
+#   David Parker
+#   Lokesh Haralakatta
 # *****************************************************************************
 
 import json
@@ -22,7 +22,8 @@ import paho.mqtt.client as paho
 from datetime import datetime
 
 from ibmiotf import AbstractClient, HttpAbstractClient, InvalidEventException, UnsupportedAuthenticationMethod,ConfigurationException, ConnectionException, MissingMessageEncoderException,MissingMessageDecoderException
-from ibmiotf.codecs import jsonCodec, jsonIotfCodec
+from ibmiotf.codecs import jsonCodec, jsonIotfCodec, xmlCodec
+from ibmiotf import util
 
 
 # Support Python 2.7 and 3.4 versions of configparser
@@ -118,6 +119,7 @@ class Client(AbstractClient):
 
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		self.setMessageEncoderModule('xml', xmlCodec)
 
 
 	def on_connect(self, client, userdata, flags, rc):
@@ -255,12 +257,13 @@ class HttpClient(HttpAbstractClient):
 		clientId = "httpDevClient:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
  		logHandlers = logHandlers)
 		self.setMessageEncoderModule('json', jsonCodec)
+		self.setMessageEncoderModule('xml', xmlCodec)
 
 
 
-	def publishEvent(self, event, data):
+	def publishEvent(self, event, data, dataFormat="json"):
 		"""
-		Publish an event over HTTP(s) as JSON
+		Publish an event over HTTP(s) as given supported format
 		Throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
 		Otherwise it returns the HTTP status code, (200 - 207 for success)
 		"""
@@ -282,9 +285,12 @@ class HttpClient(HttpAbstractClient):
 		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
 		self.logger.debug("URL: %s",intermediateUrl)
 		try:
-			msgFormat = "json"
-			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+			self.logger.debug("Data Format = %s",(dataFormat))
+			contentType = util.getContentType(dataFormat)
+			self.logger.debug("contentType = %s",(contentType))
+			payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now(pytz.timezone('UTC')))
+			self.logger.debug("payload = %s",(payload))
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
 		except Exception as e:
 			self.logger.error("POST Failed")
 			self.logger.error(e)
