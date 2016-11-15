@@ -33,6 +33,7 @@ Once you have access to an API Key for an organization in the Internet of Things
 ###Using an application configuration file
 Create a file named application.cfg in the simpleApp directory and insert the credentials for your API key as well as an ID that is unique to your application instance. 
 ```
+[application]
 org=$orgId
 id=myApplication
 auth-method=apikey
