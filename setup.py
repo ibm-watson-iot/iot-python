@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='ibmiotf',
-    version="0.2.6",
+    version="0.2.7",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -22,7 +22,8 @@ setup(
         "iso8601 >= 0.1.10",
         "paho-mqtt >= 1.1",
         "pytz >= 2014.7",
-        "requests >= 2.5.0"
+        "requests >= 2.5.0",
+        "requests_toolbelt >= 0.7.0",
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

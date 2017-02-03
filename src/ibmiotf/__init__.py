@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2017 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -29,7 +29,7 @@ from datetime import datetime
 from pkg_resources import get_distribution
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.2.6"
+__version__ = "0.2.7"
 
 class Message:
 	def __init__(self, data, timestamp=None):

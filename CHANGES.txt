@@ -1,3 +1,7 @@
+v0.2.7
+======
+ - Add device schema and state APIs
+
 v0.2.6
 ======
  - Support for "play" organization

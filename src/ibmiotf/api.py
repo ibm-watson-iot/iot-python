@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2015 IBM Corporation and other Contributors.
+# Copyright (c) 2015, 2017 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -11,6 +11,7 @@
 #   Paul Slater
 #   Amit M Mangalvedkar
 #   Lokesh K Haralakatta
+#   Ian Craggs
 # *****************************************************************************
 
 import ibmiotf
@@ -23,6 +24,7 @@ from datetime import datetime
 
 import logging
 from symbol import parameters
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 
 class ApiClient():
@@ -71,6 +73,38 @@ class ApiClient():
 	#Device Management Extensions (dme) URL
 	dmeRequests = 'https://%s/api/v0002/mgmt/custom/bundle'
 	dmeSingleRequest = 'https://%s/api/v0002/mgmt/custom/bundle/%s'
+	
+	# Information management URLs 
+	
+	# Schema URLs
+	allSchemasUrl = "https://%s/api/v0002/schemas"    
+	oneSchemaUrl  = "https://%s/api/v0002/schemas/%s" 
+	oneSchemaContentUrl  = "https://%s/api/v0002/schemas/%s/content" 
+  
+	# Event type URLs
+	allEventTypesUrl = "https://%s/api/v0002/event/types" 
+	oneEventTypeUrl  = "https://%s/api/v0002/event/types/%s" 
+  
+	# Physical Interface URLs  
+	allPhysicalInterfacesUrl = "https://%s/api/v0002/physicalinterfaces" 
+	onePhysicalInterfaceUrl  = "https://%s/api/v0002/physicalinterfaces/%s" 
+	
+	# Event URLs
+	allEventsUrl = "https://%s/api/v0002/physicalinterfaces/%s/events"  
+	oneEventUrl  = "https://%s/api/v0002/physicalinterfaces/%s/events/%s"
+	
+	# Application Interface URLs  
+	allApplicationInterfacesUrl = "https://%s/api/v0002/applicationinterfaces" 
+	oneApplicationInterfaceUrl  = "https://%s/api/v0002/applicationinterfaces/%s" 
+	allDeviceTypeApplicationInterfacesUrl = "https://%s/api/v0002/device/types/%s/applicationinterfaces" 
+	oneDeviceTypeApplicationInterfaceUrl = "https://%s/api/v0002/device/types/%s/applicationinterfaces/%s" 
+  
+	# Mappings
+	allDeviceTypeMappingsUrl = "https://%s/api/v0002/device/types/%s/mappings" 
+	oneDeviceTypeMappingUrl = "https://%s/api/v0002/device/types/%s/mappings/%s" 
+  
+	# Device state
+	deviceStateUrl = "https://%s/api/v0002/device/types/%s/devices/%s/state/%s"   
 
 	def __init__(self, options, logger=None):
 		self.__options = options
@@ -1186,3 +1220,650 @@ class ApiClient():
 			return r.json()
 		else:
 			raise ibmiotf.APIException(status,"HTTP Error in updateDeviceManagementExtensionPkg", r)
+			
+	"""
+	===========================================================================
+	Information Management Schema APIs
+	===========================================================================
+	"""			
+			
+	def getSchemas(self):
+		"""
+		Get all schemas for the org.  In case of failure it throws APIException
+		"""
+		req = ApiClient.allSchemasUrl % (self.host)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All schemas retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all schemas", resp)
+		return [x["id"] for x in resp.json()["results"]], resp.json()
+			
+	def getSchema(self, schemaId):
+		"""
+		Get a single schema.  Throws APIException on failure
+		"""
+		req = ApiClient.oneSchemaUrl % (self.host, schemaId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("One schema retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error in get a schema", resp)
+		return resp.json()
+			
+	def createSchema(self, schemaName, schemaFileName, schemaContents, description=None):
+		"""
+		Create a schema for the org.  
+		Returns: schemaId (string), response (object).
+		Throws APIException on failure
+		"""
+		req = ApiClient.allSchemasUrl % (self.host)	  
+		fields={
+	  	'schemaFile': (schemaFileName, schemaContents, 'application/json'),
+			'schemaType': 'json-schema', 
+			'name': schemaName,
+		}
+		if description:
+			fields["description"] = description
+ 
+		multipart_data = MultipartEncoder(fields=fields)
+		resp = requests.post(req, auth=self.credentials, data=multipart_data,
+							headers={'Content-Type': multipart_data.content_type}, verify=self.verify)
+		if resp.status_code == 201:
+			self.logger.debug("Schema created")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating a schema", resp)		
+		return resp.json()["id"], resp.json()
+			
+	def deleteSchema(self, schemaId):
+		"""
+		Delete a schema.  Parameter: schemaId (string). Throws APIException on failure.
+		"""
+		req = ApiClient.oneSchemaUrl % (self.host, schemaId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 204:
+			self.logger.debug("Schema deleted")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting schema", resp)
+		return resp
+		
+	def getSchemaContent(self, schemaId):
+		"""
+		Get the content for a schema.  Parameter: schemaId (string). Throws APIException on failure. 
+		"""
+		req = ApiClient.oneSchemaContentUrl % (self.host, schemaId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("Schema content retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting schema content", resp)	
+		return resp.json()
+			
+	"""
+	===========================================================================
+	Information Management event type APIs
+	===========================================================================
+	"""
+
+	def getEventTypes(self):
+		"""
+		Get all event types for an org.  Throws APIException on failure. 
+		"""
+		req = ApiClient.allEventTypesUrl % (self.host)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All event types retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all event types", resp)	
+		return [x["id"] for x in resp.json()["results"]], resp.json()
+	
+	def createEventType(self, name, schemaId, description=None):
+		"""
+		Creates an event type.  
+		Parameters: name (string), schemaId (string), description (string, optional).
+		Returns: event type id (string), response (object).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allEventTypesUrl % (self.host)
+		body = {"name" : name, "schemaId" : schemaId}
+		if description:
+			body["description"] = description
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+							data=json.dumps(body), 	verify=self.verify)
+		if resp.status_code == 201:
+			self.logger.debug("event type created")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event type", resp)	
+		return resp.json()["id"], resp.json()		
+		
+	def updateEventType(self, eventTypeId, name, schemaId, description=None):
+		"""
+		Updates an event type.  
+		Parameters: eventTypeId (string), name (string), schemaId (string), description (string, optional).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneEventTypesUrl % (self.host, eventTypeId)
+		body = {"name" : name, "schemaId" : schemaId}
+		if description:
+			body["description"] = description
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+							data=json.dumps(body), 	verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("event type updated")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating event type", resp)	
+		return resp.json()			
+		
+	def deleteEventType(self, eventTypeId):
+		"""
+		Deletes an event type.  Parameters: eventTypeId (string). Throws APIException on failure. 
+		"""
+		req = ApiClient.oneEventTypeUrl % (self.host, eventTypeId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 204:
+			self.logger.debug("event type deleted")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting an event type", resp)	
+		return resp
+		
+	def getEventType(self, eventTypeId):
+		"""
+		Gets an event type.  Parameters: eventTypeId (string).  Throws APIException on failure. 
+		"""
+		req = ApiClient.oneEventTypeUrl % (self.host, eventTypeId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("event type retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting an event type", resp)	
+		return resp.json()				
+		
+	"""
+	===========================================================================
+	Information Management Physical Interface APIs
+	===========================================================================
+	"""
+
+	def getPhysicalInterfaces(self):
+		"""
+		Get all physical interfaces for an org.  Throws APIException on failure. 
+		"""
+		req = ApiClient.allPhysicalInterfacesUrl % (self.host)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All physical interfaces retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all physical interfaces", resp)	
+		return [x["id"] for x in resp.json()["results"]], resp.json()
+	
+	def createPhysicalInterface(self, name, description=None):
+		"""
+		Create a physical interface.  
+		Parameters: 
+		  - name (string)
+		  - description (string, optional)
+		Returns: physical interface id, response.
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allPhysicalInterfacesUrl % (self.host)
+		body = {"name" : name}
+		if description:
+			body["description"] = description
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+							data=json.dumps(body), 	verify=self.verify)
+		if resp.status_code == 201:
+			self.logger.debug("physical interface created")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating physical interface", resp)	
+		return resp.json()["id"], resp.json()		
+		
+	def updatePhysicalInterface(self, physicalInterfaceId, name, schemaId, description=None):
+		"""
+		Update a physical interface.  
+		Parameters: 
+		  - physicalInterfaceId (string)
+		  - name (string)
+		  - schemaId (string)
+		  - description (string, optional)
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.onePhysicalInterfacesUrl % (self.host, physicalInterfaceId)
+		body = {"name" : name, "schemaId" : schemaId}
+		if description:
+			body["description"] = description
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+							data=json.dumps(body), 	verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("physical interface updated")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating physical interface", resp)	
+		return resp.json()			
+		
+	def deletePhysicalInterface(self, physicalInterfaceId):
+		"""
+		Delete a physical interface.  
+		Parameters: physicalInterfaceId (string). 
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.onePhysicalInterfaceUrl % (self.host, physicalInterfaceId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 204:
+			self.logger.debug("physical interface deleted")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting a physical interface", resp)	
+		return resp
+		
+	def getPhysicalInterface(self, physicalInterfaceId):
+		"""
+		Get a physical interface.  
+		Parameters: physicalInterfaceId (string).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.onePhysicalInterfaceUrl % (self.host, physicalInterfaceId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("physical interface retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting a physical interface", resp)	
+		return resp.json()				
+						
+						
+	"""
+	===========================================================================
+	Information Management Event Mapping APIs
+	===========================================================================
+	"""
+	
+	def getEvents(self, physicalInterfaceId):
+		"""
+		Get the event mappings for a physical interface.
+		Parameters: physicalInterfaceId (string).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allEventsUrl % (self.host, physicalInterfaceId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All event mappings retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting event mappings", resp)	
+		return resp.json()
+	
+	def createEvent(self, physicalInterfaceId, eventTypeId, eventId):
+		"""
+		Create an event mapping for a physical interface.
+		Parameters: 
+		  physicalInterfaceId (string) - value returned by the platform when creating the physical interface
+		  eventTypeId (string) - value returned by the platform when creating the event type
+		  eventId (string) - matches the event id used by the device in the MQTT topic
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allEventsUrl % (self.host, physicalInterfaceId)
+		body = {"eventId" : eventId, "eventTypeId" : eventTypeId}
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+ 		if resp.status_code == 201:
+			self.logger.debug("Event mapping created")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event mapping", resp)	
+		return resp.json()
+  
+ 	def deleteEvent(self, physicalInterfaceId, eventId):
+		"""
+		Delete an event mapping from a physical interface.
+		Parameters: physicalInterfaceId (string), eventId (string).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneEventUrl % (self.host, physicalInterfaceId, eventId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 204:
+			self.logger.debug("Event mapping deleted")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting event mapping", resp)	
+		return resp
+
+
+	"""
+	===========================================================================
+	Information Management Application Interface APIs
+	===========================================================================
+	"""
+
+	def getApplicationInterfaces(self):
+		"""
+		Get all application interfaces for an org.  
+		Returns:
+			- list of ids
+			- response object
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allApplicationInterfacesUrl % (self.host)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All application interfaces retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all application interfaces", resp)	
+		return [x["id"] for x in resp.json()["results"]], resp.json()
+	
+	def createApplicationInterface(self, name, schemaId, description=None):
+		"""
+		Creates an application interface..  
+		Parameters: name (string), schemaId (string), description (string, optional).
+		Returns: application interface id (string), response (object).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allApplicationInterfacesUrl % (self.host)
+		body = {"name" : name, "schemaId" : schemaId}
+		if description:
+			body["description"] = description
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+							data=json.dumps(body), verify=self.verify)
+		if resp.status_code == 201:
+			self.logger.debug("Application interface created")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating application interface", resp)	
+		return resp.json()["id"], resp.json()				
+		
+	def updateApplicationInterface(self, ApplicationInterfaceId, name, schemaId, description=None):
+		"""
+		Updates an application interface.  
+		Parameters: ApplicationInterfaceId (string), name (string), schemaId (string), description (string, optional).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneApplicationInterfacesUrl % (self.host, ApplicationInterfaceId)
+		body = {"name" : name, "schemaId" : schemaId}
+		if description:
+			body["description"] = description
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+							data=json.dumps(body), 	verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("application interface updated")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating application interface", resp)	
+		return resp.json()			
+		
+	def deleteApplicationInterface(self, applicationInterfaceId):
+		"""
+		Deletes an application interface.  
+		Parameters: applicationInterfaceId (string).
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneApplicationInterfaceUrl % (self.host, applicationInterfaceId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 204:
+			self.logger.debug("application interface deleted")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting an application interface", resp)	
+		return resp.json()		
+		
+	def getApplicationInterface(self, applicationInterfaceId):
+		"""
+		Gets an application interface.  
+		Parameters: applicationInterfaceId (string).  
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneApplicationInterfaceUrl % (self.host, applicationInterfaceId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("application interface retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting an application interface", resp)	
+		return resp.json()		
+
+	"""
+	===========================================================================
+	Information Management Device Type APIs
+	===========================================================================
+	"""
+	
+	def addPhysicalInterfaceToDeviceType(self, typeId, physicalInterfaceId):
+		"""
+		Adds a physical interface to a device type.
+		Parameters: 
+			- typeId (string) - the device type
+			- physicalInterfaceId (string) - the id returned by the platform on creation of the physical interface
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		body = {"physicalInterfaceId" : physicalInterfaceId}
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+ 		if resp.status_code == 200:
+			self.logger.debug("Physical interface added to a device type")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error removing physical interface from a device type", resp)	
+		return resp.json()		
+		
+	def removePhysicalInterfaceFromDeviceType(self, typeId):
+		"""
+		Removes the physical interface from a device type.  Only one can be associated with a device type,
+		  so the physical interface id is not necessary as a parameter.
+		Parameters: 
+					- typeId (string) - the device type
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		body = {}
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+ 		if resp.status_code == 200:
+			self.logger.debug("Physical interface removed from a device type")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error removing a physical interface from a device type", resp)	
+		return resp.json()		
+
+	def getApplicationInterfacesOnDeviceType(self, typeId):
+		"""
+		Get all application interfaces for a device type.
+		Returns:
+			- list of application interface ids
+			- HTTP response object
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allDeviceTypeApplicationInterfacesUrl % (self.host, typeId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All device type application interfaces retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all device type application interfaces", resp)	
+		return [appintf["id"] for appintf in resp.json()], resp.json()
+		
+	def addApplicationInterfaceToDeviceType(self, typeId, applicationInterfaceId, schemaId, description=None):
+		"""
+		Adds an application interface to a device type.
+		Parameters: 
+			- typeId (string) - the device type
+			- applicationInterfaceId (string) - the id returned by the platform on creation of the application interface
+			- schemaId (string) - the schema id of the application interface.  (yes, why?)
+			- description (string) - optional (not used)
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allDeviceTypeApplicationInterfacesUrl % (self.host, typeId)
+		body = {"name" : "required but not used!!!", "id" : applicationInterfaceId, "schemaId" : schemaId}
+		if description:
+			body["description"] = description
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+						verify=self.verify)
+ 		if resp.status_code == 201:
+			self.logger.debug("Application interface added to a device type")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error adding application interface to a device type", resp)	
+		return resp.json()		
+
+	def removeApplicationInterfaceFromDeviceType(self, typeId, applicationInterfaceId):
+		"""
+		Removes an application interface from a device type.
+		Parameters: 
+			- typeId (string) - the device type
+			- applicationInterfaceId (string) - the id returned by the platform on creation of the application interface
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneDeviceTypeApplicationInterfaceUrl % (self.host, typeId, applicationInterfaceId)   
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+ 		if resp.status_code == 204:
+			self.logger.debug("Application interface removed from a device type")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error removing application interface from a device type", resp)	
+		return resp
+	
+	def getMappingsOnDeviceType(self, typeId):
+		"""
+		Get all the mappings for a device type.
+		Parameters: 
+			- typeId (string) - the device type
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allDeviceTypeMappingsUrl % (self.host, typeId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("All device type mappings retrieved")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all device type mappings", resp)	
+		return resp.json()
+		
+	def addMappingsToDeviceType(self, typeId, applicationInterfaceId, mappingsObject):
+		"""
+		Add mappings for a device type.
+		Parameters: 
+			- typeId (string) - the device type
+			- applicationInterfaceId (string) - the id of the application interface these mappings are for
+			- mappingsObject (Python dictionary corresponding to JSON object) example:
+			
+			{ # eventid -> { property -> eventid property expression }
+         "status" :  { 
+                "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
+           }
+      }
+			
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.allDeviceTypeMappingsUrl % (self.host, typeId)
+		try:
+			mappings = json.dumps({
+				"applicationInterfaceId" : applicationInterfaceId,
+				"propertyMappings" : mappingsObject 
+			})
+		except Exception as exc:
+			raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings)
+		if resp.status_code == 201:
+			self.logger.debug("Device type mappings created for application interface")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating device type mappings for application interface", resp)	
+		return resp.json() 
+		
+	def deleteMappingsFromDeviceType(self, typeId, applicationInterfaceId):
+		"""
+		Deletes mappings for an application interface from a device type.
+		Parameters:
+			- typeId (string) - the device type
+		  - applicationInterfaceId (string) - the platform returned id of the application interface
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneDeviceTypeMappingUrl % (self.host, typeId, applicationInterfaceId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 204:
+			self.logger.debug("Mappings deleted from the device type")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting mappings for an application interface from a device type", resp)	
+		return resp
+		
+	def getMappingsOnDeviceTypeForApplicationInterface(self, typeId, applicationInterfaceId):
+		"""
+		Gets the mappings for an application interface from a device type.
+		Parameters:
+			- typeId (string) - the device type
+		  - applicationInterfaceId (string) - the platform returned id of the application interface
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneMappingDeviceTypeUrl % (self.host, applicationInterfaceId)
+		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("Mappings retrieved from the device type")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting mappings for an application interface from a device type", resp)	
+		return resp.json()	
+	
+	def updateMappingsOnDeviceType(self, typeId, applicationInterfaceId, mappingsObject):
+		"""
+		Add mappings for a device type.
+		Parameters: 
+			- typeId (string) - the device type
+			- applicationInterfaceId (string) - the id of the application interface these mappings are for
+			- mappingsObject (Python dictionary corresponding to JSON object) example:
+			
+			{ # eventid -> { property -> eventid property expression }
+         "status" :  { 
+                "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
+           }
+      }
+			
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.oneDeviceTypeMappingUrl % (self.host, typeId, applicationInterfaceId)
+		try:
+			mappings = json.dumps({
+				"applicationInterfaceId" : applicationInterfaceId,
+				"propertyMappings" : mappingsObject 
+			})
+		except Exception as exc:
+			raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings)
+		if resp.status_code == 204:
+			self.logger.debug("Device type mappings updated for application interface")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating device type mappings for application interface", resp)	
+		return resp.json() 
+		
+	"""
+	===========================================================================
+	Information Management Device APIs
+	===========================================================================
+	"""		
+	def validateDeviceType(self, typeId):
+		"""
+		Validate the device type configuration.
+		Parameters:
+			- typeId (string) - the platform device type
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		body = {"operation" : "validate"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		if resp.status_code == 200:
+			self.logger.debug("Validation for device type configuration succeeded")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "Validation for device type configuration failed", resp)	
+		return resp.json()	
+		
+	def deployDeviceType(self, typeId):
+		"""
+		(Validate and) Deploy the device type configuration.
+		Parameters:
+			- typeId (string) - the platform device type
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		body = {"operation" : "deploy"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		if resp.status_code == 200:
+			self.logger.debug("Deploy for device type configuration succeeded")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "Deploy for device type configuration failed", resp)	
+		return resp.json()	
+		
+	def getDeviceStateForApplicationInterface(self, typeId, deviceId, applicationInterfaceId):
+		"""
+		Gets the state for an application interface for a device.
+		Parameters:
+			- typeId (string) - the platform device type
+			- deviceId (string) - the platform device id
+		  - applicationInterfaceId (string) - the platform returned id of the application interface
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.deviceStateUrl % (self.host, typeId, deviceId, applicationInterfaceId)
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("State retrieved from the device type for an application interface")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for an application interface from a device type", resp)	
+		return resp.json()	
+		
+		
+		
