@@ -23,7 +23,6 @@ from datetime import datetime
 
 from ibmiotf import AbstractClient, HttpAbstractClient, InvalidEventException, UnsupportedAuthenticationMethod,ConfigurationException, ConnectionException, MissingMessageEncoderException,MissingMessageDecoderException
 from ibmiotf.codecs import jsonCodec, jsonIotfCodec, xmlCodec
-from ibmiotf import util
 
 
 # Support Python 2.7 and 3.4 versions of configparser
