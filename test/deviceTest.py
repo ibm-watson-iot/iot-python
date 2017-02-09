@@ -151,7 +151,6 @@ class TestDevice:
         assert_true(self.deviceClient.publishEvent("testPublishXMLEvent", "xml", myData,on_publish=devPublishCallback,qos=2))
         self.deviceClient.disconnect()
 
-    @SkipTest
     def testPublishEventOverHTTPs(self):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", myData),200)
