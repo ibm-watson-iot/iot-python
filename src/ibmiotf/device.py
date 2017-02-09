@@ -286,7 +286,7 @@ class HttpClient(HttpAbstractClient):
 		self.logger.debug("URL: %s",intermediateUrl)
 		try:
 			self.logger.debug("Data Format = %s",(dataFormat))
-			contentType = util.getContentType(dataFormat)
+			contentType = self.getContentType(dataFormat)
 			self.logger.debug("contentType = %s",(contentType))
 			payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 			self.logger.debug("payload = %s",(payload))
