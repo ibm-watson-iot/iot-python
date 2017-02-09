@@ -327,7 +327,7 @@ class HttpAbstractClient:
 		self.logger.critical(str(e))
 		raise e
 
-	def getContentType(dataFormat):
+	def getContentType(self,dataFormat):
 	    '''
 	       Method to detect content type using given data format
 	    '''
