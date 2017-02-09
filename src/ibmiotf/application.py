@@ -22,7 +22,6 @@ from ibmiotf import HttpAbstractClient, ConnectionException, MissingMessageEncod
 from ibmiotf.codecs import jsonIotfCodec
 from ibmiotf.codecs import jsonCodec
 from ibmiotf.codecs import xmlCodec
-from ibmiotf import util
 import ibmiotf.api
 import paho.mqtt.client as paho
 
@@ -536,7 +535,7 @@ class HttpClient(HttpAbstractClient):
 
 		try:
 			self.logger.debug("Data Format = %s",(dataFormat))
-			contentType = util.getContentType(dataFormat)
+			contentType = self.getContentType(dataFormat)
 			self.logger.debug("contentType = %s",(contentType))
 			payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now())
 			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
@@ -572,7 +571,7 @@ class HttpClient(HttpAbstractClient):
 		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
 		try:
 			self.logger.debug("Data Format = %s",(cmdFormat))
-			contentType = util.getContentType(cmdFormat)
+			contentType = self.getContentType(cmdFormat)
 			self.logger.debug("contentType = %s",(contentType))
 			payload = self._messageEncoderModules[cmdFormat].encode(cmdData, datetime.now())
 			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
