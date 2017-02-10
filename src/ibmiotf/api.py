@@ -1628,7 +1628,7 @@ class ApiClient():
  		if resp.status_code == 200:
 			self.logger.debug("Physical interface added to a device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error removing physical interface from a device type", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error adding physical interface to a device type", resp)	
 		return resp.json()		
 		
 	def removePhysicalInterfaceFromDeviceType(self, typeId):
@@ -1842,7 +1842,7 @@ class ApiClient():
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
 		body = {"operation" : "deploy"}
 		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
-		if resp.status_code == 200:
+		if resp.status_code in [200, 202]:
 			self.logger.debug("Deploy for device type configuration succeeded")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "Deploy for device type configuration failed", resp)	

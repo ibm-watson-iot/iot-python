@@ -87,7 +87,7 @@ if __name__ == "__main__":
 	event = "+"
 	
 	for o, a in opts:
-		if o in ("-o", "--organizatoin"):
+		if o in ("-o", "--organization"):
 			organization = a
 		elif o in ("-i", "--id"):
 			appId = a

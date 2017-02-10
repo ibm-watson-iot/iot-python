@@ -12,22 +12,20 @@
 
 
 from __future__ import print_function
-import time, ibmiotf.api
+import time, ibmiotf.api, json, base64
 
 if __name__ == "__main__":    
   from properties import orgid, key, token, devicetype, deviceid
   
   api = ibmiotf.api.ApiClient({"auth-key": key, "auth-token": token})
-    
-  appinterfaceids, result = api.getApplicationInterfacesOnDeviceType(devicetype)
-  print("Application interface ids", appinterfaceids)
   
   while True:
-    for applicationInterfaceId in appinterfaceids:
-      print("Getting state for application interface id", applicationInterfaceId)
-      try:
-        result = api.getDeviceStateForApplicationInterface(devicetype, deviceid, applicationInterfaceId)
-        print(result)
-      except Exception as exc:
-        print(exc.response.json())
-      time.sleep(1)
+    try:
+      result = api.getLastEvents(devicetype, deviceid)
+      for event in result:
+        if event["format"] == "json":
+          event["payload"] = base64.decodestring(event["payload"])
+      print(result)
+    except Exception as exc:
+      print(exc)
+    time.sleep(1)

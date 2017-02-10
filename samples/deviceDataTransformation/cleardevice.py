@@ -69,7 +69,7 @@ if __name__ == "__main__":
     for eventId in eventIds:
      	result = api.deleteEvent(physicalInterfaceId, eventId) # remove event mapping from device type
   	
-  	result = api.eletePhysicalInterface(physicalInterfaceId)
+  	result = api.deletePhysicalInterface(physicalInterfaceId)
   	print("Physical interface deleted")
   	
     # delete event types and schemas
