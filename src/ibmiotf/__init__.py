@@ -11,6 +11,7 @@
 #   Paul Slater
 #   Ben Bakowski
 #   Amit M Mangalvedkar
+#   Lokesh Haralakatta
 # *****************************************************************************
 
 import sys
@@ -325,3 +326,20 @@ class HttpAbstractClient:
 	def logAndRaiseException(self, e):
 		self.logger.critical(str(e))
 		raise e
+
+	def getContentType(self,dataFormat):
+	    '''
+	       Method to detect content type using given data format
+	    '''
+	    # Default content type is json
+	    contentType = "application/json"
+	    if dataFormat == "text":
+	        contentType = "text/plain; charset=utf-8"
+	    elif dataFormat == "xml":
+	        contentType = "application/xml"
+	    elif dataFormat == "bin":
+	        contentType = "application/octet-stream"
+	    else:
+	        contentType = "application/json"
+	    # Return derived content type
+	    return contentType

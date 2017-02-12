@@ -7,8 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # Contributors:
-#   Amit M Mangalvedkar  - Initial Contribution
-#   Lokesh K Haralakatta - Added API Support for Gateway
+#   Amit M Mangalvedkar
+#   Lokesh K Haralakatta
 # *****************************************************************************
 
 import json
@@ -23,7 +23,7 @@ import paho.mqtt.client as paho
 from datetime import datetime
 
 from ibmiotf import AbstractClient, InvalidEventException, UnsupportedAuthenticationMethod,ConfigurationException, ConnectionException, MissingMessageEncoderException,MissingMessageDecoderException
-from ibmiotf.codecs import jsonCodec, jsonIotfCodec
+from ibmiotf.codecs import jsonCodec, jsonIotfCodec, xmlCodec
 from ibmiotf import api
 
 # Support Python 2.7 and 3.4 versions of configparser
@@ -129,6 +129,7 @@ class Client(AbstractClient):
 		self.client.on_connect = self.on_connect
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		self.setMessageEncoderModule('xml', xmlCodec)
 
 		# Create api key for gateway authentication
 		self.gatewayApiKey = "g/" + self._options['org'] + '/' + self._options['type'] + '/' + self._options['id']

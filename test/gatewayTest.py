@@ -148,8 +148,10 @@ class TestGateway:
             print("Publish Event done!!!")
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_true(gatewayClient.publishDeviceEvent(devOptions['type'],devOptions['id'],"testDevicePublishEvent", "json", myData,on_publish=publishCallback))
-        assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEvent", "json", myData,on_publish=publishCallback))
+        assert_true(gatewayClient.publishDeviceEvent(devOptions['type'],devOptions['id'],"testDevicePublishEventJson", "json", myData,on_publish=publishCallback))
+        assert_true(gatewayClient.publishDeviceEvent(devOptions['type'],devOptions['id'],"testDevicePublishEventXML", "xml", myData,on_publish=publishCallback))
+        assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEventJson", "json", myData,on_publish=publishCallback))
+        assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEventXML", "xml", myData,on_publish=publishCallback))
 
         assert_true(gatewayClient.subscribeToDeviceCommands(devOptions['type'],devOptions['id']))
         assert_true(gatewayClient.subscribeToGatewayCommands())

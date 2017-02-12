@@ -7,7 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # Contributors:
-#   David Parker - Initial Contribution
+#   David Parker
+#	Lokesh Haralakatta
 # *****************************************************************************
 
 import os
@@ -20,6 +21,7 @@ from datetime import datetime
 from ibmiotf import HttpAbstractClient, ConnectionException, MissingMessageEncoderException
 from ibmiotf.codecs import jsonIotfCodec
 from ibmiotf.codecs import jsonCodec
+from ibmiotf.codecs import xmlCodec
 import ibmiotf.api
 import paho.mqtt.client as paho
 
@@ -217,6 +219,7 @@ class Client(ibmiotf.AbstractClient):
 		self.client.on_connect = self.on_connect
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		self.setMessageEncoderModule('xml', xmlCodec)
 
 		# Create an api client if not connected in QuickStart mode
 		if self._options['org'] != "quickstart":
@@ -497,6 +500,7 @@ class HttpClient(HttpAbstractClient):
  		logHandlers = logHandlers)
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
+		self.setMessageEncoderModule('xml', xmlCodec)
 
 
 		# Create an api client if not connected in QuickStart mode
@@ -506,10 +510,10 @@ class HttpClient(HttpAbstractClient):
 		self.orgId = self._options['org']
 		self.appId = self._options['id']
 
-	def publishEvent(self, deviceType, deviceId, event, data):
+	def publishEvent(self, deviceType, deviceId, event, data, dataFormat="json"):
 		'''
 		This method is used by the application to publish events over HTTP(s)
-		It accepts 4 parameters, deviceType, deviceId, event which denotes event type and data which is the message to be posted
+		Paramaters - deviceType, deviceId, event , data and  dataFormat by default json
 		It throws a ConnectionException with the message "Server not found" if the application is unable to reach the server
 		Otherwise it returns the HTTP status code, (200 - 207 for success)
 		'''
@@ -530,9 +534,11 @@ class HttpClient(HttpAbstractClient):
 		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
 
 		try:
-			msgFormat = "json"
-			payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+			self.logger.debug("Data Format = %s",(dataFormat))
+			contentType = self.getContentType(dataFormat)
+			self.logger.debug("contentType = %s",(contentType))
+			payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now())
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
 		except Exception as e:
 			self.logger.error("POST Failed")
 			self.logger.error(e)
@@ -543,11 +549,10 @@ class HttpClient(HttpAbstractClient):
 		return response.status_code
 
 
-	def publishCommand(self, deviceType, deviceId, event, cmdData):
+	def publishCommand(self, deviceType, deviceId, event, cmdData, cmdFormat="json"):
 		'''
 		This method is used by the application to publish device command over HTTP(s)
-		It accepts 4 parameters, deviceType, deviceId, event which denotes event type
-		and cmdData which is the command to be posted.
+		Parameters - deviceType, deviceId, event, cmdData and cmdFormat by default JSON
 		It throws a ConnectionException with the message "Server not found" if the
 		application is unable to reach the server, Otherwise it returns the
 		HTTP status code, (200 - 207 for success)
@@ -565,9 +570,11 @@ class HttpClient(HttpAbstractClient):
 		#String replacement from template to actual URL
 		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
 		try:
-			cmdFormat = "json"
+			self.logger.debug("Data Format = %s",(cmdFormat))
+			contentType = self.getContentType(cmdFormat)
+			self.logger.debug("contentType = %s",(contentType))
 			payload = self._messageEncoderModules[cmdFormat].encode(cmdData, datetime.now())
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': 'application/json'})
+			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
 		except Exception as e:
 			self.logger.error("POST Failed")
 			self.logger.error(e)
