@@ -56,7 +56,6 @@ def define(api, deviceType, deviceId):
       { "type" : "object",
         "properties" : {
           "eventCount" :{"type": "number", "default":-1},
-          "realEventCount" :{"type": "number"},
           "accel": {"type": "object",
             "properties" : {
               "x": {"type": "number", "default": 0},
@@ -105,7 +104,6 @@ def define(api, deviceType, deviceId):
               # eventid -> { property -> eventid property expression }
               "status" :  { 
                 "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
-                "realEventCount" : "$event.d.count",
                 "accel.x" : "$event.d.accelX",
                 "accel.y" : "$event.d.accelY",
                 "accel.z" : "$event.d.accelZ",
@@ -131,7 +129,7 @@ if __name__ == "__main__":
   
   api = ibmiotf.api.ApiClient({"auth-key": key, "auth-token": token})
   
-  #define(api, devicetype, deviceid)
+  define(api, devicetype, deviceid)
   
   logger.info("# ---- validate definitions -------") 
   result = api.validateDeviceType(devicetype)
