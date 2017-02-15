@@ -9,6 +9,43 @@ Platform <https://internetofthings.ibmcloud.com>`__.
 
 Note: Support for MQTT over SSL requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
 
+Supported Features
+------------------
+.. list-table::
+   :widths: 35 70
+   :header-rows: 1
+
+   * - Feature
+     - Supported?
+   * - Device Connectivity
+     - Yes
+   * - Gateway Connectivity
+     - Yes
+   * - Application connectivity
+     - Yes
+   * - Watson IoT API
+     - Yes
+   * - SSL/TLS
+     - Yes
+   * - Client side Certificate based authentication
+     - No
+   * - Device Management
+     - Yes
+   * - Device Management Extension
+     - Yes
+   * - Scalable Application
+     - Yes
+   * - Auto Reconnect
+     - Yes
+   * - Websocket
+     - Yes
+   * - Event/Command publish using MQTT
+     - Yes
+   * - Event/Command publish using HTTP
+     - Yes
+   * - Data Formats
+     - JSON, XML and TEXT
+   
 Dependencies
 ------------
 
@@ -16,6 +53,8 @@ Dependencies
 -  `iso8601 <https://pypi.python.org/pypi/iso8601>`__
 -  `pytz <https://pypi.python.org/pypi/pytz>`__
 -  `requests <https://pypi.python.org/pypi/requests>`__
+-  `dicttoxml <https://pypi.python.org/pypi/dicttoxml>`__
+-  `xmltodict <https://pypi.python.org/pypi/xmltodict>`__
 
 Installation
 ------------
