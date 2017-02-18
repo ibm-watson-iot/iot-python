@@ -1500,13 +1500,13 @@ class ApiClient():
 		req = ApiClient.allEventsUrl % (self.host, physicalInterfaceId)
 		body = {"eventId" : eventId, "eventTypeId" : eventTypeId}
 		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
- 		if resp.status_code == 201:
+		if resp.status_code == 201:
 			self.logger.debug("Event mapping created")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event mapping", resp)	
 		return resp.json()
   
- 	def deleteEvent(self, physicalInterfaceId, eventId):
+	def deleteEvent(self, physicalInterfaceId, eventId):
 		"""
 		Delete an event mapping from a physical interface.
 		Parameters: physicalInterfaceId (string), eventId (string).
@@ -1625,7 +1625,7 @@ class ApiClient():
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
 		body = {"physicalInterfaceId" : physicalInterfaceId}
 		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
- 		if resp.status_code == 200:
+		if resp.status_code == 200:
 			self.logger.debug("Physical interface added to a device type")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error adding physical interface to a device type", resp)	
@@ -1642,7 +1642,7 @@ class ApiClient():
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
 		body = {}
 		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
- 		if resp.status_code == 200:
+		if resp.status_code == 200:
 			self.logger.debug("Physical interface removed from a device type")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error removing a physical interface from a device type", resp)	
@@ -1680,7 +1680,7 @@ class ApiClient():
 			body["description"] = description
 		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
 						verify=self.verify)
- 		if resp.status_code == 201:
+		if resp.status_code == 201:
 			self.logger.debug("Application interface added to a device type")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error adding application interface to a device type", resp)	
@@ -1696,7 +1696,7 @@ class ApiClient():
 		"""
 		req = ApiClient.oneDeviceTypeApplicationInterfaceUrl % (self.host, typeId, applicationInterfaceId)   
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
- 		if resp.status_code == 204:
+		if resp.status_code == 204:
 			self.logger.debug("Application interface removed from a device type")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error removing application interface from a device type", resp)	

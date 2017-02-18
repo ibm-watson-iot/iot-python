@@ -55,7 +55,7 @@ def define(api, deviceType, deviceId):
   schemaFile = json.dumps(
       { "type" : "object",
         "properties" : {
-          "eventCount" :{"type": "number", "default":-1},
+          "eventCount" :{"type": "number", "default":0},
           "accel": {"type": "object",
             "properties" : {
               "x": {"type": "number", "default": 0},
@@ -103,7 +103,7 @@ def define(api, deviceType, deviceId):
   mappings = {
               # eventid -> { property -> eventid property expression }
               "status" :  { 
-                "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
+                "eventCount" : "$state.eventCount+1",
                 "accel.x" : "$event.d.accelX",
                 "accel.y" : "$event.d.accelY",
                 "accel.z" : "$event.d.accelZ",
