@@ -467,7 +467,6 @@ class ApiClient():
 
 		r = requests.get(deviceUrl, auth=self.credentials, params = parameters, verify=self.verify)
 		status = r.status_code
-		print status
 		if status == 200:
 			self.logger.debug("Device was successfully retrieved")
 			return r.json()
