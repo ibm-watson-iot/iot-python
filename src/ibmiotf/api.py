@@ -441,6 +441,7 @@ class ApiClient():
 
 		r = requests.get(deviceUrl, auth=self.credentials, params = expand, verify=self.verify)
 		status = r.status_code
+
 		if status == 200:
 			self.logger.debug("Device was successfully retrieved")
 			return r.json()
@@ -454,6 +455,33 @@ class ApiClient():
 			raise ibmiotf.APIException(500, "Unexpected error", None)
 		else:
 			raise ibmiotf.APIException(None, "Unexpected error", None)
+			
+			
+	def getDevicesForType(self, typeId, parameters = None):
+		"""
+		Gets details for multiple devices of a type 
+		It accepts typeId (string), deviceId (string) and expand (JSON) as parameters
+		In case of failure it throws APIException
+		"""
+		deviceUrl = ApiClient.devicesUrl % (self.host, typeId)
+
+		r = requests.get(deviceUrl, auth=self.credentials, params = parameters, verify=self.verify)
+		status = r.status_code
+		print status
+		if status == 200:
+			self.logger.debug("Device was successfully retrieved")
+			return r.json()
+		elif status == 401:
+			raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+		elif status == 403:
+			raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+		elif status == 404:
+			raise ibmiotf.APIException(404, "The device does not exist", None)
+		elif status == 500:
+			raise ibmiotf.APIException(500, "Unexpected error", None)
+		else:
+			raise ibmiotf.APIException(None, "Unexpected error", None)
+
 
 
 	def removeDevice(self, typeId, deviceId):
@@ -1499,7 +1527,8 @@ class ApiClient():
 		"""
 		req = ApiClient.allEventsUrl % (self.host, physicalInterfaceId)
 		body = {"eventId" : eventId, "eventTypeId" : eventTypeId}
-		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+				       verify=self.verify)
 		if resp.status_code == 201:
 			self.logger.debug("Event mapping created")
 		else:
@@ -1624,7 +1653,8 @@ class ApiClient():
 		"""
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
 		body = {"physicalInterfaceId" : physicalInterfaceId}
-		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+				       verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Physical interface added to a device type")
 		else:
@@ -1641,7 +1671,8 @@ class ApiClient():
 		"""
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
 		body = {}
-		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+  	       verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Physical interface removed from a device type")
 		else:
@@ -1741,7 +1772,8 @@ class ApiClient():
 			})
 		except Exception as exc:
 			raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
-		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings)
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
+		       verify=self.verify)
 		if resp.status_code == 201:
 			self.logger.debug("Device type mappings created for application interface")
 		else:
@@ -1804,7 +1836,8 @@ class ApiClient():
 			})
 		except Exception as exc:
 			raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
-		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings)
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
+		       verify=self.verify)
 		if resp.status_code == 204:
 			self.logger.debug("Device type mappings updated for application interface")
 		else:
@@ -1816,7 +1849,7 @@ class ApiClient():
 	Information Management Device APIs
 	===========================================================================
 	"""		
-	def validateDeviceType(self, typeId):
+	def validateDeviceTypeConfiguration(self, typeId):
 		"""
 		Validate the device type configuration.
 		Parameters:
@@ -1824,15 +1857,16 @@ class ApiClient():
 		Throws APIException on failure. 
 		"""
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
-		body = {"operation" : "validate"}
-		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		body = {"operation" : "validate-configuration"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body), 
+		       verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Validation for device type configuration succeeded")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "Validation for device type configuration failed", resp)	
 		return resp.json()	
 		
-	def deployDeviceType(self, typeId):
+	def deployDeviceTypeConfiguration(self, typeId):
 		"""
 		(Validate and) Deploy the device type configuration.
 		Parameters:
@@ -1840,12 +1874,30 @@ class ApiClient():
 		Throws APIException on failure. 
 		"""
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
-		body = {"operation" : "deploy"}
-		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body))
+		body = {"operation" : "deploy-configuration"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+		       verify=self.verify)
 		if resp.status_code in [200, 202]:
 			self.logger.debug("Deploy for device type configuration succeeded")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "Deploy for device type configuration failed", resp)	
+		return resp.json()	
+		
+	def removeDeviceTypeConfiguration(self, typeId):
+		"""
+		Remove the device type configuration.
+		Parameters:
+			- typeId (string) - the platform device type
+		Throws APIException on failure. 
+		"""
+		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		body = {"operation" : "remove-deployed-configuration"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+				       verify=self.verify)
+		if resp.status_code in [200, 202]:
+			self.logger.debug("Remove for device type configuration succeeded")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "Remove for device type configuration failed", resp)	
 		return resp.json()	
 		
 	def getDeviceStateForApplicationInterface(self, typeId, deviceId, applicationInterfaceId):
