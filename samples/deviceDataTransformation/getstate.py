@@ -15,9 +15,26 @@ from __future__ import print_function
 import time, ibmiotf.api
 
 if __name__ == "__main__":    
+  domain = None
+  verify = True
   from properties import orgid, key, token, devicetype, deviceid
   
-  api = ibmiotf.api.ApiClient({"auth-key": key, "auth-token": token})
+  try:
+    from properties import domain
+  except:
+    pass
+    
+  try:
+    from properties import verify
+  except:
+    pass
+  
+  params = {"auth-key": key, "auth-token": token}
+  if domain:
+    params["domain"] = domain
+  
+  api = ibmiotf.api.ApiClient(params)
+  api.verify = verify
     
   appinterfaceids, result = api.getApplicationInterfacesOnDeviceType(devicetype)
   print("Application interface ids", appinterfaceids)
@@ -29,5 +46,5 @@ if __name__ == "__main__":
         result = api.getDeviceStateForApplicationInterface(devicetype, deviceid, applicationInterfaceId)
         print(result)
       except Exception as exc:
-        print(exc.response.json())
+        print(exc.response, exc.response.json())
       time.sleep(1)

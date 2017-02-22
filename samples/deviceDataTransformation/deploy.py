@@ -10,13 +10,31 @@
 #   Ian Craggs
 # *****************************************************************************
 
-if __name__ == "__main__":    
-  import ibmiotf.api
-    
-  from properties import orgid as orgId, key, token, devicetype, deviceid
-  
-  apiClient = ibmiotf.api.ApiClient({"auth-key": key, "auth-token": token})
+from __future__ import print_function
+import time, ibmiotf.api
 
-  result = apiClient.deployDeviceType(devicetype)
+if __name__ == "__main__":    
+  domain = None
+  verify = True
+  from properties import orgid, key, token, devicetype, deviceid
+  
+  try:
+    from properties import domain
+  except:
+    pass
+    
+  try:
+    from properties import verify
+  except:
+    pass
+  
+  params = {"auth-key": key, "auth-token": token}
+  if domain:
+    params["domain"] = domain
+  
+  api = ibmiotf.api.ApiClient(params)
+  api.verify = verify
+
+  result = api.deployDeviceTypeConfiguration(devicetype)
   print(result)
   
