@@ -16,14 +16,16 @@ setup(
     package_data={'ibmiotf': ['*.pem']},
     url='https://github.com/ibm-watson-iot/iot-python',
     license=open('LICENSE').read(),
-    description='IBM Watson IoT Platform Client for Python',
+    description='Python Client for IBM Watson IoT Platform',
     long_description=open('README.rst').read(),
     install_requires=[
         "iso8601 >= 0.1.10",
         "paho-mqtt >= 1.1",
         "pytz >= 2014.7",
         "requests >= 2.5.0",
-        "requests_toolbelt >= 0.7.0"
+        "requests_toolbelt >= 0.7.0",
+        "dicttoxml >= 1.7.4",
+        "xmltodict >= 0.10.2"
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -36,6 +38,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Communications',
         'Topic :: Internet',
-		'Topic :: Software Development :: Libraries :: Python Modules'
+        'Topic :: Software Development :: Libraries :: Python Modules'
     ]
 )
