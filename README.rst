@@ -46,6 +46,7 @@ Documentation
 -------------
 
 Documentation for the library is now located inside Bluemix:
+
 -  `Application Developers <https://console.ng.bluemix.net/docs/services/IoT/applications/libraries/python.html>`__
 -  `Device Developers <https://console.ng.bluemix.net/docs/services/IoT/devices/libraries/python.html>`__
 
