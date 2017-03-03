@@ -23,7 +23,7 @@ setup(
         "paho-mqtt >= 1.1",
         "pytz >= 2014.7",
         "requests >= 2.5.0",
-        "requests_toolbelt >= 0.7.0",
+        "requests_toolbelt >= 0.7.0"
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
