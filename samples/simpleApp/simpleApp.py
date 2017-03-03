@@ -39,11 +39,12 @@ def myEventCallback(event):
 	
 def myStatusCallback(status):
 	if status.action == "Disconnect":
-		print(tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr + " (" + status.reason + ")"))
+		summaryText = "%s %s (%s)" % (status.action, status.clientAddr, status.reason)
 	else:
-		print(tableRowTemplate % (status.time.isoformat(), status.device, status.action + " " + status.clientAddr))
+		summaryText = "%s %s" % (status.action, status.clientAddr)
+	print(tableRowTemplate % (status.time.isoformat(), status.device, summaryText))
 
-	
+
 def interruptHandler(signal, frame):
 	client.disconnect()
 	sys.exit(0)
