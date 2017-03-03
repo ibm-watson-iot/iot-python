@@ -1,13 +1,12 @@
-IBM Watson Internet of Things Platform for Python
-============================================
+Python for IBM Watson IoT Platform
+==================================
 
-Python module for interacting with the `IBM Watson Internet of Things
-Platform <https://internetofthings.ibmcloud.com>`__.
+Python module for interacting with the `IBM Watson IoT Platform <https://internetofthings.ibmcloud.com>`__.
 
--  `Python 3.5 <https://www.python.org/downloads/release/python-350/>`__
--  `Python 2.7 <https://www.python.org/downloads/release/python-2710/>`__
+-  `Python 3.5 <https://www.python.org/downloads/release/python-360/>`__
+-  `Python 2.7 <https://www.python.org/downloads/release/python-2713/>`__
 
-Note: Support for MQTT over SSL requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
+Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
 
 
 Dependencies
