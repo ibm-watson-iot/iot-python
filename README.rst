@@ -85,4 +85,4 @@ Supported Features
    * - Event/Command publish using HTTP
      - Yes
    * - Data Formats
-     - JSON, XML and TEXT
+     - JSON, XML, user-defined
