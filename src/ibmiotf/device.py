@@ -252,15 +252,18 @@ class HttpClient(HttpAbstractClient):
 			else:
 				raise UnsupportedAuthenticationMethod(options['authMethod'])
 
-		HttpAbstractClient.__init__(self,
-		clientId = "httpDevClient:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
- 		logHandlers = logHandlers)
+		HttpAbstractClient.__init__(
+			self,
+			clientId = "d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'], 
+			logHandlers = logHandlers
+		)
+		
 		self.setMessageEncoderModule('json', jsonCodec)
 		self.setMessageEncoderModule('xml', xmlCodec)
 
 
 
-	def publishEvent(self, event, data, dataFormat="json"):
+	def publishEvent(self, event, msgFormat, data):
 		"""
 		Publish an event over HTTP(s) as given supported format
 		Throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
@@ -284,19 +287,21 @@ class HttpClient(HttpAbstractClient):
 		intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
 		self.logger.debug("URL: %s",intermediateUrl)
 		try:
-			self.logger.debug("Data Format = %s",(dataFormat))
-			contentType = self.getContentType(dataFormat)
-			self.logger.debug("contentType = %s",(contentType))
-			payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-			self.logger.debug("payload = %s",(payload))
-			response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
+			self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
+			
+			if msgFormat in self._messageEncoderModules:
+				payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
+				contentType = self.getContentType(msgFormat)
+				response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
+			else:
+				raise MissingMessageEncoderException(msgFormat)
+			
 		except Exception as e:
-			self.logger.error("POST Failed")
 			self.logger.error(e)
-			raise ConnectionException("Server not found")
-
+			raise e
+		
 		if response.status_code >= 300:
-			self.logger.warning(response.headers)
+			self.logger.warning("Unable to send event: HTTP response code = %s" % (response.status_code))
 		return response.status_code
 
 
