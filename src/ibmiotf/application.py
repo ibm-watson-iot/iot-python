@@ -620,8 +620,7 @@ def ParseConfigFile(configFilePath):
 		reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ibmiotf.ConfigurationException(reason)
 
-	return {'domain': domain, 'org': organization, 'id': appId, 'auth-key': authKey,
-	        'auth-token': authToken, 'type': appType, 'clean-session': cleanSession, 'port': port}
+	return {'domain': domain, 'org': organization, 'id': appId, 'auth-key': authKey, 'auth-token': authToken, 'type': appType, 'clean-session': cleanSession, 'port': int(port)}
 
 
 def ParseConfigFromBluemixVCAP():

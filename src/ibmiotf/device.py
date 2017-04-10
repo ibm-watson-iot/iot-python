@@ -884,9 +884,13 @@ class ManagedClient(Client):
 
 
 def ParseConfigFile(configFilePath):
-	parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
-	                                   "port": "8883","clean-session": "true"})
+	parms = configparser.ConfigParser({
+		"domain": "internetofthings.ibmcloud.com",
+		"port": "8883",
+		"clean-session": "true"
+	})
 	sectionHeader = "device"
+	
 	try:
 		with open(configFilePath) as f:
 			try:
@@ -909,6 +913,4 @@ def ParseConfigFile(configFilePath):
 		reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
 		raise ConfigurationException(reason)
 
-	return {'domain': domain, 'org': organization, 'type': deviceType,
-	        'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken,
-			'clean-session': cleanSession, 'port': port}
+	return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'clean-session': cleanSession, 'port': int(port)}
