@@ -56,8 +56,6 @@ class Command:
 
 class Client(AbstractClient):
 
-	COMMAND_TOPIC = "iot-2/type/+/id/+/cmd/+/fmt/+"
-
 	def __init__(self, options, logHandlers=None):
 		self._options = options
 
@@ -98,6 +96,9 @@ class Client(AbstractClient):
 				raise UnsupportedAuthenticationMethod(options['authMethod'])
 		self._options['subscriptionList'] = {}
 
+		
+		COMMAND_TOPIC = "iot-2/type/" + self._options['type'] + "/id/" + self._options['id'] + "/cmd/+/fmt/+"
+		
 		AbstractClient.__init__(
 			self,
 			domain = self._options['domain'],
@@ -489,7 +490,7 @@ class ManagedGateway(Client):
 			if self._options['org'] != "quickstart":
 				dm_response_topic = ManagedGateway.DM_RESPONSE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
 				dm_observe_topic = ManagedGateway.DM_OBSERVE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
-				self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (Client.COMMAND_TOPIC, 1)] )
+				self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (self.COMMAND_TOPIC, 1)] )
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
 		else:
