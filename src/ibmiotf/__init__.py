@@ -27,11 +27,9 @@ import threading
 import iso8601
 import pytz
 from datetime import datetime
-from pkg_resources import get_distribution
-from packaging import version
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.2.7"
+__version__ = "0.2.8"
 
 class Message:
 	def __init__(self, data, timestamp=None):
@@ -101,11 +99,6 @@ class AbstractClient:
 				# Path to certificate
 				caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
 				self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
-				# Pre Python 3.2 the Paho MQTT client will use a bespoke hostname check which does not support wildcard certificates
-				# Fix is included in 1.1 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=440547
-				if version.parse(get_distribution('paho-mqtt').version) < version.parse("1.1") and (sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 2)):
-					self.logger.warning("Disabling TLS certificate hostname checking - Versions of the Paho MQTT client pre 1.1 do not support TLS wildcarded certificates on Python 3.2 or earlier: https://bugs.eclipse.org/bugs/show_bug.cgi?id=440547")
-					self.client.tls_insecure_set(True)
 			else:
 				self.port = 1883
 				self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
