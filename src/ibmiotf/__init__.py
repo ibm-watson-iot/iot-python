@@ -136,6 +136,7 @@ class AbstractClient:
 			self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
 			self.client.loop_start()
 			if not self.connectEvent.wait(timeout=10):
+				self.client.loop_stop()
 				self.logAndRaiseException(ConnectionException("Operation timed out connecting to the IBM Internet of Things service: %s" % (self.address)))
 
 		except socket.error as serr:
