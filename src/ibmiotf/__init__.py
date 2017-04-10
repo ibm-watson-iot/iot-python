@@ -312,6 +312,14 @@ class HttpAbstractClient:
 	   	# Initialize default message encoders and decoders.
 		self._messageEncoderModules = {}
 
+	def connect(self):
+		# No-op with HTTP client (but makes it easy to switch between using http & mqtt clients in your code)
+		pass
+
+	def disconnect(self):
+		# No-op with HTTP client (but makes it easy to switch between using http & mqtt clients in your code)
+		pass
+		
 	def getMessageEncoderModule(self, messageFormat):
 		return self._messageEncoderModules[messageFormat]
 
