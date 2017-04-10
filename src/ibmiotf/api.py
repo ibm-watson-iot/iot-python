@@ -232,7 +232,7 @@ class ApiClient():
 			self.logger.debug("Bulk registration successful")
 			return r.json()
 		elif status == 202:
-			raise ibmiotf.APIException(400, "Some devices registered successfully", r.json())
+			raise ibmiotf.APIException(202, "Partial Success. Some devices registered successfully", r.json())
 		elif status == 400:
 			raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())
 		elif status == 403:
