@@ -151,7 +151,7 @@ class Client(AbstractClient):
 	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
+			self.logger.info("Connected successfully: %s" % (self.clientId))
 			#if self._options['org'] != "quickstart":
 				#self.subscribeToGatewayCommands()
 		elif rc == 5:

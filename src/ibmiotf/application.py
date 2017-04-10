@@ -242,7 +242,7 @@ class Client(ibmiotf.AbstractClient):
 	def on_connect(self, client, userdata, flags, rc):
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
+			self.logger.info("Connected successfully: %s" % (self.clientId))
 
 			# Restoring previous subscriptions
 			if len(self._subscriptions) > 0:

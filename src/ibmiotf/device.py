@@ -135,7 +135,7 @@ class Client(AbstractClient):
 		'''
 		if rc == 0:
 			self.connectEvent.set()
-			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
+			self.logger.info("Connected successfully: %s" % (self.clientId))
 			if self._options['org'] != "quickstart":
 				self.__subscribeToCommands()
 		elif rc == 5:
