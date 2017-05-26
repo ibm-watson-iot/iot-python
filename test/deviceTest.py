@@ -153,15 +153,15 @@ class TestDevice:
 
     def testPublishEventOverHTTPs(self):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", myData),200)
-        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", myData,"xml"),200)
+        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", "json",myData),200)
+        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", "xml",myData),200)
 
     def testPublishEventOverHTTP(self):
         client = ibmiotf.device.HttpClient({"org": "quickstart", "type": self.deviceType, "id": self.deviceId,
                                         "auth-method":"None", "auth-token":"None" })
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_equals(client.publishEvent("testPublishEventHTTP", myData),200)
-        assert_equals(client.publishEvent("testPublishEventHTTP", myData,"xml"),200)
+        assert_equals(client.publishEvent("testPublishEventHTTP", "json",myData),200)
+        assert_equals(client.publishEvent("testPublishEventHTTP", "xml",myData),200)
 
     def testDeviceInfoInstance(self):
         deviceInfoObj = ibmiotf.device.DeviceInfo()
