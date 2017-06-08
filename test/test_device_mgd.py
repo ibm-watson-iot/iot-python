@@ -12,175 +12,56 @@
 
 import ibmiotf.device
 import ibmiotf.application
+import uuid
+import os
 from ibmiotf import *
 from nose.tools import *
 from nose import SkipTest
 import logging
+import testUtils
 
-class TestDevice:
-    deviceClient=None
-    httpClient=None
-    managedClient=None
-    options=None
+class TestDevice(testUtils.AbstractTest):
+    registeredDevice = None
+    managedClient = None
 
+    DEVICE_TYPE = "test_device"
+    DEVICE_ID = str(uuid.uuid4())
+    
     @classmethod
     def setup_class(self):
-        deviceFile="device.conf"
-        self.options = ibmiotf.device.ParseConfigFile(deviceFile)
-        self.org = self.options['org']
-        self.deviceType = self.options['type']
-        self.deviceId = self.options['id']
-        self.authToken = self.options['auth-token']
-
-        self.deviceClient = ibmiotf.device.Client(self.options)
-        self.httpClient = ibmiotf.device.HttpClient(self.options)
-
+        try: 
+            deviceType = self.setupAppClient.api.getDeviceType(self.DEVICE_TYPE)
+        except APIException as e:
+            if e.httpCode == 404:
+                deviceType = self.setupAppClient.api.addDeviceType(self.DEVICE_TYPE)
+            else: 
+                raise e
+        
+        self.registeredDevice = self.setupAppClient.api.registerDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        
+        self.options={
+            "org": self.ORG_ID,
+            "type": self.registeredDevice["typeId"],
+            "id": self.registeredDevice["deviceId"],
+            "auth-method": "token",
+            "auth-token": self.registeredDevice["authToken"]
+        }
+        
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
         deviceInfoObj = ibmiotf.device.DeviceInfo()
         deviceInfoObj.fwVersion = 0.0
-        self.managedClient = ibmiotf.device.ManagedClient(self.options,deviceInfo=deviceInfoObj)
-
-        #Get application options
-        appConfFile="application.conf"
-        self.appOptions = ibmiotf.application.ParseConfigFile(appConfFile)
-
-        #Setup logger instance
-        self.logger = logging.getLogger(self.__module__+".deviceTest")
-        self.logger.setLevel(logging.INFO)
-
-        self.apiClient = ibmiotf.api.ApiClient(self.appOptions,self.logger)
+        self.managedClient = ibmiotf.device.ManagedClient(self.options, deviceInfo=deviceInfoObj)    
 
     @classmethod
     def teardown_class(self):
-        self.deviceClient=None
-        self.httpClient=None
-        self.managedClient=None
-        self.options=None
-
-    @raises(Exception)
-    def testMissingOptions(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({})
-        assert_equal(e.exception.msg, 'Missing required property: org')
-
-    @raises(Exception)
-    def testMissingOrg(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": None, "type": self.deviceType, "id": self.deviceId,
-                                   "auth-method": "token", "auth-token": self.authToken })
-        assert_equal(e.exception.msg, 'Missing required property: org')
-
-    @raises(Exception)
-    def testMissingType(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.org, "type": None, "id": self.deviceId,
-                                   "auth-method": "token", "auth-token": self.authToken })
-        assert_equal(e.exception.msg, 'Missing required property: type')
-
-    @raises(Exception)
-    def testMissingId(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.org, "type": self.deviceType, "id": None,
-                                   "auth-method": "token", "auth-token": self.authToken})
-        assert_equal(e.exception.msg, 'Missing required property: id')
-
-    @raises(Exception)
-    def testMissingAuthMethod(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.org, "type": self.deviceType, "id": self.deviceId,
-                                   "auth-method": None, "auth-token": self.authToken})
-        assert_equal(e.exception.msg, 'Missing required property: auth-method')
-
-    @raises(Exception)
-    def testMissingAuthToken(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.org, "type": self.deviceType, "id": self.deviceId,
-                                   "auth-method": "token", "auth-token": None })
-        assert_equal(e.exception.msg, 'Missing required property: auth-token')
-
-    @raises(Exception)
-    def testUnSupportedAuthMethod(self):
-        with assert_raises(UnsupportedAuthenticationMethod) as e:
-            ibmiotf.device.Client({"org": self.org, "type": self.deviceType, "id": self.deviceId,
-                                   "auth-method": "unsupported-method", "auth-token": self.authToken})
-        assert_equal(e.exception_type,UnsupportedAuthenticationMethod)
-
-    def testDeviceClientInstance(self):
-        deviceCli = ibmiotf.device.Client({"org": self.org, "type": self.deviceType, "id": self.deviceId,
-                                           "auth-method": "token", "auth-token": self.authToken})
-        assert_is_instance(deviceCli , ibmiotf.device.Client)
-
-    @raises(Exception)
-    def testMissingConfigFile(self):
-        deviceFile="InvalidFile.out"
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.ParseConfigFile(deviceFile)
-        assert_equal(e.exception.msg, 'Error reading device configuration file')
-
-    @raises(Exception)
-    def testInvalidConfigFile(self):
-        deviceFile="nullValues.conf"
-        with assert_raises(AttributeError) as e:
-            ibmiotf.device.ParseConfigFile(deviceFile)
-        assert_equal(e.exception, AttributeError)
-
-    @SkipTest
-    def testNotAuthorizedConnect(self):
-        client = ibmiotf.device.Client({"org": self.org, "type": self.deviceType, "id": self.deviceId,
-                                              "auth-method": "token", "auth-token": "MGhUixxxxxxxxxxxx", "auth-key":"a-xxxxxx-s1tsofmoxo"})
-        with assert_raises(ConnectionException) as e:
-            client.connect()
-        assert_equals(e.exception, ConnectionException)
-        assert_equals(e.exception.msg,'Not authorized')
-
-    @SkipTest
-    def testMissingMessageEncoder(self):
-        with assert_raises(MissingMessageEncoderException)as e:
-            myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-            self.deviceClient.connect()
-            self.deviceClient.publishEvent("missingMsgEncode", "jason", myData)
-        assert_equals(e.exception, MissingMessageEncoderException)
-
-    def testPublishEvent(self):
-        def devPublishCallback():
-            print("Device Publish Event done!!!")
-
-        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        self.deviceClient.connect()
-        assert_true(self.deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
-        assert_true(self.deviceClient.publishEvent("testPublishXMLEvent", "xml", myData,on_publish=devPublishCallback,qos=2))
-        self.deviceClient.disconnect()
-
-    def testPublishEventOverHTTPs(self):
-        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", "json",myData),200)
-        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", "xml",myData),200)
-
-    def testPublishEventOverHTTP(self):
-        client = ibmiotf.device.HttpClient({"org": "quickstart", "type": self.deviceType, "id": self.deviceId,
-                                        "auth-method":"None", "auth-token":"None" })
-        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_equals(client.publishEvent("testPublishEventHTTP", "json",myData),200)
-        assert_equals(client.publishEvent("testPublishEventHTTP", "xml",myData),200)
-
-    def testDeviceInfoInstance(self):
-        deviceInfoObj = ibmiotf.device.DeviceInfo()
-        assert_is_instance(deviceInfoObj, ibmiotf.device.DeviceInfo)
-        print(deviceInfoObj)
-
-    def testDeviceFirmwareInstance(self):
-        deviceFWObj = ibmiotf.device.DeviceFirmware()
-        assert_is_instance(deviceFWObj, ibmiotf.device.DeviceFirmware)
-        print(deviceFWObj)
-
-    def testManagedClientInstance(self):
-        managedClient = ibmiotf.device.ManagedClient(self.options)
-        assert_is_instance(managedClient, ibmiotf.device.ManagedClient)
-
+        del self.managedClient
+        self.setupAppClient.api.deleteDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+    
+    
     @raises(Exception)
     def testManagedClientQSException(self):
         with assert_raises(Exception)as e:
-            options={"org": "quickstart", "type": self.deviceType, "id": self.deviceId,
+            options={"org": "quickstart", "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
                                         "auth-method":"None", "auth-token":"None" }
             ibmiotf.device.ManagedClient(options)
         assert_equals(e.exception, Exception)
@@ -211,32 +92,13 @@ class TestDevice:
 
         self.managedClient.disconnect()
 
-    def testPublishCommandByApplication(self):
-        def devCmdCallback(cmd):
-            assert_true(cmd.data['rebootDelay'] == 50)
-
-        def appCmdPublishCallback():
-            print("Application Publish Command done!!!")
-
-        self.deviceClient.commandCallback = devCmdCallback;
-        self.deviceClient.connect()
-
-        appClient = ibmiotf.application.Client(self.appOptions)
-        appClient.connect()
-        commandData={'rebootDelay' : 50}
-        assert_true(appClient.publishCommand(self.deviceType, self.deviceId, "reboot", "json", commandData, on_publish=appCmdPublishCallback))
-        time.sleep(1)
-
-        appClient.disconnect()
-        self.deviceClient.disconnect()
-
     @SkipTest
     def testDeviceRebootAction(self):
         def rebootActionCB(reqId,action):
             print("Device rebootActionCB called")
 
         mgmtRequest = {"action": "device/reboot", "parameters": [{"name": "action","value": "reboot" }],
-                       "devices": [{ "typeId": self.deviceType, "deviceId": self.deviceId }]}
+                       "devices": [{ "typeId": self.registeredDevice["typeId"], "deviceId": self.registeredDevice["deviceId"] }]}
 
         #Setup user defined reboot call back
         self.managedClient.deviceActionCallback = rebootActionCB
@@ -260,7 +122,7 @@ class TestDevice:
             print("Device factoryResetActionCB called")
 
         mgmtRequest = {"action": "device/factoryReset", "parameters": [{"name": "action","value": "reset" }],
-                       "devices": [{ "typeId": self.deviceType, "deviceId": self.deviceId }]}
+                       "devices": [{ "typeId": self.registeredDevice["typeId"], "deviceId": self.registeredDevice["deviceId"] }]}
 
         #Setup user defined factory reset call back
         self.managedClient.deviceActionCallback = factoryResetActionCB
@@ -302,7 +164,7 @@ class TestDevice:
         mgmtRequest = {"action": "firmware/download", "parameters": [{"name": "version", "value": "0.1.11" },
                        {"name": "name", "value": "RasPi01 firmware"}, {"name": "verifier", "value": "123df"},
                        {"name": "uri","value": "https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.2.1/iot_1.0-2_armhf.deb"}],
-                       "devices": [{"typeId": self.deviceType,"deviceId": self.deviceId}]};
+                       "devices": [{"typeId": self.registeredDevice["typeId"],"deviceId": self.registeredDevice["deviceId"]}]};
 
         self.managedClient.__firmwareUpdate = device.DeviceFirmware('0.0','0.0','uri','verifier',device.ManagedClient.UPDATESTATE_IDLE,
                                                       device.ManagedClient.UPDATESTATE_IDLE,'updatedDateTime')
@@ -349,7 +211,7 @@ class TestDevice:
         mgmtRequest = {"action": "firmware/update", "parameters": [{"name": "version", "value": "0.1.11" },
                        {"name": "name", "value": "RasPi01 firmware"}, {"name": "verifier", "value": "123df"},
                        {"name": "uri","value": "https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.2.1/iot_1.0-2_armhf.deb"}],
-                       "devices": [{"typeId": self.deviceType,"deviceId": self.deviceId}]};
+                       "devices": [{"typeId": self.registeredDevice["typeId"],"deviceId": self.registeredDevice["deviceId"]}]};
 
         self.managedClient.__firmwareUpdate = device.DeviceFirmware('0.0','0.0','uri','verifier',device.ManagedClient.UPDATESTATE_IDLE,
                                                       device.ManagedClient.UPDATESTATE_IDLE,'updatedDateTime')
@@ -368,13 +230,6 @@ class TestDevice:
         assert_true(self.apiClient.deleteDeviceManagementRequest(reqId))
 
         self.managedClient.disconnect()
-
-    def testKeepAliveIntervalMethods(self):
-        assert_equals(self.deviceClient.getKeepAliveInterval(),60)
-        self.deviceClient.setKeepAliveInterval(120)
-        self.deviceClient.connect()
-        assert_equals(self.deviceClient.getKeepAliveInterval(),120)
-        self.deviceClient.disconnect()
 
     @SkipTest
     def testDMEAction(self):
@@ -428,7 +283,7 @@ class TestDevice:
         mgmtRequest = {"action": "example-dme-actions-v1/installPlugin",
                        "parameters": [{ "name": "pluginURI",
                                          "value": "http://example.dme.com",}],
-                       "devices": [{ "typeId": self.deviceType, "deviceId": self.deviceId }]}
+                       "devices": [{ "typeId": self.registeredDevice["typeId"], "deviceId": self.registeredDevice["deviceId"] }]}
         initResult = self.apiClient.initiateDeviceManagementRequest(mgmtRequest)
         reqId = initResult['reqId']
 
