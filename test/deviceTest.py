@@ -193,7 +193,7 @@ class TestDevice:
                                                 "deviceInfo.deviceClass", "deviceInfo.hwVersion", "deviceInfo.serialNumber"]
 
         #Reset managedClient properties  and validate the returned is instance of threading.Event
-	    if sys.version_info[0] < 3:
+	if sys.version_info[0] < 3:
             assert_is_instance(self.managedClient.setErrorCode(1),threading._Event)
             assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading._Event)
             assert_is_instance(self.managedClient.setSerialNumber('iot-device-12345'),threading._Event)
@@ -208,7 +208,7 @@ class TestDevice:
             assert_is_instance(self.managedClient.addLog(),threading._Event)
             assert_is_instance(self.managedClient.clearLog(),threading._Event)
             assert_is_instance(self.managedClient.unmanage(),threading._Event)
-	    else:
+	else:
             assert_is_instance(self.managedClient.setErrorCode(1),threading.Event)
             assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading.Event)
             assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading.Event)
