@@ -127,33 +127,26 @@ class TestGateway(testUtils.AbstractTest):
             ibmiotf.gateway.ParseConfigFile(deviceFile)
         assert_equal(e.exception, AttributeError)
 
-    @SkipTest
     def testNotAuthorizedConnect(self):
         client = ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": "MGxxx3g7Yjt-6keG(l", "auth-key":"a-xxxxxx-s1tsofmoxo"})
         with assert_raises(ConnectionException) as e:
             client.connect()
-        assert_equals(e.exception, ConnectionException)
-        assert_equals(e.exception.msg,'Not authorized')
 
-    @SkipTest
     def testMissingMessageEncoder(self):
         gatewayClient = ibmiotf.gateway.Client(self.options)
         gatewayClient.connect()
 
-        with assert_raises(MissingMessageEncoderException)as e:
+        with assert_raises(MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-            self.gatewayClient.publishDeviceEvent(self.registeredGateway["typeId"],self.registeredGateway["deviceId"],"missingMsgEncode", "jason", myData)
-        assert_equals(e.exception, MissingMessageEncoderException)
+            gatewayClient.publishDeviceEvent(self.registeredGateway["typeId"],self.registeredGateway["deviceId"],"missingMsgEncode", "jason", myData)
 
-    @SkipTest
     def testMissingMessageEncoderWithPublishGatewayEvent(self):
         gatewayClient = ibmiotf.gateway.Client(self.options)
         gatewayClient.connect()
 
-        with assert_raises(MissingMessageEncoderException)as e:
+        with assert_raises(MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-            self.gatewayClient.publishGatewayEvent("missingMsgEncode", "jason", myData)
-        assert_equals(e.exception, MissingMessageEncoderException)
+            gatewayClient.publishGatewayEvent("missingMsgEncode", "jason", myData)
 
     def testGatewayPubSubMethods(self):
         gatewayClient = ibmiotf.gateway.Client(self.options)
@@ -196,56 +189,6 @@ class TestGateway(testUtils.AbstractTest):
         deviceInfoObj = ibmiotf.gateway.DeviceInfo()
         assert_is_instance(deviceInfoObj, ibmiotf.gateway.DeviceInfo)
         print(deviceInfoObj)
-
-    def testManagedGatewayInstance(self):
-        managedGateway = ibmiotf.gateway.ManagedClient(self.options)
-        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedClient)
-
-    @raises(Exception)
-    def testManagedgatewayQSException(self):
-        with assert_raises(Exception)as e:
-            options={"org": "quickstart", "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"None", "auth-token":"None" }
-            ibmiotf.gateway.managedClient(options)
-        assert_equals(e.exception, Exception)
-
-    def testManagedGatewayConnectException(self):
-        badOptions = {"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"token", "auth-token":"xxxxxxxxxxxxxxxxxx" }
-        gatewayInfoObj = ibmiotf.gateway.DeviceInfo()
-        managedGateway = ibmiotf.gateway.ManagedClient(badOptions, deviceInfo=gatewayInfoObj)
-        with assert_raises(ConnectionException) as e:
-            managedGateway.connect()
-
-    def testManagedGatewayInstanceWithDeviceInfo(self):
-        gatewayInfoObj = ibmiotf.gateway.DeviceInfo()
-        managedGateway = ibmiotf.gateway.ManagedClient(self.options, deviceInfo=gatewayInfoObj)
-
-        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedClient)
-
-        #Connect managedGateway
-        managedGateway.connect()
-
-        #Define device properties to be notified whenever reset
-        managedGateway._deviceMgmtObservations = ["deviceInfo.manufacturer", "deviceInfo.descriptiveLocation",
-                                                  "deviceInfo.fwVersion", "deviceInfo.model", "deviceInfo.description",
-                                                  "deviceInfo.deviceClass", "deviceInfo.hwVersion", "deviceInfo.serialNumber"]
-
-        #Reset managedgateway properties
-        managedGateway.setErrorCode(1)
-        managedGateway.setLocation(longitude=100, latitude=78, accuracy=100,elevation=45)
-        managedGateway.setSerialNumber('iot-pgateway-12345')
-        managedGateway.setManufacturer("IBM India Pvt Ltd")
-        managedGateway.setModel("2016")
-        managedGateway.setdeviceClass("Smart Gateway")
-        managedGateway.setDescription("Sample Smart IoT Gateway")
-        managedGateway.setFwVersion("1.0")
-        managedGateway.setHwVersion("2.0")
-        managedGateway.setDescriptiveLocation("ISL Lab Bangalore")
-
-        managedGateway.clearErrorCodes()
-
-        #Disconnect ManagedGateway
-        managedGateway.unmanage()
-        managedGateway.disconnect()
     
     @SkipTest
     def testPublishCommandByApplication(self):
