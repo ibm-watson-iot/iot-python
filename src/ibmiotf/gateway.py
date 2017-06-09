@@ -97,7 +97,7 @@ class Client(AbstractClient):
 		self._options['subscriptionList'] = {}
 
 		
-		COMMAND_TOPIC = "iot-2/type/" + self._options['type'] + "/id/" + self._options['id'] + "/cmd/+/fmt/+"
+		self.COMMAND_TOPIC = "iot-2/type/" + self._options['type'] + "/id/" + self._options['id'] + "/cmd/+/fmt/+"
 		
 		AbstractClient.__init__(
 			self,
@@ -136,7 +136,7 @@ class Client(AbstractClient):
 		self.gatewayApiKey = "g/" + self._options['org'] + '/' + self._options['type'] + '/' + self._options['id']
 		self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
 		self.logger.setLevel(logging.INFO)
-		self.apiClient = api.ApiClient({"org": self._options['org'], "auth-token": self._options['auth-token'], "auth-key": self.gatewayApiKey },self.logger)
+		self.api = api.ApiClient({"org": self._options['org'], "auth-token": self._options['auth-token'], "auth-key": self.gatewayApiKey }, self.logger)
 
 	'''
 	This is called after the client has received a CONNACK message from the broker in response to calling connect().
@@ -361,7 +361,7 @@ class DeviceInfo(object):
 		return json.dumps(self.__dict__, sort_keys=True)
 
 
-class ManagedGateway(Client):
+class ManagedClient(Client):
 
 	# Publish MQTT topics
 	'''
@@ -390,7 +390,7 @@ class ManagedGateway(Client):
 
 	def __init__(self, options, logHandlers=None, deviceInfo=None):
 		if options['org'] == "quickstart":
-			raise Exception("Unable to create ManagedGateway instance.  QuickStart devices do not support device management")
+			raise Exception("Unable to create ManagedClient instance.  QuickStart devices do not support device management")
 
 		Client.__init__(self, options, logHandlers)
 		# TODO: Raise fatal exception if tries to create managed device client for QuickStart
@@ -472,7 +472,7 @@ class ManagedGateway(Client):
 					"reqId": reqId
 				}
 
-				notify_topic = ManagedGateway.NOTIFY_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+				notify_topic = ManagedClient.NOTIFY_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
 				resolvedEvent = threading.Event()
 
 				self.client.publish(notify_topic, payload=json.dumps(message), qos=1, retain=False)
@@ -488,8 +488,8 @@ class ManagedGateway(Client):
 			self.connectEvent.set()
 			self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
 			if self._options['org'] != "quickstart":
-				dm_response_topic = ManagedGateway.DM_RESPONSE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
-				dm_observe_topic = ManagedGateway.DM_OBSERVE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+				dm_response_topic = ManagedClient.DM_RESPONSE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+				dm_observe_topic = ManagedClient.DM_OBSERVE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
 				self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (self.COMMAND_TOPIC, 1)] )
 		elif rc == 5:
 			self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
@@ -526,7 +526,7 @@ class ManagedGateway(Client):
 			'reqId': reqId
 		}
 
-		manage_topic = ManagedGateway.MANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+		manage_topic = ManagedClient.MANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
 		resolvedEvent = threading.Event()
 
 		self.client.publish(manage_topic, payload=json.dumps(message), qos=1, retain=False)
@@ -550,7 +550,7 @@ class ManagedGateway(Client):
 			'reqId': reqId
 		}
 
-		unmanage_topic = ManagedGateway.UNMANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+		unmanage_topic = ManagedClient.UNMANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
 		resolvedEvent = threading.Event()
 
 		self.client.publish(unmanage_topic, payload=json.dumps(message), qos=1, retain=False)
@@ -586,7 +586,7 @@ class ManagedGateway(Client):
 			"reqId": reqId
 		}
 
-		update_location_topic = ManagedGateway.UPDATE_LOCATION_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+		update_location_topic = ManagedClient.UPDATE_LOCATION_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
 		resolvedEvent = threading.Event()
 
 		self.client.publish(update_location_topic, payload=json.dumps(message), qos=1, retain=False)
@@ -612,7 +612,7 @@ class ManagedGateway(Client):
 			"reqId": reqId
 		}
 
-		add_error_code_topic = ManagedGateway.ADD_ERROR_CODE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+		add_error_code_topic = ManagedClient.ADD_ERROR_CODE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
 		resolvedEvent = threading.Event()
 
 		self.client.publish(add_error_code_topic, payload=json.dumps(message), qos=1, retain=False)
@@ -633,7 +633,7 @@ class ManagedGateway(Client):
 			"reqId": reqId
 		}
 
-		clear_error_codes_topic = ManagedGateway.CLEAR_ERROR_CODES_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+		clear_error_codes_topic = ManagedClient.CLEAR_ERROR_CODES_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
 		resolvedEvent = threading.Event()
 
 		self.client.publish(clear_error_codes_topic, payload=json.dumps(message), qos=1, retain=False)
@@ -668,11 +668,11 @@ class ManagedGateway(Client):
 			if request is None:
 				return False
 
-			manage_topic = ManagedGateway.MANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
-			unmanage_topic = ManagedGateway.UNMANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
-			update_location_topic = ManagedGateway.UPDATE_LOCATION_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
-			add_error_code_topic = ManagedGateway.ADD_ERROR_CODE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
-			clear_error_codes_topic = ManagedGateway.CLEAR_ERROR_CODES_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
+			manage_topic = ManagedClient.MANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			unmanage_topic = ManagedClient.UNMANAGE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			update_location_topic = ManagedClient.UPDATE_LOCATION_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			add_error_code_topic = ManagedClient.ADD_ERROR_CODE_TOPIC_TEMPLATE % (self._gatewayType,self._gatewayId)
+			clear_error_codes_topic = ManagedClient.CLEAR_ERROR_CODES_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
 
 			if request['topic'] == manage_topic:
 				if rc == 200:

@@ -76,7 +76,7 @@ if __name__ == "__main__":
     try:
         #By default the client is an unmanaged client and on disconnecting it again becomes unmanaged
         #Thats why we need to make it a managed gateway
-        client = ibmiotf.gateway.ManagedGateway(options, logHandlers=None, deviceInfo=simpleGatewayInfo)
+        client = ibmiotf.gateway.ManagedClient(options, logHandlers=None, deviceInfo=simpleGatewayInfo)
         client.commandCallback = commandProcessor
         client.connect()
         

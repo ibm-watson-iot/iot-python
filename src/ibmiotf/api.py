@@ -1112,56 +1112,6 @@ class ApiClient():
 		else:
 			raise ibmiotf.APIException(None, "Unexpected error", None)
 
-	"""
-	===========================================================================
-	API Support to Gateway
-	- addGatewayDeviceType
-	- registerDeviceUnderGateway
-	- getDevicesConnectedThroughGateway
-	===========================================================================
-	"""
-	def addGatewayDeviceType(self, gatewayTypeId, description = None, deviceInfo = None, metadata = None, classId = "Gateway"):
-		"""
-		Creates a gateway device type with the given gatewayTypeId.
-		It accepts typeId (string), description (string), deviceInfo(dict) and metadata(dict) as parameter
-		In case of failure it throws APIException
-		"""
-		return(self.addDeviceType(gatewayTypeId,description,deviceInfo,metadata,classId))
-
-	def registerDeviceUnderGateway(self, gatewayTypeId, deviceId, authToken = None, deviceInfo = None, location = None, metadata=None):
-		"""
-		Registers a new device under given gateway type.
-		It accepts typeId (string), deviceId (string), authToken (string), location (JSON) and metadata (JSON) as parameters
-		In case of failure it throws APIException
-		"""
-		return(self.registerDevice(gatewayTypeId, deviceId, authToken, deviceInfo, location, metadata))
-
-	def getDevicesConnectedThroughGateway(self, gatewayType, gatewayId=''):
-		"""
-		This method returns all devices that are connected through the specified
-		gateway(typeId, deviceId) to Watson IoT Platform.
-		"""
-		if gatewayId != '':
-			deviceUrl = ApiClient.deviceUrl % (self.host, gatewayType,gatewayId)
-		else:
-			deviceUrl = ApiClient.devicesUrl % (self.host, gatewayType)
-
-		r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
-		status = r.status_code
-		if status == 200:
-			self.logger.debug("Devices successfully retrieved")
-			return r.json()
-		elif status == 401:
-			raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
-		elif status == 403:
-			raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-		elif status == 404:
-			raise ibmiotf.APIException(404, "The device does not exist", None)
-		elif status == 500:
-			raise ibmiotf.APIException(500, "Unexpected error", None)
-		else:
-			raise ibmiotf.APIException(None, "Unexpected error", None)
-
 
 	"""
 	===========================================================================

@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='ibmiotf',
-    version="0.2.8",
+    version="0.3.0",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -20,7 +20,7 @@ setup(
     long_description=open('README.rst').read(),
     install_requires=[
         "iso8601 >= 0.1.10",
-        "paho-mqtt >= 1.1",
+        "paho-mqtt >= 1.2",
         "pytz >= 2014.7",
         "requests >= 2.5.0",
         "requests_toolbelt >= 0.7.0",
@@ -36,6 +36,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Communications',
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules'

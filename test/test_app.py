@@ -13,23 +13,17 @@
 import ibmiotf.application
 from ibmiotf import *
 from nose.tools import *
+import testUtils
 
-class TestApplication:
-    appClient=None
-    httpClient=None
+
+class TestApplication(testUtils.AbstractTest):
+    appClient = None
+    httpClient = None
 
     @classmethod
     def setup_class(self):
-        appConfFile="application.conf"
-        options = ibmiotf.application.ParseConfigFile(appConfFile)
-        self.org = options['auth-key'][2:8]
-        self.deviceType = options['type']
-        self.deviceId = options['id']
-        self.authToken = options['auth-token']
-        self.authKey = options['auth-key']
-
-        self.appClient = ibmiotf.application.Client(options)
-        self.httpClient = ibmiotf.application.HttpClient(options)
+        self.appClient = ibmiotf.application.Client(self.appOptions)
+        self.httpClient = ibmiotf.application.HttpClient(self.appOptions)
         self.appClient.connect()
 
         assert_true(self.appClient.subscribeToDeviceEvents())

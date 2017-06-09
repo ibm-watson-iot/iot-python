@@ -29,7 +29,7 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.2.8"
+__version__ = "0.3.0"
 
 class Message:
 	def __init__(self, data, timestamp=None):

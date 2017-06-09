@@ -1,3 +1,13 @@
+v0.3.0
+======
+- Code Consistency:
+  - Renamed ibmiotf.gateway.ManagedGateway to ibmiotf.gateway.ManagedClient
+  - Renamed ibmiotf.gateway.Client.apiClient to ibmiotf.gateway.Client.api
+- Removed unnecessary api.addGatewayDeviceType() method.  Use addDeviceType(typeId, classId="Gateway") which this was a duplicate of
+- Removed unnecessary api.registerDeviceUnderGateway() method.  Use addDevice(typeId, deviceId) where typeId is the ID of a Gateway type
+- Removed api.getDevicesConnectedThroughGateway() method.  It returns a list of gateways of the specified type.
+  - Use api.getDevicesForType() or api.getDevice(), which this method was a duplicate of depending on the options provided to it.
+
 v0.2.7
 ======
  - Add device schema and state APIs
