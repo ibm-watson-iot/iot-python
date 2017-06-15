@@ -1,4 +1,4 @@
-#Python PSUtil IoT Adapter
+# Python PSUtil IoT Adapter
 
 Sample code for sending system utilization data to the IBM Internet of Things
 
