@@ -20,121 +20,88 @@ logger.setLevel(logging.INFO)
 
 def define(api, deviceType, deviceId):
   ids = {}
-    
-  logger.info("# ---- add an event schema -------")
-  schemaFile = json.dumps({ "type" : "object", "properties" : { "d" :
-    { "type" : "object", "properties" : {
-        "myName": {"type": "string"},
-        "accelX": {"type": "number"},
-        "accelY": {"type": "number"},
-        "accelZ": {"type": "number"},
-        "temp": {"type": "number"},
-        "potentiometer1": {"type": "number"},
-        "potentiometer2": {"type": "number"},
-        "joystick" : {"type": "string"},
-    } } } })
-        	
-  ids["k64f event schema"], result = api.createSchema("k64F event schema", 'K64Event.json', schemaFile)
-    
-  logger.info("# ---- get the schema back -------")
-  result = api.getSchema(ids["k64f event schema"])
 
-  logger.info("# ---- add an event type -------")    
-  ids["k64feventtype"], result = api.createEventType("K64F event", ids["k64f event schema"], "K64F event")
-    
-  logger.info("# ---- add a physical interface -------")  
+  logger.info("# ---- add an event schema -------")
+  infile = open("event1.json")
+  schemaFileContents = ''.join([x.strip() for x in infile.readlines()])
+  infile.close()
+  ids["event1 schema"], result = api.createSchema("event1 schema", 'event1.json', schemaFileContents)
+
+  logger.info("# ---- get the schema back -------")
+  result = api.getSchema(ids["event1 schema"], draft=True)
+  print(result)
+
+  logger.info("# ---- add an event type -------")
+  ids["k64feventtype"], result = api.createEventType("K64F event", ids["event1 schema"], "K64F event")
+
+  logger.info("# ---- add a physical interface -------")
   ids["physicalinterface"], result = api.createPhysicalInterface("K64F", "The physical interface for K64F example")
-    
-  logger.info("# ---- add the event type to the physical interface -------") 
+
+  logger.info("# ---- add the event type to the physical interface -------")
   result = api.createEvent(ids["physicalinterface"], ids["k64feventtype"], "status")
-    
+
   logger.info("# ---- add the physical interface to the device type")
   result = api.addPhysicalInterfaceToDeviceType(deviceType, ids["physicalinterface"])
-    
-  logger.info("# ---- add an application interface schema -------")    
-  schemaFile = json.dumps(
-      { "type" : "object",
-        "properties" : {
-          "eventCount" :{"type": "number", "default":0},
-          "accel": {"type": "object",
-            "properties" : {
-              "x": {"type": "number", "default": 0},
-              "y": {"type": "number", "default": 0},
-              "z": {"type": "number", "default": 0},
-            },
-            "required" : ["x", "y", "z"],
-          },
-          "temp": {"type": "object",
-            "properties" : {
-              "C": {"type": "number", "default": 0},
-              "F": {"type": "number", "default": 0},
-              "isLow": {"type": "boolean", "default": False},
-              "isHigh": {"type": "boolean", "default": False},
-              "lowest" : {"type": "number", "default": 100},
-              "highest" : {"type": "number", "default": 0},
-            },
-            "required" : ["C", "F", "isLow", "isHigh", "lowest", "highest"],
-          },
-          "potentiometers": {"type": "object",
-             "properties" : {
-                "1": {"type": "number"},
-                "2": {"type": "number"},
-            },
-          },
-          "joystick": {"type": "string", "default": "NONE" },
-        },
-        "required" : ["eventCount", "accel", "joystick", "temp"],
-      }
-    )
+
+  logger.info("# ---- add an application interface schema -------")
+  infile = open("appinterface1.json")
+  schemaFile = ''.join([x.strip() for x in infile.readlines()])
+  infile.close()
   ids["k64f app interface schema"], result = api.createSchema("k64fappinterface", 'k64fappinterface.json', schemaFile)
   print("App interface schema id", ids["k64f app interface schema"])
-    
-  logger.info("# ---- add an application interface -------")
+
+  logger.info("# ---- add a logical interface -------")
   try:
 	  ids["k64f app interface"], result = \
-       api.createApplicationInterface("K64F application interface", ids["k64f app interface schema"])
+       api.createLogicalInterface("K64F logical interface", ids["k64f app interface schema"])
   except Exception as exc:
-    print(exc.response.json())  
-    
-  logger.info("# ---- associate application interface with the device type -------")  
-  result = api.addApplicationInterfaceToDeviceType(deviceType, ids["k64f app interface"], ids["k64f app interface schema"])
-                 
+    print(exc.response.json())
+
+  logger.info("# ---- associate application interface with the device type -------")
+  result = api.addLogicalInterfaceToDeviceType(deviceType, ids["k64f app interface"])
+
   logger.info("# ---- add mappings to the device type -------")
-  mappings = {
-              # eventid -> { property -> eventid property expression }
-              "status" :  { 
-                "eventCount" : "$state.eventCount+1",
-                "accel.x" : "$event.d.accelX",
-                "accel.y" : "$event.d.accelY",
-                "accel.z" : "$event.d.accelZ",
-                "temp.C" : "$event.d.temp",  
-                "temp.F" : "$event.d.temp * 1.8 + 32",
-                "temp.isLow" : "$event.d.temp < $state.temp.lowest",
-                "temp.isHigh" : "$event.d.temp > $state.temp.highest",
-                "temp.lowest" : "($event.d.temp < $state.temp.lowest) ? $event.d.temp : $state.temp.lowest",
-                "temp.highest" : "($event.d.temp > $state.temp.highest) ? $event.d.temp : $state.temp.highest",
-                "potentiometers.1" : "$event.d.potentiometer1",
-                "potentiometers.2" : "$event.d.potentiometer2",
-                "joystick" : '($event.d.joystick == "LEFT") ? "RIGHT" : (($event.d.joystick == "RIGHT") ? "LEFT" : $event.d.joystick)'
-               },
-            }
-  result = api.addMappingsToDeviceType(deviceType, ids["k64f app interface"], mappings)
-    
+  infile = open("event1appint1mappings.json")
+  mappings = json.loads(''.join([x.strip() for x in infile.readlines()]))
+  infile.close()
+  try:
+    result = api.addMappingsToDeviceType(deviceType, ids["k64f app interface"], mappings,
+             notificationStrategy="on-state-change")
+  except Exception as exc:
+    print(exc.response.json())
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
 
-  from properties import orgid, key, token, devicetype, deviceid
-    
+  from properties import orgid, key, token, devicetype, deviceid, verify
+
+  domain = verify = None
+
+  try:
+    from properties import domain
+  except:
+    pass
+
+  try:
+    from properties import verify
+  except:
+    pass
+
+  params = {"auth-key": key, "auth-token": token}
+  if domain:
+    params["domain"] = domain
+
   import ibmiotf.api
-  
-  api = ibmiotf.api.ApiClient({"auth-key": key, "auth-token": token})
-  
+
+  api = ibmiotf.api.ApiClient(params)
+  if verify:
+    api.verify = verify
+
   define(api, devicetype, deviceid)
-  
-  logger.info("# ---- validate definitions -------") 
-  result = api.validateDeviceType(devicetype)
+
+  logger.info("# ---- validate definitions -------")
+  result = api.validateDeviceTypeConfiguration(devicetype)
   print(result)
-    
-  logger.info("# ---- deploy definitions -------") 
-  result = api.deployDeviceType(devicetype)
+
+  logger.info("# ---- activate definitions -------")
+  result = api.activateDeviceTypeConfiguration(devicetype)
   print(result)

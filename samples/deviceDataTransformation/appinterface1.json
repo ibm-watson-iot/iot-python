@@ -1,0 +1,37 @@
+{
+  "required": ["eventCount", "accel", "joystick", "temp", "timeSent"],
+  "type": "object",
+  "properties": {
+    "temp": {
+      "required": ["C", "F", "isLow", "isHigh", "lowest", "highest"],
+      "type": "object", "properties": {
+        "lowest": {"default": 100, "type": "number"},
+        "C": {"default": 0, "type": "number"},
+        "F": {"default": 0, "type": "number"},
+        "isHigh": {"default": false, "type": "boolean"},
+        "isLow": {"default": false, "type": "boolean"},
+        "highest": {"default": 0, "type": "number"}
+      }
+    },
+    "eventCount": {"default": 0, "type": "number"},
+    "accel": {
+      "required": ["x", "y", "z"],
+      "type": "object",
+      "properties": {
+        "y": {"default": 0, "type": "number"},
+        "x": {"default": 0, "type": "number"},
+        "z": {"default": 0, "type": "number"}
+      }
+    },
+    "potentiometers": {
+      "type": "object",
+      "properties": {
+        "1": {"type": "number"},
+        "2": {"type": "number"}
+      }
+    },
+    "joystick": {"default": "NONE", "type": "string"},
+    "timeSent": {"type": "number", "default": -1},
+    "count": {"type": "number", "default": -1}
+  }
+}

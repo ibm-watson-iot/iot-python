@@ -1,0 +1,20 @@
+{
+  "type": "object", 
+  "properties": {
+    "d": {
+      "type": "object", 
+      "properties": {
+        "potentiometer2": {"type": "number"},
+        "potentiometer1": {"type": "number"},
+        "accelZ": {"type": "number"},
+        "temp": {"type": "number"},
+        "accelX": {"type": "number"},
+        "accelY": {"type": "number"},
+        "joystick": {"type": "string"},
+        "myName": {"type": "string"}
+      }
+    },
+    "time": {"type": "number"},
+    "count": {"type": "number"}
+  }
+}

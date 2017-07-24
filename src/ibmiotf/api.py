@@ -73,38 +73,42 @@ class ApiClient():
 	#Device Management Extensions (dme) URL
 	dmeRequests = 'https://%s/api/v0002/mgmt/custom/bundle'
 	dmeSingleRequest = 'https://%s/api/v0002/mgmt/custom/bundle/%s'
-	
-	# Information management URLs 
-	
+
+	# Information management URLs
+
+	# Draft Device type URLs
+	draftDeviceTypeUrl = 'https://%s/api/v0002/draft/device/types/%s'
+
 	# Schema URLs
-	allSchemasUrl = "https://%s/api/v0002/schemas"    
-	oneSchemaUrl  = "https://%s/api/v0002/schemas/%s" 
-	oneSchemaContentUrl  = "https://%s/api/v0002/schemas/%s/content" 
-  
+	allSchemasUrl = "https://%s/api/v0002%s/schemas"
+	oneSchemaUrl  = "https://%s/api/v0002%s/schemas/%s"
+	oneSchemaContentUrl  = "https://%s/api/v0002%s/schemas/%s/content"
+
 	# Event type URLs
-	allEventTypesUrl = "https://%s/api/v0002/event/types" 
-	oneEventTypeUrl  = "https://%s/api/v0002/event/types/%s" 
-  
-	# Physical Interface URLs  
-	allPhysicalInterfacesUrl = "https://%s/api/v0002/physicalinterfaces" 
-	onePhysicalInterfaceUrl  = "https://%s/api/v0002/physicalinterfaces/%s" 
-	
+	allEventTypesUrl = "https://%s/api/v0002%s/event/types"
+	oneEventTypeUrl  = "https://%s/api/v0002%s/event/types/%s"
+
+	# Physical Interface URLs
+	allPhysicalInterfacesUrl = "https://%s/api/v0002%s/physicalinterfaces"
+	onePhysicalInterfaceUrl  = "https://%s/api/v0002%s/physicalinterfaces/%s"
+	oneDeviceTypePhysicalInterfaceUrl = 'https://%s/api/v0002/draft/device/types/%s/physicalinterface'
+
 	# Event URLs
-	allEventsUrl = "https://%s/api/v0002/physicalinterfaces/%s/events"  
-	oneEventUrl  = "https://%s/api/v0002/physicalinterfaces/%s/events/%s"
-	
-	# Application Interface URLs  
-	allApplicationInterfacesUrl = "https://%s/api/v0002/applicationinterfaces" 
-	oneApplicationInterfaceUrl  = "https://%s/api/v0002/applicationinterfaces/%s" 
-	allDeviceTypeApplicationInterfacesUrl = "https://%s/api/v0002/device/types/%s/applicationinterfaces" 
-	oneDeviceTypeApplicationInterfaceUrl = "https://%s/api/v0002/device/types/%s/applicationinterfaces/%s" 
-  
+	allEventsUrl = "https://%s/api/v0002%s/physicalinterfaces/%s/events"
+	oneEventUrl  = "https://%s/api/v0002%s/physicalinterfaces/%s/events/%s"
+
+	# Logical Interface URLs
+	allLogicalInterfacesUrl = "https://%s/api/v0002%s/logicalinterfaces"
+	oneLogicalInterfaceUrl  = "https://%s/api/v0002%s/logicalinterfaces/%s"
+	allDeviceTypeLogicalInterfacesUrl = "https://%s/api/v0002%s/device/types/%s/logicalinterfaces"
+	oneDeviceTypeLogicalInterfaceUrl = "https://%s/api/v0002/draft/device/types/%s/logicalinterfaces/%s"
+
 	# Mappings
-	allDeviceTypeMappingsUrl = "https://%s/api/v0002/device/types/%s/mappings" 
-	oneDeviceTypeMappingUrl = "https://%s/api/v0002/device/types/%s/mappings/%s" 
-  
+	allDeviceTypeMappingsUrl = "https://%s/api/v0002%s/device/types/%s/mappings"
+	oneDeviceTypeMappingUrl = "https://%s/api/v0002%s/device/types/%s/mappings/%s"
+
 	# Device state
-	deviceStateUrl = "https://%s/api/v0002/device/types/%s/devices/%s/state/%s"   
+	deviceStateUrl = "https://%s/api/v0002/device/types/%s/devices/%s/state/%s"
 
 	def __init__(self, options, logger=None):
 		self.__options = options
@@ -132,8 +136,10 @@ class ApiClient():
 		self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
 
 		# To support development systems this can be overridden to False
-		self.verify = True
-
+		self.verify = False
+		if not self.verify:
+			from requests.packages.urllib3.exceptions import InsecureRequestWarning
+			requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 	def deleteDevice(self, typeId, deviceId):
 		"""
@@ -155,7 +161,7 @@ class ApiClient():
 		elif status == 500:
 			raise ibmiotf.APIException(500, "Unexpected error", None)
 		else:
-			raise ibmiotf.APIException(None, "Unexpected error", None)
+			raise ibmiotf.APIException(status, "Unexpected error", None)
 
 
 
@@ -455,11 +461,11 @@ class ApiClient():
 			raise ibmiotf.APIException(500, "Unexpected error", None)
 		else:
 			raise ibmiotf.APIException(None, "Unexpected error", None)
-			
-			
+
+
 	def getDevicesForType(self, typeId, parameters = None):
 		"""
-		Gets details for multiple devices of a type 
+		Gets details for multiple devices of a type
 		It accepts typeId (string), deviceId (string) and expand (JSON) as parameters
 		In case of failure it throws APIException
 		"""
@@ -1197,111 +1203,172 @@ class ApiClient():
 			return r.json()
 		else:
 			raise ibmiotf.APIException(status,"HTTP Error in updateDeviceManagementExtensionPkg", r)
-			
+
 	"""
 	===========================================================================
 	Information Management Schema APIs
 	===========================================================================
-	"""			
-			
-	def getSchemas(self):
+	"""
+
+	def getSchemas(self, draft=False, name=None, schemaType=None):
 		"""
 		Get all schemas for the org.  In case of failure it throws APIException
 		"""
-		req = ApiClient.allSchemasUrl % (self.host)
+		if draft:
+			req = ApiClient.allSchemasUrl % (self.host, "/draft")
+		else:
+			req = ApiClient.allSchemasUrl % (self.host, "")
+
+		if name or schemaType:
+			req += "?"
+			if name:
+				req += "name="+name
+			if schemaType:
+				if name:
+					req += "&"
+				req += "schemaType="+schemaType
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("All schemas retrieved")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all schemas", resp)
 		return [x["id"] for x in resp.json()["results"]], resp.json()
-			
-	def getSchema(self, schemaId):
+
+	def getSchema(self, schemaId, draft=False):
 		"""
 		Get a single schema.  Throws APIException on failure
 		"""
-		req = ApiClient.oneSchemaUrl % (self.host, schemaId)
+		if draft:
+			req = ApiClient.oneSchemaUrl % (self.host, "/draft", schemaId)
+		else:
+			req = ApiClient.oneSchemaUrl % (self.host, "", schemaId)
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("One schema retrieved")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error in get a schema", resp)
 		return resp.json()
-			
+
 	def createSchema(self, schemaName, schemaFileName, schemaContents, description=None):
 		"""
-		Create a schema for the org.  
+		Create a schema for the org.
 		Returns: schemaId (string), response (object).
 		Throws APIException on failure
 		"""
-		req = ApiClient.allSchemasUrl % (self.host)	  
+		req = ApiClient.allSchemasUrl % (self.host, "/draft")
 		fields={
 	  	'schemaFile': (schemaFileName, schemaContents, 'application/json'),
-			'schemaType': 'json-schema', 
+			'schemaType': 'json-schema',
 			'name': schemaName,
 		}
 		if description:
 			fields["description"] = description
- 
+
 		multipart_data = MultipartEncoder(fields=fields)
 		resp = requests.post(req, auth=self.credentials, data=multipart_data,
 							headers={'Content-Type': multipart_data.content_type}, verify=self.verify)
 		if resp.status_code == 201:
 			self.logger.debug("Schema created")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error creating a schema", resp)		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating a schema", resp)
 		return resp.json()["id"], resp.json()
-			
+
 	def deleteSchema(self, schemaId):
 		"""
 		Delete a schema.  Parameter: schemaId (string). Throws APIException on failure.
 		"""
-		req = ApiClient.oneSchemaUrl % (self.host, schemaId)
+		req = ApiClient.oneSchemaUrl % (self.host, "/draft", schemaId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
 			self.logger.debug("Schema deleted")
 		else:
 			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting schema", resp)
 		return resp
-		
-	def getSchemaContent(self, schemaId):
+
+	def updateSchema(self, schemaId, schemaDefinition):
 		"""
-		Get the content for a schema.  Parameter: schemaId (string). Throws APIException on failure. 
+		Update a schema. Throws APIException on failure.
 		"""
-		req = ApiClient.oneSchemaContentUrl % (self.host, schemaId)
+		req = ApiClient.oneSchemaUrl % (self.host, "/draft", schemaId)
+		body = {"schemaDefinition": schemaDefinition}
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+						   data=json.dumps(body),  verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("Schema updated")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating schema", resp)
+		return resp.json()
+
+	def getSchemaContent(self, schemaId, draft=False):
+		"""
+		Get the content for a schema.  Parameters: schemaId (string), draft (boolean). Throws APIException on failure.
+		"""
+		if draft:
+			req = ApiClient.oneSchemaContentUrl % (self.host, "/draft", schemaId)
+		else:
+			req = ApiClient.oneSchemaContentUrl % (self.host, "", schemaId)
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Schema content retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting schema content", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting schema content", resp)
 		return resp.json()
-			
+
+	def updateSchemaContent(self, schemaId, schemaFile):
+		"""
+		Updates the content for a schema.  Parameters: schemaId (string). Throws APIException on failure.
+		"""
+		req = ApiClient.oneSchemaContentUrl % (self.host, "/draft", schemaId)
+		body = {"schemaFile": schemaFile}
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+						   data=json.dumps(body),  verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("Schema content updated")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating schema content", resp)
+		return resp.json()
+
 	"""
 	===========================================================================
 	Information Management event type APIs
 	===========================================================================
 	"""
 
-	def getEventTypes(self):
+	def getEventTypes(self, draft=False, name=None, schemaId=None):
 		"""
-		Get all event types for an org.  Throws APIException on failure. 
+		Get all event types for an org.  Throws APIException on failure.
 		"""
-		req = ApiClient.allEventTypesUrl % (self.host)
+		if draft:
+			req = ApiClient.allEventTypesUrl % (self.host, "/draft")
+		else:
+			req = ApiClient.allEventTypesUrl % (self.host, "")
+
+		if name or schemaId:
+			req += "?"
+			if name:
+				req += "name="+name
+			if schemaId:
+				if name:
+					req += "&"
+				req += "schemaId="+schemaId
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("All event types retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all event types", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all event types", resp)
 		return [x["id"] for x in resp.json()["results"]], resp.json()
-	
+
 	def createEventType(self, name, schemaId, description=None):
 		"""
-		Creates an event type.  
+		Creates an event type.
 		Parameters: name (string), schemaId (string), description (string, optional).
 		Returns: event type id (string), response (object).
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allEventTypesUrl % (self.host)
+		req = ApiClient.allEventTypesUrl % (self.host, "/draft")
 		body = {"name" : name, "schemaId" : schemaId}
 		if description:
 			body["description"] = description
@@ -1310,16 +1377,16 @@ class ApiClient():
 		if resp.status_code == 201:
 			self.logger.debug("event type created")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event type", resp)	
-		return resp.json()["id"], resp.json()		
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event type", resp)
+		return resp.json()["id"], resp.json()
+
 	def updateEventType(self, eventTypeId, name, schemaId, description=None):
 		"""
-		Updates an event type.  
+		Updates an event type.
 		Parameters: eventTypeId (string), name (string), schemaId (string), description (string, optional).
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneEventTypesUrl % (self.host, eventTypeId)
+		req = ApiClient.oneEventTypesUrl % (self.host, "/draft", eventTypeId)
 		body = {"name" : name, "schemaId" : schemaId}
 		if description:
 			body["description"] = description
@@ -1328,61 +1395,73 @@ class ApiClient():
 		if resp.status_code == 200:
 			self.logger.debug("event type updated")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error updating event type", resp)	
-		return resp.json()			
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating event type", resp)
+		return resp.json()
+
 	def deleteEventType(self, eventTypeId):
 		"""
-		Deletes an event type.  Parameters: eventTypeId (string). Throws APIException on failure. 
+		Deletes an event type.  Parameters: eventTypeId (string). Throws APIException on failure.
 		"""
-		req = ApiClient.oneEventTypeUrl % (self.host, eventTypeId)
+		req = ApiClient.oneEventTypeUrl % (self.host, "/draft", eventTypeId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
 			self.logger.debug("event type deleted")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting an event type", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting an event type", resp)
 		return resp
-		
-	def getEventType(self, eventTypeId):
+
+	def getEventType(self, eventTypeId, draft=False):
 		"""
-		Gets an event type.  Parameters: eventTypeId (string).  Throws APIException on failure. 
+		Gets an event type.  Parameters: eventTypeId (string), draft (boolean).  Throws APIException on failure.
 		"""
-		req = ApiClient.oneEventTypeUrl % (self.host, eventTypeId)
+		if draft:
+			req = ApiClient.oneEventTypeUrl % (self.host, "/draft", eventTypeId)
+		else:
+			req = ApiClient.oneEventTypeUrl % (self.host, "", eventTypeId)
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("event type retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting an event type", resp)	
-		return resp.json()				
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting an event type", resp)
+		return resp.json()
+
 	"""
 	===========================================================================
 	Information Management Physical Interface APIs
 	===========================================================================
 	"""
 
-	def getPhysicalInterfaces(self):
+	def getPhysicalInterfaces(self, draft=False, name=None):
 		"""
-		Get all physical interfaces for an org.  Throws APIException on failure. 
+		Get all physical interfaces for an org.
+		Parameters: draft (boolean).
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allPhysicalInterfacesUrl % (self.host)
+		if draft:
+			req = ApiClient.allPhysicalInterfacesUrl % (self.host, "/draft")
+		else:
+			req = ApiClient.allPhysicalInterfacesUrl % (self.host, "")
+
+		if name:
+			req += "?name="+name
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("All physical interfaces retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all physical interfaces", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all physical interfaces", resp)
 		return [x["id"] for x in resp.json()["results"]], resp.json()
-	
+
 	def createPhysicalInterface(self, name, description=None):
 		"""
-		Create a physical interface.  
-		Parameters: 
+		Create a physical interface.
+		Parameters:
 		  - name (string)
 		  - description (string, optional)
 		Returns: physical interface id, response.
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allPhysicalInterfacesUrl % (self.host)
+		req = ApiClient.allPhysicalInterfacesUrl % (self.host, "/draft")
 		body = {"name" : name}
 		if description:
 			body["description"] = description
@@ -1391,20 +1470,20 @@ class ApiClient():
 		if resp.status_code == 201:
 			self.logger.debug("physical interface created")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error creating physical interface", resp)	
-		return resp.json()["id"], resp.json()		
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating physical interface", resp)
+		return resp.json()["id"], resp.json()
+
 	def updatePhysicalInterface(self, physicalInterfaceId, name, schemaId, description=None):
 		"""
-		Update a physical interface.  
-		Parameters: 
+		Update a physical interface.
+		Parameters:
 		  - physicalInterfaceId (string)
 		  - name (string)
 		  - schemaId (string)
 		  - description (string, optional)
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.onePhysicalInterfacesUrl % (self.host, physicalInterfaceId)
+		req = ApiClient.onePhysicalInterfacesUrl % (self.host, "/draft", physicalInterfaceId)
 		body = {"name" : name, "schemaId" : schemaId}
 		if description:
 			body["description"] = description
@@ -1413,458 +1492,561 @@ class ApiClient():
 		if resp.status_code == 200:
 			self.logger.debug("physical interface updated")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error updating physical interface", resp)	
-		return resp.json()			
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating physical interface", resp)
+		return resp.json()
+
 	def deletePhysicalInterface(self, physicalInterfaceId):
 		"""
-		Delete a physical interface.  
-		Parameters: physicalInterfaceId (string). 
-		Throws APIException on failure. 
+		Delete a physical interface.
+		Parameters: physicalInterfaceId (string).
+		Throws APIException on failure.
 		"""
-		req = ApiClient.onePhysicalInterfaceUrl % (self.host, physicalInterfaceId)
+		req = ApiClient.onePhysicalInterfaceUrl % (self.host, "/draft", physicalInterfaceId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
 			self.logger.debug("physical interface deleted")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting a physical interface", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting a physical interface", resp)
 		return resp
-		
-	def getPhysicalInterface(self, physicalInterfaceId):
+
+	def getPhysicalInterface(self, physicalInterfaceId, draft=False):
 		"""
-		Get a physical interface.  
-		Parameters: physicalInterfaceId (string).
-		Throws APIException on failure. 
+		Get a physical interface.
+		Parameters:
+		  - physicalInterfaceId (string)
+		  - draft (boolean)
+		Throws APIException on failure.
 		"""
-		req = ApiClient.onePhysicalInterfaceUrl % (self.host, physicalInterfaceId)
+		if draft:
+			req = ApiClient.onePhysicalInterfaceUrl % (self.host, "/draft", physicalInterfaceId)
+		else:
+			req = ApiClient.onePhysicalInterfaceUrl % (self.host, "", physicalInterfaceId)
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("physical interface retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting a physical interface", resp)	
-		return resp.json()				
-						
-						
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting a physical interface", resp)
+		return resp.json()
+
+
 	"""
 	===========================================================================
 	Information Management Event Mapping APIs
 	===========================================================================
 	"""
-	
-	def getEvents(self, physicalInterfaceId):
+
+	def getEvents(self, physicalInterfaceId, draft=False):
 		"""
 		Get the event mappings for a physical interface.
-		Parameters: physicalInterfaceId (string).
-		Throws APIException on failure. 
+		Parameters:
+		  - physicalInterfaceId (string)
+		  - draft (boolean)
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allEventsUrl % (self.host, physicalInterfaceId)
+		if draft:
+			req = ApiClient.allEventsUrl % (self.host, "/draft", physicalInterfaceId)
+		else:
+			req = ApiClient.allEventsUrl % (self.host, "", physicalInterfaceId)
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("All event mappings retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting event mappings", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting event mappings", resp)
 		return resp.json()
-	
+
 	def createEvent(self, physicalInterfaceId, eventTypeId, eventId):
 		"""
 		Create an event mapping for a physical interface.
-		Parameters: 
+		Parameters:
 		  physicalInterfaceId (string) - value returned by the platform when creating the physical interface
 		  eventTypeId (string) - value returned by the platform when creating the event type
 		  eventId (string) - matches the event id used by the device in the MQTT topic
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allEventsUrl % (self.host, physicalInterfaceId)
+		req = ApiClient.allEventsUrl % (self.host, "/draft", physicalInterfaceId)
 		body = {"eventId" : eventId, "eventTypeId" : eventTypeId}
 		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
 				       verify=self.verify)
 		if resp.status_code == 201:
 			self.logger.debug("Event mapping created")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event mapping", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating event mapping", resp)
 		return resp.json()
-  
+
 	def deleteEvent(self, physicalInterfaceId, eventId):
 		"""
 		Delete an event mapping from a physical interface.
 		Parameters: physicalInterfaceId (string), eventId (string).
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneEventUrl % (self.host, physicalInterfaceId, eventId)
+		req = ApiClient.oneEventUrl % (self.host, "/draft", physicalInterfaceId, eventId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
 			self.logger.debug("Event mapping deleted")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting event mapping", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting event mapping", resp)
 		return resp
 
 
 	"""
 	===========================================================================
-	Information Management Application Interface APIs
+	Information Management Logical Interface APIs
 	===========================================================================
 	"""
 
-	def getApplicationInterfaces(self):
+	def getLogicalInterfaces(self, draft=False, name=None, schemaId=None):
 		"""
-		Get all application interfaces for an org.  
+		Get all logical interfaces for an org.
+		Parameters: draft (boolean).
 		Returns:
 			- list of ids
 			- response object
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allApplicationInterfacesUrl % (self.host)
+		if draft:
+			req = ApiClient.allLogicalInterfacesUrl % (self.host, "/draft")
+		else:
+			req = ApiClient.allLogicalInterfacesUrl % (self.host, "")
+
+		if name or schemaId:
+			req += "?"
+			if name:
+				req += "name="+name
+			if schemaId:
+				if name:
+					req += "&"
+				req += "schemaId="+schemaId
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
-			self.logger.debug("All application interfaces retrieved")
+			self.logger.debug("All logical interfaces retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all application interfaces", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all logical interfaces", resp)
 		return [x["id"] for x in resp.json()["results"]], resp.json()
-	
-	def createApplicationInterface(self, name, schemaId, description=None):
+
+	def createLogicalInterface(self, name, schemaId, description=None):
 		"""
-		Creates an application interface..  
+		Creates an logical interface..
 		Parameters: name (string), schemaId (string), description (string, optional).
-		Returns: application interface id (string), response (object).
-		Throws APIException on failure. 
+		Returns: logical interface id (string), response (object).
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allApplicationInterfacesUrl % (self.host)
-		body = {"name" : name, "schemaId" : schemaId}
-		if description:
-			body["description"] = description
+		req = ApiClient.allLogicalInterfacesUrl % (self.host, "/draft")
+		if description == None:
+			description = ""
+		body = {"name" : name, "description" : description, "schemaId" : schemaId}
+		# if description:
+		# 	body["description"] = description
 		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"},
 							data=json.dumps(body), verify=self.verify)
 		if resp.status_code == 201:
-			self.logger.debug("Application interface created")
+			self.logger.debug("Logical interface created")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error creating application interface", resp)	
-		return resp.json()["id"], resp.json()				
-		
-	def updateApplicationInterface(self, ApplicationInterfaceId, name, schemaId, description=None):
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating logical interface", resp)
+		return resp.json()["id"], resp.json()
+
+	def updateLogicalInterface(self, logicalInterfaceId, name, schemaId, description=None):
 		"""
-		Updates an application interface.  
-		Parameters: ApplicationInterfaceId (string), name (string), schemaId (string), description (string, optional).
-		Throws APIException on failure. 
+		Updates an logical interface.
+		Parameters: logicalInterfaceId (string), name (string), schemaId (string), description (string, optional).
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneApplicationInterfacesUrl % (self.host, ApplicationInterfaceId)
+		req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
 		body = {"name" : name, "schemaId" : schemaId}
 		if description:
 			body["description"] = description
 		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
 							data=json.dumps(body), 	verify=self.verify)
 		if resp.status_code == 200:
-			self.logger.debug("application interface updated")
+			self.logger.debug("Logical interface updated")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error updating application interface", resp)	
-		return resp.json()			
-		
-	def deleteApplicationInterface(self, applicationInterfaceId):
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating logical interface", resp)
+		return resp.json()
+
+	def deleteLogicalInterface(self, logicalInterfaceId):
 		"""
-		Deletes an application interface.  
-		Parameters: applicationInterfaceId (string).
-		Throws APIException on failure. 
+		Deletes an logical interface.
+		Parameters: logicalInterfaceId (string).
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneApplicationInterfaceUrl % (self.host, applicationInterfaceId)
+		req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
-			self.logger.debug("application interface deleted")
+			self.logger.debug("logical interface deleted")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting an application interface", resp)	
-		return resp.json()		
-		
-	def getApplicationInterface(self, applicationInterfaceId):
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting an logical interface", resp)
+		return resp
+
+	def getLogicalInterface(self, logicalInterfaceId, draft=False):
 		"""
-		Gets an application interface.  
-		Parameters: applicationInterfaceId (string).  
-		Throws APIException on failure. 
+		Gets an logical interface.
+		Parameters:
+		  - logicalInterfaceId (string)
+		  - draft (boolean)
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneApplicationInterfaceUrl % (self.host, applicationInterfaceId)
+		if draft:
+			req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
+		else:
+			req = ApiClient.oneLogicalInterfaceUrl % (self.host, "", logicalInterfaceId)
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
-			self.logger.debug("application interface retrieved")
+			self.logger.debug("logical interface retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting an application interface", resp)	
-		return resp.json()		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting an logical interface", resp)
+		return resp.json()
 
 	"""
 	===========================================================================
 	Information Management Device Type APIs
 	===========================================================================
 	"""
-	
+
 	def addPhysicalInterfaceToDeviceType(self, typeId, physicalInterfaceId):
 		"""
 		Adds a physical interface to a device type.
-		Parameters: 
+		Parameters:
 			- typeId (string) - the device type
-			- physicalInterfaceId (string) - the id returned by the platform on creation of the physical interface
-		Throws APIException on failure. 
+			- logicalInterfaceId (string) - the id returned by the platform on creation of the physical interface
+		Throws APIException on failure.
 		"""
-		req = ApiClient.deviceTypeUrl % (self.host, typeId)
-		body = {"physicalInterfaceId" : physicalInterfaceId}
-		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+		req = ApiClient.oneDeviceTypePhysicalInterfaceUrl % (self.host, typeId)
+		body = {"id" : physicalInterfaceId}
+		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
 				       verify=self.verify)
-		if resp.status_code == 200:
+		if resp.status_code == 201:
 			self.logger.debug("Physical interface added to a device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error adding physical interface to a device type", resp)	
-		return resp.json()		
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error adding physical interface to a device type", resp)
+		return resp.json()
+
 	def removePhysicalInterfaceFromDeviceType(self, typeId):
 		"""
 		Removes the physical interface from a device type.  Only one can be associated with a device type,
 		  so the physical interface id is not necessary as a parameter.
-		Parameters: 
+		Parameters:
 					- typeId (string) - the device type
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		req = ApiClient.oneDeviceTypePhysicalInterfaceUrl % (self.host, typeId)
 		body = {}
-		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+		resp = requests.delete(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
   	       verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Physical interface removed from a device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error removing a physical interface from a device type", resp)	
-		return resp.json()		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error removing a physical interface from a device type", resp)
+		return resp.json()
 
-	def getApplicationInterfacesOnDeviceType(self, typeId):
+	def getLogicalInterfacesOnDeviceType(self, typeId, draft=False):
 		"""
-		Get all application interfaces for a device type.
+		Get all logical interfaces for a device type.
+		Parameters:
+		  - typeId (string)
+		  - draft (boolean)
 		Returns:
-			- list of application interface ids
+			- list of logical interface ids
 			- HTTP response object
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allDeviceTypeApplicationInterfacesUrl % (self.host, typeId)
+		if draft:
+			req = ApiClient.allDeviceTypeLogicalInterfacesUrl % (self.host, "/draft", typeId)
+		else:
+			req = ApiClient.allDeviceTypeLogicalInterfacesUrl % (self.host, "", typeId)
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
-			self.logger.debug("All device type application interfaces retrieved")
+			self.logger.debug("All device type logical interfaces retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all device type application interfaces", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all device type logical interfaces", resp)
 		return [appintf["id"] for appintf in resp.json()], resp.json()
-		
-	def addApplicationInterfaceToDeviceType(self, typeId, applicationInterfaceId, schemaId, description=None):
+
+	def addLogicalInterfaceToDeviceType(self, typeId, logicalInterfaceId):
 		"""
-		Adds an application interface to a device type.
-		Parameters: 
+		Adds an logical interface to a device type.
+		Parameters:
 			- typeId (string) - the device type
-			- applicationInterfaceId (string) - the id returned by the platform on creation of the application interface
-			- schemaId (string) - the schema id of the application interface.  (yes, why?)
+			- logicalInterfaceId (string) - the id returned by the platform on creation of the logical interface
 			- description (string) - optional (not used)
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allDeviceTypeApplicationInterfacesUrl % (self.host, typeId)
-		body = {"name" : "required but not used!!!", "id" : applicationInterfaceId, "schemaId" : schemaId}
-		if description:
-			body["description"] = description
+		req = ApiClient.allDeviceTypeLogicalInterfacesUrl % (self.host, "/draft", typeId)
+		body = {"id" : logicalInterfaceId}
+#		body = {"name" : "required but not used!!!", "id" : logicalInterfaceId, "schemaId" : schemaId}
+#		if description:
+#			body["description"] = description
 		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
 						verify=self.verify)
 		if resp.status_code == 201:
-			self.logger.debug("Application interface added to a device type")
+			self.logger.debug("Logical interface added to a device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error adding application interface to a device type", resp)	
-		return resp.json()		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error adding logical interface to a device type", resp)
+		return resp.json()
 
-	def removeApplicationInterfaceFromDeviceType(self, typeId, applicationInterfaceId):
+	def removeLogicalInterfaceFromDeviceType(self, typeId, logicalInterfaceId):
 		"""
-		Removes an application interface from a device type.
-		Parameters: 
+		Removes an logical interface from a device type.
+		Parameters:
 			- typeId (string) - the device type
-			- applicationInterfaceId (string) - the id returned by the platform on creation of the application interface
-		Throws APIException on failure. 
+			- logicalInterfaceId (string) - the id returned by the platform on creation of the logical interface
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneDeviceTypeApplicationInterfaceUrl % (self.host, typeId, applicationInterfaceId)   
+		req = ApiClient.oneDeviceTypeLogicalInterfaceUrl % (self.host, typeId, logicalInterfaceId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
-			self.logger.debug("Application interface removed from a device type")
+			self.logger.debug("Logical interface removed from a device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error removing application interface from a device type", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error removing logical interface from a device type", resp)
 		return resp
-	
-	def getMappingsOnDeviceType(self, typeId):
+
+	def getMappingsOnDeviceType(self, typeId, draft=False):
 		"""
 		Get all the mappings for a device type.
-		Parameters: 
+		Parameters:
 			- typeId (string) - the device type
-		Throws APIException on failure. 
+			- draft (boolean) - draft or active
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allDeviceTypeMappingsUrl % (self.host, typeId)
+		if draft:
+			req = ApiClient.allDeviceTypeMappingsUrl % (self.host, "/draft", typeId)
+		else:
+			req = ApiClient.allDeviceTypeMappingsUrl % (self.host, "", typeId)
+
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("All device type mappings retrieved")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all device type mappings", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting all device type mappings", resp)
 		return resp.json()
-		
-	def addMappingsToDeviceType(self, typeId, applicationInterfaceId, mappingsObject):
+
+	def addMappingsToDeviceType(self, typeId, logicalInterfaceId, mappingsObject, notificationStrategy = "never"):
 		"""
 		Add mappings for a device type.
-		Parameters: 
+		Parameters:
 			- typeId (string) - the device type
-			- applicationInterfaceId (string) - the id of the application interface these mappings are for
+			- logicalinterface (string) - the id of the application interface these mappings are for
+			- notificationStrategy (string) - the notification strategy to use for these mappings
 			- mappingsObject (Python dictionary corresponding to JSON object) example:
-			
+
 			{ # eventid -> { property -> eventid property expression }
-         "status" :  { 
+         "status" :  {
                 "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
            }
       }
-			
-		Throws APIException on failure. 
+
+		Throws APIException on failure.
 		"""
-		req = ApiClient.allDeviceTypeMappingsUrl % (self.host, typeId)
+		req = ApiClient.allDeviceTypeMappingsUrl % (self.host, "/draft", typeId)
 		try:
 			mappings = json.dumps({
-				"applicationInterfaceId" : applicationInterfaceId,
-				"propertyMappings" : mappingsObject 
+				"logicalInterfaceId" : logicalInterfaceId,
+				"notificationStrategy" : notificationStrategy,
+				"propertyMappings" : mappingsObject
 			})
 		except Exception as exc:
 			raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
 		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
 		       verify=self.verify)
 		if resp.status_code == 201:
-			self.logger.debug("Device type mappings created for application interface")
+			self.logger.debug("Device type mappings created for logical interface")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error creating device type mappings for application interface", resp)	
-		return resp.json() 
-		
-	def deleteMappingsFromDeviceType(self, typeId, applicationInterfaceId):
+			raise ibmiotf.APIException(resp.status_code, "HTTP error creating device type mappings for logical interface", resp)
+		return resp.json()
+
+	def deleteMappingsFromDeviceType(self, typeId, logicalInterfaceId):
 		"""
 		Deletes mappings for an application interface from a device type.
 		Parameters:
 			- typeId (string) - the device type
-		  - applicationInterfaceId (string) - the platform returned id of the application interface
-		Throws APIException on failure. 
+		  - logicalInterfaceId (string) - the platform returned id of the application interface
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneDeviceTypeMappingUrl % (self.host, typeId, applicationInterfaceId)
+		req = ApiClient.oneDeviceTypeMappingUrl % (self.host, "/draft", typeId, logicalInterfaceId)
 		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 204:
 			self.logger.debug("Mappings deleted from the device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting mappings for an application interface from a device type", resp)	
+			raise ibmiotf.APIException(resp.status_code, "HTTP error deleting mappings for an logical interface from a device type", resp)
 		return resp
-		
-	def getMappingsOnDeviceTypeForApplicationInterface(self, typeId, applicationInterfaceId):
+
+	def getMappingsOnDeviceTypeForLogicalInterface(self, typeId, logicalInterfaceId, draft=False):
 		"""
-		Gets the mappings for an application interface from a device type.
+		Gets the mappings for an logical interface from a device type.
 		Parameters:
 			- typeId (string) - the device type
-		  - applicationInterfaceId (string) - the platform returned id of the application interface
-		Throws APIException on failure. 
+		    - logicalInterfaceId (string) - the platform returned id of the logical interface
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneMappingDeviceTypeUrl % (self.host, applicationInterfaceId)
-		resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+		if draft:
+			req = ApiClient.oneDeviceTypeMappingUrl % (self.host, "/draft", typeId, logicalInterfaceId)
+		else:
+			req = ApiClient.oneDeviceTypeMappingUrl % (self.host, "", typeId, logicalInterfaceId)
+
+		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Mappings retrieved from the device type")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting mappings for an application interface from a device type", resp)	
-		return resp.json()	
-	
-	def updateMappingsOnDeviceType(self, typeId, applicationInterfaceId, mappingsObject):
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting mappings for an logical interface from a device type", resp)
+		return resp.json()
+
+
+
+	def updateMappingsOnDeviceType(self, typeId, logicalInterfaceId, mappingsObject, notificationStrategy = "never"):
 		"""
 		Add mappings for a device type.
-		Parameters: 
+		Parameters:
 			- typeId (string) - the device type
-			- applicationInterfaceId (string) - the id of the application interface these mappings are for
+			- logicalInterfaceId (string) - the id of the application interface these mappings are for
+			- notificationStrategy (string) - the notification strategy to use for these mappings
 			- mappingsObject (Python dictionary corresponding to JSON object) example:
-			
+
 			{ # eventid -> { property -> eventid property expression }
-         "status" :  { 
+         "status" :  {
                 "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
            }
       }
-			
-		Throws APIException on failure. 
+
+		Throws APIException on failure.
 		"""
-		req = ApiClient.oneDeviceTypeMappingUrl % (self.host, typeId, applicationInterfaceId)
+		req = ApiClient.oneDeviceTypeMappingUrl % (self.host, "/draft", typeId, logicalInterfaceId)
 		try:
 			mappings = json.dumps({
-				"applicationInterfaceId" : applicationInterfaceId,
-				"propertyMappings" : mappingsObject 
+				"logicalInterfaceId" : logicalInterfaceId,
+				"notificationStrategy" : notificationStrategy,
+				"propertyMappings" : mappingsObject
 			})
 		except Exception as exc:
 			raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
-		resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
+		resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
 		       verify=self.verify)
-		if resp.status_code == 204:
-			self.logger.debug("Device type mappings updated for application interface")
+		if resp.status_code == 200:
+			self.logger.debug("Device type mappings updated for logical interface")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error updating device type mappings for application interface", resp)	
-		return resp.json() 
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error updating device type mappings for logical interface", resp)
+		return resp.json()
+
 	"""
 	===========================================================================
 	Information Management Device APIs
 	===========================================================================
-	"""		
+	# """
+
 	def validateDeviceTypeConfiguration(self, typeId):
 		"""
 		Validate the device type configuration.
 		Parameters:
 			- typeId (string) - the platform device type
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.deviceTypeUrl % (self.host, typeId)
+		req = ApiClient.draftDeviceTypeUrl % (self.host, typeId)
 		body = {"operation" : "validate-configuration"}
-		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body), 
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
 		       verify=self.verify)
 		if resp.status_code == 200:
 			self.logger.debug("Validation for device type configuration succeeded")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "Validation for device type configuration failed", resp)	
-		return resp.json()	
-		
-	def deployDeviceTypeConfiguration(self, typeId):
+			raise ibmiotf.APIException(resp.status_code, "Validation for device type configuration failed", resp)
+		return resp.json()
+
+	def activateDeviceTypeConfiguration(self, typeId):
 		"""
-		(Validate and) Deploy the device type configuration.
+		Activate the device type configuration.
 		Parameters:
 			- typeId (string) - the platform device type
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
-		req = ApiClient.deviceTypeUrl % (self.host, typeId)
-		body = {"operation" : "deploy-configuration"}
+		req = ApiClient.draftDeviceTypeUrl % (self.host, typeId)
+		body = {"operation" : "activate-configuration"}
 		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
 		       verify=self.verify)
-		if resp.status_code in [200, 202]:
-			self.logger.debug("Deploy for device type configuration succeeded")
+		if (resp.status_code == 202):
+			self.logger.debug("Activation for device type configuration succeeded")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "Deploy for device type configuration failed", resp)	
-		return resp.json()	
-		
-	def removeDeviceTypeConfiguration(self, typeId):
+			raise ibmiotf.APIException(resp.status_code, "Activation for device type configuration failed", resp)
+		return resp.json()
+
+	def deactivateDeviceTypeConfiguration(self, typeId):
 		"""
-		Remove the device type configuration.
+		Deactivate the device type configuration.
 		Parameters:
 			- typeId (string) - the platform device type
-		Throws APIException on failure. 
+		Throws APIException on failure.
 		"""
 		req = ApiClient.deviceTypeUrl % (self.host, typeId)
-		body = {"operation" : "remove-deployed-configuration"}
+		body = {"operation" : "deactivate-configuration"}
 		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
-				       verify=self.verify)
-		if resp.status_code in [200, 202]:
-			self.logger.debug("Remove for device type configuration succeeded")
+		       verify=self.verify)
+		if resp.status_code == 202:
+			self.logger.debug("Deactivation for device type configuration succeeded")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "Remove for device type configuration failed", resp)	
-		return resp.json()	
-		
-	def getDeviceStateForApplicationInterface(self, typeId, deviceId, applicationInterfaceId):
+			raise ibmiotf.APIException(resp.status_code, "Deactivation for device type configuration failed", resp)
+		return resp.json()
+
+	def validateLogicalInterfaceConfiguration(self, logicalInterfaceId):
 		"""
-		Gets the state for an application interface for a device.
+		Validate the logical interface configuration.
+		Parameters:
+			- logicalInterfaceId (string)
+		Throws APIException on failure.
+		"""
+		req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
+		body = {"operation" : "validate-configuration"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+		       verify=self.verify)
+		if resp.status_code == 200:
+			self.logger.debug("Validation for logical interface configuration succeeded")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "Validation for logical interface configuration failed", resp)
+		return resp.json()
+
+	def activateLogicalInterfaceConfiguration(self, logicalInterfaceId):
+		"""
+		Activate the logical interface configuration.
+		Parameters:
+			- logicalInterfaceId (string)
+		Throws APIException on failure.
+		"""
+		req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
+		body = {"operation" : "activate-configuration"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+		       verify=self.verify)
+		if (resp.status_code == 202):
+			self.logger.debug("Activation for logical interface configuration succeeded")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "Activation for logical interface configuration failed", resp)
+		return resp.json()
+
+	def deactivateLogicalInterfaceConfiguration(self, logicalInterfaceId):
+		"""
+		Deactivate the logical interface configuration.
+		Parameters:
+			- logicalInterfaceId (string)
+		Throws APIException on failure.
+		"""
+		req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
+		body = {"operation" : "deactivate-configuration"}
+		resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+		       verify=self.verify)
+		if resp.status_code == 202:
+			self.logger.debug("Deactivate for logical interface configuration succeeded")
+		else:
+			raise ibmiotf.APIException(resp.status_code, "Deactivate for logical interface configuration failed", resp)
+		return resp.json()
+
+	def getDeviceStateForLogicalInterface(self, typeId, deviceId, logicalInterfaceId):
+		"""
+		Gets the state for an logical interface for a device.
 		Parameters:
 			- typeId (string) - the platform device type
 			- deviceId (string) - the platform device id
-		  - applicationInterfaceId (string) - the platform returned id of the application interface
-		Throws APIException on failure. 
+		    - logicalInterfaceId (string) - the platform returned id of the logical interface
+		Throws APIException on failure.
 		"""
-		req = ApiClient.deviceStateUrl % (self.host, typeId, deviceId, applicationInterfaceId)
+		req = ApiClient.deviceStateUrl % (self.host, typeId, deviceId, logicalInterfaceId)
 		resp = requests.get(req, auth=self.credentials, verify=self.verify)
 		if resp.status_code == 200:
-			self.logger.debug("State retrieved from the device type for an application interface")
+			self.logger.debug("State retrieved from the device type for an logical interface")
 		else:
-			raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for an application interface from a device type", resp)	
-		return resp.json()	
-		
-		
-		
+			raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for an logical interface from a device type", resp)
+		return resp.json()

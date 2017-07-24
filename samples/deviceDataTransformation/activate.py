@@ -10,7 +10,6 @@
 #   Ian Craggs
 # *****************************************************************************
 
-
 from __future__ import print_function
 import time, ibmiotf.api
 
@@ -36,15 +35,7 @@ if __name__ == "__main__":
   api = ibmiotf.api.ApiClient(params)
   api.verify = verify
 
-  appinterfaceids, result = api.getLogicalInterfacesOnDeviceType(devicetype)
-  print("Application interface ids", appinterfaceids)
-
-  while True:
-    for applicationInterfaceId in appinterfaceids:
-      print("Getting state for application interface id", applicationInterfaceId)
-      try:
-        result = api.getDeviceStateForLogicalInterface(devicetype, deviceid, applicationInterfaceId)
-        print(result)
-      except Exception as exc:
-        print(exc.response, exc.response.json())
-      time.sleep(1)
+  try:
+    api.activateDeviceTypeConfiguration(devicetype)
+  except Exception as exc:
+    print(exc.response.json())

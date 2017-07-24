@@ -11,30 +11,40 @@
 # *****************************************************************************
 
 from __future__ import print_function
-import time, ibmiotf.api
+import time, ibmiotf.api, json
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
   domain = None
   verify = True
   from properties import orgid, key, token, devicetype, deviceid
-  
+
   try:
     from properties import domain
   except:
     pass
-    
+
   try:
     from properties import verify
   except:
     pass
-  
+
   params = {"auth-key": key, "auth-token": token}
   if domain:
     params["domain"] = domain
-  
+
   api = ibmiotf.api.ApiClient(params)
   api.verify = verify
 
-  result = api.deployDeviceTypeConfiguration(devicetype)
-  print(result)
-  
+  ids, result = api.getLogicalInterfacesOnDeviceType(devicetype)
+  print("Application interface ids", ids)
+
+  print("# ---- add mappings to the device type -------")
+  infile = open("event1appint1mappings.json")
+  mappings = json.loads(''.join([x.strip() for x in infile.readlines()]))
+  infile.close()
+  try:
+    result = api.updateMappingsOnDeviceType(devicetype, ids[0], mappings,
+           notificationStrategy="on-state-change")
+  except Exception as exc:
+    print(exc)
+    print(exc.response.json())
