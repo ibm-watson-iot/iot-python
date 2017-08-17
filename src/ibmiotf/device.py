@@ -830,16 +830,26 @@ class ManagedClient(Client):
 	def __onUpdatedDevice(self,client,userdata,pahoMessage):
 		self.logger.info("Message received on topic :%s with payload %s" % (ManagedClient.DM_UPDATE_TOPIC,pahoMessage.payload.decode("utf-8")))
 		data = json.loads(pahoMessage.payload.decode("utf-8"))
-		reqId = data['reqId']
-		d=data['d']
-		value = None
-		for obj in d['fields'] :
-			if 'field' in obj :
-				if obj['field'] == "mgmt.firmware" :
-					value = obj["value"]
-		if value != None :
-			self.__firmwareUpdate = DeviceFirmware(value['version'],value['name'],value['uri'],value['verifier'],value['state'],value['updateStatus'],value['updatedDateTime'])
-		threading.Thread(target= self.respondDeviceAction,args=(reqId,204,"")).start()
+		if 'reqId' in data :
+                        reqId = data['reqId']
+                        d=data['d']
+                        value = None
+                        for obj in d['fields'] :
+                                if 'field' in obj :
+                                        if obj['field'] == "mgmt.firmware" :
+                                                value = obj["value"]
+                        if value != None :
+                                self.__firmwareUpdate = DeviceFirmware(value['version'],value['name'],value['uri'],value['verifier'],value['state'],value['updateStatus'],value['updatedDateTime'])
+                        threading.Thread(target= self.respondDeviceAction,args=(reqId,204,"")).start()
+                else:
+                        d=data['d']
+                        value = None
+                        for obj in d['fields'] :
+                                if 'field' in obj :
+                                        if obj['field'] == "metadata" :
+                                                value = obj["value"]
+                        if value != None :
+                                self.metadata = value
 
 	def setState(self,status):
 		notify = {"d":{"fields":[{"field":"mgmt.firmware","value":{"state":status}}]}}
