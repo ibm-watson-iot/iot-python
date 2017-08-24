@@ -841,7 +841,7 @@ class ManagedClient(Client):
                         if value != None :
                                 self.__firmwareUpdate = DeviceFirmware(value['version'],value['name'],value['uri'],value['verifier'],value['state'],value['updateStatus'],value['updatedDateTime'])
                         threading.Thread(target= self.respondDeviceAction,args=(reqId,204,"")).start()
-                else:
+        	else:
                         d=data['d']
                         value = None
                         for obj in d['fields'] :
