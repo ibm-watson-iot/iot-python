@@ -26,19 +26,19 @@ class TestDevice(testUtils.AbstractTest):
 
     DEVICE_TYPE = "test_device"
     DEVICE_ID = str(uuid.uuid4())
-    
+
     @classmethod
     def setup_class(self):
-        try: 
+        try:
             deviceType = self.setupAppClient.api.getDeviceType(self.DEVICE_TYPE)
         except APIException as e:
             if e.httpCode == 404:
                 deviceType = self.setupAppClient.api.addDeviceType(self.DEVICE_TYPE)
-            else: 
+            else:
                 raise e
-        
+
         self.registeredDevice = self.setupAppClient.api.registerDevice(self.DEVICE_TYPE, self.DEVICE_ID)
-        
+
         self.options={
             "org": self.ORG_ID,
             "type": self.registeredDevice["typeId"],
@@ -46,18 +46,18 @@ class TestDevice(testUtils.AbstractTest):
             "auth-method": "token",
             "auth-token": self.registeredDevice["authToken"]
         }
-        
+
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
         deviceInfoObj = ibmiotf.device.DeviceInfo()
         deviceInfoObj.fwVersion = 0.0
-        self.managedClient = ibmiotf.device.ManagedClient(self.options, deviceInfo=deviceInfoObj)    
+        self.managedClient = ibmiotf.device.ManagedClient(self.options, deviceInfo=deviceInfoObj)
 
     @classmethod
     def teardown_class(self):
         del self.managedClient
         self.setupAppClient.api.deleteDevice(self.DEVICE_TYPE, self.DEVICE_ID)
-    
-    
+
+
     @raises(Exception)
     def testManagedClientQSException(self):
         with assert_raises(Exception)as e:
@@ -75,36 +75,36 @@ class TestDevice(testUtils.AbstractTest):
                                                 "deviceInfo.deviceClass", "deviceInfo.hwVersion", "deviceInfo.serialNumber"]
 
         #Reset managedClient properties  and validate the returned is instance of threading.Event
-	if sys.version_info[0] < 3:
-		assert_is_instance(self.managedClient.setErrorCode(1),threading._Event)
-		assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading._Event)
-		assert_is_instance(self.managedClient.setSerialNumber('iot-device-12345'),threading._Event)
-		assert_is_instance(self.managedClient.setManufacturer("IBM India Pvt Ltd"),threading._Event)
-		assert_is_instance(self.managedClient.setModel("2016"),threading._Event)
-		assert_is_instance(self.managedClient.setdeviceClass("Smart Device"),threading._Event)
-		assert_is_instance(self.managedClient.setDescription("Sample Smart IoT Device"),threading._Event)
-		assert_is_instance(self.managedClient.setFwVersion("1.0"),threading._Event)
-		assert_is_instance(self.managedClient.setHwVersion("2.0"),threading._Event)
-		assert_is_instance(self.managedClient.setDescriptiveLocation("ISL Lab Bangalore"),threading._Event)
-		assert_is_instance(self.managedClient.clearErrorCodes(),threading._Event)
-		assert_is_instance(self.managedClient.addLog(),threading._Event)
-		assert_is_instance(self.managedClient.clearLog(),threading._Event)
-		assert_is_instance(self.managedClient.unmanage(),threading._Event)
-	else:
-		assert_is_instance(self.managedClient.setErrorCode(1),threading.Event)
-		assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading.Event)
-		assert_is_instance(self.managedClient.setSerialNumber('iot-device-12345'),threading.Event)
-		assert_is_instance(self.managedClient.setManufacturer("IBM India Pvt Ltd"),threading.Event)
-		assert_is_instance(self.managedClient.setModel("2016"),threading.Event)
-		assert_is_instance(self.managedClient.setdeviceClass("Smart Device"),threading.Event)
-		assert_is_instance(self.managedClient.setDescription("Sample Smart IoT Device"),threading.Event)
-		assert_is_instance(self.managedClient.setFwVersion("1.0"),threading.Event)
-		assert_is_instance(self.managedClient.setHwVersion("2.0"),threading.Event)
-		assert_is_instance(self.managedClient.setDescriptiveLocation("ISL Lab Bangalore"),threading.Event)
-		assert_is_instance(self.managedClient.clearErrorCodes(),threading.Event)
-		assert_is_instance(self.managedClient.addLog(),threading.Event)
-		assert_is_instance(self.managedClient.clearLog(),threading.Event)
-		assert_is_instance(self.managedClient.unmanage(),threading.Event)
+        if sys.version_info[0] < 3:
+            assert_is_instance(self.managedClient.setErrorCode(1),threading._Event)
+            assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading._Event)
+            assert_is_instance(self.managedClient.setSerialNumber('iot-device-12345'),threading._Event)
+            assert_is_instance(self.managedClient.setManufacturer("IBM India Pvt Ltd"),threading._Event)
+            assert_is_instance(self.managedClient.setModel("2016"),threading._Event)
+            assert_is_instance(self.managedClient.setdeviceClass("Smart Device"),threading._Event)
+            assert_is_instance(self.managedClient.setDescription("Sample Smart IoT Device"),threading._Event)
+            assert_is_instance(self.managedClient.setFwVersion("1.0"),threading._Event)
+            assert_is_instance(self.managedClient.setHwVersion("2.0"),threading._Event)
+            assert_is_instance(self.managedClient.setDescriptiveLocation("ISL Lab Bangalore"),threading._Event)
+            assert_is_instance(self.managedClient.clearErrorCodes(),threading._Event)
+            assert_is_instance(self.managedClient.addLog(),threading._Event)
+            assert_is_instance(self.managedClient.clearLog(),threading._Event)
+            assert_is_instance(self.managedClient.unmanage(),threading._Event)
+        else:
+            assert_is_instance(self.managedClient.setErrorCode(1),threading.Event)
+            assert_is_instance(self.managedClient.setLocation(longitude=200, latitude=278),threading.Event)
+            assert_is_instance(self.managedClient.setSerialNumber('iot-device-12345'),threading.Event)
+            assert_is_instance(self.managedClient.setManufacturer("IBM India Pvt Ltd"),threading.Event)
+            assert_is_instance(self.managedClient.setModel("2016"),threading.Event)
+            assert_is_instance(self.managedClient.setdeviceClass("Smart Device"),threading.Event)
+            assert_is_instance(self.managedClient.setDescription("Sample Smart IoT Device"),threading.Event)
+            assert_is_instance(self.managedClient.setFwVersion("1.0"),threading.Event)
+            assert_is_instance(self.managedClient.setHwVersion("2.0"),threading.Event)
+            assert_is_instance(self.managedClient.setDescriptiveLocation("ISL Lab Bangalore"),threading.Event)
+            assert_is_instance(self.managedClient.clearErrorCodes(),threading.Event)
+            assert_is_instance(self.managedClient.addLog(),threading.Event)
+            assert_is_instance(self.managedClient.clearLog(),threading.Event)
+            assert_is_instance(self.managedClient.unmanage(),threading.Event)
 
         self.managedClient.disconnect()
 
