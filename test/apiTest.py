@@ -1295,7 +1295,7 @@ class TestApi:
                                                "auth-key": self.authKey},self.logger)
             ids["physicalinterface"], result = api.createPhysicalInterface("K64F", "The physical interface for K64F example")
             if result:
-		assert_true(e.exception.msg, 'physical interface created')
+                assert_true(e.exception.msg, 'physical interface created')
         #assert_equal(e.exception.msg, 'HTTP error getting a physical interface')
 
     @raises(Exception)
@@ -1332,7 +1332,7 @@ class TestApi:
                                                "auth-key": self.authKey},self.logger)
             output = assert_false(apiClient.getEvents("K64F"))
             if output == None:
-		assert_false(apiClient.getEvents("K64F"), 'HTTP error getting event mappings')
+                assert_false(apiClient.getEvents("K64F"), 'HTTP error getting event mappings')
 
     @raises(Exception)
     def testGetEvents(self):
