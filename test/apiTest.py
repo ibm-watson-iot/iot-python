@@ -1117,14 +1117,6 @@ class TestApi:
             apiClient.updateDeviceManagementExtensionPkg(None,None)
         assert_equal(e.exception.msg, 'HTTP Error in updateDeviceManagementExtensionPkg')
     
-    @raises(Exception)
-    def testGetSchemas(self):
-        with assert_raises(APIException) as e:
-            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,
-                                               "auth-key": self.authKey},self.logger)
-            apiClient.getSchemas()
-        assert_equal(e.exception.msg, 'All schemas retrieved')
-
 ##########################################################################
 #                   Information Management Schema APIs
 ##########################################################################
