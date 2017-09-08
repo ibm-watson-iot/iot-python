@@ -188,8 +188,8 @@ class AbstractClient:
                 del self._onPublishCallbacks[mid]
                 midOnPublish()
             else:
-                # record the fact that paho callback has already come through so it can be called inline
-                # with the publish.
+                 # record the fact that paho callback has already come through so it can be called inline
+                 # with the publish.
                  self._onPublishCallbacks[mid] = None
 
     '''
