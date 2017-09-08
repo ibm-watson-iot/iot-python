@@ -188,9 +188,9 @@ class AbstractClient:
                 del self._onPublishCallbacks[mid]
                 midOnPublish()
             else:
-                 # record the fact that paho callback has already come through so it can be called inline
-                 # with the publish.
-                 self._onPublishCallbacks[mid] = None
+                # record the fact that paho callback has already come through so it can be called inline
+                # with the publish.
+                self._onPublishCallbacks[mid] = None
 
     '''
     Setter and Getter methods to set and get user defined keepAlive Interval  value to
