@@ -324,14 +324,17 @@ class Client(ibmiotf.AbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
                 try:
-                    # need to take lock to ensure on_publish is not called before we know the mid
-                    if on_publish is not None:
-                        self._messagesLock.acquire()
-
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
                         if on_publish is not None:
-                            self._onPublishCallbacks[result[1]] = on_publish
+                            self._messagesLock.acquire()
+                            if result[1] in self._onPublishCallbacks:
+                                # paho callback beat this thread so call callback inline now
+                                del self._onPublishCallbacks[result[1]]
+                                on_publish()
+                            else:
+                                # this thread beat paho callback so set up for call later
+                                self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
@@ -369,14 +372,17 @@ class Client(ibmiotf.AbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
                 try:
-                    # need to take lock to ensure on_publish is not called before we know the mid
-                    if on_publish is not None:
-                        self._messagesLock.acquire()
-
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
                         if on_publish is not None:
-                            self._onPublishCallbacks[result[1]] = on_publish
+                            self._messagesLock.acquire()
+                            if result[1] in self._onPublishCallbacks:
+                                # paho callback beat this thread so call callback inline now
+                                del self._onPublishCallbacks[result[1]]
+                                on_publish()
+                            else:
+                                # this thread beat paho callback so set up for call later
+                                self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
