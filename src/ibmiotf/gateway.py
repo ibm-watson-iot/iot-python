@@ -176,7 +176,7 @@ class Client(AbstractClient):
                      qos 1 and 2 - the client has confirmation of delivery from Watson IoT
     '''
     def publishDeviceEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because gateway as a device is not currently connected")
             return False
         else:
@@ -225,7 +225,7 @@ class Client(AbstractClient):
         gatewayType = self._options['type']
         gatewayId = self._options['id']
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because gateway as a device is not currently connected")
             return False
         else:
@@ -262,7 +262,7 @@ class Client(AbstractClient):
             self.logger.warning("QuickStart not supported in Gateways")
             return False
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to device commands because gateway is not currently connected")
             return False
         else:
@@ -279,7 +279,7 @@ class Client(AbstractClient):
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
             return False
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to gateway commands because gateway is not currently connected")
             return False
         else:
@@ -295,7 +295,7 @@ class Client(AbstractClient):
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
             return False
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to notifications because gateway is not currently connected")
             return False
         else:
@@ -465,7 +465,7 @@ class ManagedClient(Client):
     def notifyFieldChange(self, field, value):
         with self._deviceMgmtObservationsLock:
             if field in self._deviceMgmtObservations:
-                if not self.readyForDeviceMgmt.wait():
+                if not self.readyForDeviceMgmt.wait(timeout=10):
                     self.logger.warning("Unable to notify service of field change because gateway is not ready for gateway management")
                     return threading.Event().set()
 
@@ -514,7 +514,7 @@ class ManagedClient(Client):
         if lifetime < 3600:
             lifetime = 0
 
-        if not self.subscriptionsAcknowledged.wait():
+        if not self.subscriptionsAcknowledged.wait(timeout=10):
             self.logger.warning("Unable to send register for device management because device subscriptions are not in place")
             return threading.Event().set()
 
@@ -547,7 +547,7 @@ class ManagedClient(Client):
 
 
     def unmanage(self):
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to set device to unmanaged because device is not ready for device management")
             return threading.Event().set()
 
@@ -582,7 +582,7 @@ class ManagedClient(Client):
         elif "accuracy" in self._location:
             del self._location["accuracy"]
 
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to publish device location because device is not ready for device management")
             return threading.Event().set()
 
@@ -608,7 +608,7 @@ class ManagedClient(Client):
 
         self._errorCode = errorCode
 
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to publish error code because device is not ready for device management")
             return threading.Event().set()
 
@@ -630,7 +630,7 @@ class ManagedClient(Client):
     def clearErrorCodes(self):
         self._errorCode = None
 
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to clear error codes because device is not ready for device management")
             return threading.Event().set()
 
