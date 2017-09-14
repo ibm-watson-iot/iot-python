@@ -176,7 +176,7 @@ class Client(AbstractClient):
                      qos 1 and 2 - the client has confirmation of delivery from Watson IoT
     '''
     def publishDeviceEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because gateway as a device is not currently connected")
             return False
         else:
@@ -187,14 +187,17 @@ class Client(AbstractClient):
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 
                 try:
-                    # need to take lock to ensure on_publish is not called before we know the mid
-                    if on_publish is not None:
-                        self._messagesLock.acquire()
-
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
                         if on_publish is not None:
-                            self._onPublishCallbacks[result[1]] = on_publish
+                            self._messagesLock.acquire()
+                            if result[1] in self._onPublishCallbacks:
+                                # paho callback beat this thread so call callback inline now
+                                del self._onPublishCallbacks[result[1]]
+                                on_publish()
+                            else:
+                                # this thread beat paho callback so set up for call later
+                                self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
@@ -222,7 +225,7 @@ class Client(AbstractClient):
         gatewayType = self._options['type']
         gatewayId = self._options['id']
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because gateway as a device is not currently connected")
             return False
         else:
@@ -233,14 +236,17 @@ class Client(AbstractClient):
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 
                 try:
-                    # need to take lock to ensure on_publish is not called before we know the mid
-                    if on_publish is not None:
-                        self._messagesLock.acquire()
-
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
                         if on_publish is not None:
-                            self._onPublishCallbacks[result[1]] = on_publish
+                            self._messagesLock.acquire()
+                            if result[1] in self._onPublishCallbacks:
+                                # paho callback beat this thread so call callback inline now
+                                on_publish()
+                                del self._onPublishCallbacks[result[1]]
+                            else:
+                                # this thread beat paho callback so set up for call later
+                                self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
@@ -256,7 +262,7 @@ class Client(AbstractClient):
             self.logger.warning("QuickStart not supported in Gateways")
             return False
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to device commands because gateway is not currently connected")
             return False
         else:
@@ -273,7 +279,7 @@ class Client(AbstractClient):
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
             return False
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to gateway commands because gateway is not currently connected")
             return False
         else:
@@ -289,7 +295,7 @@ class Client(AbstractClient):
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
             return False
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to notifications because gateway is not currently connected")
             return False
         else:
@@ -459,7 +465,7 @@ class ManagedClient(Client):
     def notifyFieldChange(self, field, value):
         with self._deviceMgmtObservationsLock:
             if field in self._deviceMgmtObservations:
-                if not self.readyForDeviceMgmt.wait():
+                if not self.readyForDeviceMgmt.wait(timeout=10):
                     self.logger.warning("Unable to notify service of field change because gateway is not ready for gateway management")
                     return threading.Event().set()
 
@@ -508,7 +514,7 @@ class ManagedClient(Client):
         if lifetime < 3600:
             lifetime = 0
 
-        if not self.subscriptionsAcknowledged.wait():
+        if not self.subscriptionsAcknowledged.wait(timeout=10):
             self.logger.warning("Unable to send register for device management because device subscriptions are not in place")
             return threading.Event().set()
 
@@ -541,7 +547,7 @@ class ManagedClient(Client):
 
 
     def unmanage(self):
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to set device to unmanaged because device is not ready for device management")
             return threading.Event().set()
 
@@ -576,7 +582,7 @@ class ManagedClient(Client):
         elif "accuracy" in self._location:
             del self._location["accuracy"]
 
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to publish device location because device is not ready for device management")
             return threading.Event().set()
 
@@ -602,7 +608,7 @@ class ManagedClient(Client):
 
         self._errorCode = errorCode
 
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to publish error code because device is not ready for device management")
             return threading.Event().set()
 
@@ -624,7 +630,7 @@ class ManagedClient(Client):
     def clearErrorCodes(self):
         self._errorCode = None
 
-        if not self.readyForDeviceMgmt.wait():
+        if not self.readyForDeviceMgmt.wait(timeout=10):
             self.logger.warning("Unable to clear error codes because device is not ready for device management")
             return threading.Event().set()
 

@@ -261,7 +261,7 @@ class Client(ibmiotf.AbstractClient):
             self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
             return False
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to events (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, event))
             return False
         else:
@@ -276,7 +276,7 @@ class Client(ibmiotf.AbstractClient):
             self.logger.warning("QuickStart applications do not support wildcard subscription to device status")
             return False
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to device status (%s, %s) because application is not currently connected" % (deviceType, deviceId))
             return False
         else:
@@ -291,7 +291,7 @@ class Client(ibmiotf.AbstractClient):
             self.logger.warning("QuickStart applications do not support commands")
             return False
 
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to commands (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, command))
             return False
         else:
@@ -316,7 +316,7 @@ class Client(ibmiotf.AbstractClient):
                      qos 1 and 2 - the client has confirmation of delivery from IoTF
     '''
     def publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             return False
         else:
             topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
@@ -324,14 +324,17 @@ class Client(ibmiotf.AbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
                 try:
-                    # need to take lock to ensure on_publish is not called before we know the mid
-                    if on_publish is not None:
-                        self._messagesLock.acquire()
-
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
                         if on_publish is not None:
-                            self._onPublishCallbacks[result[1]] = on_publish
+                            self._messagesLock.acquire()
+                            if result[1] in self._onPublishCallbacks:
+                                # paho callback beat this thread so call callback inline now
+                                del self._onPublishCallbacks[result[1]]
+                                on_publish()
+                            else:
+                                # this thread beat paho callback so set up for call later
+                                self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
@@ -361,7 +364,7 @@ class Client(ibmiotf.AbstractClient):
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart applications do not support sending commands")
             return False
-        if not self.connectEvent.wait():
+        if not self.connectEvent.wait(timeout=10):
             return False
         else:
             topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
@@ -369,14 +372,17 @@ class Client(ibmiotf.AbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now())
                 try:
-                    # need to take lock to ensure on_publish is not called before we know the mid
-                    if on_publish is not None:
-                        self._messagesLock.acquire()
-
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
                         if on_publish is not None:
-                            self._onPublishCallbacks[result[1]] = on_publish
+                            self._messagesLock.acquire()
+                            if result[1] in self._onPublishCallbacks:
+                                # paho callback beat this thread so call callback inline now
+                                del self._onPublishCallbacks[result[1]]
+                                on_publish()
+                            else:
+                                # this thread beat paho callback so set up for call later
+                                self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
