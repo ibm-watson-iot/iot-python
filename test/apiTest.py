@@ -8,15 +8,54 @@
 #
 # Contributors:
 #   Lokesh Haralakatta  - Initial Contribution
+#   Prasanna A Mathada  - Initial Contribution
 # *****************************************************************************
 
+from __future__ import print_function
+from ibmiotf import *
+from nose.tools import *
+from nose import SkipTest
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 import ibmiotf.api
 import ibmiotf.application
 import ibmiotf.gateway
 import ibmiotf.device
-from ibmiotf import *
-from nose.tools import *
-from nose import SkipTest
+import logging
+import requests
+logging.basicConfig(level=logging.DEBUG)
+import json
+import time
+
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+#Variable
+deviceType=None
+draftSchemaId=None
+draftEventId=None
+draftEventTypeId=None
+draftPhysicalInterfaceId=None
+draftLogicalInterfaceId=None
+ids = {}
+schemaId=None
+eventId=None
+eventTypeId=None
+nonExistentEventTypeId=None
+physicalInterfaceId=None
+physicalInterfaceName=None
+nonExistentPhysicalInterfaceId='59b247df5222ff002c3bfe71'
+logicalInterfaceId=None
+nonExistentLogicalInterfaceId='59b247df52ffff002c3bfe71'
+schemaIdForPhysicalInterface=None
+schemaIdForLogicalInterface=None
+nonExistentSchemaIdForPhysicalInterface='59b57b0aaaaaff002cfe1fbf'
+nonExistentSchemaIdForLogicalInterface='59b57b04ffffff002d0c6889'
+schemaNamePI = 'event1 schema'
+schemaFileNamePI = 'event1.json'
+schemaNameLI = 'k64fappinterface'
+schemaFileNameLI = 'appinterface1.json'
+outputValue=None
 
 
 class TestApi:
@@ -30,6 +69,27 @@ class TestApi:
 
     @classmethod
     def setup_class(self):
+        global deviceType
+        global eventId
+        global eventTypeId
+        global schemaId
+        global schemaIdForPhysicalInterface
+        global schemaIdForLogicalInterface
+        global schemaNamePI
+        global schemaFileNamePI
+        global schemaNameLI
+        global schemaFileNameLI
+        global nonExistentSchemaIdForPhysicalInterface
+        global nonExistentSchemaIdForLogicalInterface
+        global nonExistentEventTypeId
+        global nonExistentPhysicalInterfaceId
+        global nonExistentLogicalInterfaceId
+        global outputValue
+
+        self.nonExistentSchemaIdForPhysicalInterface='59b57b0aaaaaff002cfe1fbf'
+        self.nonExistentSchemaIdForLogicalInterface='59b57b04ffffff002d0c6889'
+        nonExistentEventTypeId='59b5847252faff000000dea6'
+        
         self.logger = logging.getLogger(self.__module__+".TestApi")
         self.logger.setLevel(logging.INFO)
 
@@ -49,6 +109,33 @@ class TestApi:
         self.newDeviceId = "python-api-test-device"
         self.newDeviceType = "python-api-add-type"
         self.invalidAuthKey = self.authKey[0:9]+"xxxxxxxxxx"
+        deviceType = options['type']
+        
+        if schemaIdForPhysicalInterface is None:
+            print ('Create a schema for Physical Interface ..')
+            try:
+                infile = open(schemaFileNamePI)
+                schemaFileContents = ''.join([x.strip() for x in infile.readlines()])
+                infile.close()
+                apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+                ids["event1 schema"], output = apiClient.createSchema(schemaNamePI, schemaFileNamePI, schemaFileContents)
+                print("Schema ID for Physical Interface is", ids["event1 schema"])
+                schemaIdForPhysicalInterface = output['id']
+            except Exception as e:
+                print ('----- exception -------'+ str(e))
+
+        if schemaIdForLogicalInterface is None:
+            print ('Create a schema for Logical Interface ..')
+            try:
+                infile = open(schemaFileNameLI)
+                schemaFileContents = ''.join([x.strip() for x in infile.readlines()])
+                infile.close()
+                apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+                ids["k64f app interface schema"], output = apiClient.createSchema(schemaNameLI, 'k64fappinterface.json', schemaFileContents)
+                print("Schema ID for Logical Interface is", ids["k64f app interface schema"])
+                schemaIdForLogicalInterface = output['id']
+            except Exception as e:
+                print ('----- exception -------'+ str(e))
 
     @classmethod
     def teardown_class(self):
@@ -1122,9 +1209,662 @@ class TestApi:
 ##########################################################################
 
     @raises(Exception)
-    def testGetSchemas(self):
+    def test001TestCreateSchema(self):
+        global schemaIdForPhysicalInterface
         with assert_raises(APIException) as e:
-            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,
-                                               "auth-key": self.authKey},self.logger)
-            apiClient.getSchemas(self, draft=False, name=None, schemaType=None)
-        assert_equal(e.exception.msg, 'All schemas retrieved')
+            if schemaIdForPhysicalInterface is None:
+                global ids
+                print ('----- About to create a schema -------')
+                schemaName = 'event1 schema'
+                schemaFileName = 'event1.json'
+                try:
+                    infile = open(schemaFileName)
+                    schemaFileContents = ''.join([x.strip() for x in infile.readlines()])
+                    infile.close()
+                    apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+                    ids["event1 schema"], output = apiClient.createSchema(schemaName, schemaFileName, schemaFileContents, description=None)
+                    schemaIdForPhysicalInterface = output['id']
+                    print ('Successfully created the Schema: ' + schemaIdForPhysicalInterface)
+                except Exception as e:
+                    print ('----- exception -------'+ str(e))
+                assert_equal(e.exception.msg, 'Exception in creating a Schema')
+            else:
+                assert_true(schemaIdForPhysicalInterface)
+                print ('Successfully created the Schema: ' + schemaIdForPhysicalInterface)
+
+    @raises(Exception)
+    def test002TestCreateSchemaErr(self):
+        with assert_raises(APIException) as e:
+            global schemaId
+            global ids
+            print ('----- About to create a schema -------')
+            schemaName = 'event1 schema'
+            schemaFileName = 'event2.json'
+            try:
+                infile = open(schemaFileName)
+                schemaFileContents = ''.join([x.strip() for x in infile.readlines()])
+                infile.close()
+                apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+                ids["event1 schema"], output = apiClient.createSchema(schemaName, schemaFileName, schemaFileContents, description=None)
+                schemaId = output['id']
+                print ('Successfully created the Schema: ' + schemaId)
+            except Exception as e:
+                print ('HTTP error creating a schema')
+        assert_equal(e.exception.msg, "'No such file or directory: 'event2.json'")
+		
+    def test003TestGetSchema(self):
+        global schemaIdForPhysicalInterface
+        if schemaIdForPhysicalInterface is not None:
+            print ('Fetch a schema whose Schema ID is :' + schemaIdForPhysicalInterface)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            output = apiClient.getSchema(schemaIdForPhysicalInterface, draft=True)
+            print (output)
+            assert_equal(output['id'] , schemaIdForPhysicalInterface)
+            print ('One schema retrieved')
+
+    @raises(Exception)
+    def test004TestGetSchemaErr(self):
+        with assert_raises(APIException) as e:
+            try:
+                global nonExistentSchemaIdForPhysicalInterface
+                if nonExistentSchemaIdForPhysicalInterface is not None:
+                    print ('Fetch a schema whose Schema ID is :' + nonExistentSchemaIdForPhysicalInterface)
+                    apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+                    output = apiClient.getSchema(nonExistentSchemaIdForPhysicalInterface, draft=True)
+            except Exception as e:
+                print('HTTP error in get a schema for Schema ID '+nonExistentSchemaIdForPhysicalInterface)
+            
+    def test005TestGetSchemas(self):
+        print ('----- Fetch all schemas -------')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getSchemas(self)
+        print (output)
+        assert_true(output)
+        print ('All schemas retrieved')
+        
+    def test006TestGetSchemaContent(self):
+        global schemaIdForPhysicalInterface
+        global ids
+        print ('Fetching the schema content for ID: ' + schemaIdForPhysicalInterface)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getSchemaContent(schemaIdForPhysicalInterface, draft=True)
+        print (output)
+        assert_true(output)
+        print ('Schema content retrieved')
+
+    @raises(Exception)
+    def test007TestGetSchemaContentErr(self):
+        with assert_raises(APIException) as e:
+            try:
+                global nonExistentSchemaIdForPhysicalInterface
+                global ids
+                print ('Fetching the schema content for ID: ' + nonExistentSchemaIdForPhysicalInterface)
+                apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+                output = apiClient.getSchemaContent(nonExistentSchemaIdForPhysicalInterface, draft=True)
+                print (output)
+            except Exception as e:
+                print ('HTTP Error fetching the Schema Content for ID '+nonExistentSchemaIdForPhysicalInterface)
+        
+##########################################################################
+#                 Information Management event type APIs
+##########################################################################
+
+    def test008TestCreateEventType(self):
+        global schemaIdForPhysicalInterface
+        global eventTypeId
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
+        ids["k64feventtype"], output = apiClient.createEventType("K64F event", schemaIdForPhysicalInterface, "K64F event")
+        eventTypeId = output['id']
+        print ('event type created')
+        print ('EventTypeId is '+eventTypeId)
+        assert_true(eventTypeId)
+
+    def test009TestCreateEventTypeErr(self):
+        try:
+            global schemaIdForPhysicalInterface
+            global EventTypeId
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
+            ids["nonExistentk64feventtype"], output = apiClient.createEventType("K64F event", nonExistentSchemaIdForPhysicalInterface, "K64F event")
+            EventTypeId = output['id']
+            assert_true(output)
+        except Exception as e:
+            print('HTTP error creating event type')
+		
+    def test010TestGetEventTypeErr(self):
+        try:
+            global nonExistentEventTypeId
+            print ('Fetching Event Type Id: ' + nonExistentEventTypeId)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            assert_false(apiClient.getEventType(nonExistentEventTypeId))
+        except Exception as e:
+            print ('[404] HTTP error getting an event type')
+		
+    @raises(Exception)
+    def test011TestGetEventTypes(self):
+        print ('----- Fetch all event types -------')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getEventTypes(draft=True)
+        print (output)
+        assert_equal(e.exception.msg, 'All event types retrieved')
+        print ('All event types retrieved')
+		
+    def test012TestGetEventType(self):
+        global eventTypeId
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getEventType(EventTypeId, draft=True)
+        print (output)
+        assert_true(output)
+
+##########################################################################
+#             Information Management Physical Interface APIs
+##########################################################################
+
+    def test013TestCreatePhysicalInterface(self):
+        global physicalInterfaceId
+        global physicalInterfaceName
+        print ('About to create physical interface')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken, "auth-key": self.authKey},self.logger)
+        ids["physicalinterface"], output = apiClient.createPhysicalInterface("K64F", "The physical interface for K64F example")
+        #print (output)
+        physicalInterfaceId = output['id']
+        physicalInterfaceName = output['name']
+        print ('physicalInterfaceId value is '+physicalInterfaceId)
+        assert_true(physicalInterfaceId)
+        print ('physical interface created')
+
+    def test061TestUpdatePhysicalInterface(self):
+        global physicalInterfaceId
+        global schemaIdForPhysicalInterface
+        global physicalInterfaceName
+        print ('About to Update physical interface')
+        print ('Updating physical interface: ' + physicalInterfaceId)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.updatePhysicalInterface(physicalInterfaceId,physicalInterfaceName,schemaIdForPhysicalInterface,description='Test PI Update')
+        print(output['description'])
+        assert_equal('Test PI Update', output['description'])
+        print ('physical interface Updated')
+
+    def test014TestGetPhysicalInterfaceErr(self):
+        try:
+            global physicalInterfaceId
+            global nonExistentPhysicalInterfaceId
+            print ('Fetching physical interface: ' + nonExistentPhysicalInterfaceId)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            assert_equal(msg, apiClient.getPhysicalInterface(nonExistentPhysicalInterfaceId))
+        except Exception as e:
+            print ('[404] HTTP error getting a physical interface')
+
+    def test015TestGetPhysicalInterface(self):
+        global physicalInterfaceId
+        global outputValue
+        print ('Fetching physical interface ')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getPhysicalInterface(physicalInterfaceId, draft=True)
+        print (output)
+        outputValue = output
+        assert_equal(output['id'], physicalInterfaceId)
+		
+    def test016TestGetPhysicalInterfaces(self):
+        print ('----- Fetch all physical interfaces -------')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getPhysicalInterfaces(self)
+        print (output)
+        print ('All physical interfaces retrieved')
+
+
+##########################################################################
+#             Information Management Event Mapping APIs
+##########################################################################
+
+    def test019TestCreateEvent(self):
+        global eventTypeId
+        global physicalInterfaceId
+        global schemaIdForPhysicalInterface
+        print ('----- Create an event mapping for a physical interface -------')
+        eventId = "status"
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        ids["k64feventtype"], output = apiClient.createEventType("K64F event", schemaIdForPhysicalInterface, "K64F event")
+        EventTypeId = output['id']
+        output = apiClient.createEvent(ids["physicalinterface"], ids["k64feventtype"], "status")
+        print (output)
+        assert_true(output, 'Event mapping created')
+        print ('Event mapping created')
+			
+    @raises(Exception)
+    def test020TestCreateEventErr(self):
+        try:
+            global eventTypeId
+            global physicalInterfaceId
+            global eventId
+            physicalInterfaceId = None
+            eventTypeId = '59b2428a52faff002c3bffff'
+            print ('----- Create an event mapping for a physical interface -------')
+            eventId = None
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            apiClient.createEvent(physicalInterfaceId, eventTypeId, eventId)
+        except Exception as e:
+            assert_equal(e.exception.msg, '[400] HTTP error creating event mapping')
+            print ('[400] HTTP error creating event mapping')
+
+    def test021TestGetEventsErr(self):
+        print ('----- Fetch all event types -------')
+        try:
+            global nonExistentPhysicalInterfaceId
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            apiClient.getEvents(nonExistentPhysicalInterfaceId)
+            assert_equal(e.exception.msg, 'HTTP error getting event mappings')
+        except Exception as e:
+            print ('HTTP error getting event mappings')
+
+    def test022TestGetEvents(self):
+        print ('----- Fetch all event types -------')
+        global physicalInterfaceId
+        print (physicalInterfaceId)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getEvents(physicalInterfaceId, draft=True)
+        print (output)
+        assert_true(output)
+        print ('All event mappings retrieved')
+			
+##########################################################################
+#             Information Management Logical Interface APIs
+##########################################################################
+
+    def test023TestCreateLogicalInterface(self):
+        global schemaIdForLogicalInterface
+        global logicalInterfaceId
+        global ids
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        ids["k64f app interface"], output = apiClient.createLogicalInterface("K64F logical interface", ids["k64f app interface schema"])
+        assert_not_equal(None, output['id'])
+        logicalInterfaceId = output['id']
+        print ('Logical interface created')
+        print ('value of logicalInterfaceId is :' + logicalInterfaceId)
+
+    def test024TestCreateLogicalInterfaceErr(self):
+        global nonExistentschemaIdForLogicalInterface
+        name = 'Non Existent'
+        global ids
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        try:
+            ids["k64f app interface"], output = apiClient.createLogicalInterface(name, self.nonExistentschemaIdForLogicalInterface, description=None)
+            assert_not_equal(None, output['id'])
+            logicalInterfaceId = output['id']
+            print ('value of logicalInterfaceId is :' + logicalInterfaceId)
+        except Exception as exc:
+            print('HTTP error creating logical interface')
+            
+    def test025TestUpdateLogicalInterface(self):
+        global schemaIdForLogicalInterface
+        global logicalInterfaceId
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.updateLogicalInterface(logicalInterfaceId, "K64F logical interface", schemaIdForLogicalInterface, description='Test LI Update')
+        print(output['description'])
+        assert_equal('Test LI Update', output['description'])
+        print ('Logical interface updated')
+
+    def test025TestUpdateLogicalInterfaceErr(self):
+        try:
+            global schemaIdForLogicalInterface
+            global nonExistentLogicalInterfaceId
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            output = apiClient.updateLogicalInterface(nonExistentLogicalInterfaceId, "K64F logical interface", schemaIdForLogicalInterface, description='Test LI Update')
+            print(output['description'])
+            assert_equal('Test LI Update', output['description'])
+            print ('Logical interface updated')
+        except Exception as e:
+            print ('HTTP error updating logical interface')
+
+    def test026TestGetLogicalInterfaces(self):
+        print ('----- Fetch all Logical Interfaces -------')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getLogicalInterfaces()
+        print (output)
+        assert_true(output)
+        print ('All logical interfaces retrieved')
+        
+    @raises(Exception)
+    def test027TestGetLogicalInterfacesErr(self):
+        with assert_raises(APIException) as e:
+            global nonExistentLogicalInterfaceId
+            print ('----- Fetch all Logical Interfaces -------')
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            assert_true(apiClient.getLogicalInterfaces(nonExistentLogicalInterfaceId))
+            print ('HTTP error getting all logical interfaces')
+
+    def test028TestGetLogicalInterface(self):
+        global logicalInterfaceId
+        print ('Fetching Logical Interface: '+logicalInterfaceId)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        output = apiClient.getLogicalInterface(logicalInterfaceId, draft=True)
+        print (output)
+        assert_true(output)
+
+    def test029TestGetLogicalInterfaceErr(self):
+        try:
+            global nonExistentLogicalInterfaceId
+            print ('Fetching Logical Interface: '+nonExistentLogicalInterfaceId)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            assert_false(apiClient.getLogicalInterface(nonExistentLogicalInterfaceId, draft=True))
+        except Exception as e:
+            print ('[404] HTTP error getting an logical interface')
+
+##########################################################################
+#               Information Management Device Type APIs
+##########################################################################
+
+    def test031TestAddPhysicalInterfaceToDeviceType(self):
+        global physicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (physicalInterfaceId)
+        print (deviceType)
+        print ('Add a physical interface to a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.addPhysicalInterfaceToDeviceType(deviceType, physicalInterfaceId)
+        print ('Physical interface added to a device type')
+        assert_true(result)
+    
+    def test033TestAddLogicalInterfaceToDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (logicalInterfaceId)
+        print (deviceType)
+        print ('Add a logical interface to a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.addLogicalInterfaceToDeviceType(deviceType, logicalInterfaceId)
+        print ('Logical interface added to a device type')
+        assert_true(result)
+
+    def test035TestGetLogicalInterfacesOnDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        print ('Get all logical interfaces for a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.getLogicalInterfacesOnDeviceType(deviceType, draft=True)
+        print (result)
+        assert_true(result)
+
+    def test036TestGetMappingsOnDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        print ('Get all the mappings for a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.getMappingsOnDeviceType(deviceType, draft=True)
+        print (result)
+        assert_true(result)
+        print('All device type mappings retrieved')
+
+    def test037TestAddMappingsToDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (logicalInterfaceId)
+        print (deviceType)
+        infile = open("event1appint1mappings.json")
+        mappingsObject = json.loads(''.join([x.strip() for x in infile.readlines()]))
+        infile.close()
+        notificationStrategy = 'on-state-change'
+        print ('Add mappings for a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.addMappingsToDeviceType(deviceType, ids["k64f app interface"], mappingsObject, notificationStrategy)
+        print ('Device type mappings created for logical interface')
+        assert_true(result)
+
+    def test038TestUpdateMappingsOnDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (logicalInterfaceId)
+        print (deviceType)
+        infile = open("event1appint1mappings.json")
+        mappingsObject = json.loads(''.join([x.strip() for x in infile.readlines()]))
+        infile.close()
+        notificationStrategy = 'on-state-change'
+        print ('Update mappings for a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.updateMappingsOnDeviceType(deviceType, logicalInterfaceId, mappingsObject, notificationStrategy)
+        print ('Device type mappings updated for logical interface')
+        assert_true(result)
+
+##    @raises(Exception)
+    def test039TestGetMappingsOnDeviceTypeForLogicalInterface(self):
+        try:
+            global logicalInterfaceId
+            global outputValue
+            deviceType = self.deviceType
+            print (logicalInterfaceId)
+            print (deviceType)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            print ('Get mappings for a logical interface from a device type')
+            result = apiClient.getMappingsOnDeviceTypeForLogicalInterface(deviceType, logicalInterfaceId, draft=True)
+            print (result)
+            print ('Mappings retrieved from the device type')
+            assert_true(result)
+        except Exception as e:
+            print(str(e.httpCode))
+            print(str(e.message))
+            print ('Error while mapping')
+
+
+##########################################################################
+#               Information Management Device APIs
+##########################################################################
+
+    def test041TestValidateDeviceTypeConfiguration(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        print ('Validate the device type configuration')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.validateDeviceTypeConfiguration(deviceType)
+        print (result)
+        assert_true(result)
+        print('Validation for device type configuration succeeded')
+
+    def test042TestValidateLogicalInterfaceConfiguration(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        self.test023TestCreateLogicalInterface()
+        print (logicalInterfaceId)
+        print ('Validate the logical interface configuration')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.validateLogicalInterfaceConfiguration(logicalInterfaceId)
+        print (result)
+        assert_true(result)
+        print('Validation for logical interface configuration succeeded')
+
+    
+    def test043TestActivateDeviceTypeConfiguration(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        print ('Activate the device type configuration')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        print ('Initiating activation')
+        result = apiClient.activateDeviceTypeConfiguration(deviceType)
+        print (result)
+        assert_true(result)
+        print('Activation for device type configuration succeeded')
+
+    def test044TestActivateLogicalInterfaceConfiguration(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        print ('Activate the logical interface configuration')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        print ('Initiating activation')
+        result = apiClient.activateLogicalInterfaceConfiguration(logicalInterfaceId)
+        print (result)
+        assert_true(result)
+        print('Activation for logical interface configuration succeeded')
+
+    def test047TestGetDeviceStateForLogicalInterface(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        deviceId = self.deviceId
+        print (deviceType)
+        print (deviceId)
+        print (logicalInterfaceId)
+        print ('Gets the state for an logical interface for a device')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.getDeviceStateForLogicalInterface(deviceType, deviceId, logicalInterfaceId)
+        print (result)
+        assert_true(result)
+        print('State retrieved from the device type for an logical interface')
+
+##########################################################################
+#       Information Management Delete / Deactivate Statements
+##########################################################################
+
+    def test048TestDeactivateLogicalInterfaceConfiguration(self):
+        try:
+            global logicalInterfaceId
+            global outputValue
+            deviceType = self.deviceType
+            print (deviceType)
+            print ('Deactivate the logical interface configuration')
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            print ('Initiating Deactivation')
+            time.sleep(60)
+            result = apiClient.deactivateLogicalInterfaceConfiguration(logicalInterfaceId, draft=False)
+            print (result)
+            assert_true(result)
+            print('Deactivate for logical interface configuration succeeded')
+        except Exception as e:
+            print ('CUDIM0208E: The deactivate-configuration operation is not permitted on a draft Logical Interface resource.')
+
+    def test049TestDeactivateDeviceTypeConfiguration(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (deviceType)
+        print ('Deactivate the device type configuration')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        print ('Initiating Deactivation')
+        time.sleep(60)
+        result = apiClient.deactivateDeviceTypeConfiguration(deviceType)
+        print (result)
+        assert_true(result)
+        print('Deactivation for device type configuration succeeded')
+
+    def test050TestDeleteMappingsFromDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        print (logicalInterfaceId)
+        print (deviceType)
+        print ('About to Delete mapping for an Logical interface from a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        assert_true(apiClient.deleteMappingsFromDeviceType(deviceType, logicalInterfaceId))
+        print ('Mappings deleted from the device type')
+
+    def test051TestRemoveLogicalInterfaceFromDeviceType(self):
+        global logicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        self.test023TestCreateLogicalInterface()
+        print (logicalInterfaceId)
+        print (deviceType)
+        print ('Add a logical interface to a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.addLogicalInterfaceToDeviceType(deviceType, logicalInterfaceId)
+        print ('Logical interface added to a device type')
+        print ('About to Remove the Logical Interface from Device Type')
+        assert_true(apiClient.removeLogicalInterfaceFromDeviceType(deviceType, logicalInterfaceId))
+        print ('Logical interface removed from a device type')
+
+    @raises(Exception)
+    def test052TestRemovePhysicalInterfaceFromDeviceType(self):
+        global physicalInterfaceId
+        global outputValue
+        deviceType = self.deviceType
+        self.test013TestCreatePhysicalInterface()
+        print (physicalInterfaceId)
+        print (deviceType)
+        print ('Add a physical interface to a device type')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        result = apiClient.addPhysicalInterfaceToDeviceType(deviceType, physicalInterfaceId)
+        print ('Physical interface added to a device type')
+        print ('About to Remove the Physical Interface from Device Type')
+        output = apiClient.removePhysicalInterfaceFromDeviceType(deviceType)
+        assert_equal('204',output)
+        print ('Physical interface removed from a device type')
+
+    def test053TestDeleteLogicalInterface(self):
+        global logicalInterfaceId
+        print ('About to Delete Logical Interface: '+logicalInterfaceId)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        assert_true(apiClient.deleteLogicalInterface(logicalInterfaceId))
+        print ('logical interface deleted')
+
+    def test054TestDeleteLogicalInterfaceErr(self):
+        try:
+            global nonExistentLogicalInterfaceId
+            print ('About to Delete Logical Interface: '+nonExistentLogicalInterfaceId)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            assert_true(apiClient.deleteLogicalInterface(nonExistentLogicalInterfaceId))
+            print ('logical interface deleted')
+        except Exception as e:
+            print ('HTTP error deleting an logical interface')
+
+    def test055TestDeleteEvent(self):
+        global physicalInterfaceId
+        global eventId
+        eventId = "status"
+        print (physicalInterfaceId)
+        print (eventId)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        assert_true(apiClient.deleteEvent(physicalInterfaceId, eventId))
+        print ('Event mapping deleted')
+
+    def test056TestDeletePhysicalInterface(self):
+        global physicalInterfaceId
+        print ('About to Delete physical interface: ' + physicalInterfaceId)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        assert_true(apiClient.deletePhysicalInterface(physicalInterfaceId))
+        print ('physical interface deleted')
+
+    def test057TestDeletePhysicalInterfaceErr(self):
+        try:
+            global nonExistentPhysicalInterfaceId
+            print ('About to Delete physical interface: ' + nonExistentPhysicalInterfaceId)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            apiClient.deletePhysicalInterface(nonExistentPhysicalInterfaceId)
+        except Exception as e:
+            print ('HTTP error deleting a physical interface')
+
+    def test058TestDeleteEventTypeErr(self):
+        try:
+            global eventTypeId
+            eventTypeId = '59b247df52faff002c3bfe71'
+            print ('About to Delete Event Type Id: ' + eventTypeId)
+            apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+            assert_true(apiClient.deleteEventType('59b0f0eb52faff002c3bfe3d'))
+        except Exception as e:
+            print ('[409] HTTP error deleting an event type')
+
+    def test059TestDeleteEventType(self):
+        global eventTypeId
+        print ('About to Delete Event Type Id')
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        assert_true(apiClient.deleteEventType(eventTypeId))
+        print ('event type deleted')
+
+    def test060TestDeleteSchema(self):
+        global schemaIdForPhysicalInterface
+        print ('About to Delete Schema: ' + schemaIdForPhysicalInterface)
+        apiClient = ibmiotf.api.ApiClient({"auth-method": "token","auth-token": self.authToken,"auth-key": self.authKey},self.logger)
+        assert_true(apiClient.deleteSchema(schemaIdForPhysicalInterface))
+        print ('Schema deleted')
