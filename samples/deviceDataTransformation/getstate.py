@@ -12,38 +12,45 @@
 
 
 from __future__ import print_function
-import time, ibmiotf.api
+import time, ibmiotf.api, sys, logging, importlib
+
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
-  domain = None
-  verify = True
-  from properties import orgid, key, token, devicetype, deviceid
+  if len(sys.argv) < 2:
+      print("Property file name needed")
+      sys.exit()
 
-  try:
-    from properties import domain
-  except:
-    pass
+  property_file_name = sys.argv[1]
 
-  try:
-    from properties import verify
-  except:
-    pass
+  logger.info("Getting properties from %s" % property_file_name)
+  properties = importlib.import_module(property_file_name)
+  property_names = dir(properties)
 
-  params = {"auth-key": key, "auth-token": token}
-  if domain:
+  verify = None
+  params = {"auth-key": properties.key, "auth-token": properties.token}
+  if "domain" in property_names:
     params["domain"] = domain
+
+  if "verify" in property_names:
+    verify = properties.verify
+
+  if "host" in property_names:
+    params["host"] = properties.host
 
   api = ibmiotf.api.ApiClient(params)
   api.verify = verify
 
-  appinterfaceids, result = api.getLogicalInterfacesOnDeviceType(devicetype)
-  print("Application interface ids", appinterfaceids)
+  loginterfaceids, result = api.getLogicalInterfacesOnDeviceType(properties.devicetype)
+  print("Logical interface ids", loginterfaceids)
 
   while True:
-    for applicationInterfaceId in appinterfaceids:
-      print("Getting state for application interface id", applicationInterfaceId)
+    for logicalInterfaceId in loginterfaceids:
+      print("Getting state for logical interface id", logicalInterfaceId)
       try:
-        result = api.getDeviceStateForLogicalInterface(devicetype, deviceid, applicationInterfaceId)
+        result = api.getDeviceStateForLogicalInterface(properties.devicetype, properties.deviceid, logicalInterfaceId)
         print(result)
       except Exception as exc:
         print(exc.response, exc.response.json())

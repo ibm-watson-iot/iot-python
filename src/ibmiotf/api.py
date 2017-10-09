@@ -132,7 +132,10 @@ class ApiClient():
             # Default to the domain for the public cloud offering
             self.__options['domain'] = "internetofthings.ibmcloud.com"
 
-        self.host = self.__options['org'] + "." + self.__options['domain']
+        if "host" in self.__options.keys():
+            self.host = self.__options['host']
+        else:
+            self.host = self.__options['org'] + "." + self.__options['domain']
         self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
 
         # To support development systems this can be overridden to False

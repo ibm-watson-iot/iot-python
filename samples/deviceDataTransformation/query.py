@@ -18,8 +18,17 @@ if __name__ == "__main__":
   verify = True
   from properties import orgid, key, token, devicetype, deviceid
 
+  params = {"auth-key": key, "auth-token": token}
+
   try:
     from properties import domain
+    params["domain"] = domain
+  except:
+    pass
+
+  try:
+    from properties import host
+    params["host"] = host
   except:
     pass
 
@@ -28,11 +37,20 @@ if __name__ == "__main__":
   except:
     pass
 
-  params = {"auth-key": key, "auth-token": token}
-  if domain:
-    params["domain"] = domain
-
   api = ibmiotf.api.ApiClient(params)
   api.verify = verify
 
-  print([x for x in api.getDeviceTypes()["results"] if x['id'] == devicetype])
+  result = api.getSchema("event1schema", draft=False)
+  sys.exit()
+
+  result = api.getDeviceTypes()
+  print(result)
+  print([x for x in result["results"] if x['id'] == devicetype])
+
+  result = api.getLogicalInterfaces()
+  print("logical interfaces", str(result))
+  """
+  physinterfaceid, result = api.getPhysicalInterfaceOnDeviceType(devicetype)
+  appinterfaceids, result = api.getMappingsOnDeviceType(devicetype)
+  appinterfaceids, result = api.getLogicalInterfacesOnDeviceType(devicetype)
+  """

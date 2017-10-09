@@ -16,5 +16,6 @@
     },
     "time": {"type": "number"},
     "count": {"type": "number"}
-  }
+  },
+  "additionalProperties": false
 }
