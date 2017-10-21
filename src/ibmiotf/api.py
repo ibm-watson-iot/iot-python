@@ -1658,7 +1658,7 @@ class ApiClient():
         Throws APIException on failure.
         """
         req = ApiClient.oneLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
-        body = {"name" : name, "schemaId" : schemaId}
+        body = {"name" : name, "schemaId" : schemaId, "id" : logicalInterfaceId}
         if description:
             body["description"] = description
         resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
@@ -1758,11 +1758,11 @@ class ApiClient():
         body = {}
         resp = requests.delete(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
            verify=self.verify)
-        if resp.status_code == 200:
-            self.logger.debug("Physical interface retrieved")
+        if resp.status_code == 204:
+            self.logger.debug("Physical interface removed")
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error removing a physical interface from a device type", resp)
-        return resp.json()
+        return resp
 
     def getLogicalInterfacesOnDeviceType(self, typeId, draft=False):
         """
