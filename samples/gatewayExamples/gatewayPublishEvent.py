@@ -65,7 +65,7 @@ for x in range (0,5):
 	pressure = sensorValues["pressure"]
 	altitude = sensorValues["altitude"]
 	temperature = sensorValues["temperature"]
-	myData = "{'g' : { 'timestamp': timestamp, 'moisture': moisture, 'pressure': pressure, 'altitude': altitude, 'temperature': temperature}}"
+	myData = {'timestamp': timestamp, 'moisture': moisture, 'pressure': pressure, 'altitude': altitude, 'temperature': temperature}
 
 	gatewayCli.setMessageEncoderModule('json', jsonCodec)
 
