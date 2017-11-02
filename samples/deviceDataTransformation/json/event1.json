@@ -13,9 +13,7 @@
         "joystick": {"type": "string"},
         "myName": {"type": "string"}
       }
-    },
-    "time": {"type": "number"},
-    "count": {"type": "number"}
+    }
   },
   "additionalProperties": false
 }

@@ -18,67 +18,57 @@ logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def define(host, api, deviceType, deviceId):
+def define(api, properties):
   ids = {}
 
   logger.info("# ---- add an event schema -------")
-  infile = open("json/event1.json")
+  infile = open(properties.eventSchemaFileName)
   schemaFileContents = ''.join([x.strip() for x in infile.readlines()])
   infile.close()
-  ids["event1 schema"], result = api.createSchema("event1 schema", 'event1.json', schemaFileContents)
+  ids["Event schema"], result = api.createSchema("Event schema",
+                  properties.eventSchemaFileName, schemaFileContents)
 
   logger.info("# ---- get the schema back -------")
-  result = api.getSchema(ids["event1 schema"], draft=True)
+  result = api.getSchema(ids["Event schema"], draft=True)
   print(result)
 
   logger.info("# ---- add an event type -------")
-  ids["k64feventtype"], result = api.createEventType("K64F event", ids["event1 schema"], "K64F event")
+  ids["Event type"], result = api.createEventType("Event type name", ids["Event schema"], "Event type description")
 
   logger.info("# ---- add a physical interface -------")
-  ids["physicalinterface"], result = api.createPhysicalInterface("K64F", "The physical interface for K64F example")
+  ids["Physical interface"], result = api.createPhysicalInterface("PhysicalInterfaceName", "The physical interface description")
 
   logger.info("# ---- add the event type to the physical interface -------")
-  result = api.createEvent(ids["physicalinterface"], ids["k64feventtype"], "status")
+  result = api.createEvent(ids["Physical interface"], ids["Event type"], properties.eventName)
 
   logger.info("# ---- add the physical interface to the device type")
-  result = api.addPhysicalInterfaceToDeviceType(deviceType, ids["physicalinterface"])
+  result = api.addPhysicalInterfaceToDeviceType(properties.devicetype, ids["Physical interface"])
 
   logger.info("# ---- add a logical interface schema -------")
-  infile = open("json/loginterface1.json")
+  infile = open(properties.logicalInterfaceSchemaFileName)
   schemaFile = ''.join([x.strip() for x in infile.readlines()])
   infile.close()
-  ids["k64f log interface schema"], result = api.createSchema("k64floginterface", 'k64floginterface.json', schemaFile)
-  print("Logical interface schema id", ids["k64f log interface schema"])
+  ids["Logical interface schema"], result = api.createSchema("LogicalInterfaceName",
+                           properties.logicalInterfaceSchemaFileName, schemaFile)
+  print("Logical interface schema id", ids["Logical interface schema"])
 
   logger.info("# ---- add a logical interface -------")
   try:
-	  ids["k64f log interface"], result = \
-       api.createLogicalInterface("K64F logical interface", ids["k64f log interface schema"])
+	  ids["Logical interface"], result = \
+       api.createLogicalInterface("Logical interface", ids["Logical interface schema"])
   except Exception as exc:
     print(exc.response.json())
     raise
-  """
-  logger.info("# ---- add a rule to the logical interface -------")
-  ruleUrl = 'https://%s/api/v0002%s/logicalinterfaces/%s/rules'
 
-  expression = "$state.temp.isHigh"
-  description = None
-  print("ids", ids["k64f log interface"], type(ids["k64f log interface"]))
-  req = ruleUrl % (host, "/draft", ids["k64f log interface"])
-  print("url", req)
-  body = {"condition" : expression}
-  resp = requests.post(req, headers={"Content-Type":"application/json"},
-							data=json.dumps(body), 	verify=False)
-  """
   logger.info("# ---- associate logical interface with the device type -------")
-  result = api.addLogicalInterfaceToDeviceType(deviceType, ids["k64f log interface"])
+  result = api.addLogicalInterfaceToDeviceType(properties.devicetype, ids["Logical interface"])
 
   logger.info("# ---- add mappings to the device type -------")
-  infile = open("json/event1logint1mappings.json")
+  infile = open(properties.mappingsFileName)
   mappings = json.loads(''.join([x.strip() for x in infile.readlines()]))
   infile.close()
   try:
-    result = api.addMappingsToDeviceType(deviceType, ids["k64f log interface"], mappings,
+    result = api.addMappingsToDeviceType(properties.devicetype, ids["Logical interface"], mappings,
              notificationStrategy="on-state-change")
   except Exception as exc:
     print(exc.response.json())
@@ -111,7 +101,7 @@ if __name__ == "__main__":
   if verify:
     api.verify = verify
 
-  define(properties.host, api, properties.devicetype, properties.deviceid)
+  define(api, properties)
 
   logger.info("# ---- validate definitions -------")
   result = api.validateDeviceTypeConfiguration(properties.devicetype)

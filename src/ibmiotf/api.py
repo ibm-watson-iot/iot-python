@@ -1857,7 +1857,7 @@ class ApiClient():
          "status" :  {
                 "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
            }
-      }
+        }
 
         Throws APIException on failure.
         """

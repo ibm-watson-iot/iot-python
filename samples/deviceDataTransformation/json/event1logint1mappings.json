@@ -12,8 +12,6 @@
     "accel.y": "$event.d.accelY",
     "accel.z": "$event.d.accelZ",
     "joystick": "($event.d.joystick = \"LEFT\") ? \"RIGHT\" : (($event.d.joystick = \"RIGHT\") ? \"LEFT\" : $event.d.joystick)",
-    "eventCount": "($state.eventCount = -1) ? $event.count : ($state.eventCount+1)",
-    "timeSent" : "$event.time",
-    "count" : "$event.count"
+    "eventCount": "($state.eventCount = -1) ? 1 : ($state.eventCount+1)"
   }
 }

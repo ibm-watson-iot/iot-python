@@ -1,5 +1,5 @@
 {
-  "required": ["eventCount", "accel", "joystick", "temp", "timeSent"],
+  "required": ["eventCount", "accel", "joystick", "temp"],
   "type": "object",
   "properties": {
     "temp": {
@@ -30,8 +30,6 @@
         "2": {"type": "number"}
       }
     },
-    "joystick": {"default": "NONE", "type": "string"},
-    "timeSent": {"type": "number", "default": -1},
-    "count": {"type": "number", "default": -1}
+    "joystick": {"default": "NONE", "type": "string"}
   }
 }
