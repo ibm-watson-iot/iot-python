@@ -1,6 +1,7 @@
 # Python Device Status Service
 
-Sample code for a simple service to answer requests for current device connection status via REST API.  The program connects to IoTP and subscribes to device status topic.  
+Sample code for a simple service to answer requests for current device connection status via REST API.  The program connects to IoTP and subscribes to device
+status topic `iot-2/type/+/id/+/mon`.  It will incur data transfer   
 It uses the retained messages on this topic to populate an in-memory map of device ID to status and then continues to process live status messages to maintain the map.  The
 map is used by a Flask endpoint to answer requests for current device connection status.
 
@@ -39,14 +40,14 @@ Response is JSON and will come in 3 flavours, always with `ClientId` and `Reason
 #### Device is Connected
 ```{"ClientAddr": "195.212.29.65", "Protocol": "mqtt3", "Secure": false, "Durable": false, "ClientID": "d:7gnple:type1:ps1", "Time": "2018-01-02T16:51:10.558Z", "Action": "Connect", "Port": 1883}```
 
-### Device is Disconnected
+#### Device is Disconnected
 ```{"WriteMsg": 0, "ClientAddr": "195.212.29.65", "Protocol": "mqtt3", "Secure": false, "CloseCode": 91, "ClientID": "d:7gnple:type1:ps1", "ReadMsg": 0, "Reason": "Connection closed by client", "ReadBytes": 127, "ConnectTime": "2018-01-02T16:51:10.557Z", "Time": "2018-01-02T16:52:14.296Z", "Action": "Disconnect", "WriteBytes": 9, "Port": 1883}```
 
-### Device Never Connected
+#### Device Never Connected
 ```{"Reason": "Never Connected", "ClientId": "d:7gnple:type1:ps11"}```
 
-A device may be reported as never connected if it disconnected (or connected) more than 45 days ago because this is when messages expire (unless
-this app still has a map populated with the expired status message).
+In addition to actually having never connected, a device may be reported as never connected if it disconnected (or connected) more than 45 days ago 
+because this is when messages expire (unless this app still has a map populated with the expired status message).
 
 ### Possible Enhancements
 1. The default subscription buffer for a normal application is 5000.  For a scalable application it is 50,000.  Messages on the mon topic are retained,
