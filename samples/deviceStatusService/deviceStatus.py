@@ -90,7 +90,7 @@ def getDeviceStatus(type, id):
         status = deviceConnStateMap[clientId]
         return json.dumps(status.payload)
     else:
-        neverConnectedStatus = {"ClientId": clientId, "Reason": NEVER_CONNECTED_REASON}
+        neverConnectedStatus = {"ClientID": clientId, "Reason": NEVER_CONNECTED_REASON}
         return json.dumps(neverConnectedStatus)
     
 

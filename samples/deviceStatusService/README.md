@@ -35,7 +35,7 @@ python deviceStatus.py -o $orgId -i myApplication -k $key -t $token -p 5000
 curl localhost:5000/type1/ps1
 ```
 
-Response is JSON and will come in 3 flavours, always with `ClientId` and `Reason` fields:
+Response is JSON and will come in 3 flavours, always with `ClientID` and `Reason` fields:
 
 #### Device is Connected
 ```{"ClientAddr": "195.212.29.65", "Protocol": "mqtt3", "Secure": false, "Durable": false, "ClientID": "d:7gnple:type1:ps1", "Time": "2018-01-02T16:51:10.558Z", "Action": "Connect", "Port": 1883}```
@@ -44,7 +44,7 @@ Response is JSON and will come in 3 flavours, always with `ClientId` and `Reason
 ```{"WriteMsg": 0, "ClientAddr": "195.212.29.65", "Protocol": "mqtt3", "Secure": false, "CloseCode": 91, "ClientID": "d:7gnple:type1:ps1", "ReadMsg": 0, "Reason": "Connection closed by client", "ReadBytes": 127, "ConnectTime": "2018-01-02T16:51:10.557Z", "Time": "2018-01-02T16:52:14.296Z", "Action": "Disconnect", "WriteBytes": 9, "Port": 1883}```
 
 #### Device Never Connected
-```{"Reason": "Never Connected", "ClientId": "d:7gnple:type1:ps11"}```
+```{"Reason": "Never Connected", "ClientID": "d:7gnple:type1:ps11"}```
 
 In addition to actually having never connected, a device may be reported as never connected if it disconnected (or connected) more than 45 days ago 
 because this is when messages expire (unless this app still has a map populated with the expired status message).
