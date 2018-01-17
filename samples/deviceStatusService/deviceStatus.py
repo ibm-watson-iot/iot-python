@@ -41,7 +41,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 TABLE_ROW_TEMPLATE = "%-33s%-30s%s"
-NEVER_CONNECTED_REASON  = "Never Connected"
+NEVER_CONNECTED_ACTION  = "Never Connected"
 
 # The dict where the device connection state is stored deviceId -> status payload message
 # No locking necessary 
@@ -97,7 +97,7 @@ def getDeviceStatus(type, id):
         status = deviceConnStateMap[clientId]
         return json.dumps(status.payload)
     else:
-        neverConnectedStatus = {"ClientID": clientId, "Reason": NEVER_CONNECTED_REASON}
+        neverConnectedStatus = {"ClientID": clientId, "Action": NEVER_CONNECTED_ACTION}
         return json.dumps(neverConnectedStatus)
     
 
