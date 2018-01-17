@@ -80,8 +80,17 @@ def statusCallback(status):
         # BUT if the message is retained, it reflects the true client state (edge case),
         # and we don't ignore the message.
         logger.debug("Ignoring client ID reused")
-    else:
-        deviceConnStateMap[status.clientId] = status
+        return
+    
+    if status.clientId in deviceConnStateMap:
+        if deviceConnStateMap[status.clientId].time > status.time:
+            # With scalable applications (A;...) it is possible that an older status message
+            # arrives after a newer one.
+            logger.debug("Ignoring older status message; %s <= %s" % (deviceConnStateMap[status.clientId].time, status.time))
+            return
+
+    deviceConnStateMap[status.clientId] = status
+            
 
 def interruptHandler(signal, frame):
     client.disconnect()
