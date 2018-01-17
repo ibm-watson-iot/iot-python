@@ -71,12 +71,14 @@ def statusCallback(status):
         summaryText = "%s %s" % (status.action, status.clientAddr)
     
     logger.debug(TABLE_ROW_TEMPLATE % (status.time.isoformat(), status.device, summaryText))
-    if status.closeCode == 288:
+    if status.closeCode == 288 and not status.retained:
         # "Action":"Disconnect", "CloseCode":288,"Reason":"The client ID was reused."
         # These status messages are ignored because it is possible this application
         # will receive the disconnect status message after the connect status message,
         # which would led to the wrong status in the map.
         # (Both a connect and disconnect happen when a client ID is reused)
+        # BUT if the message is retained, it reflects the true client state (edge case),
+        # and we don't ignore the message.
         logger.debug("Ignoring client ID reused")
     else:
         deviceConnStateMap[status.clientId] = status

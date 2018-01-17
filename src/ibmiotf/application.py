@@ -86,6 +86,8 @@ class Status:
             self.reason = self.payload['Reason'] if ('Reason' in self.payload) else None
             self.readBytes = self.payload['ReadBytes'] if ('ReadBytes' in self.payload) else None
             self.writeBytes = self.payload['WriteBytes'] if ('WriteBytes' in self.payload) else None
+            self.closeCode = self.payload['CloseCode'] if ('CloseCode' in self.payload) else None
+            self.retained = message.retain
 
         else:
             raise ibmiotf.InvalidEventException("Received device status on invalid topic: %s" % (message.topic))
