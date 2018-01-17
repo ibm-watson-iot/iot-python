@@ -71,8 +71,15 @@ def statusCallback(status):
         summaryText = "%s %s" % (status.action, status.clientAddr)
     
     logger.debug(TABLE_ROW_TEMPLATE % (status.time.isoformat(), status.device, summaryText))
-    
-    deviceConnStateMap[status.clientId] = status
+    if status.closeCode == 288:
+        # "Action":"Disconnect", "CloseCode":288,"Reason":"The client ID was reused."
+        # These status messages are ignored because it is possible this application
+        # will receive the disconnect status message after the connect status message,
+        # which would led to the wrong status in the map.
+        # (Both a connect and disconnect happen when a client ID is reused)
+        logger.debug("Ignoring client ID reused")
+    else:
+        deviceConnStateMap[status.clientId] = status
 
 def interruptHandler(signal, frame):
     client.disconnect()
