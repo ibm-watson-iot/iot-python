@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='ibmiotf',
-    version="0.3.1",
+    version="0.3.2",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -19,13 +19,13 @@ setup(
     description='Python Client for IBM Watson IoT Platform',
     long_description=open('README.rst').read(),
     install_requires=[
-        "iso8601 >= 0.1.10",
-        "paho-mqtt >= 1.2",
-        "pytz >= 2014.7",
-        "requests >= 2.5.0",
-        "requests_toolbelt >= 0.7.0",
+        "iso8601 >= 0.1.12",
+        "paho-mqtt >= 1.3.1",
+        "pytz >= 2017.3",
+        "requests >= 2.18.4",
+        "requests_toolbelt >= 0.8.0",
         "dicttoxml >= 1.7.4",
-        "xmltodict >= 0.10.2"
+        "xmltodict >= 0.11.0"
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
