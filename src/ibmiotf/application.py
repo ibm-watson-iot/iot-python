@@ -598,7 +598,7 @@ def ParseConfigFile(configFilePath):
     parms = configparser.ConfigParser({
         "id": str(uuid.uuid4()),
         "domain": "internetofthings.ibmcloud.com",
-        "port": "8883",
+        "port": 8883,
         "type": "standalone",
         "clean-session": "true"
     })
@@ -621,7 +621,7 @@ def ParseConfigFile(configFilePath):
         authKey = parms.get(sectionHeader, "auth-key")
         authToken = parms.get(sectionHeader, "auth-token")
         cleanSession = parms.get(sectionHeader, "clean-session")
-        port = parms.get(sectionHeader, "port")
+        port = parms.getint(sectionHeader, "port")
 
     except IOError as e:
         reason = "Error reading application configuration file '%s' (%s)" % (configFilePath,e[1])

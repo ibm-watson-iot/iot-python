@@ -722,40 +722,34 @@ class ManagedClient(Client):
 
 
 def ParseConfigFile(configFilePath):
-    parms = configparser.ConfigParser({"domain": "internetofthings.ibmcloud.com",
-                                       "port": "8883","clean-session": "true"})
+    parms = configparser.ConfigParser({
+        "domain": "internetofthings.ibmcloud.com",
+        "port": 8883,
+        "clean-session": "true"
+    })
     sectionHeader = "device"
+
     try:
         with open(configFilePath) as f:
             try:
                 parms.read_file(f)
-
-                domain = parms.get(sectionHeader, "domain", fallback="internetofthings.ibmcloud.com")
-                organization = parms.get(sectionHeader, "org", fallback=None)
-                deviceType = parms.get(sectionHeader, "type", fallback=None)
-                deviceId = parms.get(sectionHeader, "id", fallback=None)
-                authMethod = parms.get(sectionHeader, "auth-method", fallback=None)
-                authToken = parms.get(sectionHeader, "auth-token", fallback=None)
-                cleanSession = parms.get(sectionHeader, "clean-session")
-                port = parms.get(sectionHeader, "port")
             except AttributeError:
                 # Python 2.7 support
                 # https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
                 parms.readfp(f)
-
-                domain = parms.get(sectionHeader, "domain", "internetofthings.ibmcloud.com")
-                organization = parms.get(sectionHeader, "org", None)
-                deviceType = parms.get(sectionHeader, "type", None)
-                deviceId = parms.get(sectionHeader, "id", None)
-                authMethod = parms.get(sectionHeader, "auth-method", None)
-                authToken = parms.get(sectionHeader, "auth-token", None)
-                cleanSession = parms.get(sectionHeader, "clean-session",None)
-                port = parms.get(sectionHeader, "port",None)
-
+        
+        domain = parms.get(sectionHeader, "domain")
+        organization = parms.get(sectionHeader, "org")
+        deviceType = parms.get(sectionHeader, "type")
+        deviceId = parms.get(sectionHeader, "id")
+        
+        authMethod = parms.get(sectionHeader, "auth-method")
+        authToken = parms.get(sectionHeader, "auth-token")
+        cleanSession = parms.get(sectionHeader, "clean-session")
+        port = parms.getint(sectionHeader, "port")
+    
     except IOError as e:
-        reason = "Error reading gateway configuration file '%s' (%s)" % (configFilePath,e[1])
+        reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
         raise ConfigurationException(reason)
-
-    return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId,
-            'auth-method': authMethod, 'auth-token': authToken,
-            'clean-session': cleanSession, 'port': port}
+    
+    return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'clean-session': cleanSession, 'port': int(port)}

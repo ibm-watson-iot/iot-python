@@ -904,7 +904,7 @@ class ManagedClient(Client):
 def ParseConfigFile(configFilePath):
     parms = configparser.ConfigParser({
         "domain": "internetofthings.ibmcloud.com",
-        "port": "8883",
+        "port": 8883,
         "clean-session": "true"
     })
     sectionHeader = "device"
@@ -922,10 +922,11 @@ def ParseConfigFile(configFilePath):
         organization = parms.get(sectionHeader, "org")
         deviceType = parms.get(sectionHeader, "type")
         deviceId = parms.get(sectionHeader, "id")
+        
         authMethod = parms.get(sectionHeader, "auth-method")
         authToken = parms.get(sectionHeader, "auth-token")
         cleanSession = parms.get(sectionHeader, "clean-session")
-        port = parms.get(sectionHeader, "port")
+        port = parms.getint(sectionHeader, "port")
 
     except IOError as e:
         reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
