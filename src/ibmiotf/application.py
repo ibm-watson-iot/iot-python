@@ -142,6 +142,14 @@ class Command:
 class Client(ibmiotf.AbstractClient):
 
     def __init__(self, options, logHandlers=None):
+        """
+        Create a new Application client for Watson IoT Platform
+        
+        Parameters
+        ----------
+        options : dict
+        logHandlers : list of logging.handlers, optional
+        """
         self._options = options
 
         # If we are disconnected we lose all our active subscriptions.  Keep track of all subscriptions
@@ -198,6 +206,9 @@ class Client(ibmiotf.AbstractClient):
             port = self._options['port']
         )
 
+        # Add handler for subscriptions
+        self.client.on_subscribe = self.__onSubscribe
+        
         # Add handlers for events and status
         self.client.message_callback_add("iot-2/type/+/id/+/evt/+/fmt/+", self.__onDeviceEvent)
         self.client.message_callback_add("iot-2/type/+/id/+/mon", self.__onDeviceStatus)
@@ -214,11 +225,13 @@ class Client(ibmiotf.AbstractClient):
         self.deviceEventCallback = None
         self.deviceCommandCallback = None
         self.deviceStatusCallback = None
-
+        self.subscriptionCallback = None
+        
         # Initialize user supplied callbacks (applcations)
         self.appStatusCallback = None
 
         self.client.on_connect = self.on_connect
+        
         self.setMessageEncoderModule('json', jsonCodec)
         self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
         self.setMessageEncoderModule('xml', xmlCodec)
@@ -231,17 +244,25 @@ class Client(ibmiotf.AbstractClient):
         self.orgId = self._options['org']
         self.appId = self._options['id']
 
-    '''
-    This is called after the client has received a CONNACK message from the broker in response to calling connect().
-    The parameter rc is an integer giving the return code:
-    0: Success
-    1: Refused - unacceptable protocol version
-    2: Refused - identifier rejected
-    3: Refused - server unavailable
-    4: Refused - bad user name or password (MQTT v3.1 broker only)
-    5: Refused - not authorised (MQTT v3.1 broker only)
-    '''
     def on_connect(self, client, userdata, flags, rc):
+        """
+        This is called after the client has received a CONNACK message from the broker 
+        in response to calling connect().
+        
+        Parameters
+        ----------
+        client : ?
+        userdata : ?
+        flags : ?
+        rc : {0,1,2,3,4,5}
+            An integer giving the return code:
+            0: Success
+            1: Refused - unacceptable protocol version
+            2: Refused - identifier rejected
+            3: Refused - server unavailable
+            4: Refused - bad user name or password (MQTT v3.1 broker only)
+            5: Refused - not authorised (MQTT v3.1 broker only)
+        """
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s" % (self.clientId))
@@ -259,65 +280,136 @@ class Client(ibmiotf.AbstractClient):
 
 
     def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+", qos=0):
+        """
+        Subscribe to device event messages
+        
+        Parameters
+        ----------
+        deviceType : string, optional
+        deviceId : string, optional
+        event: string, optional
+        msfFormat : string, optional
+        qos: {0, 1, 2}
+        
+        Returns
+        -------
+        int
+            If the subscription was successful then the return Message ID (mid) for the subscribe request
+            will be returned. The mid value can be used to track the subscribe request by checking against 
+            the mid argument if you register a subscriptionCallback method.  
+            If the subscription fails then the return value will be `0`
+        """
         if self._options['org'] == "quickstart" and deviceId == "+":
             self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
-            return False
+            return 0
 
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to events (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, event))
-            return False
+            return 0
         else:
             topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
-            self.client.subscribe(topic, qos=qos)
-            self._subscriptions[topic] = qos
-            return True
+            (result, mid) = self.client.subscribe(topic, qos=qos)
+            if result == paho.MQTT_ERR_SUCCESS:
+                self._subscriptions[topic] = qos
+                return mid
+            else:
+                return 0
 
 
     def subscribeToDeviceStatus(self, deviceType="+", deviceId="+"):
+        """
+        Subscribe to device status messages
+        
+        Parameters
+        ----------
+        deviceType : string, optional
+        deviceId : string, optional
+        
+        Returns
+        -------
+        int
+            If the subscription was successful then the return Message ID (mid) for the subscribe request
+            will be returned. The mid value can be used to track the subscribe request by checking against 
+            the mid argument if you register a subscriptionCallback method.  
+            If the subscription fails then the return value will be `0`
+        """
         if self._options['org'] == "quickstart" and deviceId == "+":
             self.logger.warning("QuickStart applications do not support wildcard subscription to device status")
-            return False
+            return 0
 
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to device status (%s, %s) because application is not currently connected" % (deviceType, deviceId))
-            return False
+            return 0
         else:
             topic = 'iot-2/type/%s/id/%s/mon' % (deviceType, deviceId)
-            self.client.subscribe(topic, qos=0)
-            self._subscriptions[topic] = 0
-            return True
+            (result, mid) = self.client.subscribe(topic, qos=0)
+            if result == paho.MQTT_ERR_SUCCESS:
+                self._subscriptions[topic] = 0
+                return mid
+            else:
+                return 0
 
 
     def subscribeToDeviceCommands(self, deviceType="+", deviceId="+", command="+", msgFormat="+"):
+        """
+        Subscribe to device command messages
+        
+        Parameters
+        ----------
+        deviceType : string, optional
+        deviceId : string, optional
+        command: string, optional
+        msfFormat : string, optional
+        
+        Returns
+        -------
+        int
+            If the subscription was successful then the return Message ID (mid) for the subscribe request
+            will be returned. The mid value can be used to track the subscribe request by checking against 
+            the mid argument if you register a subscriptionCallback method.  
+            If the subscription fails then `None` will be returned.        
+        """
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart applications do not support commands")
-            return False
+            return 0
 
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to commands (%s, %s, %s) because application is not currently connected" % (deviceType, deviceId, command))
-            return False
+            return 0
         else:
             topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
-            self.client.subscribe(topic, qos=1)
-            self._subscriptions[topic] = 1
-            return True
-
-    '''
-    Publish an event in IoTF as if the application were a device.
-    Parameters:
-        deviceType - the type of the device this event is to be published from
-        deviceId - the id of the device this event is to be published from
-        event - the name of this event
-        msgFormat - the format of the data for this event
-        data - the data for this event
-    Optional paramters:
-        qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
-        on_publish - a function that will be called when receipt of the publication is confirmed.  This
-                     has different implications depending on the qos:
-                     qos 0 - the client has asynchronously begun to send the event
-                     qos 1 and 2 - the client has confirmation of delivery from IoTF
-    '''
+            (result, mid) = self.client.subscribe(topic, qos=1)
+            if result == paho.MQTT_ERR_SUCCESS:
+                self._subscriptions[topic] = 1
+                return mid
+            else:
+                return 0
+    
+    
     def publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
+        """
+        Publish an event in IoTF as if the application were a device.
+        
+        Parameters
+        ----------
+        deviceType : string
+            The type of the device this event is to be published from
+        deviceId : string
+            The id of the device this event is to be published from
+        event : string
+            The name of this event
+        msgFormat : string
+            The format of the data for this event
+        data : string
+            The data for this event
+        qos : {0, 1, 2}, optional
+            The equivalent MQTT semantics of quality of service using the same constants (defaults to `0`)
+        on_publish : function
+            A function that will be called when receipt of the publication is confirmed.  This
+            has different implications depending on the qos:
+            - qos 0 : the client has asynchronously begun to send the event
+            - qos 1 and 2 : the client has confirmation of delivery from IoTF
+        """
         if not self.connectEvent.wait(timeout=10):
             return False
         else:
@@ -347,22 +439,30 @@ class Client(ibmiotf.AbstractClient):
                 raise MissingMessageEncoderException(msgFormat)
 
 
-    '''
-    Publish a command to a device.
-    Parameters:
-        deviceType - the type of the device this command is to be published to
-        deviceId - the id of the device this command is to be published to
-        command - the name of the command
-        msgFormat - the format of the command payload
-        data - the command data
-    Optional paramters:
-        qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
-        on_publish - a function that will be called when receipt of the publication is confirmed.  This
-                     has different implications depending on the qos:
-                     qos 0 - the client has asynchronously begun to send the event
-                     qos 1 and 2 - the client has confirmation of delivery from IoTF
-    '''
     def publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0, on_publish=None):
+        '''
+        Publish a command to a device
+        
+        Parameters
+        ----------
+        deviceType : string
+            The type of the device this command is to be published to
+        deviceId : string
+            The id of the device this command is to be published to
+        command : string
+            The name of the command
+        msgFormat : string
+            The format of the command payload
+        data: dict
+            The command data
+        qos: {0, 1, 2}, optional
+            The equivalent MQTT semantics of quality of service using the same constants (defaults to `0`)
+        on_publish : function
+            A function that will be called when receipt of the publication is confirmed.  This has 
+            different implications depending on the qos:
+            - qos 0 : the client has asynchronously begun to send the event
+            - qos 1 and 2 : the client has confirmation of delivery from WIoTP
+        '''
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart applications do not support sending commands")
             return False
@@ -393,24 +493,32 @@ class Client(ibmiotf.AbstractClient):
                         self._messagesLock.release()
             else:
                 raise MissingMessageEncoderException(msgFormat)
-
-
-    '''
-    Internal callback for messages that have not been handled by any of the specific internal callbacks, these
-    messages are not passed on to any user provided callback
-    '''
+    
+    
+    def __onSubscribe(self, client, userdata, mid, grantedQoS):
+        '''
+        Internal callback for handling subscription acknowledgement
+        '''
+        self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
+        if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
+    
+    
     def __onUnsupportedMessage(self, client, userdata, message):
+        """
+        Internal callback for messages that have not been handled by any of the specific internal callbacks, these
+        messages are not passed on to any user provided callback
+        """
         self.logger.warning("Received messaging on unsupported topic '%s' on topic '%s'" % (message.payload, message.topic))
-
+        
         with self._recvLock:
             self.recv = self.recv + 1
-
-
-    '''
-    Internal callback for device event messages, parses source device from topic string and
-    passes the information on to the registerd device event callback
-    '''
+    
+    
     def __onDeviceEvent(self, client, userdata, pahoMessage):
+        """
+        Internal callback for device event messages, parses source device from topic string and
+        passes the information on to the registerd device event callback
+        """
         with self._recvLock:
             self.recv = self.recv + 1
 
@@ -422,11 +530,11 @@ class Client(ibmiotf.AbstractClient):
             self.logger.critical(str(e))
 
 
-    '''
-    Internal callback for device command messages, parses source device from topic string and
-    passes the information on to the registerd device command callback
-    '''
     def __onDeviceCommand(self, client, userdata, pahoMessage):
+        """
+        Internal callback for device command messages, parses source device from topic string and
+        passes the information on to the registerd device command callback
+        """
         with self._recvLock:
             self.recv = self.recv + 1
 
@@ -438,11 +546,11 @@ class Client(ibmiotf.AbstractClient):
             self.logger.critical(str(e))
 
 
-    '''
-    Internal callback for device status messages, parses source device from topic string and
-    passes the information on to the registerd device status callback
-    '''
     def __onDeviceStatus(self, client, userdata, pahoMessage):
+        """
+        Internal callback for device status messages, parses source device from topic string and
+        passes the information on to the registerd device status callback
+        """
         with self._recvLock:
             self.recv = self.recv + 1
 
@@ -454,11 +562,11 @@ class Client(ibmiotf.AbstractClient):
             self.logger.critical(str(e))
 
 
-    '''
-    Internal callback for application command messages, parses source application from topic string and
-    passes the information on to the registerd applicaion status callback
-    '''
     def __onAppStatus(self, client, userdata, message):
+        """
+        Internal callback for application command messages, parses source application from topic string and
+        passes the information on to the registerd applicaion status callback
+        """
         with self._recvLock:
             self.recv = self.recv + 1
 
@@ -518,12 +626,12 @@ class HttpClient(HttpAbstractClient):
         self.appId = self._options['id']
 
     def publishEvent(self, deviceType, deviceId, event, data, dataFormat="json"):
-        '''
+        """
         This method is used by the application to publish events over HTTP(s)
         Paramaters - deviceType, deviceId, event , data and  dataFormat by default json
         It throws a ConnectionException with the message "Server not found" if the application is unable to reach the server
         Otherwise it returns the HTTP status code, (200 - 207 for success)
-        '''
+        """
         self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 
         templateUrl = 'https://%s.messaging.%s/api/v0002/application/types/%s/devices/%s/events/%s'
@@ -557,13 +665,13 @@ class HttpClient(HttpAbstractClient):
 
 
     def publishCommand(self, deviceType, deviceId, event, cmdData, cmdFormat="json"):
-        '''
+        """
         This method is used by the application to publish device command over HTTP(s)
         Parameters - deviceType, deviceId, event, cmdData and cmdFormat by default JSON
         It throws a ConnectionException with the message "Server not found" if the
         application is unable to reach the server, Otherwise it returns the
         HTTP status code, (200 - 207 for success)
-        '''
+        """
         self.logger.debug("Sending event %s with command format %s" % (event, json.dumps(cmdData)))
         templateUrl = 'https://%s.messaging.%s/api/v0002/application/types/%s/devices/%s/commands/%s'
         orgid = self._options['org']
@@ -592,9 +700,9 @@ class HttpClient(HttpAbstractClient):
 
 
 def ParseConfigFile(configFilePath):
-    '''
+    """
     Parse a standard application configuration file
-    '''
+    """
     parms = configparser.ConfigParser({
         "id": str(uuid.uuid4()),
         "domain": "internetofthings.ibmcloud.com",
