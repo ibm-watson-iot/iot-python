@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2017 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -29,7 +29,7 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 class Message:
     def __init__(self, data, timestamp=None):
