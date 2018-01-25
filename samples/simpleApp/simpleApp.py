@@ -33,6 +33,12 @@ except ImportError:
 
 tableRowTemplate = "%-33s%-30s%s"
 
+def mySubscribeCallback(mid, qos):
+    if mid == statusMid:
+        print("<< Subscription established for status messages at qos %s >> " % qos[0])
+    elif mid == eventsMid:
+        print("<< Subscription established for event messages at qos %s >> " % qos[0])
+    
 def myEventCallback(event):
     print("%-33s%-30s%s" % (event.timestamp.isoformat(), event.device, event.event + ": " + json.dumps(event.data)))
 
@@ -100,7 +106,6 @@ if __name__ == "__main__":
         elif o in ("-c", "--cfg"):
             configFilePath = a
         elif o in ("-T", "--devicetype"):
-            print("Using T")
             deviceType = a
         elif o in ("-I", "--deviceid"):
             deviceId = a
@@ -138,9 +143,10 @@ if __name__ == "__main__":
     
     client.deviceEventCallback = myEventCallback
     client.deviceStatusCallback = myStatusCallback
+    client.subscriptionCallback = mySubscribeCallback
     
-    client.subscribeToDeviceEvents(deviceType, deviceId, event)
-    client.subscribeToDeviceStatus(deviceType, deviceId)
+    eventsMid = client.subscribeToDeviceEvents(deviceType, deviceId, event)
+    statusMid = client.subscribeToDeviceStatus(deviceType, deviceId)
 
     print("=============================================================================")
     print(tableRowTemplate % ("Timestamp", "Device", "Event"))
