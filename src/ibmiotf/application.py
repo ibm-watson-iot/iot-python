@@ -146,7 +146,7 @@ class Client(ibmiotf.AbstractClient):
 
         # If we are disconnected we lose all our active subscriptions.  Keep track of all subscriptions
         # so that we can internally restore all subscriptions on reconnect
-        self._subscriptions = []
+        self._subscriptions = {}
 
         username = None
         password = None
@@ -249,7 +249,7 @@ class Client(ibmiotf.AbstractClient):
             # Restoring previous subscriptions
             if len(self._subscriptions) > 0:
                 for subscription in self._subscriptions:
-                    self.client.subscribe(subscription["topic"], qos=subscription["qos"])
+                    self.client.subscribe(subscription, qos=self._subscriptions[subscription])
                 self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
 
         elif rc == 5:
@@ -269,7 +269,7 @@ class Client(ibmiotf.AbstractClient):
         else:
             topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
             self.client.subscribe(topic, qos=qos)
-            self._subscriptions.append({"topic": topic, "qos": qos})
+            self._subscriptions[topic] = qos
             return True
 
 
@@ -284,7 +284,7 @@ class Client(ibmiotf.AbstractClient):
         else:
             topic = 'iot-2/type/%s/id/%s/mon' % (deviceType, deviceId)
             self.client.subscribe(topic, qos=0)
-            self._subscriptions.append({"topic": topic, "qos": 0})
+            self._subscriptions[topic] = 0
             return True
 
 
@@ -299,7 +299,7 @@ class Client(ibmiotf.AbstractClient):
         else:
             topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
             self.client.subscribe(topic, qos=1)
-            self._subscriptions.append({"topic": topic, "qos": 1})
+            self._subscriptions[topic] = 1
             return True
 
     '''
