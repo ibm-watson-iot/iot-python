@@ -724,7 +724,7 @@ class ManagedClient(Client):
 def ParseConfigFile(configFilePath):
     parms = configparser.ConfigParser({
         "domain": "internetofthings.ibmcloud.com",
-        "port": 8883,
+        "port": "8883", # Even though this is a string here, the parms.getint method will ensure it's assigned as an int
         "clean-session": "true"
     })
     sectionHeader = "device"
