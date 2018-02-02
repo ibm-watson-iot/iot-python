@@ -13,7 +13,6 @@
 import getopt
 import time
 import sys
-import psutil
 import platform
 import json
 import signal
@@ -49,12 +48,12 @@ def commandProcessor(cmd):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, interruptHandler)
 
-    organization = "org_id"
-    gatewayType = "MY GATEWAY TYPE"
-    gatewayId = "MY GATEWAY ID"
+    organization = ""
+    gatewayType = ""
+    gatewayId = ""
     gatewayName = platform.node()
     authMethod = "token"
-    authToken = "MASKED PASSWORD"
+    authToken = ""
     configFilePath = None
         
     # Seconds to sleep so as to check the error state

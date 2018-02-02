@@ -58,7 +58,10 @@ class Client(AbstractClient):
 
     def __init__(self, options, logHandlers=None):
         self._options = options
-
+        # If we are disconnected we lose all our active subscriptions.  Keep track of all subscriptions
+        # so that we can internally restore all subscriptions on reconnect
+        self._subscriptions = {}
+        
         #Defaults
         if "domain" not in self._options:
             # Default to the domain for the public cloud offering
@@ -94,7 +97,6 @@ class Client(AbstractClient):
                     raise ConfigurationException("Missing required property for token based authentication: auth-token")
             else:
                 raise UnsupportedAuthenticationMethod(options['authMethod'])
-        self._options['subscriptionList'] = {}
 
         
         self.COMMAND_TOPIC = "iot-2/type/" + self._options['type'] + "/id/" + self._options['id'] + "/cmd/+/fmt/+"
@@ -110,6 +112,8 @@ class Client(AbstractClient):
             port = self._options['port']
         )
 
+        # Add handler for subscriptions
+        self.client.on_subscribe = self.__onSubscribe
 
         # Add handler for commands if not connected to QuickStart
         if self._options['org'] != "quickstart":
@@ -127,6 +131,7 @@ class Client(AbstractClient):
         self.commandCallback = None
         self.deviceCommandCallback = None
         self.notificationCallback = None
+        self.subscriptionCallback = None
         self.client.on_connect = self.on_connect
         self.setMessageEncoderModule('json', jsonCodec)
         self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
@@ -152,8 +157,13 @@ class Client(AbstractClient):
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s" % (self.clientId))
-            #if self._options['org'] != "quickstart":
-                #self.subscribeToGatewayCommands()
+            
+            # Restoring previous subscriptions
+            if len(self._subscriptions) > 0:
+                for subscription in self._subscriptions:
+                    self.client.subscribe(subscription, qos=self._subscriptions[subscription])
+                self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
+            
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
@@ -260,16 +270,19 @@ class Client(AbstractClient):
     def subscribeToDeviceCommands(self, deviceType, deviceId, command='+', format='json', qos=1):
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
-            return False
+            return 0
 
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to device commands because gateway is not currently connected")
-            return False
+            return 0
         else:
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/cmd/' + command + '/fmt/' + format
-            self.client.subscribe(topic, qos=qos)
-            self._options['subscriptionList'][topic] = qos
-            return True
+            (result, mid) = self.client.subscribe(topic, qos=qos)
+            if result == paho.MQTT_ERR_SUCCESS:
+                self._subscriptions[topic] = qos
+                return mid
+            else:
+                return 0
 
 
 
@@ -278,15 +291,18 @@ class Client(AbstractClient):
         deviceId = self._options['id']
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
-            return False
+            return 0
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to gateway commands because gateway is not currently connected")
-            return False
+            return 0
         else:
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/cmd/' + command + '/fmt/' + format
-            self.client.subscribe(topic)
-            self._options['subscriptionList'][topic] = qos
-            return True
+            (result, mid) = self.client.subscribe(topic, qos=qos)
+            if result == paho.MQTT_ERR_SUCCESS:
+                self._subscriptions[topic] = qos
+                return mid
+            else:
+                return 0
 
 
     def subscribeToGatewayNotifications(self):
@@ -294,22 +310,31 @@ class Client(AbstractClient):
         deviceId = self._options['id']
         if self._options['org'] == "quickstart":
             self.logger.warning("QuickStart not supported in Gateways")
-            return False
+            return 0
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to subscribe to notifications because gateway is not currently connected")
-            return False
+            return 0
         else:
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/notify'
-            self.client.subscribe(topic)
-            #self._options['subscriptionList'][topic] = qos
-            return True
+            (result, mid) = self.client.subscribe(topic, qos=0)
+            if result == paho.MQTT_ERR_SUCCESS:
+                self._subscriptions[topic] = 0
+                return mid
+            else:
+                return 0
 
-
-    '''
-    Internal callback for device command messages, parses source device from topic string and
-    passes the information on to the registered device command callback
-    '''
+    def __onSubscribe(self, client, userdata, mid, grantedQoS):
+        '''
+        Internal callback for handling subscription acknowledgement
+        '''
+        self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
+        if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
+        
     def __onCommand(self, client, userdata, pahoMessage):
+        '''
+        Internal callback for device command messages, parses source device from topic string and
+        passes the information on to the registered device command callback
+        '''
         with self._recvLock:
             self.recv = self.recv + 1
         try:
@@ -320,11 +345,11 @@ class Client(AbstractClient):
             self.logger.debug("Received device command '%s'" % (command.command))
             if self.commandCallback: self.commandCallback(command)
 
-    '''
-    Internal callback for gateway command messages, parses source device from topic string and
-    passes the information on to the registered device command callback
-    '''
     def __onDeviceCommand(self, client, userdata, pahoMessage):
+        '''
+        Internal callback for gateway command messages, parses source device from topic string and
+        passes the information on to the registered device command callback
+        '''
         with self._recvLock:
             self.recv = self.recv + 1
         try:
@@ -403,7 +428,7 @@ class ManagedClient(Client):
 
         # Add handler for supported device management commands
         self.client.message_callback_add("iotdm-1/#", self.__onDeviceMgmtResponse)
-        self.client.on_subscribe = self.on_subscribe
+        self.client.on_subscribe = self.__onSubscribe
 
         self.readyForDeviceMgmt = threading.Event()
 
@@ -496,19 +521,30 @@ class ManagedClient(Client):
             if self._options['org'] != "quickstart":
                 dm_response_topic = ManagedClient.DM_RESPONSE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
                 dm_observe_topic = ManagedClient.DM_OBSERVE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
-                self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (self.COMMAND_TOPIC, 1)] )
+                (self.dmSubscriptionResult, self.dmSubscriptionMid) = self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (self.COMMAND_TOPIC, 1)] )
+                
+                if self.dmSubscriptionResult != paho.MQTT_ERR_SUCCESS:
+                    self.logAndRaiseException(ConnectionException("Unable to subscribe to device management topics"))
+                
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
             self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
-
-    def on_subscribe(self, client, userdata, mid, granted_qos):
-        # Once Watson IoT acknowledges the subscriptions we are able to process commands and responses from device management server
-        self.subscriptionsAcknowledged.set()
-        self.manage()
-
-
+    def __onSubscribe(self, client, userdata, mid, grantedQoS):
+        '''
+        Internal callback for handling subscription acknowledgement
+        '''
+        if mid == self.dmSubscriptionMid: 
+            # Once Watson IoT acknowledges the DM subscriptions we are able to 
+            # process commands and responses from device management server
+            self.subscriptionsAcknowledged.set()
+            self.manage()
+        else:
+            self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
+            if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
+        
+    
     def manage(self, lifetime=3600, supportDeviceActions=False, supportFirmwareActions=False):
         # TODO: throw an error, minimum lifetime this client will support is 1 hour, but for now set lifetime to infinite if it's invalid
         if lifetime < 3600:
