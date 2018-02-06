@@ -1630,19 +1630,19 @@ class ApiClient():
             raise ibmiotf.APIException(resp.status_code, "HTTP error getting all logical interfaces", resp)
         return [x["id"] for x in resp.json()["results"]], resp.json()
 
-    def createLogicalInterface(self, name, schemaId, description=None):
+    def createLogicalInterface(self, name, schemaId, description=None, alias=None):
         """
         Creates a logical interface..
-        Parameters: name (string), schemaId (string), description (string, optional).
+        Parameters: name (string), schemaId (string), description (string, optional), alias (string, optional).
         Returns: logical interface id (string), response (object).
         Throws APIException on failure.
         """
         req = ApiClient.allLogicalInterfacesUrl % (self.host, "/draft")
-        if description == None:
-            description = ""
-        body = {"name" : name, "description" : description, "schemaId" : schemaId}
-        # if description:
-        #   body["description"] = description
+        body = {"name" : name, "schemaId" : schemaId}
+        if description:
+          body["description"] = description
+        if alias:
+          body["alias"] = alias
         resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"},
                             data=json.dumps(body), verify=self.verify)
         if resp.status_code == 201:
