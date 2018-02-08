@@ -5,6 +5,7 @@
 *.project
 *.pydevproject
 *.zip
+*.gz
 .tox
 .cache
 src/ibmiotf.egg-info/*
