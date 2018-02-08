@@ -58,10 +58,7 @@ class Client(AbstractClient):
 
     def __init__(self, options, logHandlers=None):
         self._options = options
-        # If we are disconnected we lose all our active subscriptions.  Keep track of all subscriptions
-        # so that we can internally restore all subscriptions on reconnect
-        self._subscriptions = {}
-        
+
         #Defaults
         if "domain" not in self._options:
             # Default to the domain for the public cloud offering
@@ -159,10 +156,11 @@ class Client(AbstractClient):
             self.logger.info("Connected successfully: %s" % (self.clientId))
             
             # Restoring previous subscriptions
-            if len(self._subscriptions) > 0:
-                for subscription in self._subscriptions:
-                    self.client.subscribe(subscription, qos=self._subscriptions[subscription])
-                self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
+            with self._subLock:
+                if len(self._subscriptions) > 0:
+                    for subscription in self._subscriptions:
+                        self.client.subscribe(subscription, qos=self._subscriptions[subscription])
+                    self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
             
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
@@ -279,7 +277,8 @@ class Client(AbstractClient):
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/cmd/' + command + '/fmt/' + format
             (result, mid) = self.client.subscribe(topic, qos=qos)
             if result == paho.MQTT_ERR_SUCCESS:
-                self._subscriptions[topic] = qos
+                with self._subLock:
+                    self._subscriptions[topic] = qos
                 return mid
             else:
                 return 0
@@ -299,7 +298,8 @@ class Client(AbstractClient):
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/cmd/' + command + '/fmt/' + format
             (result, mid) = self.client.subscribe(topic, qos=qos)
             if result == paho.MQTT_ERR_SUCCESS:
-                self._subscriptions[topic] = qos
+                with self._subLock:
+                    self._subscriptions[topic] = qos
                 return mid
             else:
                 return 0
@@ -318,7 +318,8 @@ class Client(AbstractClient):
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/notify'
             (result, mid) = self.client.subscribe(topic, qos=0)
             if result == paho.MQTT_ERR_SUCCESS:
-                self._subscriptions[topic] = 0
+                with self._subLock:
+                    self._subscriptions[topic] = 0
                 return mid
             else:
                 return 0

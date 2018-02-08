@@ -50,6 +50,14 @@ class AbstractClient:
         self._recvLock = threading.Lock()
         self._messagesLock = threading.Lock()
 
+        # If we are disconnected we lose all our active subscriptions.  Keep
+        # track of all subscriptions so that we can internally restore all
+        # subscriptions on reconnect
+        self._subscriptions = {}
+
+        # Create a lock for the subscription dictionary
+        self._subLock = threading.Lock()
+
         self.messages = 0
         self.recv = 0
 
