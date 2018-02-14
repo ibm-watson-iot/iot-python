@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2015, 2017 IBM Corporation and other Contributors.
+# Copyright (c) 2015, 2018 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -103,6 +103,10 @@ class ApiClient():
     allDeviceTypeLogicalInterfacesUrl = "https://%s/api/v0002%s/device/types/%s/logicalinterfaces"
     oneDeviceTypeLogicalInterfaceUrl = "https://%s/api/v0002/draft/device/types/%s/logicalinterfaces/%s"
 
+    # Rules
+    allRulesForLogicalInterfaceUrl = "https://%s/api/v0002%s/logicalinterfaces/%s/rules"
+    oneRuleForLogicalInterfaceUrl  = "https://%s/api/v0002%s/logicalinterfaces/%s/rules/%s"
+
     # Mappings
     allDeviceTypeMappingsUrl = "https://%s/api/v0002%s/device/types/%s/mappings"
     oneDeviceTypeMappingUrl = "https://%s/api/v0002%s/device/types/%s/mappings/%s"
@@ -136,6 +140,7 @@ class ApiClient():
             self.host = self.__options['host']
         else:
             self.host = self.__options['org'] + "." + self.__options['domain']
+            
         self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
 
         # To support development systems this can be overridden to False
@@ -1287,7 +1292,6 @@ class ApiClient():
         if resp.status_code == 204:
             self.logger.debug("Schema deleted")
         else:
-            print(resp)
             raise ibmiotf.APIException(resp.status_code, "HTTP error deleting schema", resp)
         return resp
 
@@ -1701,6 +1705,110 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error getting a logical interface", resp)
         return resp.json()
+
+    def getRulesForLogicalInterface(self, logicalInterfaceId, draft=False):
+        """
+        Gets rules for a logical interface.
+        Parameters:
+          - logicalInterfaceId (string)
+          - draft (boolean)
+        Throws APIException on failure.
+        """
+        if draft:
+            req = ApiClient.allRulesForLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
+        else:
+            req = ApiClient.allRulesForLogicalInterfaceUrl % (self.host, "", logicalInterfaceId)
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("logical interface rules retrieved")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error getting logical interface rules", resp)
+        return resp.json()
+
+    def getRuleForLogicalInterface(self, logicalInterfaceId, ruleId, draft=False):
+        """
+        Gets a rule for a logical interface.
+        Parameters:
+          - logicalInterfaceId (string)
+          - ruleId (string)
+          - draft (boolean)
+        Throws APIException on failure.
+        """
+        if draft:
+            req = ApiClient.oneRuleForLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId, ruleId)
+        else:
+            req = ApiClient.oneRuleForLogicalInterfaceUrl % (self.host, "", logicalInterfaceId, ruleId)
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("logical interface rule retrieved")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error getting logical interface rule", resp)
+        return resp.json()
+
+    def addRuleToLogicalInterface(self, logicalInterfaceId, name, condition, description=None, alias=None):
+        """
+        Adds a rule to a logical interface.
+        Parameters: 
+          - logicalInterfaceId (string)
+          - name (string)
+          - condition (string)
+          - (description (string, optional)
+        Returns: rule id (string), response (object).
+        Throws APIException on failure.
+        """
+        req = ApiClient.allRulesForLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId)
+        body = {"name" : name, "condition" : condition}
+        if description:
+          body["description"] = description
+        resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+                            data=json.dumps(body), verify=self.verify)
+        if resp.status_code == 201:
+            self.logger.debug("Logical interface rule created")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error creating logical interface rule", resp)
+        return resp.json()["id"], resp.json()
+
+    def updateRuleOnLogicalInterface(self, logicalInterfaceId, ruleId, name, condition, description=None):
+        """
+        Updates a rule on a logical interface..
+        Parameters: 
+          - logicalInterfaceId (string),
+          - ruleId (string)
+          - name (string)
+          - condition (string)
+          - description (string, optional)
+        Returns: response (object).
+        Throws APIException on failure.
+        """
+        req = ApiClient.oneRuleForLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId, ruleId)
+        body = {"logicalInterfaceId" : logicalInterfaceId, "id" : ruleId, "name" : name, "condition" : condition}
+        if description:
+          body["description"] = description
+        resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"},
+                            data=json.dumps(body), verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("Logical interface rule updated")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error updating logical interface rule", resp)
+        return resp.json()
+
+    def deleteRuleOnLogicalInterface(self, logicalInterfaceId, ruleId):
+        """
+        Deletes a rule from a logical interface
+        Parameters: 
+          - logicalInterfaceId (string),
+          - ruleId (string)
+        Returns: response (object)
+        Throws APIException on failure
+        """
+        req = ApiClient.oneRuleForLogicalInterfaceUrl % (self.host, "/draft", logicalInterfaceId, ruleId)
+        resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 204:
+            self.logger.debug("Logical interface rule deleted")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error deleting logical interface rule", resp)
+        return resp
+
 
     """
     ===========================================================================

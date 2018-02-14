@@ -54,4 +54,4 @@ if __name__ == "__main__":
         print(result)
       except Exception as exc:
         print(exc.response, exc.response.json())
-      time.sleep(1)
+    time.sleep(1)

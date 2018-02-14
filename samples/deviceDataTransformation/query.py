@@ -11,46 +11,39 @@
 # *****************************************************************************
 
 from __future__ import print_function
-import time, ibmiotf.api
+import time, ibmiotf.api, sys, logging, importlib, mmod
+
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
-  domain = None
-  verify = True
-  from properties import orgid, key, token, devicetype, deviceid
 
-  params = {"auth-key": key, "auth-token": token}
+  property_file_name = sys.argv[1]
 
-  try:
-    from properties import domain
+  logger.info("Getting properties from %s" % property_file_name)
+  properties = importlib.import_module(property_file_name)
+  property_names = dir(properties)
+
+  verify = None
+  params = {"auth-key": properties.key, "auth-token": properties.token}
+  if "domain" in property_names:
     params["domain"] = domain
-  except:
-    pass
 
-  try:
-    from properties import host
-    params["host"] = host
-  except:
-    pass
+  if "verify" in property_names:
+    verify = properties.verify
 
-  try:
-    from properties import verify
-  except:
-    pass
+  if "host" in property_names:
+    params["host"] = properties.host
 
   api = ibmiotf.api.ApiClient(params)
   api.verify = verify
 
-  result = api.getSchema("event1schema", draft=False)
-  sys.exit()
-
-  result = api.getDeviceTypes()
+  #result = api.getLogicalInterfaces()
+  #print("logical interfaces", str(result))
+  #physinterfaceid, result = api.getPhysicalInterfaceOnDeviceType(devicetype)
+  #appinterfaceids, result = api.getMappingsOnDeviceType(properties.devicetype)
+  appinterfaceids, result = api.getLogicalInterfacesOnDeviceType(properties.devicetype)
+  mappings = api.getMappingsOnDeviceTypeForLogicalInterface(properties.devicetype, "44af725c-d0a6-4855-91c2-23b626be193d")
   print(result)
-  print([x for x in result["results"] if x['id'] == devicetype])
-
-  result = api.getLogicalInterfaces()
-  print("logical interfaces", str(result))
-  """
-  physinterfaceid, result = api.getPhysicalInterfaceOnDeviceType(devicetype)
-  appinterfaceids, result = api.getMappingsOnDeviceType(devicetype)
-  appinterfaceids, result = api.getLogicalInterfacesOnDeviceType(devicetype)
-  """
+  print("***", mappings)

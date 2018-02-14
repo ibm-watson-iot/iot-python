@@ -11,31 +11,42 @@
 # *****************************************************************************
 
 from __future__ import print_function
-import time, ibmiotf.api
+import time, ibmiotf.api, sys, logging, importlib
+
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
-  domain = None
-  verify = True
-  from properties import orgid, key, token, devicetype, deviceid
+  if len(sys.argv) < 2:
+      print("Property file name needed")
+      sys.exit()
+  property_file_name = sys.argv[1]
 
-  try:
-    from properties import domain
-  except:
-    pass
+  logger.info("Getting properties from %s" % property_file_name)
+  properties = importlib.import_module(property_file_name)
+  property_names = dir(properties)
 
-  try:
-    from properties import verify
-  except:
-    pass
-
-  params = {"auth-key": key, "auth-token": token}
-  if domain:
+  verify = None
+  params = {"auth-key": properties.key, "auth-token": properties.token}
+  if "domain" in property_names:
     params["domain"] = domain
 
+  if "verify" in property_names:
+    verify = properties.verify
+
+  if "host" in property_names:
+    params["host"] = properties.host
+
+  import ibmiotf.api
+
   api = ibmiotf.api.ApiClient(params)
-  api.verify = verify
+  if verify:
+    api.verify = verify
 
   try:
-    api.activateDeviceTypeConfiguration(devicetype)
+    resp = api.activateDeviceTypeConfiguration(properties.devicetype)
+    print(resp)
   except Exception as exc:
+    print(exc)
     print(exc.response.json())
