@@ -328,7 +328,7 @@ class ApiClient():
         elif status == 403:
             raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
         elif status == 409:
-            raise ibmiotf.APIException(403, "The device type already exists", r.json())
+            raise ibmiotf.APIException(409, "The device type already exists", r.json())
         elif status == 500:
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
@@ -438,7 +438,7 @@ class ApiClient():
         elif status == 403:
             raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
         elif status == 409:
-            raise ibmiotf.APIException(403, "The device already exists", r.json())
+            raise ibmiotf.APIException(409, "The device already exists", r.json())
         elif status == 500:
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
@@ -651,7 +651,7 @@ class ApiClient():
         elif status == 404:
             raise ibmiotf.APIException(404, "Device location information not found", None)
         elif status == 409:
-            raise ibmiotf.APIException(404, "The update could not be completed due to a conflict", r.json())
+            raise ibmiotf.APIException(409, "The update could not be completed due to a conflict", r.json())
         elif status == 500:
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
