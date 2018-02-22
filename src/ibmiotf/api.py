@@ -113,6 +113,29 @@ class ApiClient():
 
     # Device state
     deviceStateUrl = "https://%s/api/v0002/device/types/%s/devices/%s/state/%s"
+    
+    # Thing Types URLs
+    thingTypesUrl   = "https://%s/api/v0002/thing/types"
+    thingTypeUrl    = "https://%s/api/v0002/thing/types/%s"
+    
+    # Thing URLs
+    thingsUrl   = "https://%s/api/v0002/thing/types/%s/things"
+    thingUrl    = "https://%s/api/v0002/thing/types/%s/things/%s"
+    
+    # Draft Thing type URLs
+    draftThingTypesUrl  = 'https://%s/api/v0002/draft/thing/types'
+    draftThingTypeUrl   = 'https://%s/api/v0002/draft/thing/types/%s'
+    
+    # Thing types logical interface URLs
+    allThingTypeLogicalInterfacesUrl = "https://%s/api/v0002%s/thing/types/%s/logicalinterfaces"
+    oneThingTypeLogicalInterfaceUrl = "https://%s/api/v0002/draft/thing/types/%s/logicalinterfaces/%s"
+    
+    # Thing Mappings
+    allThingTypeMappingsUrl = "https://%s/api/v0002%s/thing/types/%s/mappings"
+    oneThingTypeMappingUrl = "https://%s/api/v0002%s/thing/types/%s/mappings/%s"
+    
+    # Thing state
+    thingStateUrl = "https://%s/api/v0002/thing/types/%s/things/%s/state/%s"
 
     def __init__(self, options, logger=None):
         self.__options = options
@@ -543,6 +566,349 @@ class ApiClient():
             raise ibmiotf.APIException(404, "The organization, device type or device does not exist", None)
         elif status == 409:
             raise ibmiotf.APIException(409, "The update could not be completed due to a conflict", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+    
+    """
+    Thing API methods
+     - register a new thing
+     - get a single thing
+     - get all thing instances for a type
+     - remove thing
+     - update thing
+    """
+    
+    def registerThing(self, thingTypeId, thingId, name = None, description = None, aggregatedObjects = None, metadata=None):
+        """
+        Registers a new thing.
+        It accepts thingTypeId (string), thingId (string), name (string), description (string), aggregatedObjects (JSON) and metadata (JSON) as parameters
+        In case of failure it throws APIException
+        """
+        thingsUrl = ApiClient.thingsUrl % (self.host, thingTypeId)
+        payload = {'thingId' : thingId, 'name' : name, 'description' : description, 'aggregatedObjects' : aggregatedObjects, 'metadata': metadata}
+
+        r = requests.post(thingsUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'}, verify=self.verify)
+        status = r.status_code
+        if status == 201:
+            self.logger.debug("Thing Instance Created")
+            return r.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the API key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "The thing type with specified id does not exist", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "A thing instance with the specified id already exists", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+    
+    def getThing(self, thingTypeId, thingId):
+        """
+        Gets thing details.
+        It accepts thingTypeId (string), thingId (string)
+        In case of failure it throws APIException
+        """
+        thingUrl = ApiClient.thingUrl % (self.host, thingTypeId, thingId)
+
+        r = requests.get(thingUrl, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Thing instance was successfully retrieved")
+            return r.json()
+        elif status == 304:
+            raise ibmiotf.APIException(304, "The state of the thing has not been modified (response to a conditional GET).", None)
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "A thing type with the specified id, or a thing with the specified id, does not exist.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+
+    def getThingsForType(self, thingTypeId, parameters = None):
+        """
+        Gets details for multiple things of a type
+        It accepts thingTypeId (string) and parameters
+        In case of failure it throws APIException
+        """
+        thingsUrl = ApiClient.thingsUrl % (self.host, thingTypeId)
+
+        r = requests.get(thingsUrl, auth=self.credentials, params = parameters, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("List of things was successfully retrieved")
+            return r.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "The thing type does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+
+
+    def removeThing(self, thingTypeId, thingId):
+        """
+        Delete an existing thing.
+        It accepts thingTypeId (string) and thingId (string) as parameters
+        In case of failure it throws APIException
+        """
+        thingUrl = ApiClient.thingUrl % (self.host, thingTypeId, thingId)
+
+        r = requests.delete(thingUrl, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Thing was successfully removed")
+            return True
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "A thing type or thing instance with the specified id does not exist.", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The thing instance is aggregated into another thing instance.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+
+    def updateThing(self, thingTypeId, thingId, name, description, aggregatedObjects, metadata = None):
+        """
+        Updates a thing.
+        It accepts thingTypeId (string), thingId (string), name (string), description (string), aggregatedObjects(JSON), metadata (JSON) as parameters
+        In case of failure it throws APIException
+        """
+        thingUrl = ApiClient.thingUrl % (self.host, thingTypeId, thingId)
+
+        payload = {'name' : name, 'description' : description, 'aggregatedObjects' : aggregatedObjects, 'metadata': metadata}
+        r = requests.put(thingUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'}, verify=self.verify)
+
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("The thing with the specified id was successfully updated.")
+            return r.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", None)
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "A thing type with the specified id, or a thing with the specified id, does not exist.", None)
+        elif status == 412:
+            raise ibmiotf.APIException(412, "The state of the thing has been modified since the client retrieved its representation (response to a conditional PUT).", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+    
+    
+    """
+    Thing Types API methods
+     - Add thing type
+     - Get thing types
+     - Get thing type
+     - update thing type
+     - remove thing type
+    """
+    
+    def addDraftThingType(self, thingTypeId, name = None, description = None, schemaId = None, metadata = None):
+        """
+        Creates a thing type.
+        It accepts thingTypeId (string), name (string), description (string), schemaId(string) and metadata(dict) as parameter
+        In case of failure it throws APIException
+        """
+        draftThingTypesUrl = ApiClient.draftThingTypesUrl % (self.host)
+        payload = {'id' : thingTypeId, 'name' : name, 'description' : description, 'schemaId' : schemaId, 'metadata': metadata}
+
+        r = requests.post(draftThingTypesUrl, auth=self.credentials, data=json.dumps(payload), headers = {'content-type': 'application/json'}, verify=self.verify)
+        status = r.status_code
+        if status == 201:
+            self.logger.debug("The draft thing Type is created")
+            return r.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value)", r.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The draft thing type already exists", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+    def updateDraftThingType(self, thingTypeId, name, description, schemaId, metadata = None):
+        """
+        Updates a thing type.
+        It accepts thingTypeId (string), name (string), description (string), schemaId (string) and metadata(JSON) as the parameters
+        In case of failure it throws APIException
+        """
+        draftThingTypeUrl = ApiClient.draftThingTypeUrl % (self.host, thingTypeId)
+        draftThingTypeUpdate = {'name' : name, 'description' : description, 'schemaId' : schemaId, 'metadata' : metadata}
+        r = requests.put(draftThingTypeUrl, auth=self.credentials, data=json.dumps(draftThingTypeUpdate), headers = {'content-type': 'application/json'}, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Thing type was successfully modified")
+            return r.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "The Thing type does not exist", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The update could not be completed due to a conflict", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+    
+    def getDraftThingTypes(self, parameters = None):
+        """
+        Retrieves all existing draft thing types.
+        It accepts accepts an optional query parameters (Dictionary)
+        In case of failure it throws APIException
+        """
+        draftThingTypesUrl = ApiClient.draftThingTypesUrl % (self.host)
+        r = requests.get(draftThingTypesUrl, auth=self.credentials, params = parameters, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Draft thing types successfully retrieved")
+            self.logger.debug(json.dumps(r.json()))
+            return r.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+    
+    def getDraftThingType(self, thingTypeId, parameters = None):
+        """
+        Retrieves all existing draft thing types.
+        It accepts accepts an optional query parameters (Dictionary)
+        In case of failure it throws APIException
+        """
+        draftThingTypeUrl = ApiClient.draftThingTypeUrl % (self.host, thingTypeId)
+        r = requests.get(draftThingTypeUrl, auth=self.credentials, params = parameters, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Draft thing type successfully retrieved")
+            self.logger.debug(json.dumps(r.json()))
+            return r.json()
+        elif status == 304:
+            raise ibmiotf.APIException(304, "The state of the thing type has not been modified (response to a conditional GET).", None)
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "A draft thing type with the specified id does not exist.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+        
+    def deleteDraftThingType(self, thingTypeId):
+        """
+        Deletes a Thing type.
+        It accepts thingTypeId (string) as the parameter
+        In case of failure it throws APIException
+        """
+        draftThingTypeUrl = ApiClient.draftThingTypeUrl % (self.host, thingTypeId)
+
+        r = requests.delete(draftThingTypeUrl, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Device type was successfully deleted")
+            return True
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "A thing type with the specified id does not exist.", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The draft thing type with the specified id is currently being referenced by another object.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+        
+    
+    def getActiveThingTypes(self, parameters = None):
+        """
+        Retrieves all existing active thing types.
+        It accepts accepts an optional query parameters (Dictionary)
+        In case of failure it throws APIException
+        """
+        thingTypesUrl = ApiClient.thingTypesUrl % (self.host)
+        r = requests.get(thingTypesUrl, auth=self.credentials, params = parameters, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Active thing types successfully retrieved")
+            self.logger.debug(json.dumps(r.json()))
+            return r.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (invalid or missing query parameter, invalid query parameter value)", None)
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+    
+    
+    def getActiveThingType(self, thingTypeId, parameters = None):
+        """
+        Retrieves all existing Active thing types.
+        It accepts accepts an optional query parameters (Dictionary)
+        In case of failure it throws APIException
+        """
+        thingTypeUrl = ApiClient.thingTypeUrl % (self.host, thingTypeId)
+        r = requests.get(thingTypeUrl, auth=self.credentials, params = parameters, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Acvtive thing type successfully retrieved")
+            self.logger.debug(json.dumps(r.json()))
+            return r.json()
+        elif status == 304:
+            raise ibmiotf.APIException(304, "The state of the thing type has not been modified (response to a conditional GET).", None)
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "A active thing type with the specified id does not exist.", None)
         elif status == 500:
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
@@ -2179,4 +2545,267 @@ class ApiClient():
             self.logger.debug("State retrieved from the device type for a logical interface")
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for a logical interface from a device type", resp)
+        return resp.json()
+    
+    """
+    ===========================================================================
+    Information Management Things APIs
+    ===========================================================================
+    """
+    
+    def validateThingTypeConfiguration(self, thingTypeId):
+        """
+        Validate the thing type configuration.
+        Parameters:
+            - thingTypeId (string) - the platform thing type
+        Throws APIException on failure.
+        """
+        req = ApiClient.draftThingTypeUrl % (self.host, thingTypeId)
+        body = {"operation" : "validate-configuration"}
+        resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+               verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("Validation for thing type configuration succeeded")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "Validation for thing type configuration failed", resp)
+        return resp.json()
+
+    def activateThingTypeConfiguration(self, thingTypeId):
+        """
+        Activate the thing type configuration.
+        Parameters:
+            - thingTypeId (string) - the platform thing type
+        Throws APIException on failure.
+        """
+        req = ApiClient.draftThingTypeUrl % (self.host, thingTypeId)
+        body = {"operation" : "activate-configuration"}
+        resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+               verify=self.verify)
+        if (resp.status_code == 202):
+            self.logger.debug("Activation for thing type configuration succeeded")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "Activation for thing type configuration failed", resp)
+        return resp.json()
+
+    def deactivateDeviceTypeConfiguration(self, thingTypeId):
+        """
+        Deactivate the thing type configuration.
+        Parameters:
+            - thingTypeId (string) - the platform thing type
+        Throws APIException on failure.
+        """
+        req = ApiClient.thingTypeUrl % (self.host, thingTypeId)
+        body = {"operation" : "deactivate-configuration"}
+        resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+               verify=self.verify)
+        if resp.status_code == 202:
+            self.logger.debug("Deactivation for thing type configuration succeeded")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "Deactivation for thing type configuration failed", resp)
+        return resp.json()
+    
+    def getThingStateForLogicalInterface(self, thingTypeId, thingId, logicalInterfaceId):
+        """
+        Gets the state for a logical interface for a thing.
+        Parameters:
+            - thingTypeId (string) - the platform thing type
+            - thingId (string) - the platform thing id
+            - logicalInterfaceId (string) - the platform returned id of the logical interface
+        Throws APIException on failure.
+        """
+        req = ApiClient.thingStateUrl % (self.host, thingTypeId, thingId, logicalInterfaceId)
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("State retrieved from the thing type for a logical interface")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for a logical interface from a thing type", resp)
+        return resp.json()
+
+    """
+    ===========================================================================
+    Information Management Things type APIs
+    ===========================================================================
+    """
+    
+    def getLogicalInterfacesOnThingType(self, thingTypeId, draft=False):
+        """
+        Get all logical interfaces for a thing type.
+        Parameters:
+          - thingTypeId (string)
+          - draft (boolean)
+        Returns:
+            - list of logical interface ids
+            - HTTP response object
+        Throws APIException on failure.
+        """
+        if draft:
+            req = ApiClient.allThingTypeLogicalInterfacesUrl % (self.host, "/draft", thingTypeId)
+        else:
+            req = ApiClient.allThingTypeLogicalInterfacesUrl % (self.host, "", thingTypeId)
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("All thing type logical interfaces retrieved")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error getting all thing type logical interfaces", resp)
+        return [appintf["id"] for appintf in resp.json()], resp.json()
+
+    def addLogicalInterfaceToThingType(self, thingTypeId, logicalInterfaceId, schemaId = None, name = None):
+        """
+        Adds a logical interface to a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - logicalInterfaceId (string) - the id returned by the platform on creation of the logical interface
+        Throws APIException on failure.
+        """
+        req = ApiClient.allThingTypeLogicalInterfacesUrl % (self.host, "/draft", thingTypeId)
+        body = {"id" : logicalInterfaceId}
+#        body = {"name" : name, "id" : logicalInterfaceId, "schemaId" : schemaId}
+#       if description:
+#           body["description"] = description
+        resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+                        verify=self.verify)
+        if resp.status_code == 201:
+            self.logger.debug("The draft logical interface was successfully associated with the thing type.")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error adding logical interface to a thing type", resp)
+        return resp.json()
+
+    def removeLogicalInterfaceFromThingType(self, thingTypeId, logicalInterfaceId):
+        """
+        Removes a logical interface from a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - logicalInterfaceId (string) - the id returned by the platform on creation of the logical interface
+        Throws APIException on failure.
+        """
+        req = ApiClient.oneThingTypeLogicalInterfaceUrl % (self.host, thingTypeId, logicalInterfaceId)
+        resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 204:
+            self.logger.debug("Logical interface removed from a thing type")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error removing logical interface from a thing type", resp)
+        return resp
+    
+    def getMappingsOnThingType(self, thingTypeId, draft=False):
+        """
+        Get all the mappings for a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - draft (boolean) - draft or active
+        Throws APIException on failure.
+        """
+        if draft:
+            req = ApiClient.allThingTypeMappingsUrl % (self.host, "/draft", thingTypeId)
+        else:
+            req = ApiClient.allThingTypeMappingsUrl % (self.host, "", thingTypeId)
+
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("All thing type mappings retrieved")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error getting all thing type mappings", resp)
+        return resp.json()
+
+    def addMappingsToThingType(self, thingTypeId, logicalInterfaceId, mappingsObject, notificationStrategy = "never"):
+        """
+        Add mappings for a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - logicalinterface (string) - the id of the application interface these mappings are for
+            - notificationStrategy (string) - the notification strategy to use for these mappings
+            - mappingsObject (Python dictionary corresponding to JSON object) example:
+
+            { # eventid -> { property -> eventid property expression }
+         "status" :  {
+                "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
+           }
+        }
+
+        Throws APIException on failure.
+        """
+        req = ApiClient.allThingTypeMappingsUrl % (self.host, "/draft", typeId)
+        try:
+            mappings = json.dumps({
+                "logicalInterfaceId" : logicalInterfaceId,
+                "notificationStrategy" : notificationStrategy,
+                "propertyMappings" : mappingsObject
+            })
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
+        resp = requests.post(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
+               verify=self.verify)
+        if resp.status_code == 201:
+            self.logger.debug("Thing type mappings created for logical interface")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error creating Thing type mappings for logical interface", resp)
+        return resp.json()
+
+    def deleteMappingsFromThingType(self, thingTypeId, logicalInterfaceId):
+        """
+        Deletes mappings for an application interface from a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - logicalInterfaceId (string) - the platform returned id of the application interface
+        Throws APIException on failure.
+        """
+        req = ApiClient.oneThingTypeMappingUrl % (self.host, "/draft", thingTypeId, logicalInterfaceId)
+        resp = requests.delete(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 204:
+            self.logger.debug("Mappings deleted from the thing type")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error deleting mappings for a logical interface from a thing type", resp)
+        return resp
+
+    def getMappingsOnThingTypeForLogicalInterface(self, thingTypeId, logicalInterfaceId, draft=False):
+        """
+        Gets the mappings for a logical interface from a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - logicalInterfaceId (string) - the platform returned id of the logical interface
+        Throws APIException on failure.
+        """
+        if draft:
+            req = ApiClient.oneThingTypeMappingUrl % (self.host, "/draft", thingTypeId, logicalInterfaceId)
+        else:
+            req = ApiClient.oneThingTypeMappingUrl % (self.host, "", thingTypeId, logicalInterfaceId)
+
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("Mappings retrieved from the thing type")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error getting mappings for a logical interface from a thing type", resp)
+        return resp.json()
+
+    def updateMappingsOnDeviceType(self, thingTypeId, logicalInterfaceId, mappingsObject, notificationStrategy = "never"):
+        """
+        Add mappings for a thing type.
+        Parameters:
+            - thingTypeId (string) - the thing type
+            - logicalInterfaceId (string) - the id of the application interface these mappings are for
+            - notificationStrategy (string) - the notification strategy to use for these mappings
+            - mappingsObject (Python dictionary corresponding to JSON object) example:
+
+            { # eventid -> { property -> eventid property expression }
+         "status" :  {
+                "eventCount" : "($state.eventCount == -1) ? $event.d.count : ($state.eventCount+1)",
+           }
+      }
+
+        Throws APIException on failure.
+        """
+        req = ApiClient.oneThingTypeMappingUrl % (self.host, "/draft", thingTypeId, logicalInterfaceId)
+        try:
+            mappings = json.dumps({
+                "logicalInterfaceId" : logicalInterfaceId,
+                "notificationStrategy" : notificationStrategy,
+                "propertyMappings" : mappingsObject
+            })
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting mappings object to JSON", exc)
+        resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=mappings,
+               verify=self.verify)
+        if resp.status_code == 200:
+            self.logger.debug("Thing type mappings updated for logical interface")
+        else:
+            raise ibmiotf.APIException(resp.status_code, "HTTP error updating thing type mappings for logical interface", resp)
         return resp.json()
