@@ -18,8 +18,9 @@ logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+ids = {}
+
 def define(api, properties):
-  ids = {}
 
   logger.info("# ---- add an event schema -------")
   infile = open(properties.eventSchemaFileName)
@@ -74,6 +75,52 @@ def define(api, properties):
     print(exc.response.json())
     raise
 
+def defineThings(api, properties):
+    
+  logger.info("# ---- add thing type schema -------")
+  
+  thingTypeSchemaContents = json.load(open(properties.thingTypeSchemaFileName))
+  
+  thingTypeSchemaContents['properties']['temperatureSensor']['$logicalInterfaceRef'] = ids["Logical interface"]
+  
+  print(str(thingTypeSchemaContents))
+  
+  ids["thingTypeSchemaId"], result = api.createSchema("room Sensor Schema", properties.thingTypeSchemaFileName, json.dumps(thingTypeSchemaContents))
+
+  logger.info("# ---- add thing LI schema -------")
+  thingLogicalInterfaceSchemaContents = json.load(open(properties.thingLogicalInterfaceSchema))
+  ids["thingLISchemaId"], result = api.createSchema("temp thing LI Schema", properties.thingLogicalInterfaceSchema, json.dumps(thingLogicalInterfaceSchemaContents))
+
+  logger.info("# ---- create thing type -------")
+  api.addDraftThingType(properties.thingType, properties.thingId, None, ids["thingTypeSchemaId"])
+
+  logger.info("# Create logical interface to associate with thing type")
+  ids["thingLogicalInterfaceID"], result = api.createLogicalInterface("temp Thing LI", ids["thingLISchemaId"])
+
+  logger.info("# Associate thing logical interface to thing type")
+  result = api.addLogicalInterfaceToThingType(properties.thingType, ids["thingLogicalInterfaceID"])
+  print(result)
+  
+  thingMapping = json.load(open(properties.thingMapping))
+  print(ids["thingLogicalInterfaceID"])
+  print(json.dumps(thingMapping))
+
+  logger.info("# Create mapping for thing type and LI")
+  api.addMappingsToThingType(properties.thingType, ids["thingLogicalInterfaceID"], thingMapping, notificationStrategy="on-state-change")
+
+def createThing(api, properties):
+  
+  logger.info("# --- create thing -----")
+  
+  aggregateObject = json.load(open(properties.thingAggregateFileName))
+  
+  aggregateObject["temperatureSensor"]["id"] = properties.deviceid
+  aggregateObject["temperatureSensor"]["typeId"] = properties.devicetype
+  
+  thing = api.registerThing(properties.thingType, properties.thingId, properties.thingId, None, aggregateObject)
+  
+  logger.info("Created thing [%s]" % thing)
+
 if __name__ == "__main__":
   if len(sys.argv) < 2:
       print("Property file name needed")
@@ -100,7 +147,7 @@ if __name__ == "__main__":
   api = ibmiotf.api.ApiClient(params)
   if verify:
     api.verify = verify
-
+  
   define(api, properties)
 
   logger.info("# ---- validate definitions -------")
@@ -110,3 +157,18 @@ if __name__ == "__main__":
   logger.info("# ---- activate definitions -------")
   result = api.activateDeviceTypeConfiguration(properties.devicetype)
   print(result)
+  
+  defineThings(api, properties)
+  
+  logger.info("# ---- validate things definitions -------")
+  result = api.validateThingTypeConfiguration(properties.thingType)
+  print(result)
+
+  logger.info("# ---- activate things definitions -------")
+  result = api.activateThingTypeConfiguration(properties.thingType)
+  print(result)
+  
+  createThing(api, properties)
+  
+  
+  

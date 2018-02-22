@@ -1,7 +1,7 @@
 {
   "status": {
-    "potentiometers.1": "$event.d.potentiometer1",
-    "potentiometers.2": "$event.d.potentiometer2",
+    "potentiometers.`1`": "$event.d.potentiometer1",
+    "potentiometers.`2`": "$event.d.potentiometer2",
     "temp.C": "$event.d.temp",
     "temp.F": "$event.d.temp * 1.8 + 32",
     "temp.lowest": "($event.d.temp < $state.temp.lowest) ? $event.d.temp : $state.temp.lowest",

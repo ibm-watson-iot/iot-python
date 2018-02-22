@@ -1,0 +1,15 @@
+{
+	"type": "object",
+	"title": "temp Thing Schema",
+	"description": "Used by thing type testing",
+	"properties": {
+		"temperature": {
+			"description": "temperature in degrees celsius",
+			"type": "number",
+			"minimum": -273.15,
+			"default": 0.0
+		}
+	},
+	"required": ["temperature"],
+	"optional": []
+}

@@ -1,0 +1,13 @@
+{
+	"type": "object",
+	"title": "Room Sensor Thing Interface Schema",
+	"description": "schema for the room sensor thing for a temp, humidity and energy sensor",
+	"properties": {
+		"temperatureSensor": {
+			"description": "temperature sensor",
+			"$logicalInterfaceRef": "{{temperatureSensor}}",
+			"type": "object"
+		}
+	},
+	"required": ["temperatureSensor"]
+}
