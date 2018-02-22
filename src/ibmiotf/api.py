@@ -2723,7 +2723,7 @@ class ApiClient():
 
         Throws APIException on failure.
         """
-        req = ApiClient.allThingTypeMappingsUrl % (self.host, "/draft", typeId)
+        req = ApiClient.allThingTypeMappingsUrl % (self.host, "/draft", thingTypeId)
         try:
             mappings = json.dumps({
                 "logicalInterfaceId" : logicalInterfaceId,
