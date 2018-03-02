@@ -121,6 +121,31 @@ def createThing(api, properties):
   
   logger.info("Created thing [%s]" % thing)
 
+def getThing(api, properties):
+  
+  logger.info("# --- Get thing -----")
+
+  thing = api.getThing(properties.thingType, properties.thingId)
+  
+  logger.info("Get thing [%s]" % thing)
+
+def getThingsForType(api, properties):
+  
+  logger.info("# --- Get things for type -----")
+
+  thing = api.getThingsForType(properties.thingType)
+  
+  logger.info("Get things for type [%s]" % thing)
+
+def getThingsState(api, properties):
+  
+  logger.info("# --- Get things state for Logical Interface -----")
+
+  thing = api.getThingStateForLogicalInterface(properties.thingType, properties.thingId,ids["thingLogicalInterfaceID"])
+  
+  logger.info("Get things state for Logical Interface  [%s]" % thing)
+
+
 if __name__ == "__main__":
   if len(sys.argv) < 2:
       print("Property file name needed")
@@ -169,6 +194,6 @@ if __name__ == "__main__":
   print(result)
   
   createThing(api, properties)
-  
-  
-  
+  getThing(api, properties)
+  getThingsForType(api, properties)
+  getThingsState(api, properties)
