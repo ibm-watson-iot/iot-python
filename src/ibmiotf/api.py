@@ -137,6 +137,7 @@ class ApiClient():
     # Thing state
     thingStateUrl = "https://%s/api/v0002/thing/types/%s/things/%s/state/%s"
 
+    
     def __init__(self, options, logger=None):
         self.__options = options
 
@@ -2621,6 +2622,26 @@ class ApiClient():
             raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for a logical interface from a thing type", resp)
         return resp.json()
 
+    def resetThingStateForLogicalInterface(self, thingTypeId, thingId , logicalInterfaceId):
+        """
+        Perform an operation against the thing state for a logical interface
+        Parameters:
+           - thingTypeId (string)
+           - thingId (string)
+           - logicalInterfaceId (string)
+        Throws APIException on failure.
+        """
+        req = ApiClient.thingStateUrl % (self.host, "", thingTypeId,thingId , logicalInterfaceId)
+        body = {"operation" : "reset-state"}
+        resp = requests.patch(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=json.dumps(body),
+               verify=self.verify)
+        if (resp.status_code == 200):
+            self.logger.debug("Reset ThingState For LogicalInterface succeeded")
+        else:
+            raise ibmiotf.APIException(resp.status_code, " HTTP error on reset ThingState For LogicalInterface ", resp)
+        return resp.json()
+
+
     """
     ===========================================================================
     Information Management Things type APIs
@@ -2809,3 +2830,4 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error updating thing type mappings for logical interface", resp)
         return resp.json()
+
