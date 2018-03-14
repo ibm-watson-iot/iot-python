@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2016 IBM Corporation and other Contributors.
+# Copyright (c) 2016, 2018 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,7 @@
 # Contributors:
 #   Amit M Mangalvedkar
 #   Lokesh K Haralakatta
+#   Ian Craggs - fix for #99
 # *****************************************************************************
 
 import json
@@ -95,9 +96,9 @@ class Client(AbstractClient):
             else:
                 raise UnsupportedAuthenticationMethod(options['authMethod'])
 
-        
+
         self.COMMAND_TOPIC = "iot-2/type/" + self._options['type'] + "/id/" + self._options['id'] + "/cmd/+/fmt/+"
-        
+
         AbstractClient.__init__(
             self,
             domain = self._options['domain'],
@@ -154,14 +155,14 @@ class Client(AbstractClient):
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s" % (self.clientId))
-            
+
             # Restoring previous subscriptions
             with self._subLock:
                 if len(self._subscriptions) > 0:
                     for subscription in self._subscriptions:
                         self.client.subscribe(subscription, qos=self._subscriptions[subscription])
                     self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
-            
+
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
@@ -197,21 +198,20 @@ class Client(AbstractClient):
                 try:
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
-                        if on_publish is not None:
-                            self._messagesLock.acquire()
-                            if result[1] in self._onPublishCallbacks:
-                                # paho callback beat this thread so call callback inline now
-                                del self._onPublishCallbacks[result[1]]
+                        self._messagesLock.acquire()
+                        if result[1] in self._onPublishCallbacks:
+                            # paho callback beat this thread so call callback inline now
+                            del self._onPublishCallbacks[result[1]]
+                            if on_publish is not None:
                                 on_publish()
-                            else:
-                                # this thread beat paho callback so set up for call later
-                                self._onPublishCallbacks[result[1]] = on_publish
+                        else:
+                            # this thread beat paho callback so set up for call later
+                            self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
                 finally:
-                    if on_publish is not None:
-                        self._messagesLock.release()
+                    self._messagesLock.release()
             else:
                 raise MissingMessageEncoderException(msgFormat)
 
@@ -246,21 +246,20 @@ class Client(AbstractClient):
                 try:
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
-                        if on_publish is not None:
-                            self._messagesLock.acquire()
-                            if result[1] in self._onPublishCallbacks:
-                                # paho callback beat this thread so call callback inline now
-                                on_publish()
-                                del self._onPublishCallbacks[result[1]]
-                            else:
-                                # this thread beat paho callback so set up for call later
-                                self._onPublishCallbacks[result[1]] = on_publish
+                        self._messagesLock.acquire()
+                        if result[1] in self._onPublishCallbacks:
+                            # paho callback beat this thread so call callback inline now
+                            if on_publish is not None:
+                              on_publish()
+                            del self._onPublishCallbacks[result[1]]
+                        else:
+                            # this thread beat paho callback so set up for call later
+                            self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
                 finally:
-                    if on_publish is not None:
-                        self._messagesLock.release()
+                    self._messagesLock.release()
             else:
                 raise MissingMessageEncoderException(msgFormat)
 
@@ -330,7 +329,7 @@ class Client(AbstractClient):
         '''
         self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
         if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
-        
+
     def __onCommand(self, client, userdata, pahoMessage):
         '''
         Internal callback for device command messages, parses source device from topic string and
@@ -523,10 +522,10 @@ class ManagedClient(Client):
                 dm_response_topic = ManagedClient.DM_RESPONSE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
                 dm_observe_topic = ManagedClient.DM_OBSERVE_TOPIC_TEMPLATE %  (self._gatewayType,self._gatewayId)
                 (self.dmSubscriptionResult, self.dmSubscriptionMid) = self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (self.COMMAND_TOPIC, 1)] )
-                
+
                 if self.dmSubscriptionResult != paho.MQTT_ERR_SUCCESS:
                     self.logAndRaiseException(ConnectionException("Unable to subscribe to device management topics"))
-                
+
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
@@ -536,16 +535,16 @@ class ManagedClient(Client):
         '''
         Internal callback for handling subscription acknowledgement
         '''
-        if mid == self.dmSubscriptionMid: 
-            # Once Watson IoT acknowledges the DM subscriptions we are able to 
+        if mid == self.dmSubscriptionMid:
+            # Once Watson IoT acknowledges the DM subscriptions we are able to
             # process commands and responses from device management server
             self.subscriptionsAcknowledged.set()
             self.manage()
         else:
             self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
             if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
-        
-    
+
+
     def manage(self, lifetime=3600, supportDeviceActions=False, supportFirmwareActions=False):
         # TODO: throw an error, minimum lifetime this client will support is 1 hour, but for now set lifetime to infinite if it's invalid
         if lifetime < 3600:
@@ -774,19 +773,19 @@ def ParseConfigFile(configFilePath):
                 # Python 2.7 support
                 # https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
                 parms.readfp(f)
-        
+
         domain = parms.get(sectionHeader, "domain")
         organization = parms.get(sectionHeader, "org")
         deviceType = parms.get(sectionHeader, "type")
         deviceId = parms.get(sectionHeader, "id")
-        
+
         authMethod = parms.get(sectionHeader, "auth-method")
         authToken = parms.get(sectionHeader, "auth-token")
         cleanSession = parms.get(sectionHeader, "clean-session")
         port = parms.getint(sectionHeader, "port")
-    
+
     except IOError as e:
         reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
         raise ConfigurationException(reason)
-    
+
     return {'domain': domain, 'org': organization, 'type': deviceType, 'id': deviceId, 'auth-method': authMethod, 'auth-token': authToken, 'clean-session': cleanSession, 'port': int(port)}
