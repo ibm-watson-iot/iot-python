@@ -12,6 +12,7 @@
 #   Ben Bakowski
 #   Amit M Mangalvedkar
 #   Lokesh Haralakatta
+#   Ian Craggs - fix for #99
 # *****************************************************************************
 
 import sys
@@ -194,7 +195,8 @@ class AbstractClient:
             if mid in self._onPublishCallbacks:
                 midOnPublish = self._onPublishCallbacks.get(mid)
                 del self._onPublishCallbacks[mid]
-                midOnPublish()
+                if midOnPublish != None:
+                    midOnPublish()
             else:
                 # record the fact that paho callback has already come through so it can be called inline
                 # with the publish.
@@ -330,7 +332,7 @@ class HttpAbstractClient:
     def disconnect(self):
         # No-op with HTTP client (but makes it easy to switch between using http & mqtt clients in your code)
         pass
-        
+
     def getMessageEncoderModule(self, messageFormat):
         return self._messageEncoderModules[messageFormat]
 

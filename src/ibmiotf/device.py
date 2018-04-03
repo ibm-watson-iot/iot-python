@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,7 @@
 # Contributors:
 #   David Parker
 #   Lokesh Haralakatta
+#   Ian Craggs - fix for #99
 # *****************************************************************************
 
 import json
@@ -172,21 +173,20 @@ class Client(AbstractClient):
                 try:
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
                     if result[0] == paho.MQTT_ERR_SUCCESS:
-                        if on_publish is not None:
-                            self._messagesLock.acquire()
-                            if result[1] in self._onPublishCallbacks:
-                                # paho callback beat this thread so call callback inline now
-                                del self._onPublishCallbacks[result[1]]
+                        self._messagesLock.acquire()
+                        if result[1] in self._onPublishCallbacks:
+                            # paho callback beat this thread so call callback inline now
+                            del self._onPublishCallbacks[result[1]]
+                            if on_publish is not None:
                                 on_publish()
-                            else:
-                                # this thread beat paho callback so set up for call later
-                                self._onPublishCallbacks[result[1]] = on_publish
+                        else:
+                            # this thread beat paho callback so set up for call later
+                            self._onPublishCallbacks[result[1]] = on_publish
                         return True
                     else:
                         return False
                 finally:
-                    if on_publish is not None:
-                        self._messagesLock.release()
+                    self._messagesLock.release()
             else:
                 raise MissingMessageEncoderException(msgFormat)
 
@@ -922,12 +922,12 @@ def ParseConfigFile(configFilePath):
         organization = parms.get(sectionHeader, "org")
         deviceType = parms.get(sectionHeader, "type")
         deviceId = parms.get(sectionHeader, "id")
-        
+
         authMethod = parms.get(sectionHeader, "auth-method")
         authToken = parms.get(sectionHeader, "auth-token")
         cleanSession = parms.get(sectionHeader, "clean-session")
         port = parms.getint(sectionHeader, "port")
-        
+
     except IOError as e:
         reason = "Error reading device configuration file '%s' (%s)" % (configFilePath,e[1])
         raise ConfigurationException(reason)
