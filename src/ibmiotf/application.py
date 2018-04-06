@@ -169,6 +169,8 @@ class Client(ibmiotf.AbstractClient):
             self._options["port"] = 8883;
         if self._options["org"] == "quickstart":
             self._options["port"] = 1883;
+        if "transport" not in self._options:
+            self._options["transport"] = "tcp"
 
         ### REQUIRED ###
         if 'auth-key' not in self._options or self._options['auth-key'] is None:
@@ -200,7 +202,8 @@ class Client(ibmiotf.AbstractClient):
             password = password,
             logHandlers = logHandlers,
             cleanSession = self._options['clean-session'],
-            port = self._options['port']
+            port = self._options['port'],
+            transport = self._options['transport']
         )
 
         # Add handler for subscriptions
