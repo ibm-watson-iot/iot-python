@@ -142,14 +142,27 @@ class Client(AbstractClient):
         self.api = api.ApiClient({"org": self._options['org'], "auth-token": self._options['auth-token'], "auth-key": self.gatewayApiKey }, self.logger)
 
     '''
-    This is called after the client has received a CONNACK message from the broker in response to calling connect().
-    The parameter rc is an integer giving the return code:
-    0: Success
-    1: Refused - unacceptable protocol version
-    2: Refused - identifier rejected
-    3: Refused - server unavailable
-    4: Refused - bad user name or password
-    5: Refused - not authorised
+    Called when the broker responds to our connection request.
+
+        flags is a dict that contains response flags from the broker:
+
+        flags['session present']    This flag is useful for clients that
+                                    are using clean session set to 0 only.
+                                    If a client with clean session=0, that
+                                    reconnects to a broker that it has
+                                    previously connected to, this flag
+                                    indicates whether the broker still has
+                                    the session information for the client.
+                                    If 1, the session still exists.
+
+    The value of rc determines success or not:
+        0: Connection successful
+        1: Connection refused - incorrect protocol version
+        2: Connection refused - invalid client identifier
+        3: Connection refused - server unavailable
+        4: Connection refused - bad username or password
+        5: Connection refused - not authorised
+        6-255: Currently unused.
     '''
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -162,11 +175,18 @@ class Client(AbstractClient):
                     for subscription in self._subscriptions:
                         self.client.subscribe(subscription, qos=self._subscriptions[subscription])
                     self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
-
+        elif rc == 1:
+            self.logAndRaiseException(ConnectionException("Incorrect protocol version"))
+        elif rc == 2:
+            self.logAndRaiseException(ConnectionException("Invalid client identifier"))
+        elif rc == 3:
+            self.logAndRaiseException(ConnectionException("Server unavailable"))
+        elif rc == 4:
+            self.logAndRaiseException(ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))            )
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+            self.logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
 
 
     '''
