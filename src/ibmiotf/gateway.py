@@ -184,7 +184,7 @@ class Client(AbstractClient):
         if rc == 0:
             self.logger.info("Disonnected successfully: %s" % (self.clientId))
         else:
-            self.logAndRaiseException(ConnectionException("Unexpected disconnection: RC= %s" % (rc)))
+            self.logger.warning("Unexpected disconnection: %s (%s)" % (self.clientId, rc))
 
 
     '''
