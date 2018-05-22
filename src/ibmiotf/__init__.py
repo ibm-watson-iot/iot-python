@@ -38,7 +38,7 @@ class Message:
         self.timestamp = timestamp
 
 class AbstractClient:
-    def __init__(self, domain, organization, clientId, username, password, port=8883, logHandlers=None, cleanSession="true"):
+    def __init__(self, domain, organization, clientId, username, password, port=8883, logHandlers=None, cleanSession="true", transport="tcp"):
         self.organization = organization
         self.username = username
         self.password = password
@@ -93,7 +93,7 @@ class AbstractClient:
             self.logger.addHandler(rfh)
             self.logger.addHandler(ch)
 
-        self.client = paho.Client(self.clientId, clean_session=False if cleanSession == "false" else True)
+        self.client = paho.Client(self.clientId, transport=transport, clean_session=False if cleanSession == "false" else True)
 
         try:
             self.tlsVersion = ssl.PROTOCOL_TLSv1_2
