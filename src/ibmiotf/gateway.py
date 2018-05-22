@@ -35,7 +35,6 @@ except ImportError:
 
 COMMAND_RE = re.compile("iot-2/type/(.+)/id/(.+)/cmd/(.+)/fmt/(.+)")
 
-
 class Command:
     def __init__(self, pahoMessage, messageEncoderModules):
         result = COMMAND_RE.match(pahoMessage.topic)
@@ -54,6 +53,24 @@ class Command:
         else:
             raise InvalidEventException("Received command on invalid topic: %s" % (pahoMessage.topic))
 
+NOTIFY_RE = re.compile("iot-2/type/(.+)/id/(.+)/notify")
+
+class Notification:
+    def __init__(self, pahoMessage, messageEncoderModules):
+        result = NOTIFY_RE.match(pahoMessage.topic)
+        if result:
+            self.type = result.group(1)
+            self.id = result.group(2)
+            self.format = 'json'
+
+            if self.format in messageEncoderModules:
+                message = messageEncoderModules[self.format].decode(pahoMessage)
+                self.timestamp = message.timestamp
+                self.data = message.data
+            else:
+                raise MissingMessageDecoderException(self.format)
+        else:
+            raise InvalidEventException("Received notification on invalid topic: %s" % (pahoMessage.topic))
 
 class Client(AbstractClient):
 
@@ -77,6 +94,9 @@ class Client(AbstractClient):
 
         if self._options["org"] == "quickstart":
             self._options["port"] = 1883;
+
+        if "transport" not in self._options:
+            self._options["transport"] = "tcp"
 
         #Check for any missing required properties
         if self._options['org'] == None:
@@ -107,7 +127,8 @@ class Client(AbstractClient):
             username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
             password = self._options['auth-token'],
             logHandlers = logHandlers,
-            port = self._options['port']
+            port = self._options['port'],
+            transport = self._options['transport']
         )
 
         # Add handler for subscriptions
@@ -131,6 +152,7 @@ class Client(AbstractClient):
         self.notificationCallback = None
         self.subscriptionCallback = None
         self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
         self.setMessageEncoderModule('json', jsonCodec)
         self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
         self.setMessageEncoderModule('xml', xmlCodec)
@@ -142,14 +164,27 @@ class Client(AbstractClient):
         self.api = api.ApiClient({"org": self._options['org'], "auth-token": self._options['auth-token'], "auth-key": self.gatewayApiKey }, self.logger)
 
     '''
-    This is called after the client has received a CONNACK message from the broker in response to calling connect().
-    The parameter rc is an integer giving the return code:
-    0: Success
-    1: Refused - unacceptable protocol version
-    2: Refused - identifier rejected
-    3: Refused - server unavailable
-    4: Refused - bad user name or password
-    5: Refused - not authorised
+    Called when the broker responds to our connection request.
+
+        flags is a dict that contains response flags from the broker:
+
+        flags['session present']    This flag is useful for clients that
+                                    are using clean session set to 0 only.
+                                    If a client with clean session=0, that
+                                    reconnects to a broker that it has
+                                    previously connected to, this flag
+                                    indicates whether the broker still has
+                                    the session information for the client.
+                                    If 1, the session still exists.
+
+    The value of rc determines success or not:
+        0: Connection successful
+        1: Connection refused - incorrect protocol version
+        2: Connection refused - invalid client identifier
+        3: Connection refused - server unavailable
+        4: Connection refused - bad username or password
+        5: Connection refused - not authorised
+        6-255: Currently unused.
     '''
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -162,11 +197,35 @@ class Client(AbstractClient):
                     for subscription in self._subscriptions:
                         self.client.subscribe(subscription, qos=self._subscriptions[subscription])
                     self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
-
+        elif rc == 1:
+            self.logAndRaiseException(ConnectionException("Incorrect protocol version"))
+        elif rc == 2:
+            self.logAndRaiseException(ConnectionException("Invalid client identifier"))
+        elif rc == 3:
+            self.logAndRaiseException(ConnectionException("Server unavailable"))
+        elif rc == 4:
+            self.logAndRaiseException(ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))            )
         elif rc == 5:
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+            self.logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
+
+
+    '''
+    Called when the client disconnects from the broker.  The rc parameter indicates the disconnection state.  If
+    MQTT_ERR_SUCCESS (0), the callback was called in response to a disconnect() call. If any other value the
+    disconnection was unexpected, such as might be caused by a network error.
+    '''
+    def on_disconnect(self, client, userdata, rc):
+        super(Client, self).on_disconnect(client, userdata, rc)
+
+        # Clear the event to indicate we're no longer connected
+        self.connectEvent.clear()
+
+        if rc == 0:
+            self.logger.info("Disonnected successfully: %s" % (self.clientId))
+        else:
+            self.logger.warning("Unexpected disconnection: %s (%s)" % (self.clientId, rc))
 
 
     '''
@@ -368,12 +427,12 @@ class Client(AbstractClient):
         with self._recvLock:
             self.recv = self.recv + 1
         try:
-            command = Command(pahoMessage, self._messageEncoderModules)
+            note = Notification(pahoMessage, self._messageEncoderModules)
         except InvalidEventException as e:
             self.logger.critical(str(e))
         else:
-            self.logger.debug("Received Notification '%s'" % (command.command))
-            if self.notificationCallback: self.notificationCallback(command)
+            self.logger.debug("Received Notification")
+            if self.notificationCallback: self.notificationCallback(note)
 
 
 
