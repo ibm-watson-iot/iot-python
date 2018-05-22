@@ -169,18 +169,28 @@ class AbstractClient:
         self.logger.debug("Messages received  : %s, life: %.0fs, rate: 1/%.2fs" % (self.recv, elapsed, recvPerSecond))
 
 
+    '''
+    Called when the client has log information.  The level variable gives the severity of the message and will be one of:
+     - MQTT_LOG_INFO
+     - MQTT_LOG_NOTICE
+     - MQTT_LOG_WARNING
+     - MQTT_LOG_ERR
+     - MQTT_LOG_DEBUG
+    The message itself is in string.
+    '''
     def on_log(self, mqttc, obj, level, string):
-        self.logger.debug("%s" % (string))
+        self.logger.debug("%d %s" % (level, string))
 
 
 
     '''
-    This is called when the client disconnects from the broker. The rc parameter indicates the status of the disconnection.
-    When 0 the disconnection was the result of disconnect() being called, when 1 the disconnection was unexpected.
+    Called when the client disconnects from the broker.  The rc parameter indicates the disconnection state.
+    If MQTT_ERR_SUCCESS (0), the callback was called in response to a disconnect() call. If any other value
+    the disconnection was unexpected, such as might be caused by a network error.
     '''
     def on_disconnect(self, mosq, obj, rc):
-        if rc == 1:
-            self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform")
+        if rc != 0:
+            self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform: %d" % (rc))
         else:
             self.logger.info("Disconnected from the IBM Watson IoT Platform")
         self.stats()
