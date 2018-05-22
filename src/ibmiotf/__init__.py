@@ -30,14 +30,46 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.3.4"
+__version__ = "0.3.5"
+
 
 class Message:
+    """
+    Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.
+    
+    # Parameters
+    data (dict): The message payload
+    timestamp (datetime): Timestamp intended to denote the time the message was sent, 
+        or `None` if this information is not available. 
+    
+    """
+    
     def __init__(self, data, timestamp=None):
         self.data = data
         self.timestamp = timestamp
 
+
 class AbstractClient:
+    """
+    Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.
+    
+    # Parameters
+    domain (string): Domain denoting the instance of IBM Watson IoT Platform to connect to
+    organization (string): IBM Watson IoT Platform organization ID to connect to
+    clientId (string): MQTT clientId for the underlying Paho client
+    username (string): MQTT username for the underlying Paho client
+    password (string): MQTT password for the underlying Paho client
+    port (int): MQTT port for the underlying Paho client to connect using.  Defaults to `8883`
+    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
+        which will result in a default log handler being created.
+    cleanSession (string): Defaults to `true`.  Although this is a true|false parameter, 
+        it is being handled as a string for some reason
+    transport (string): Defaults to `tcp`
+    
+    # Attributes
+    client (paho.mqtt.client.Client): Built-in Paho MQTT client handling connectivity for the client.
+    logger (logging.logger): Client logger.
+    """
     def __init__(self, domain, organization, clientId, username, password, port=8883, logHandlers=None, cleanSession="true", transport="tcp"):
         self.organization = organization
         self.username = username
@@ -128,17 +160,50 @@ class AbstractClient:
 
 
     def getMessageEncoderModule(self, messageFormat):
+        """
+        Get the Python module that is currently defined as the encoder/decoder for a specified message format.
+        
+        # Arguments
+        messageFormat (string): The message format to retrieve the encoder for
+        
+        # Returns
+        Boolean: The python module, or `None` if there is no codec defined for the `messageFormat`
+        """
+        if messageFormat not in self._messageEncoderModules:
+            return None
         return self._messageEncoderModules[messageFormat]
 
+
     def setMessageEncoderModule(self, messageFormat, module):
+        """
+        Set a Python module as the encoder/decoder for a specified message format.
+        
+        # Arguments
+        messageFormat (string): The message format to retreive the encoder for
+        module (module): The Python module to set as the encoder/decoder for `messageFormat`
+        """
         self._messageEncoderModules[messageFormat] = module
 
+
     def logAndRaiseException(self, e):
+        """
+        Logs an exception at log level `critical` before raising it.
+        
+        # Arguments
+        e (Exception): The exception to log/raise
+        """
         self.logger.critical(str(e))
         raise e
 
+
     def connect(self):
-        self.logger.debug("Connecting... (address = %s, port = %s, clientId = %s, username = %s, password = %s)" % (self.address, self.port, self.clientId, self.username, self.password))
+        """
+        Connect the client to IBM Watson IoT Platform using the underlying Paho MQTT client
+        
+        # Raises
+        ConnectionException: If there is a problem establishing the connection.
+        """
+        self.logger.debug("Connecting... (address = %s, port = %s, clientId = %s, username = %s)" % (self.address, self.port, self.clientId, self.username))
         try:
             self.connectEvent.clear()
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
@@ -151,7 +216,11 @@ class AbstractClient:
             self.client.loop_stop()
             self.logAndRaiseException(ConnectionException("Failed to connect to IBM Watson IoT Platform: %s - %s" % (self.address, str(serr))))
 
+
     def disconnect(self):
+        """
+        Disconnect the client from IBM Watson IoT Platform
+        """
         #self.logger.info("Closing connection to the IBM Watson IoT Platform")
         self.client.disconnect()
         # If we don't call loop_stop() it appears we end up with a zombie thread which continues to process
@@ -160,7 +229,13 @@ class AbstractClient:
         #self.stats()
         self.logger.info("Closed connection to the IBM Watson IoT Platform")
 
+
     def stats(self):
+        """
+        I think we killed the use of this and this is dead code
+        
+        TODO: clean all this up .. should we really be tracking these stats within the client itself in the first place?
+        """
         elapsed = ((time.time()) - self.start)
 
         msgPerSecond = 0 if self.messages == 0 else elapsed/self.messages
@@ -169,26 +244,35 @@ class AbstractClient:
         self.logger.debug("Messages received  : %s, life: %.0fs, rate: 1/%.2fs" % (self.recv, elapsed, recvPerSecond))
 
 
-    '''
-    Called when the client has log information.  The level variable gives the severity of the message and will be one of:
-     - MQTT_LOG_INFO
-     - MQTT_LOG_NOTICE
-     - MQTT_LOG_WARNING
-     - MQTT_LOG_ERR
-     - MQTT_LOG_DEBUG
-    The message itself is in string.
-    '''
     def on_log(self, mqttc, obj, level, string):
+        """
+        Called when the client has log information.  
+        
+        # Parameters
+        mqttc (paho.mqtt.client.Client): The client instance for this callback
+        obj (?): The private user data as set in Client() or user_data_set()
+        level (int): The severity of the message, will be one of `MQTT_LOG_INFO`, 
+            `MQTT_LOG_NOTICE`, `MQTT_LOG_WARNING`, `MQTT_LOG_ERR`, and `MQTT_LOG_DEBUG`.
+        string (string): The log message itself
+        
+        See https://github.com/eclipse/paho.mqtt.python#on_log for more information
+        """
         self.logger.debug("%d %s" % (level, string))
 
 
-
-    '''
-    Called when the client disconnects from the broker.  The rc parameter indicates the disconnection state.
-    If MQTT_ERR_SUCCESS (0), the callback was called in response to a disconnect() call. If any other value
-    the disconnection was unexpected, such as might be caused by a network error.
-    '''
-    def on_disconnect(self, mosq, obj, rc):
+    def on_disconnect(self, mqttc, obj, rc):
+        """
+        Called when the client disconnects from IBM Watson IoT Platform.  
+        
+        # Parameters
+        mqttc (paho.mqtt.client.Client): The client instance for this callback
+        obj (?): The private user data as set in Client() or user_data_set()
+        rc (int): indicates the disconnection state.  If `MQTT_ERR_SUCCESS` (0), the callback was 
+            called in response to a `disconnect()` call. If any other value the disconnection was 
+            unexpected, such as might be caused by a network error.
+        
+        See https://github.com/eclipse/paho.mqtt.python#on_disconnect for more information
+        """
         if rc != 0:
             self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform: %d" % (rc))
         else:
@@ -300,6 +384,7 @@ class APIException(Exception):
 
     def __str__(self):
         return "[%s] %s" % (self.httpCode, self.message)
+
 
 class HttpAbstractClient:
     def __init__(self, clientId, logHandlers=None):
