@@ -13,6 +13,7 @@
 import ibmiotf.gateway
 import ibmiotf.application
 import uuid
+import time
 from ibmiotf import *
 from nose.tools import *
 from nose import SkipTest
@@ -58,6 +59,7 @@ class TestGateway(testUtils.AbstractTest):
             "auth-method": "token",
             "auth-token": self.registeredGateway["authToken"]
         }
+        
         
 
     @classmethod
@@ -128,11 +130,17 @@ class TestGateway(testUtils.AbstractTest):
         assert_equal(e.exception, AttributeError)
 
     def testNotAuthorizedConnect(self):
+        # Delay 5 seconds so that the gateway is active before we try to connect
+        time.sleep(5)
+
         client = ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": "MGxxx3g7Yjt-6keG(l", "auth-key":"a-xxxxxx-s1tsofmoxo"})
         with assert_raises(ConnectionException) as e:
             client.connect()
 
     def testMissingMessageEncoder(self):
+        # Delay 5 seconds so that the gateway is active before we try to connect
+        time.sleep(5)
+        
         gatewayClient = ibmiotf.gateway.Client(self.options)
         gatewayClient.connect()
 
@@ -141,6 +149,9 @@ class TestGateway(testUtils.AbstractTest):
             gatewayClient.publishDeviceEvent(self.registeredGateway["typeId"],self.registeredGateway["deviceId"],"missingMsgEncode", "jason", myData)
 
     def testMissingMessageEncoderWithPublishGatewayEvent(self):
+        # Delay 5 seconds so that the gateway is active before we try to connect
+        time.sleep(5)
+        
         gatewayClient = ibmiotf.gateway.Client(self.options)
         gatewayClient.connect()
 
@@ -149,6 +160,9 @@ class TestGateway(testUtils.AbstractTest):
             gatewayClient.publishGatewayEvent("missingMsgEncode", "jason", myData)
 
     def testGatewayPubSubMethods(self):
+        # Delay 5 seconds so that the gateway is active before we try to connect
+        time.sleep(5)
+        
         gatewayClient = ibmiotf.gateway.Client(self.options)
         gatewayClient.connect()
 
@@ -168,6 +182,9 @@ class TestGateway(testUtils.AbstractTest):
         gatewayClient.disconnect()
 
     def testGatewayPubSubMethodsInQSMode(self):
+        # Delay 5 seconds so that the gateway is active before we try to connect
+        time.sleep(5)
+        
         gatewayClient = ibmiotf.gateway.Client({"org": "quickstart", "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"None", "auth-token":"None" })
         gatewayClient.connect()
 
@@ -228,6 +245,8 @@ class TestGateway(testUtils.AbstractTest):
         appClient.disconnect()
         gatewayClient.disconnect()
 
+    @SkipTest
+    # This can be enabled once platform update 102 is released and fixes a bug in the gateway device registration
     def testGatewayApiClientSupport(self):
         gatewayClient = ibmiotf.gateway.Client(self.options)
         assert_is_instance(gatewayClient.api, ibmiotf.api.ApiClient)
@@ -238,6 +257,8 @@ class TestGateway(testUtils.AbstractTest):
         
         assert_equal(addResult['typeId'], self.DEVICE_TYPE)
         assert_equal(addResult['deviceId'], newDeviceId)
-
+        
+        time.sleep(5)
+        
         #Remove the added device
         gatewayClient.api.deleteDevice(self.DEVICE_TYPE, newDeviceId)

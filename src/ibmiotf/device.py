@@ -39,6 +39,16 @@ COMMAND_RE = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
 
 
 class Command:
+    """
+    Represents a command sent to a device.
+    
+    # Parameters
+    pahoMessage (?): ?
+    messageEncoderModules (dict): Dictionary of Python modules, keyed to the message format the module should use. 
+    
+    # Raises
+    InvalidEventException: 
+    """
     def __init__(self, pahoMessage, messageEncoderModules):
         result = COMMAND_RE.match(pahoMessage.topic)
         if result:
@@ -105,15 +115,15 @@ class Client(AbstractClient):
 
         AbstractClient.__init__(
             self,
-            domain=self._options['domain'],
-            organization=self._options['org'],
-            clientId="d:{org}:{type}:{id}".format(self._options),
-            username="use-token-auth" if (self._options['auth-method'] == "token") else None,
-            password=self._options['auth-token'],
-            logHandlers=logHandlers,
-            cleanSession=self._options['clean-session'],
-            port=self._options['port'],
-            transport=self._options['transport']
+            domain = self._options['domain'],
+            organization = self._options['org'],
+            clientId = "d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
+            username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
+            password = self._options['auth-token'],
+            logHandlers = logHandlers,
+            cleanSession = self._options['clean-session'],
+            port = self._options['port'],
+            transport = self._options['transport']
         )
 
         # Add handler for commands if not connected to QuickStart
@@ -278,7 +288,7 @@ class HttpClient(HttpAbstractClient):
 
         HttpAbstractClient.__init__(
             self,
-            clientId="d:{org}:{type}:{id}".format(self._options),
+            clientId="d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
             logHandlers=logHandlers
         )
 
