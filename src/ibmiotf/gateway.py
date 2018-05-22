@@ -152,6 +152,7 @@ class Client(AbstractClient):
         self.notificationCallback = None
         self.subscriptionCallback = None
         self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
         self.setMessageEncoderModule('json', jsonCodec)
         self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
         self.setMessageEncoderModule('xml', xmlCodec)
@@ -208,6 +209,23 @@ class Client(AbstractClient):
             self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
             self.logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
+
+
+    '''
+    Called when the client disconnects from the broker.  The rc parameter indicates the disconnection state.  If
+    MQTT_ERR_SUCCESS (0), the callback was called in response to a disconnect() call. If any other value the
+    disconnection was unexpected, such as might be caused by a network error.
+    '''
+    def on_disconnect(self, client, userdata, rc):
+        super(Client, self).on_disconnect(client, userdata, rc)
+
+        # Clear the event to indicate we're no longer connected
+        self.connectEvent.clear()
+
+        if rc == 0:
+            self.logger.info("Disonnected successfully: %s" % (self.clientId))
+        else:
+            self.logger.warning("Unexpected disconnection: %s (%s)" % (self.clientId, rc))
 
 
     '''
