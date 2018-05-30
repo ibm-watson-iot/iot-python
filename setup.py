@@ -6,6 +6,24 @@ try:
 except ImportError:
     from distutils.core import setup
 
+# =============================================================================
+# Convert README.md to README.rst for pypi
+# Need to install both pypandoc and pandoc 
+# - pip insall pypandoc
+# - https://pandoc.org/installing.html
+# =============================================================================
+try:
+    from pypandoc import convert
+
+    def read_md(f):
+        return convert(f, 'rst')
+except:
+    print('Warning: pypandoc module not found, unable to convert README.md to RST')
+    print('Unless you are packaging this module for distribution you can ignore this error')
+
+    def read_md(f):
+        return "Python Client for IBM Watson IoT Platform"
+
 setup(
     name='ibmiotf',
     version="0.3.5",
@@ -17,7 +35,7 @@ setup(
     url='https://github.com/ibm-watson-iot/iot-python',
     license=open('LICENSE').read(),
     description='Python Client for IBM Watson IoT Platform',
-    long_description=open('README.rst').read(),
+    long_description=read_md('README.md'),
     install_requires=[
         "iso8601 >= 0.1.12",
         "paho-mqtt >= 1.3.1",

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  <link rel="shortcut icon" href="./img/favicon.ico">
+  <title>Home - IBM Watson IoT Platform Python Library</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = "/";
+  </script>
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> IBM Watson IoT Platform Python Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#python-for-ibm-watson-iot-platform">Python for IBM Watson IoT Platform</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#dependencies">Dependencies</a></li>
+        
+            <li><a class="toctree-l3" href="#installation">Installation</a></li>
+        
+            <li><a class="toctree-l3" href="#uninstall">Uninstall</a></li>
+        
+            <li><a class="toctree-l3" href="#documentation">Documentation</a></li>
+        
+            <li><a class="toctree-l3" href="#supported-features">Supported Features</a></li>
+        
+            <li><a class="toctree-l3" href="#unsupported-features">Unsupported Features</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="docs/ibmiotf/">Base Classes</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="docs/exceptions/">Exceptions</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf.device</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="docs/device/">Client</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">IBM Watson IoT Platform Python Library</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="python-for-ibm-watson-iot-platform">Python for IBM Watson IoT Platform</h1>
+<p>Python module for interacting with the <a href="https://internetofthings.ibmcloud.com">IBM Watson IoT Platform</a>.</p>
+<ul>
+<li><a href="https://www.python.org/downloads/release/python-360/">Python 3.6</a></li>
+<li><a href="https://www.python.org/downloads/release/python-2713/">Python 2.7</a></li>
+</ul>
+<p>Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and openssl v1.0.1</p>
+<h2 id="dependencies">Dependencies</h2>
+<ul>
+<li><a href="https://pypi.python.org/pypi/paho-mqtt">paho-mqtt</a></li>
+<li><a href="https://pypi.python.org/pypi/iso8601">iso8601</a></li>
+<li><a href="https://pypi.python.org/pypi/pytz">pytz</a></li>
+<li><a href="https://pypi.python.org/pypi/requests">requests</a></li>
+<li><a href="https://pypi.python.org/pypi/requests_toolbelt">requests_toolbelt</a></li>
+<li><a href="https://pypi.python.org/pypi/dicttoxml">dicttoxml</a></li>
+<li><a href="https://pypi.python.org/pypi/xmltodict">xmltodict</a></li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Install the latest version of the library with pip</p>
+<pre><code># pip install ibmiotf
+</code></pre>
+
+<h2 id="uninstall">Uninstall</h2>
+<p>Uninstalling the module is simple.</p>
+<pre><code># pip uninstall ibmiotf
+</code></pre>
+
+<h2 id="documentation">Documentation</h2>
+<p>Documentation for the library is now located inside Bluemix:</p>
+<ul>
+<li><a href="https://console.ng.bluemix.net/docs/services/IoT/applications/libraries/python.html">Application Developers</a></li>
+<li><a href="https://console.ng.bluemix.net/docs/services/IoT/devices/libraries/python.html">Device Developers</a></li>
+</ul>
+<h2 id="supported-features">Supported Features</h2>
+<ul>
+<li><strong>Device Connectivity</strong>: Connect your device(s) to Watson IoT Platform with ease using this library</li>
+<li><strong>Gateway Connectivity</strong>: Connect your gateway(s) to Watson IoT Platform with ease using this library</li>
+<li><strong>Application connectivity</strong>: Connect your application(s) to Watson IoT Platform with ease using this library</li>
+<li><strong>Watson IoT API</strong>: Support for the interacting with the Watson IoT Platform through REST APIs</li>
+<li><strong>SSL/TLS</strong>: By default, this library connects your devices, gateways and applications securely to Watson IoT Platform registered service. Ports <code>8883</code> (default) and <code>443</code> support secure connections using TLS with the MQTT and HTTP protocol. Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and openssl v1.0.1</li>
+<li><strong>Device Management for Device</strong>: Connects your device(s) as managed device(s) to Watson IoT Platform.</li>
+<li><strong>Device Management for Gateway</strong>: Connects your gateway(s) as managed device(s) to Watson IoT Platform.</li>
+<li><strong>Device Management Extensions</strong>: Provides support for custom device management actions.</li>
+<li><strong>Scalable Applications</strong>: Supports load balancing of MQTT subscriptions over multiple application instances.</li>
+<li><strong>Auto Reconnect</strong>: All clients support automatic reconnect to the Platform in the event of a network interruption.</li>
+<li><strong>Event/Command publish</strong>: Offers a pure HTTP client supporting messaging over HTTP in addition to the full features client that utilizes HTTP and MQTT technologies as appropriate </li>
+<li><strong>Data Format Support</strong>: JSON, XML, &amp; user-defined.</li>
+</ul>
+<h2 id="unsupported-features">Unsupported Features</h2>
+<ul>
+<li><strong>Client side Certificate based authentication</strong>: <a href="https://console.ng.bluemix.net/docs/services/IoT/reference/security/RM_security.html">Client side Certificate based authentication</a>n</li>
+<li><strong>Websockets</strong>: Support device/gateway/application connectivity to Watson IoT Platform using WebSocket</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="docs/ibmiotf/" class="btn btn-neutral float-right" title="Base Classes">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="docs/ibmiotf/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="./js/theme.js"></script>
+      <script src="./search/require.js"></script>
+      <script src="./search/search.js"></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 0.17.3
+Build Date UTC : 2018-05-30 15:25:42
+-->
