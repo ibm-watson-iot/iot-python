@@ -22,7 +22,7 @@ except:
     print('Unless you are packaging this module for distribution you can ignore this error')
 
     def read_md(f):
-        return open(f, 'rb').read().decode(encoding='utf-8')
+        return "Python Client for IBM Watson IoT Platform"
 
 setup(
     name='ibmiotf',
