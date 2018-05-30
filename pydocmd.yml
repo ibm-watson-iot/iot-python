@@ -7,17 +7,25 @@ site_name: "IBM Watson IoT Platform Python Library"
 # is a tree of Python member names (modules, classes, etc.) that should be
 # documented. Higher indentation leads to smaller header size.
 generate:
-- docs/ibmiotf.md:
+- docs/abstractClient.md:
   - ibmiotf.AbstractClient++     # (+ to include members)
+- docs/httpAbstractClient.md:
   - ibmiotf.HttpAbstractClient++
+- docs/message.md:
   - ibmiotf.Message++
-- docs/exceptions.md:
+- docs/exceptions/connect.md:
   - ibmiotf.ConnectionException
+- docs/exceptions/config.md:
   - ibmiotf.ConfigurationException
+- docs/exceptions/auth.md:
   - ibmiotf.UnsupportedAuthenticationMethod
+- docs/exceptions/invalidEvent.md:
   - ibmiotf.InvalidEventException
+- docs/exceptions/missingDecoder.md:
   - ibmiotf.MissingMessageDecoderException
+- docs/exceptions/missingEncoder.md:
   - ibmiotf.MissingMessageEncoderException
+- docs/exceptions/api.md:
   - ibmiotf.APIException
 - docs/device.md:
   - ibmiotf.device
@@ -34,8 +42,16 @@ generate:
 pages:
 - Home: index.md << ./README.md
 - ibmiotf:
-  - Base Classes: docs/ibmiotf.md
-  - Exceptions: docs/exceptions.md
+  - abstractClient: docs/abstractClient.md
+  - httpAbstractClient: docs/httpAbstractClient.md
+  - message: docs/message.md
+  - ConnectionException: docs/exceptions/connect.md
+  - ConfigurationException: docs/exceptions/config.md
+  - UnsupportedAuthenticationMethod: docs/exceptions/auth.md
+  - InvalidEventException: docs/exceptions/invalidEvent.md
+  - MissingMessageDecoderException: docs/exceptions/missingDecoder.md
+  - MissingMessageEncoderException: docs/exceptions/missingEncoder.md
+  - APIException: docs/exceptions/api.md
 - ibmiotf.device:
   - Client: docs/device.md
 

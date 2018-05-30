@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Exceptions - IBM Watson IoT Platform Python Library</title>
+  <title>message - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Exceptions";
-    var mkdocs_page_input_path = "docs\\exceptions.md";
-    var mkdocs_page_url = "/docs/exceptions/";
+    var mkdocs_page_name = "message";
+    var mkdocs_page_input_path = "docs\\message.md";
+    var mkdocs_page_url = "/docs/message/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -58,14 +58,46 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../ibmiotf/">Base Classes</a>
+    <a class="" href="../abstractClient/">abstractClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../httpAbstractClient/">httpAbstractClient</a>
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">Exceptions</a>
+    <a class="current" href="./">message</a>
     <ul class="subnav">
             
     </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/connect/">ConnectionException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/config/">ConfigurationException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/auth/">UnsupportedAuthenticationMethod</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/invalidEvent/">InvalidEventException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/missingDecoder/">MissingMessageDecoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/missingEncoder/">MissingMessageEncoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/api/">APIException</a>
                 </li>
     </ul>
 	    </li>
@@ -107,7 +139,7 @@
         
       
     
-    <li>Exceptions</li>
+    <li>message</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -117,51 +149,18 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="ibmiotf.ConnectionException">ConnectionException</h1>
+                <h1 id="ibmiotf.Message">Message</h1>
 
-<pre><code class="python">ConnectionException(self, reason)
+<pre><code class="python">Message(self, data, timestamp=None)
 </code></pre>
 
-<p>Generic Connection exception "Something went wrong"</p>
-<h1 id="ibmiotf.ConfigurationException">ConfigurationException</h1>
-
-<pre><code class="python">ConfigurationException(self, reason)
-</code></pre>
-
-<p>Specific Connection exception where the configuration is invalid</p>
-<h1 id="ibmiotf.UnsupportedAuthenticationMethod">UnsupportedAuthenticationMethod</h1>
-
-<pre><code class="python">UnsupportedAuthenticationMethod(self, method)
-</code></pre>
-
-<p>Specific Connection exception where the authentication method specified is not supported</p>
-<h1 id="ibmiotf.InvalidEventException">InvalidEventException</h1>
-
-<pre><code class="python">InvalidEventException(self, reason)
-</code></pre>
-
-<p>Specific exception where and Event object can not be constructed</p>
-<h1 id="ibmiotf.MissingMessageDecoderException">MissingMessageDecoderException</h1>
-
-<pre><code class="python">MissingMessageDecoderException(self, format)
-</code></pre>
-
-<p>Specific exception where there is no message decoder defined for the message format being processed</p>
-<h1 id="ibmiotf.MissingMessageEncoderException">MissingMessageEncoderException</h1>
-
-<pre><code class="python">MissingMessageEncoderException(self, format)
-</code></pre>
-
-<p>Specific exception where there is no message encoder defined for the message format being processed</p>
-<h1 id="ibmiotf.APIException">APIException</h1>
-
-<pre><code class="python">APIException(self, httpCode, message, response)
-</code></pre>
-
-<p>Exception raised when any API call fails
-1 The exact HTTP Status Code
-2 The error thrown
-3 The JSON message returned</p>
+<p>Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>data (dict)</strong>: The message payload</li>
+<li><strong>timestamp (datetime)</strong>: Timestamp intended to denote the time the message was sent,
+    or <code>None</code> if this information is not available.</li>
+</ul>
               
             </div>
           </div>
@@ -169,10 +168,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../device/" class="btn btn-neutral float-right" title="Client">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../exceptions/connect/" class="btn btn-neutral float-right" title="ConnectionException">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../ibmiotf/" class="btn btn-neutral" title="Base Classes"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../httpAbstractClient/" class="btn btn-neutral" title="httpAbstractClient"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -198,10 +197,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../ibmiotf/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../httpAbstractClient/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../device/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../exceptions/connect/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Base Classes - IBM Watson IoT Platform Python Library</title>
+  <title>abstractClient - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Base Classes";
-    var mkdocs_page_input_path = "docs\\ibmiotf.md";
-    var mkdocs_page_url = "/docs/ibmiotf/";
+    var mkdocs_page_name = "abstractClient";
+    var mkdocs_page_input_path = "docs\\abstractClient.md";
+    var mkdocs_page_url = "/docs/abstractClient/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -58,14 +58,46 @@
     <ul class="subnav">
                 <li class=" current">
                     
-    <a class="current" href="./">Base Classes</a>
+    <a class="current" href="./">abstractClient</a>
     <ul class="subnav">
             
     </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../exceptions/">Exceptions</a>
+    <a class="" href="../httpAbstractClient/">httpAbstractClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../message/">message</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/connect/">ConnectionException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/config/">ConfigurationException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/auth/">UnsupportedAuthenticationMethod</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/invalidEvent/">InvalidEventException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/missingDecoder/">MissingMessageDecoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/missingEncoder/">MissingMessageEncoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/api/">APIException</a>
                 </li>
     </ul>
 	    </li>
@@ -107,7 +139,7 @@
         
       
     
-    <li>Base Classes</li>
+    <li>abstractClient</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -269,32 +301,6 @@ also billable as part of your data transfer to/from the Platform.</p>
 <p><strong>See https</strong>://github.com/eclipse/paho.mqtt.python#on_log for more information</p>
 </li>
 </ul>
-<h1 id="ibmiotf.HttpAbstractClient">HttpAbstractClient</h1>
-
-<pre><code class="python">HttpAbstractClient(self, clientId, logHandlers=None)
-</code></pre>
-
-<p>Base client class restricted to HTTP only.  Unless for some technical reason
-you are unable to use the full MQTT-enable client there really is no need to
-use this alternative feature-limited client.</p>
-<h2 id="ibmiotf.HttpAbstractClient.getContentType">getContentType</h2>
-
-<pre><code class="python">HttpAbstractClient.getContentType(self, dataFormat)
-</code></pre>
-
-<p>Method to detect content type using given data format</p>
-<h1 id="ibmiotf.Message">Message</h1>
-
-<pre><code class="python">Message(self, data, timestamp=None)
-</code></pre>
-
-<p>Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><strong>data (dict)</strong>: The message payload</li>
-<li><strong>timestamp (datetime)</strong>: Timestamp intended to denote the time the message was sent,
-    or <code>None</code> if this information is not available.</li>
-</ul>
               
             </div>
           </div>
@@ -302,7 +308,7 @@ use this alternative feature-limited client.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../exceptions/" class="btn btn-neutral float-right" title="Exceptions">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../httpAbstractClient/" class="btn btn-neutral float-right" title="httpAbstractClient">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../.." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -334,7 +340,7 @@ use this alternative feature-limited client.</p>
         <span><a href="../.." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../exceptions/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../httpAbstractClient/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -12,13 +12,61 @@
     
         
     <url>
-     <loc>/docs/ibmiotf/</loc>
+     <loc>/docs/abstractClient/</loc>
      <lastmod>2018-05-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>/docs/exceptions/</loc>
+     <loc>/docs/httpAbstractClient/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/message/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/connect/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/config/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/auth/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/invalidEvent/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/missingDecoder/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/missingEncoder/</loc>
+     <lastmod>2018-05-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/docs/exceptions/api/</loc>
      <lastmod>2018-05-30</lastmod>
      <changefreq>daily</changefreq>
     </url>

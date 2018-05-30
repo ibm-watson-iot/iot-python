@@ -7,17 +7,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  <link rel="shortcut icon" href="/img/favicon.ico">
-  <title>IBM Watson IoT Platform Python Library</title>
+  <link rel="shortcut icon" href="../../../img/favicon.ico">
+  <title>ConnectionException - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="/css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="/css/highlight.css">
+  <link rel="stylesheet" href="../../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../../css/highlight.css">
   
-  <script src="/js/jquery-2.1.1.min.js"></script>
-  <script src="/js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="/js/highlight.pack.js"></script> 
+  <script>
+    // Current page data
+    var mkdocs_page_name = "ConnectionException";
+    var mkdocs_page_input_path = "docs\\exceptions\\connect.md";
+    var mkdocs_page_url = "/docs/exceptions/connect/";
+  </script>
+  
+  <script src="../../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../../js/highlight.pack.js"></script> 
   
 </head>
 
@@ -28,9 +35,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="/" class="icon icon-home"> IBM Watson IoT Platform Python Library</a>
+        <a href="../../.." class="icon icon-home"> IBM Watson IoT Platform Python Library</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="/search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
   </form>
 </div>
@@ -42,7 +49,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="/">Home</a>
+    <a class="" href="../../..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -51,43 +58,46 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="/docs/abstractClient/">abstractClient</a>
+    <a class="" href="../../abstractClient/">abstractClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/httpAbstractClient/">httpAbstractClient</a>
+    <a class="" href="../../httpAbstractClient/">httpAbstractClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/message/">message</a>
+    <a class="" href="../../message/">message</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">ConnectionException</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/exceptions/connect/">ConnectionException</a>
+    <a class="" href="../config/">ConfigurationException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/exceptions/config/">ConfigurationException</a>
+    <a class="" href="../auth/">UnsupportedAuthenticationMethod</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/exceptions/auth/">UnsupportedAuthenticationMethod</a>
+    <a class="" href="../invalidEvent/">InvalidEventException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/exceptions/invalidEvent/">InvalidEventException</a>
+    <a class="" href="../missingDecoder/">MissingMessageDecoderException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/exceptions/missingDecoder/">MissingMessageDecoderException</a>
+    <a class="" href="../missingEncoder/">MissingMessageEncoderException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/docs/exceptions/missingEncoder/">MissingMessageEncoderException</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="/docs/exceptions/api/">APIException</a>
+    <a class="" href="../api/">APIException</a>
                 </li>
     </ul>
 	    </li>
@@ -98,7 +108,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="/docs/device/">Client</a>
+    <a class="" href="../../device/">Client</a>
                 </li>
     </ul>
 	    </li>
@@ -113,7 +123,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="/">IBM Watson IoT Platform Python Library</a>
+        <a href="../../..">IBM Watson IoT Platform Python Library</a>
       </nav>
 
       
@@ -121,9 +131,15 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="/">Docs</a> &raquo;</li>
+    <li><a href="../../..">Docs</a> &raquo;</li>
     
+      
+        
+          <li>ibmiotf &raquo;</li>
+        
+      
     
+    <li>ConnectionException</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -133,15 +149,25 @@
           <div role="main">
             <div class="section">
               
+                <h1 id="ibmiotf.ConnectionException">ConnectionException</h1>
 
-  <h1 id="404-page-not-found">404</h1>
+<pre><code class="python">ConnectionException(self, reason)
+</code></pre>
 
-  <p><strong>Page not found</strong></p>
-
-
+<p>Generic Connection exception "Something went wrong"</p>
+              
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../config/" class="btn btn-neutral float-right" title="ConfigurationException">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../message/" class="btn btn-neutral" title="message"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -165,13 +191,17 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../../message/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../config/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
-    <script>var base_url = '';</script>
-    <script src="/js/theme.js"></script>
-      <script src="/search/require.js"></script>
-      <script src="/search/search.js"></script>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/require.js"></script>
+      <script src="../../../search/search.js"></script>
 
 </body>
 </html>
