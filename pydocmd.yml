@@ -1,3 +1,5 @@
+# To generate documentation: pydocmd build
+
 site_name: "IBM Watson IoT Platform Python Library"
 
 # This tells pydocmd which pages to generate from which Python modules,
@@ -6,9 +8,9 @@ site_name: "IBM Watson IoT Platform Python Library"
 # documented. Higher indentation leads to smaller header size.
 generate:
 - docs/ibmiotf.md:
-  - ibmiotf.AbstractClient+     # (+ to include members)
-  - ibmiotf.HttpAbstractClient+
-  - ibmiotf.Message+
+  - ibmiotf.AbstractClient++     # (+ to include members)
+  - ibmiotf.HttpAbstractClient++
+  - ibmiotf.Message++
 - docs/exceptions.md:
   - ibmiotf.ConnectionException
   - ibmiotf.ConfigurationException
@@ -17,21 +19,31 @@ generate:
   - ibmiotf.MissingMessageDecoderException
   - ibmiotf.MissingMessageEncoderException
   - ibmiotf.APIException
-    
+- docs/device.md:
+  - ibmiotf.device
+  - ibmiotf.device.Client++
+  - ibmiotf.device.ManagedClient++
+  - ibmiotf.device.HttpClient++
+  - ibmiotf.device.Command++
+  - ibmiotf.device.DeviceInfo++
+  - ibmiotf.device.DeviceFirmware++
+  
 # MkDocs pages configuration. The `<<` operator is sugar added by pydocmd
 # that allows you to use an external Markdown file (eg. your project's README)
 # in the documentation. The path must be relative to current working directory.
 pages:
-- Home: index.md << ./README.rst
-- foobar.baz:
-  - Cool Stuff: docs/ibmiotf.md
+- Home: index.md << ./README.md
+- ibmiotf:
+  - Base Classes: docs/ibmiotf.md
   - Exceptions: docs/exceptions.md
+- ibmiotf.device:
+  - Client: docs/device.md
 
 # These options all show off their default values. You don't have to add
 # them to your configuration if you're fine with the default.
 docs_dir: sources
 gens_dir: _build/pydocmd     # This will end up as the MkDocs 'docs_dir'
-site_dir: _build/site
+site_dir: docs
 theme:    readthedocs
 loader:   pydocmd.loader.PythonLoader
 preprocessor: pydocmd.preprocessor.Preprocessor

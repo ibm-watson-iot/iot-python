@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Client - IBM Watson IoT Platform Python Library</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Client";
+    var mkdocs_page_input_path = "docs\\device.md";
+    var mkdocs_page_url = "/docs/device/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> IBM Watson IoT Platform Python Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../ibmiotf/">Base Classes</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../exceptions/">Exceptions</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf.device</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">Client</a>
+    <ul class="subnav">
+            
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">IBM Watson IoT Platform Python Library</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>ibmiotf.device &raquo;</li>
+        
+      
+    
+    <li>Client</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="ibmiotf.device">ibmiotf.device</h1>
+
+<h1 id="ibmiotf.device.Client">Client</h1>
+
+<pre><code class="python">Client(self, options, logHandlers=None)
+</code></pre>
+
+<h2 id="ibmiotf.device.Client.COMMAND_TOPIC">COMMAND_TOPIC</h2>
+
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.Client.on_connect">on_connect</h2></p>
+<pre><code class="python">Client.on_connect(self, client, userdata, flags, rc)
+</code></pre>
+
+<p>This is called after the client has received a CONNACK message from the broker in response to calling connect().
+The parameter rc is an integer giving the return code:</p>
+<p>0: Success
+1: Refused - unacceptable protocol version
+2: Refused - identifier rejected
+3: Refused - server unavailable
+4: Refused - bad user name or password
+5: Refused - not authorised</p>
+<h2 id="ibmiotf.device.Client.publishEvent">publishEvent</h2>
+
+<pre><code class="python">Client.publishEvent(self, event, msgFormat, data, qos=0, on_publish=None)
+</code></pre>
+
+<p>Publish an event in IoTF.</p>
+<p>Parameters:
+    event - the name of this event
+    msgFormat - the format of the data for this event
+    data - the data for this event</p>
+<p>Optional paramters:
+    qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
+    on_publish - a function that will be called when receipt of the publication is confirmed.  This
+                 has different implications depending on the qos:
+                 qos 0 - the client has asynchronously begun to send the event
+                 qos 1 and 2 - the client has confirmation of delivery from IoTF</p>
+<h1 id="ibmiotf.device.ManagedClient">ManagedClient</h1>
+
+<pre><code class="python">ManagedClient(self, options, logHandlers=None, deviceInfo=None)
+</code></pre>
+
+<h2 id="ibmiotf.device.ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC">DM_FIRMWARE_DOWNLOAD_TOPIC</h2>
+
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_VERIFICATION_FAILED">UPDATESTATE_VERIFICATION_FAILED</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.RESPONSECODE_INTERNAL_ERROR">RESPONSECODE_INTERNAL_ERROR</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.DM_CANCEL_OBSERVE_TOPIC">DM_CANCEL_OBSERVE_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATE_LOCATION_TOPIC">UPDATE_LOCATION_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.RESPONSECODE_FUNCTION_NOT_SUPPORTED">RESPONSECODE_FUNCTION_NOT_SUPPORTED</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_OUT_OF_MEMORY">UPDATESTATE_OUT_OF_MEMORY</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.RESPONSE_TOPIC">RESPONSE_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.CLEAR_ERROR_CODES_TOPIC">CLEAR_ERROR_CODES_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_INVALID_URI">UPDATESTATE_INVALID_URI</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_UNSUPPORTED_IMAGE">UPDATESTATE_UNSUPPORTED_IMAGE</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.RESPONSECODE_ACCEPTED">RESPONSECODE_ACCEPTED</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.ADD_ERROR_CODE_TOPIC">ADD_ERROR_CODE_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.DME_ACTION_TOPIC">DME_ACTION_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.DM_UPDATE_TOPIC">DM_UPDATE_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.DM_FIRMWARE_UPDATE_TOPIC">DM_FIRMWARE_UPDATE_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.DM_FACTORY_REESET">DM_FACTORY_REESET</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_DOWNLOADED">UPDATESTATE_DOWNLOADED</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.MANAGE_TOPIC">MANAGE_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.CLEAR_LOG_TOPIC">CLEAR_LOG_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.RESPONSECODE_BAD_REQUEST">RESPONSECODE_BAD_REQUEST</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_IDLE">UPDATESTATE_IDLE</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.UNMANAGE_TOPIC">UNMANAGE_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.DM_OBSERVE_TOPIC">DM_OBSERVE_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_DOWNLOADING">UPDATESTATE_DOWNLOADING</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.DM_REBOOT_TOPIC">DM_REBOOT_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.ADD_LOG_TOPIC">ADD_LOG_TOPIC</h2></p>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_CONNECTION_LOST">UPDATESTATE_CONNECTION_LOST</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.DM_RESPONSE_TOPIC">DM_RESPONSE_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_IN_PROGRESS">UPDATESTATE_IN_PROGRESS</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h2 id="ibmiotf.device.ManagedClient.NOTIFY_TOPIC">NOTIFY_TOPIC</h2></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>str(object='') -&gt; string</p>
+<p>Return a nice string representation of the object.
+If the argument is a string, the return value is the same object.
+<h2 id="ibmiotf.device.ManagedClient.UPDATESTATE_SUCCESS">UPDATESTATE_SUCCESS</h2></p>
+<p>int(x=0) -&gt; int or long
+int(x, base=10) -&gt; int or long</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is floating point, the conversion truncates towards zero.
+If x is outside the integer range, the function returns a long instead.</p>
+<p>If x is not a number or if base is given, then x must be a string or
+Unicode object representing an integer literal in the given base.  The
+literal can be preceded by '+' or '-' and be surrounded by whitespace.
+The base defaults to 10.  Valid bases are 0 and 2-36.  Base 0 means to
+interpret the base from the string as an integer literal.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>int('0b100', base=0)
+4
+<h1 id="ibmiotf.device.HttpClient">HttpClient</h1></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<pre><code class="python">HttpClient(self, options, logHandlers=None)
+</code></pre>
+
+<p>A basic device client with limited capabilies that forgoes an active MQTT connection to the service.</p>
+<h2 id="ibmiotf.device.HttpClient.publishEvent">publishEvent</h2>
+
+<pre><code class="python">HttpClient.publishEvent(self, event, msgFormat, data)
+</code></pre>
+
+<p>Publish an event over HTTP(s) as given supported format
+Throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
+Otherwise it returns the HTTP status code, (200 - 207 for success)</p>
+<h1 id="ibmiotf.device.Command">Command</h1>
+
+<pre><code class="python">Command(self, pahoMessage, messageEncoderModules)
+</code></pre>
+
+<h1 id="ibmiotf.device.DeviceInfo">DeviceInfo</h1>
+
+<pre><code class="python">DeviceInfo(self)
+</code></pre>
+
+<h1 id="ibmiotf.device.DeviceFirmware">DeviceFirmware</h1>
+
+<pre><code class="python">DeviceFirmware(self, version=None, name=None, url=None, verifier=None, state=None, updateStatus=None, updatedDateTime=None)
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../exceptions/" class="btn btn-neutral" title="Exceptions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../exceptions/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>
