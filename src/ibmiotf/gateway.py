@@ -152,7 +152,7 @@ class Client(AbstractClient):
         self.notificationCallback = None
         self.subscriptionCallback = None
         self.client.on_connect = self.on_connect
-        self.client.on_disconnect = self.on_disconnect
+        self.client.on_disconnect = self._onDisconnect
         self.setMessageEncoderModule('json', jsonCodec)
         self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
         self.setMessageEncoderModule('xml', xmlCodec)
@@ -216,8 +216,8 @@ class Client(AbstractClient):
     MQTT_ERR_SUCCESS (0), the callback was called in response to a disconnect() call. If any other value the
     disconnection was unexpected, such as might be caused by a network error.
     '''
-    def on_disconnect(self, client, userdata, rc):
-        super(Client, self).on_disconnect(client, userdata, rc)
+    def _onDisconnect(self, client, userdata, rc):
+        super(Client, self)._onDisconnect(client, userdata, rc)
 
         # Clear the event to indicate we're no longer connected
         self.connectEvent.clear()
