@@ -275,9 +275,9 @@ class Client(ibmiotf.AbstractClient):
                     self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
 
         elif rc == 5:
-            self.logAndRaiseException(ConnectionException("Not authorized: (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+            self._logAndRaiseException(ConnectionException("Not authorized: (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+            self._logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
 
     def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+", qos=0):

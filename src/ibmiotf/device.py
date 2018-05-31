@@ -249,9 +249,9 @@ class Client(AbstractClient):
             if self._options['org'] != "quickstart":
                 self._subscribeToCommands()
         elif rc == 5:
-            self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+            self._logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
 
     def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
@@ -646,9 +646,9 @@ class ManagedClient(Client):
                     ]
                 )
         elif rc == 5:
-            self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+            self._logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
 
     def on_subscribe(self, client, userdata, mid, granted_qos):

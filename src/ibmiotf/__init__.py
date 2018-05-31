@@ -180,7 +180,7 @@ class AbstractClient(object):
         self._messageEncoderModules[messageFormat] = module
 
 
-    def logAndRaiseException(self, e):
+    def _logAndRaiseException(self, e):
         """
         Logs an exception at log level `critical` before raising it.
         
@@ -205,11 +205,11 @@ class AbstractClient(object):
             self.client.loop_start()
             if not self.connectEvent.wait(timeout=30):
                 self.client.loop_stop()
-                self.logAndRaiseException(ConnectionException("Operation timed out connecting to IBM Watson IoT Platform: %s" % (self.address)))
+                self._logAndRaiseException(ConnectionException("Operation timed out connecting to IBM Watson IoT Platform: %s" % (self.address)))
 
         except socket.error as serr:
             self.client.loop_stop()
-            self.logAndRaiseException(ConnectionException("Failed to connect to IBM Watson IoT Platform: %s - %s" % (self.address, str(serr))))
+            self._logAndRaiseException(ConnectionException("Failed to connect to IBM Watson IoT Platform: %s - %s" % (self.address, str(serr))))
 
 
     def disconnect(self):
@@ -437,6 +437,7 @@ class HttpAbstractClient(object):
     rich MQTT/HTTP client implementation.
     
     The HTTP client supports four content-types for posted events:
+    
     - `application/xml`: for events/commands using message format `xml`
     - `text/plain; charset=utf-8`: for events/commands using message format `plain`
     - `application/octet-stream`: for events/commands using message format `bin`
@@ -511,7 +512,7 @@ class HttpAbstractClient(object):
         """
         self._messageEncoderModules[messageFormat] = module
 
-    def logAndRaiseException(self, e):
+    def _logAndRaiseException(self, e):
         """
         Logs an exception at log level `critical` before raising it.
         

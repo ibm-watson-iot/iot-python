@@ -198,17 +198,17 @@ class Client(AbstractClient):
                         self.client.subscribe(subscription, qos=self._subscriptions[subscription])
                     self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
         elif rc == 1:
-            self.logAndRaiseException(ConnectionException("Incorrect protocol version"))
+            self._logAndRaiseException(ConnectionException("Incorrect protocol version"))
         elif rc == 2:
-            self.logAndRaiseException(ConnectionException("Invalid client identifier"))
+            self._logAndRaiseException(ConnectionException("Invalid client identifier"))
         elif rc == 3:
-            self.logAndRaiseException(ConnectionException("Server unavailable"))
+            self._logAndRaiseException(ConnectionException("Server unavailable"))
         elif rc == 4:
-            self.logAndRaiseException(ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))            )
+            self._logAndRaiseException(ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))            )
         elif rc == 5:
-            self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
+            self._logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
 
 
     '''
@@ -583,12 +583,12 @@ class ManagedClient(Client):
                 (self.dmSubscriptionResult, self.dmSubscriptionMid) = self.client.subscribe( [(dm_response_topic, 1), (dm_observe_topic, 1), (self.COMMAND_TOPIC, 1)] )
 
                 if self.dmSubscriptionResult != paho.MQTT_ERR_SUCCESS:
-                    self.logAndRaiseException(ConnectionException("Unable to subscribe to device management topics"))
+                    self._logAndRaiseException(ConnectionException("Unable to subscribe to device management topics"))
 
         elif rc == 5:
-            self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+            self._logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
     def __onSubscribe(self, client, userdata, mid, grantedQoS):
         '''
