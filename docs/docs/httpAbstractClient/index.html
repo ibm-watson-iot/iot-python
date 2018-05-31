@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>httpAbstractClient - IBM Watson IoT Platform Python Library</title>
+  <title>HttpAbstractClient - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "httpAbstractClient";
+    var mkdocs_page_name = "HttpAbstractClient";
     var mkdocs_page_input_path = "docs\\httpAbstractClient.md";
     var mkdocs_page_url = "/docs/httpAbstractClient/";
   </script>
@@ -58,18 +58,18 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../abstractClient/">abstractClient</a>
+    <a class="" href="../abstractClient/">AbstractClient</a>
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">httpAbstractClient</a>
+    <a class="current" href="./">HttpAbstractClient</a>
     <ul class="subnav">
             
     </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../message/">message</a>
+    <a class="" href="../message/">Message</a>
                 </li>
                 <li class="">
                     
@@ -108,7 +108,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../device/">Client</a>
+    <a class="" href="../device/client/">Client</a>
                 </li>
     </ul>
 	    </li>
@@ -139,7 +139,7 @@
         
       
     
-    <li>httpAbstractClient</li>
+    <li>HttpAbstractClient</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -154,15 +154,71 @@
 <pre><code class="python">HttpAbstractClient(self, clientId, logHandlers=None)
 </code></pre>
 
-<p>Base client class restricted to HTTP only.  Unless for some technical reason
-you are unable to use the full MQTT-enable client there really is no need to
-use this alternative feature-limited client.</p>
+<p>The underlying client object utilised for Platform connectivity
+over HTPP in devices, gateways, and applications.</p>
+<p>Restricted to HTTP only.  Unless for some technical reason
+you are unable to use the full MQTT-enable client there really
+is no need to use this alternative feature-limited client as
+installing this library means you already have access to the
+rich MQTT/HTTP client implementation.</p>
+<p>The HTTP client supports four content-types for posted events:
+- <code>application/xml</code>: for events/commands using message format <code>xml</code>
+- <code>text/plain; charset=utf-8</code>: for events/commands using message format <code>plain</code>
+- <code>application/octet-stream</code>: for events/commands using message format <code>bin</code>
+- <code>application/json</code>: the default for all other message formats.</p>
+<h2 id="ibmiotf.HttpAbstractClient.getMessageEncoderModule">getMessageEncoderModule</h2>
+
+<pre><code class="python">HttpAbstractClient.getMessageEncoderModule(self, messageFormat)
+</code></pre>
+
+<p>Get the Python module that is currently defined as the encoder/decoder for a specified message format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>messageFormat (string)</strong>: The message format to retrieve the encoder for</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>Boolean</code>: The python module, or <code>None</code> if there is no codec defined for the <code>messageFormat</code></p>
+<h2 id="ibmiotf.HttpAbstractClient.logAndRaiseException">logAndRaiseException</h2>
+
+<pre><code class="python">HttpAbstractClient.logAndRaiseException(self, e)
+</code></pre>
+
+<p>Logs an exception at log level <code>critical</code> before raising it.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>e (Exception)</strong>: The exception to log/raise</li>
+</ul>
+<h2 id="ibmiotf.HttpAbstractClient.setMessageEncoderModule">setMessageEncoderModule</h2>
+
+<pre><code class="python">HttpAbstractClient.setMessageEncoderModule(self, messageFormat, module)
+</code></pre>
+
+<p>Set a Python module as the encoder/decoder for a specified message format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>messageFormat (string)</strong>: The message format to retreive the encoder for</li>
+<li><strong>module (module)</strong>: The Python module to set as the encoder/decoder for <code>messageFormat</code></li>
+</ul>
+<h2 id="ibmiotf.HttpAbstractClient.connect">connect</h2>
+
+<pre><code class="python">HttpAbstractClient.connect(self)
+</code></pre>
+
+<p>Connect is a no-op with HTTP-only client, but the presence of this method makes it easy
+to switch between using HTTP &amp; MQTT client implementation</p>
+<h2 id="ibmiotf.HttpAbstractClient.disconnect">disconnect</h2>
+
+<pre><code class="python">HttpAbstractClient.disconnect(self)
+</code></pre>
+
+<p>Disconnect is a no-op with HTTP-only client, but the presence of this method makes it easy
+to switch between using HTTP &amp; MQTT client implementation</p>
 <h2 id="ibmiotf.HttpAbstractClient.getContentType">getContentType</h2>
 
 <pre><code class="python">HttpAbstractClient.getContentType(self, dataFormat)
 </code></pre>
 
-<p>Method to detect content type using given data format</p>
+<p>Determines the content type for the HTTP message</p>
               
             </div>
           </div>
@@ -170,10 +226,10 @@ use this alternative feature-limited client.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../message/" class="btn btn-neutral float-right" title="message">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../message/" class="btn btn-neutral float-right" title="Message">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../abstractClient/" class="btn btn-neutral" title="abstractClient"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../abstractClient/" class="btn btn-neutral" title="AbstractClient"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   

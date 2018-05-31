@@ -27,14 +27,13 @@ generate:
   - ibmiotf.MissingMessageEncoderException
 - docs/exceptions/api.md:
   - ibmiotf.APIException
-- docs/device.md:
-  - ibmiotf.device
+- docs/device/client.md:
   - ibmiotf.device.Client++
-  - ibmiotf.device.ManagedClient++
-  - ibmiotf.device.HttpClient++
-  - ibmiotf.device.Command++
-  - ibmiotf.device.DeviceInfo++
-  - ibmiotf.device.DeviceFirmware++
+#  - ibmiotf.device.ManagedClient++
+#  - ibmiotf.device.HttpClient++
+#  - ibmiotf.device.Command++
+#  - ibmiotf.device.DeviceInfo++
+#  - ibmiotf.device.DeviceFirmware++
   
 # MkDocs pages configuration. The `<<` operator is sugar added by pydocmd
 # that allows you to use an external Markdown file (eg. your project's README)
@@ -42,9 +41,9 @@ generate:
 pages:
 - Home: index.md << ./README.md
 - ibmiotf:
-  - abstractClient: docs/abstractClient.md
-  - httpAbstractClient: docs/httpAbstractClient.md
-  - message: docs/message.md
+  - AbstractClient: docs/abstractClient.md
+  - HttpAbstractClient: docs/httpAbstractClient.md
+  - Message: docs/message.md
   - ConnectionException: docs/exceptions/connect.md
   - ConfigurationException: docs/exceptions/config.md
   - UnsupportedAuthenticationMethod: docs/exceptions/auth.md
@@ -53,7 +52,7 @@ pages:
   - MissingMessageEncoderException: docs/exceptions/missingEncoder.md
   - APIException: docs/exceptions/api.md
 - ibmiotf.device:
-  - Client: docs/device.md
+  - Client: docs/device/client.md
 
 # These options all show off their default values. You don't have to add
 # them to your configuration if you're fine with the default.

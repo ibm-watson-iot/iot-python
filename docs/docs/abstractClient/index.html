@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>abstractClient - IBM Watson IoT Platform Python Library</title>
+  <title>AbstractClient - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "abstractClient";
+    var mkdocs_page_name = "AbstractClient";
     var mkdocs_page_input_path = "docs\\abstractClient.md";
     var mkdocs_page_url = "/docs/abstractClient/";
   </script>
@@ -58,18 +58,18 @@
     <ul class="subnav">
                 <li class=" current">
                     
-    <a class="current" href="./">abstractClient</a>
+    <a class="current" href="./">AbstractClient</a>
     <ul class="subnav">
             
     </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../httpAbstractClient/">httpAbstractClient</a>
+    <a class="" href="../httpAbstractClient/">HttpAbstractClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../message/">message</a>
+    <a class="" href="../message/">Message</a>
                 </li>
                 <li class="">
                     
@@ -108,7 +108,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../device/">Client</a>
+    <a class="" href="../device/client/">Client</a>
                 </li>
     </ul>
 	    </li>
@@ -139,7 +139,7 @@
         
       
     
-    <li>abstractClient</li>
+    <li>AbstractClient</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -154,7 +154,8 @@
 <pre><code class="python">AbstractClient(self, domain, organization, clientId, username, password, port=8883, logHandlers=None, cleanSession='true', transport='tcp')
 </code></pre>
 
-<p>Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.</p>
+<p>The underlying client object utilised for Platform connectivity over MQTT
+in devices, gateways, and applications.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><strong>domain (string)</strong>: Domain denoting the instance of IBM Watson IoT Platform to connect to</li>
@@ -187,6 +188,7 @@
 </code></pre>
 
 <p>Called when a message from the client has been successfully sent to IBM Watson IoT Platform.</p>
+<p>See <a href="https://github.com/eclipse/paho.mqtt.python#on_publish">paho.mqtt.python#on_publish</a> for more information</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><strong>mqttc (paho.mqtt.client.Client)</strong>: The client instance for this callback</li>
@@ -236,18 +238,14 @@ are only applied when a new connection to the Platfrom is established</p>
 </code></pre>
 
 <p>Called when the client disconnects from IBM Watson IoT Platform.</p>
+<p>See <a href="https://github.com/eclipse/paho.mqtt.python#on_disconnect">paho.mqtt.python#on_disconnect</a> for more information</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><strong>mqttc (paho.mqtt.client.Client)</strong>: The client instance for this callback</li>
 <li><strong>obj (object)</strong>: The private user data as set in Client() or user_data_set()</li>
-<li>
-<p><strong>rc (int)</strong>: indicates the disconnection state.  If <code>MQTT_ERR_SUCCESS</code> (0), the callback was
+<li><strong>rc (int)</strong>: indicates the disconnection state.  If <code>MQTT_ERR_SUCCESS</code> (0), the callback was
     called in response to a <code>disconnect()</code> call. If any other value the disconnection was
-    unexpected, such as might be caused by a network error.</p>
-</li>
-<li>
-<p><strong>See https</strong>://github.com/eclipse/paho.mqtt.python#on_disconnect for more information</p>
-</li>
+    unexpected, such as might be caused by a network error.</li>
 </ul>
 <h2 id="ibmiotf.AbstractClient.connect">connect</h2>
 
@@ -288,18 +286,14 @@ also billable as part of your data transfer to/from the Platform.</p>
 </code></pre>
 
 <p>Called when the client has log information.</p>
+<p>See <a href="https://github.com/eclipse/paho.mqtt.python#on_log">paho.mqtt.python#on_log</a> for more information</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><strong>mqttc (paho.mqtt.client.Client)</strong>: The client instance for this callback</li>
 <li><strong>obj (object)</strong>: The private user data as set in Client() or user_data_set()</li>
 <li><strong>level (int)</strong>: The severity of the message, will be one of <code>MQTT_LOG_INFO</code>,
     <code>MQTT_LOG_NOTICE</code>, <code>MQTT_LOG_WARNING</code>, <code>MQTT_LOG_ERR</code>, and <code>MQTT_LOG_DEBUG</code>.</li>
-<li>
-<p><strong>string (string)</strong>: The log message itself</p>
-</li>
-<li>
-<p><strong>See https</strong>://github.com/eclipse/paho.mqtt.python#on_log for more information</p>
-</li>
+<li><strong>string (string)</strong>: The log message itself</li>
 </ul>
               
             </div>
@@ -308,7 +302,7 @@ also billable as part of your data transfer to/from the Platform.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../httpAbstractClient/" class="btn btn-neutral float-right" title="httpAbstractClient">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../httpAbstractClient/" class="btn btn-neutral float-right" title="HttpAbstractClient">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../.." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>

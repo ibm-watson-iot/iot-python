@@ -58,15 +58,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../abstractClient/">abstractClient</a>
+    <a class="" href="../../abstractClient/">AbstractClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../httpAbstractClient/">httpAbstractClient</a>
+    <a class="" href="../../httpAbstractClient/">HttpAbstractClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../message/">message</a>
+    <a class="" href="../../message/">Message</a>
                 </li>
                 <li class="">
                     
@@ -108,7 +108,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../device/">Client</a>
+    <a class="" href="../../device/client/">Client</a>
                 </li>
     </ul>
 	    </li>
@@ -154,10 +154,13 @@
 <pre><code class="python">APIException(self, httpCode, message, response)
 </code></pre>
 
-<p>Exception raised when any API call fails
-1 The exact HTTP Status Code
-2 The error thrown
-3 The JSON message returned</p>
+<p>Exception raised when any API call fails</p>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><code>httpCode (int)</code>: The HTTP status code returned</li>
+<li><code>message (string)</code>: The exception message</li>
+<li><code>response (string)</code>: The reponse body that triggered the exception</li>
+</ul>
               
             </div>
           </div>
@@ -165,7 +168,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../device/" class="btn btn-neutral float-right" title="Client">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../device/client/" class="btn btn-neutral float-right" title="Client">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../missingEncoder/" class="btn btn-neutral" title="MissingMessageEncoderException"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -197,7 +200,7 @@
         <span><a href="../missingEncoder/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../device/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../device/client/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

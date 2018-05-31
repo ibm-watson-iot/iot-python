@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>message - IBM Watson IoT Platform Python Library</title>
+  <title>Message - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "message";
+    var mkdocs_page_name = "Message";
     var mkdocs_page_input_path = "docs\\message.md";
     var mkdocs_page_url = "/docs/message/";
   </script>
@@ -58,15 +58,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../abstractClient/">abstractClient</a>
+    <a class="" href="../abstractClient/">AbstractClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../httpAbstractClient/">httpAbstractClient</a>
+    <a class="" href="../httpAbstractClient/">HttpAbstractClient</a>
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">message</a>
+    <a class="current" href="./">Message</a>
     <ul class="subnav">
             
     </ul>
@@ -108,7 +108,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../device/">Client</a>
+    <a class="" href="../device/client/">Client</a>
                 </li>
     </ul>
 	    </li>
@@ -139,7 +139,7 @@
         
       
     
-    <li>message</li>
+    <li>Message</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -154,11 +154,12 @@
 <pre><code class="python">Message(self, data, timestamp=None)
 </code></pre>
 
-<p>Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.</p>
-<p><strong>Parameters</strong></p>
+<p>Represents an abstract message recieved over Mqtt.  All implementations of
+a Codec must return an object of this type.</p>
+<p><strong>Attributes</strong></p>
 <ul>
-<li><strong>data (dict)</strong>: The message payload</li>
-<li><strong>timestamp (datetime)</strong>: Timestamp intended to denote the time the message was sent,
+<li><code>data (dict)</code>: The message payload</li>
+<li><code>timestamp (datetime)</code>: Timestamp intended to denote the time the message was sent,
     or <code>None</code> if this information is not available.</li>
 </ul>
               
@@ -171,7 +172,7 @@
         <a href="../exceptions/connect/" class="btn btn-neutral float-right" title="ConnectionException">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../httpAbstractClient/" class="btn btn-neutral" title="httpAbstractClient"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../httpAbstractClient/" class="btn btn-neutral" title="HttpAbstractClient"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   

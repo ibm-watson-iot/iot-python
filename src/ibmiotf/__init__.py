@@ -6,13 +6,6 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 #
-# Contributors:
-#   David Parker
-#   Paul Slater
-#   Ben Bakowski
-#   Amit M Mangalvedkar
-#   Lokesh Haralakatta
-#   Ian Craggs - fix for #99
 # *****************************************************************************
 
 import sys
@@ -35,9 +28,10 @@ __version__ = "0.3.5"
 
 class Message:
     """
-    Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.
+    Represents an abstract message recieved over Mqtt.  All implementations of 
+    a Codec must return an object of this type.
     
-    # Parameters
+    # Attributes
     data (dict): The message payload
     timestamp (datetime): Timestamp intended to denote the time the message was sent, 
         or `None` if this information is not available. 
@@ -51,7 +45,8 @@ class Message:
 
 class AbstractClient(object):
     """
-    Represents an abstract message recieved over Mqtt.  All implementations of a Codec must return an object of this type.
+    The underlying client object utilised for Platform connectivity over MQTT 
+    in devices, gateways, and applications.
     
     # Parameters
     domain (string): Domain denoting the instance of IBM Watson IoT Platform to connect to
@@ -248,6 +243,8 @@ class AbstractClient(object):
         """
         Called when the client has log information.  
         
+        See [paho.mqtt.python#on_log](https://github.com/eclipse/paho.mqtt.python#on_log) for more information
+        
         # Parameters
         mqttc (paho.mqtt.client.Client): The client instance for this callback
         obj (object): The private user data as set in Client() or user_data_set()
@@ -255,14 +252,15 @@ class AbstractClient(object):
             `MQTT_LOG_NOTICE`, `MQTT_LOG_WARNING`, `MQTT_LOG_ERR`, and `MQTT_LOG_DEBUG`.
         string (string): The log message itself
         
-        See https://github.com/eclipse/paho.mqtt.python#on_log for more information
         """
         self.logger.debug("%d %s" % (level, string))
 
 
     def on_disconnect(self, mqttc, obj, rc):
         """
-        Called when the client disconnects from IBM Watson IoT Platform.  
+        Called when the client disconnects from IBM Watson IoT Platform.
+        
+        See [paho.mqtt.python#on_disconnect](https://github.com/eclipse/paho.mqtt.python#on_disconnect) for more information
         
         # Parameters
         mqttc (paho.mqtt.client.Client): The client instance for this callback
@@ -271,7 +269,6 @@ class AbstractClient(object):
             called in response to a `disconnect()` call. If any other value the disconnection was 
             unexpected, such as might be caused by a network error.
         
-        See https://github.com/eclipse/paho.mqtt.python#on_disconnect for more information
         """
         if rc != 0:
             self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform: %d" % (rc))
@@ -282,6 +279,8 @@ class AbstractClient(object):
     def on_publish(self, mqttc, obj, mid):
         """
         Called when a message from the client has been successfully sent to IBM Watson IoT Platform.
+        
+        See [paho.mqtt.python#on_publish](https://github.com/eclipse/paho.mqtt.python#on_publish) for more information
         
         # Parameters
         mqttc (paho.mqtt.client.Client): The client instance for this callback
@@ -326,7 +325,10 @@ class AbstractClient(object):
 
 class ConnectionException(Exception):
     """
-    Generic Connection exception "Something went wrong"
+    Generic Connection exception
+    
+    # Attributes
+    reason (string): The reason why the connection exception occured
     """
     def __init__(self, reason):
         self.reason = reason
@@ -338,6 +340,9 @@ class ConnectionException(Exception):
 class ConfigurationException(ConnectionException):
     """
     Specific Connection exception where the configuration is invalid
+    
+    # Attributes
+    reason (string): The reason why the configuration is invalid
     """
     def __init__(self, reason):
         self.reason = reason
@@ -349,6 +354,9 @@ class ConfigurationException(ConnectionException):
 class UnsupportedAuthenticationMethod(ConnectionException):
     """
     Specific Connection exception where the authentication method specified is not supported
+    
+    # Attributes
+    method (string): The authentication method that is unsupported
     """
     def __init__(self, method):
         self.method = method
@@ -359,7 +367,10 @@ class UnsupportedAuthenticationMethod(ConnectionException):
 
 class InvalidEventException(Exception):
     """
-    Specific exception where and Event object can not be constructed
+    Specific exception where an Event object can not be constructed
+    
+    # Attributes
+    reason (string): The reason why the event could not be constructed
     """
     def __init__(self, reason):
         self.reason = reason
@@ -371,6 +382,9 @@ class InvalidEventException(Exception):
 class MissingMessageDecoderException(Exception):
     """
     Specific exception where there is no message decoder defined for the message format being processed
+    
+    # Attributes
+    format (string): The message format for which no encoder could be found
     """
     def __init__(self, format):
         self.format = format
@@ -382,6 +396,9 @@ class MissingMessageDecoderException(Exception):
 class MissingMessageEncoderException(Exception):
     """
     Specific exception where there is no message encoder defined for the message format being processed
+    
+    # Attributes
+    format (string): The message format for which no encoder could be found
     """
     def __init__(self, format):
         self.format = format
@@ -393,9 +410,11 @@ class MissingMessageEncoderException(Exception):
 class APIException(Exception):
     """
     Exception raised when any API call fails
-    1 The exact HTTP Status Code
-    2 The error thrown
-    3 The JSON message returned
+    
+    # Attributes
+    httpCode (int): The HTTP status code returned
+    message (string): The exception message
+    response (string): The reponse body that triggered the exception
     """
     def __init__(self, httpCode, message, response):
         self.httpCode = httpCode
@@ -408,9 +427,20 @@ class APIException(Exception):
 
 class HttpAbstractClient(object):
     """
-    Base client class restricted to HTTP only.  Unless for some technical reason
-    you are unable to use the full MQTT-enable client there really is no need to
-    use this alternative feature-limited client.
+    The underlying client object utilised for Platform connectivity 
+    over HTPP in devices, gateways, and applications.
+    
+    Restricted to HTTP only.  Unless for some technical reason
+    you are unable to use the full MQTT-enable client there really 
+    is no need to use this alternative feature-limited client as 
+    installing this library means you already have access to the 
+    rich MQTT/HTTP client implementation.
+    
+    The HTTP client supports four content-types for posted events:
+    - `application/xml`: for events/commands using message format `xml`
+    - `text/plain; charset=utf-8`: for events/commands using message format `plain`
+    - `application/octet-stream`: for events/commands using message format `bin`
+    - `application/json`: the default for all other message formats.
     """
     def __init__(self, clientId, logHandlers=None):
         # Configure logging
@@ -446,27 +476,55 @@ class HttpAbstractClient(object):
         self._messageEncoderModules = {}
 
     def connect(self):
-        # No-op with HTTP client (but makes it easy to switch between using http & mqtt clients in your code)
+        """
+        Connect is a no-op with HTTP-only client, but the presence of this method makes it easy 
+        to switch between using HTTP & MQTT client implementation
+        """
         pass
 
     def disconnect(self):
-        # No-op with HTTP client (but makes it easy to switch between using http & mqtt clients in your code)
+        """
+        Disconnect is a no-op with HTTP-only client, but the presence of this method makes it easy 
+        to switch between using HTTP & MQTT client implementation
+        """
         pass
 
     def getMessageEncoderModule(self, messageFormat):
+        """
+        Get the Python module that is currently defined as the encoder/decoder for a specified message format.
+        
+        # Arguments
+        messageFormat (string): The message format to retrieve the encoder for
+        
+        # Returns
+        Boolean: The python module, or `None` if there is no codec defined for the `messageFormat`
+        """
         return self._messageEncoderModules[messageFormat]
 
     def setMessageEncoderModule(self, messageFormat, module):
+        """
+        Set a Python module as the encoder/decoder for a specified message format.
+        
+        # Arguments
+        messageFormat (string): The message format to retreive the encoder for
+        module (module): The Python module to set as the encoder/decoder for `messageFormat`
+        """
         self._messageEncoderModules[messageFormat] = module
 
     def logAndRaiseException(self, e):
+        """
+        Logs an exception at log level `critical` before raising it.
+        
+        # Arguments
+        e (Exception): The exception to log/raise
+        """
         self.logger.critical(str(e))
         raise e
 
-    def getContentType(self,dataFormat):
-        '''
-           Method to detect content type using given data format
-        '''
+    def getContentType(self, dataFormat):
+        """
+        Determines the content type for the HTTP message
+        """
         # Default content type is json
         contentType = "application/json"
         if dataFormat == "text":
@@ -475,7 +533,6 @@ class HttpAbstractClient(object):
             contentType = "application/xml"
         elif dataFormat == "bin":
             contentType = "application/octet-stream"
-        else:
-            contentType = "application/json"
+        
         # Return derived content type
         return contentType
