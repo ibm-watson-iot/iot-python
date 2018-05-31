@@ -175,6 +175,17 @@ in devices, gateways, and applications.</p>
 <li><code>client (paho.mqtt.client.Client)</code>: Built-in Paho MQTT client handling connectivity for the client.</li>
 <li><code>logger (logging.logger)</code>: Client logger.</li>
 </ul>
+<h2 id="ibmiotf.AbstractClient.setMessageEncoderModule">setMessageEncoderModule</h2>
+
+<pre><code class="python">AbstractClient.setMessageEncoderModule(self, messageFormat, module)
+</code></pre>
+
+<p>Set a Python module as the encoder/decoder for a specified message format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>messageFormat (string)</strong>: The message format to retreive the encoder for</li>
+<li><strong>module (module)</strong>: The Python module to set as the encoder/decoder for <code>messageFormat</code></li>
+</ul>
 <h2 id="ibmiotf.AbstractClient.stats">stats</h2>
 
 <pre><code class="python">AbstractClient.stats(self)
@@ -205,48 +216,12 @@ value used by the current active connection, as any changes to this value
 are only applied when a new connection to the Platfrom is established</p>
 <p><strong>Returns</strong></p>
 <p><code>int</code>: Number of seconds the keepalive interval is set to</p>
-<h2 id="ibmiotf.AbstractClient.logAndRaiseException">logAndRaiseException</h2>
-
-<pre><code class="python">AbstractClient.logAndRaiseException(self, e)
-</code></pre>
-
-<p>Logs an exception at log level <code>critical</code> before raising it.</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>e (Exception)</strong>: The exception to log/raise</li>
-</ul>
 <h2 id="ibmiotf.AbstractClient.disconnect">disconnect</h2>
 
 <pre><code class="python">AbstractClient.disconnect(self)
 </code></pre>
 
 <p>Disconnect the client from IBM Watson IoT Platform</p>
-<h2 id="ibmiotf.AbstractClient.setMessageEncoderModule">setMessageEncoderModule</h2>
-
-<pre><code class="python">AbstractClient.setMessageEncoderModule(self, messageFormat, module)
-</code></pre>
-
-<p>Set a Python module as the encoder/decoder for a specified message format.</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>messageFormat (string)</strong>: The message format to retreive the encoder for</li>
-<li><strong>module (module)</strong>: The Python module to set as the encoder/decoder for <code>messageFormat</code></li>
-</ul>
-<h2 id="ibmiotf.AbstractClient.on_disconnect">on_disconnect</h2>
-
-<pre><code class="python">AbstractClient.on_disconnect(self, mqttc, obj, rc)
-</code></pre>
-
-<p>Called when the client disconnects from IBM Watson IoT Platform.</p>
-<p>See <a href="https://github.com/eclipse/paho.mqtt.python#on_disconnect">paho.mqtt.python#on_disconnect</a> for more information</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><strong>mqttc (paho.mqtt.client.Client)</strong>: The client instance for this callback</li>
-<li><strong>obj (object)</strong>: The private user data as set in Client() or user_data_set()</li>
-<li><strong>rc (int)</strong>: indicates the disconnection state.  If <code>MQTT_ERR_SUCCESS</code> (0), the callback was
-    called in response to a <code>disconnect()</code> call. If any other value the disconnection was
-    unexpected, such as might be caused by a network error.</li>
-</ul>
 <h2 id="ibmiotf.AbstractClient.connect">connect</h2>
 
 <pre><code class="python">AbstractClient.connect(self)
@@ -280,21 +255,6 @@ also billable as part of your data transfer to/from the Platform.</p>
 </ul>
 <p><strong>Returns</strong></p>
 <p><code>Boolean</code>: The python module, or <code>None</code> if there is no codec defined for the <code>messageFormat</code></p>
-<h2 id="ibmiotf.AbstractClient.on_log">on_log</h2>
-
-<pre><code class="python">AbstractClient.on_log(self, mqttc, obj, level, string)
-</code></pre>
-
-<p>Called when the client has log information.</p>
-<p>See <a href="https://github.com/eclipse/paho.mqtt.python#on_log">paho.mqtt.python#on_log</a> for more information</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><strong>mqttc (paho.mqtt.client.Client)</strong>: The client instance for this callback</li>
-<li><strong>obj (object)</strong>: The private user data as set in Client() or user_data_set()</li>
-<li><strong>level (int)</strong>: The severity of the message, will be one of <code>MQTT_LOG_INFO</code>,
-    <code>MQTT_LOG_NOTICE</code>, <code>MQTT_LOG_WARNING</code>, <code>MQTT_LOG_ERR</code>, and <code>MQTT_LOG_DEBUG</code>.</li>
-<li><strong>string (string)</strong>: The log message itself</li>
-</ul>
               
             </div>
           </div>

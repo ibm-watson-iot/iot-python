@@ -161,32 +161,12 @@ you are unable to use the full MQTT-enable client there really
 is no need to use this alternative feature-limited client as
 installing this library means you already have access to the
 rich MQTT/HTTP client implementation.</p>
-<p>The HTTP client supports four content-types for posted events:
-- <code>application/xml</code>: for events/commands using message format <code>xml</code>
-- <code>text/plain; charset=utf-8</code>: for events/commands using message format <code>plain</code>
-- <code>application/octet-stream</code>: for events/commands using message format <code>bin</code>
-- <code>application/json</code>: the default for all other message formats.</p>
-<h2 id="ibmiotf.HttpAbstractClient.getMessageEncoderModule">getMessageEncoderModule</h2>
-
-<pre><code class="python">HttpAbstractClient.getMessageEncoderModule(self, messageFormat)
-</code></pre>
-
-<p>Get the Python module that is currently defined as the encoder/decoder for a specified message format.</p>
-<p><strong>Arguments</strong></p>
+<p>The HTTP client supports four content-types for posted events:</p>
 <ul>
-<li><strong>messageFormat (string)</strong>: The message format to retrieve the encoder for</li>
-</ul>
-<p><strong>Returns</strong></p>
-<p><code>Boolean</code>: The python module, or <code>None</code> if there is no codec defined for the <code>messageFormat</code></p>
-<h2 id="ibmiotf.HttpAbstractClient.logAndRaiseException">logAndRaiseException</h2>
-
-<pre><code class="python">HttpAbstractClient.logAndRaiseException(self, e)
-</code></pre>
-
-<p>Logs an exception at log level <code>critical</code> before raising it.</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>e (Exception)</strong>: The exception to log/raise</li>
+<li><code>application/xml</code>: for events/commands using message format <code>xml</code></li>
+<li><code>text/plain; charset=utf-8</code>: for events/commands using message format <code>plain</code></li>
+<li><code>application/octet-stream</code>: for events/commands using message format <code>bin</code></li>
+<li><code>application/json</code>: the default for all other message formats.</li>
 </ul>
 <h2 id="ibmiotf.HttpAbstractClient.setMessageEncoderModule">setMessageEncoderModule</h2>
 
@@ -199,6 +179,18 @@ rich MQTT/HTTP client implementation.</p>
 <li><strong>messageFormat (string)</strong>: The message format to retreive the encoder for</li>
 <li><strong>module (module)</strong>: The Python module to set as the encoder/decoder for <code>messageFormat</code></li>
 </ul>
+<h2 id="ibmiotf.HttpAbstractClient.getMessageEncoderModule">getMessageEncoderModule</h2>
+
+<pre><code class="python">HttpAbstractClient.getMessageEncoderModule(self, messageFormat)
+</code></pre>
+
+<p>Get the Python module that is currently defined as the encoder/decoder for a specified message format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>messageFormat (string)</strong>: The message format to retrieve the encoder for</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>Boolean</code>: The python module, or <code>None</code> if there is no codec defined for the <code>messageFormat</code></p>
 <h2 id="ibmiotf.HttpAbstractClient.connect">connect</h2>
 
 <pre><code class="python">HttpAbstractClient.connect(self)
@@ -213,12 +205,6 @@ to switch between using HTTP &amp; MQTT client implementation</p>
 
 <p>Disconnect is a no-op with HTTP-only client, but the presence of this method makes it easy
 to switch between using HTTP &amp; MQTT client implementation</p>
-<h2 id="ibmiotf.HttpAbstractClient.getContentType">getContentType</h2>
-
-<pre><code class="python">HttpAbstractClient.getContentType(self, dataFormat)
-</code></pre>
-
-<p>Determines the content type for the HTTP message</p>
               
             </div>
           </div>
