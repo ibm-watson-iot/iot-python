@@ -140,7 +140,7 @@ class AbstractClient(object):
             self.client.username_pw_set(self.username, self.password)
 
         # Attach MQTT callbacks
-        self.client.on_log = self.on_log
+        self.client.on_log = self._onLog
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
         self.client.on_publish = self.on_publish
@@ -239,7 +239,7 @@ class AbstractClient(object):
         self.logger.debug("Messages received  : %s, life: %.0fs, rate: 1/%.2fs" % (self.recv, elapsed, recvPerSecond))
 
 
-    def on_log(self, mqttc, obj, level, string):
+    def _onLog(self, mqttc, obj, level, string):
         """
         Called when the client has log information.  
         
