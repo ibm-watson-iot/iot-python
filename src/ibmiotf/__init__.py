@@ -142,7 +142,7 @@ class AbstractClient(object):
         # Attach MQTT callbacks
         self.client.on_log = self._onLog
         self.client.on_disconnect = self._onDisconnect
-        self.client.on_publish = self.on_publish
+        self.client.on_publish = self._onPublish
 
         # Initialize default message encoders and decoders.
         self._messageEncoderModules = {}
@@ -275,7 +275,7 @@ class AbstractClient(object):
             self.logger.info("Disconnected from the IBM Watson IoT Platform")
         self.stats()
 
-    def on_publish(self, mqttc, obj, mid):
+    def _onPublish(self, mqttc, obj, mid):
         """
         Called when a message from the client has been successfully sent to IBM Watson IoT Platform.
         
