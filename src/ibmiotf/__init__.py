@@ -141,7 +141,6 @@ class AbstractClient(object):
 
         # Attach MQTT callbacks
         self.client.on_log = self._onLog
-        self.client.on_connect = self.on_connect
         self.client.on_disconnect = self._onDisconnect
         self.client.on_publish = self.on_publish
 
