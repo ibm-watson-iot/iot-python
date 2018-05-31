@@ -6,10 +6,6 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 #
-# Contributors:
-#   David Parker
-#   Lokesh Haralakatta
-#   Ian Craggs - fix for #99
 # *****************************************************************************
 
 import re
@@ -35,22 +31,30 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
-COMMAND_RE = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
-
-
 class Command:
     """
     Represents a command sent to a device.
     
     # Parameters
     pahoMessage (?): ?
-    messageEncoderModules (dict): Dictionary of Python modules, keyed to the message format the module should use. 
+    messageEncoderModules (dict): Dictionary of Python modules, keyed to the 
+        message format the module should use. 
     
+    # Attributes
+    command (string): Identifies the command.
+    format (string): The format can be any string, for example JSON.
+    data (dict): The data for the payload. Maximum length is 131072 bytes.
+    timestamp (datetime): The date and time of the event.
+
     # Raises
-    InvalidEventException: 
+    InvalidEventException: If the command was recieved on a topic that does 
+        not match the regular expression `iot-2/cmd/(.+)/fmt/(.+)`
     """
+    
+    _TOPIC_REGEX = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
+
     def __init__(self, pahoMessage, messageEncoderModules):
-        result = COMMAND_RE.match(pahoMessage.topic)
+        result = Command._TOPIC_REGEX.match(pahoMessage.topic)
         if result:
             self.command = result.group(1)
             self.format = result.group(2)
@@ -62,13 +66,88 @@ class Command:
             else:
                 raise MissingMessageDecoderException(self.format)
         else:
-            raise InvalidEventException(
-                "Received command on invalid topic: %s" % (pahoMessage.topic))
+            raise InvalidEventException("Received command on invalid topic: %s" % (pahoMessage.topic))
 
 
 class Client(AbstractClient):
+    """
+    Extends #ibmiotf.AbstractClient to implement a device client supporting 
+    messaging over MQTT
+    
+    # Parameters
+    options (dict): Configuration options for the client
+    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
+        which will result in a default log handler being created.
+        
+    # Configuration Options
+    The options parameter expects a Python dictionary containing the following keys:
+    
+    - `orgId` Your organization ID.
+    - `type` The type of the device. Think of the device type is analagous to a model number.
+    - `id` A unique ID to identify a device. Think of the device id as analagous to a serial number.
+    - `auth-method` The method of authentication. The only method that is currently supported is `token`.
+    - `auth-token` An authentication token to securely connect your device to Watson IoT Platform.
+    - `clean-session` A boolean value indicating whether to use MQTT clean session.
+    
+    # Publishing events
+    Events are the mechanism by which devices publish data to the Watson IoT Platform. The device 
+    controls the content of the event and assigns a name for each event that it sends.
 
-    COMMAND_TOPIC = "iot-2/cmd/+/fmt/+"
+    When an event is received by Watson IoT Platform, the credentials of the received event identify 
+    the sending device, which means that a device cannot impersonate another device.
+
+    Events can be published with any of the three quality of service (QoS) levels that are defined 
+    by the MQTT protocol. By default, events are published with a QoS level of 0.
+
+    ```python
+    client.connect()
+    qos=0
+    myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+    client.publishEvent("status", "json", myData, qos)
+    ```
+    
+    # Handling commands
+    When the device client connects, it automatically subscribes to any command that is specified for 
+    this device. To process specific commands, you need to register a command callback method. 
+    
+    The messages are returned as an instance of the #Command class
+
+    ```python
+    def myCommandCallback(cmd):
+        print("Command received: %s" % cmd.data)
+        if cmd.command == "setInterval":
+            if 'interval' not in cmd.data:
+                print("Error - command is missing required information: 'interval'")
+            else:
+                interval = cmd.data['interval']
+        elif cmd.command == "print":
+            if 'message' not in cmd.data:
+                print("Error - command is missing required information: 'message'")
+            else:
+                print(cmd.data['message'])
+    client.connect()
+    client.commandCallback = myCommandCallback
+    ```
+
+    # Custom message format support
+    By default, the message format is set to json, which means that the library supports the encoding 
+    and decoding of Python dictionary objects in JSON format. To add support for your own custom message formats, 
+    see the Custom Message Format sample.
+
+    When you create a custom encoder module, you must register it in the device client:
+    
+    ```
+    import myCustomCodec
+
+    client.setMessageEncoderModule("custom", myCustomCodec)
+    client.publishEvent("status", "custom", myData)
+    ```
+    
+    If an event is sent in an unknown format or if a device does not recognize the format, the device 
+    library raises #ibmiotf.MissingMessageDecoderException.
+    """
+    
+    _COMMAND_TOPIC = "iot-2/cmd/+/fmt/+"
 
     def __init__(self, options, logHandlers=None):
         self._options = options
@@ -77,6 +156,7 @@ class Client(AbstractClient):
         if "domain" not in self._options:
             # Default to the domain for the public cloud offering
             self._options['domain'] = "internetofthings.ibmcloud.com"
+        
         if "clean-session" not in self._options:
             self._options['clean-session'] = "true"
 
@@ -107,9 +187,7 @@ class Client(AbstractClient):
 
             if (self._options['auth-method'] == "token"):
                 if self._options['auth-token'] is None:
-                    raise ConfigurationException(
-                        "Missing required property for token based "
-                        "authentication: auth-token")
+                    raise ConfigurationException("Missing required property for token based authentication: auth-token")
             else:
                 raise UnsupportedAuthenticationMethod(options['auth-method'])
 
@@ -128,75 +206,83 @@ class Client(AbstractClient):
 
         # Add handler for commands if not connected to QuickStart
         if self._options['org'] != "quickstart":
-            self.client.message_callback_add("iot-2/cmd/+/fmt/+", self.__onCommand)
+            self.client.message_callback_add("iot-2/cmd/+/fmt/+", self._onCommand)
 
         self.subscriptionsAcknowledged = threading.Event()
 
         # Initialize user supplied callback
         self.commandCallback = None
 
-        self.client.on_connect = self.on_connect
+        self.client.on_connect = self._onConnect
 
         self.setMessageEncoderModule('json', jsonCodec)
         self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
         self.setMessageEncoderModule('xml', xmlCodec)
 
 
-    def on_connect(self, client, userdata, flags, rc):
-        '''
-        This is called after the client has received a CONNACK message from the broker in response to calling connect().
-        The parameter rc is an integer giving the return code:
+    def _onConnect(self, mqttc, userdata, flags, rc):
+        """
+        This is called after the client has received a CONNACK message 
+        from the broker in response to calling connect().
+        
+        See [paho.mqtt.python#on_connect](https://github.com/eclipse/paho.mqtt.python#on_connect) for more information
+        
+        # Parameters
+        mqttc (paho.mqtt.client.Client): The client instance for this callback
+        userdata: The private user data as set in `Client()` or `user_data_set()`
+        flags: response flags sent by the broker
+        rc (int): the connection result.
+        
+        The value of `rc` indicates success or not
 
-        0: Success
-        1: Refused - unacceptable protocol version
-        2: Refused - identifier rejected
-        3: Refused - server unavailable
-        4: Refused - bad user name or password
-        5: Refused - not authorised
-        '''
+        - `0` Success
+        - `1` Refused - incorrect protocol version
+        - `2` Refused - invalid client identifier
+        - `3` Refused - server unavailable
+        - `4` Refused - bad user name or password
+        - `5` Refused - not authorised
+        """
+        
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s" % (self.clientId))
             if self._options['org'] != "quickstart":
-                self.__subscribeToCommands()
+                self._subscribeToCommands()
         elif rc == 5:
-            self.logAndRaiseException(ConnectionException(
-                "Not authorized: s (%s, %s, %s)" % (
-                    self.clientId, self.username, self.password)))
+            self.logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
         else:
-            self.logAndRaiseException(ConnectionException(
-                "Connection failed: RC= %s" % (rc)))
+            self.logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
+
 
     def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
-        '''
-        Publish an event in IoTF.
+        """
+        Publish an event to Watson IoT Platform.
 
-        Parameters:
-            event - the name of this event
-            msgFormat - the format of the data for this event
-            data - the data for this event
-
-        Optional paramters:
-            qos - the equivalent MQTT semantics of quality of service using the same constants (0, 1 and 2)
-            on_publish - a function that will be called when receipt of the publication is confirmed.  This
-                         has different implications depending on the qos:
-                         qos 0 - the client has asynchronously begun to send the event
-                         qos 1 and 2 - the client has confirmation of delivery from IoTF
-        '''
+        # Parameters
+        event (string): Name of this event
+        msgFormat (string): Format of the data for this event
+        data (dict): Data for this event
+        qos (int): MQTT quality of service level to use (`0`, `1`, or `2`)
+        on_publish(function): A function that will be called when receipt 
+           of the publication is confirmed.  
+        
+        # Callback and QoS
+        The use of the optional #on_publish function has different implications depending 
+        on the level of qos used to publish the event: 
+        
+        - qos 0: the client has asynchronously begun to send the event
+        - qos 1 and 2: the client has confirmation of delivery from the platform
+        """
         if not self.connectEvent.wait(timeout=10):
-            self.logger.warning("Unable to send event %s because device is "
-                                "not currently connected", event)
+            self.logger.warning("Unable to send event %s because device is not currently connected", event)
             return False
         else:
-            self.logger.debug("Sending event %s with data %s",
-                              event, json.dumps(data))
+            self.logger.debug("Sending event %s with data %s", event, json.dumps(data))
 
-            topic = "iot-2/evt/{event}/fmt/{msg_format}".format(
-                event=event, msg_format=msgFormat)
+            topic = "iot-2/evt/{event}/fmt/{msg_format}".format(event=event, msg_format=msgFormat)
 
             if msgFormat in self._messageEncoderModules:
-                payload = self._messageEncoderModules[msgFormat].encode(
-                    data, datetime.now(pytz.timezone('UTC')))
+                payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 
                 try:
                     result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
@@ -219,28 +305,27 @@ class Client(AbstractClient):
                 raise MissingMessageEncoderException(msgFormat)
 
 
-    def __subscribeToCommands(self):
-        '''
+    def _subscribeToCommands(self):
+        """
         Subscribe to commands sent to this device.
-        '''
+        """
         if self._options['org'] == "quickstart":
-            self.logger.warning("QuickStart applications do not "
-                                "support commands")
+            self.logger.warning("QuickStart applications do not support commands")
             return False
 
         if not self.connectEvent.wait(timeout=10):
-            self.logger.warning("Unable to subscribe to commands because "
-                                "device is not currently connected")
+            self.logger.warning("Unable to subscribe to commands because device is not currently connected")
             return False
         else:
-            self.client.subscribe(Client.COMMAND_TOPIC, qos=1)
+            self.client.subscribe(self._COMMAND_TOPIC, qos=1)
             return True
 
-    def __onCommand(self, client, userdata, pahoMessage):
-        '''
+
+    def _onCommand(self, client, userdata, pahoMessage):
+        """
         Internal callback for device command messages, parses source device from topic string and
-        passes the information on to the registerd device command callback
-        '''
+        passes the information on to the registered device command callback
+        """
         with self._recvLock:
             self.recv = self.recv + 1
         try:
@@ -556,7 +641,7 @@ class ManagedClient(Client):
                         (ManagedClient.DM_FIRMWARE_UPDATE_TOPIC, 1),
                         (ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC, 1),
                         (ManagedClient.DM_CANCEL_OBSERVE_TOPIC, 1),
-                        (Client.COMMAND_TOPIC, 1),
+                        (self._COMMAND_TOPIC, 1),
                         (ManagedClient.DME_ACTION_TOPIC, 1)
                     ]
                 )
