@@ -413,7 +413,7 @@ class HttpClient(HttpAbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(
                     data, datetime.now(pytz.timezone('UTC')))
-                contentType = self.getContentType(msgFormat)
+                contentType = self._getContentType(msgFormat)
                 response = requests.post(
                     intermediateUrl, auth=credentials, data=payload,
                     headers={'content-type': contentType})

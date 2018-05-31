@@ -652,7 +652,7 @@ class HttpClient(HttpAbstractClient):
 
         try:
             self.logger.debug("Data Format = %s",(dataFormat))
-            contentType = self.getContentType(dataFormat)
+            contentType = self._getContentType(dataFormat)
             self.logger.debug("contentType = %s",(contentType))
             payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now())
             response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
@@ -688,7 +688,7 @@ class HttpClient(HttpAbstractClient):
         intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
         try:
             self.logger.debug("Data Format = %s",(cmdFormat))
-            contentType = self.getContentType(cmdFormat)
+            contentType = self._getContentType(cmdFormat)
             self.logger.debug("contentType = %s",(contentType))
             payload = self._messageEncoderModules[cmdFormat].encode(cmdData, datetime.now())
             response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})

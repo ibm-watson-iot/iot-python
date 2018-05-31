@@ -522,7 +522,7 @@ class HttpAbstractClient(object):
         self.logger.critical(str(e))
         raise e
 
-    def getContentType(self, dataFormat):
+    def _getContentType(self, dataFormat):
         """
         Determines the content type for the HTTP message
         """
