@@ -27,11 +27,16 @@ generate:
   - ibmiotf.MissingMessageEncoderException
 - docs/exceptions/api.md:
   - ibmiotf.APIException
+
+- docs/device/parseConfigFile.md:
+  - ibmiotf.device.ParseConfigFile
 - docs/device/client.md:
   - ibmiotf.device.Client++
+- docs/device/httpClient.md:
+  - ibmiotf.device.HttpClient++
+- docs/device/command.md:
+  - ibmiotf.device.Command++
 #  - ibmiotf.device.ManagedClient++
-#  - ibmiotf.device.HttpClient++
-#  - ibmiotf.device.Command++
 #  - ibmiotf.device.DeviceInfo++
 #  - ibmiotf.device.DeviceFirmware++
   
@@ -53,6 +58,9 @@ pages:
   - APIException: docs/exceptions/api.md
 - ibmiotf.device:
   - Client: docs/device/client.md
+  - HttpClient: docs/device/httpClient.md
+  - ParseConfigFile: docs/device/parseConfigFile.md
+  - Command: docs/device/command.md
 
 # These options all show off their default values. You don't have to add
 # them to your configuration if you're fine with the default.

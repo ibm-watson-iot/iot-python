@@ -248,7 +248,14 @@ class Client(AbstractClient):
             self.logger.warning("Unable to send event %s because gateway as a device is not currently connected")
             return False
         else:
-            self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
+            if self.logger.isEnabledFor(logging.DEBUG):
+                # The data object may not be serializable, e.g. if using a custom binary format
+                try: 
+                    dataString = json.dumps(data)
+                except:
+                    dataString = str(data)
+                self.logger.debug("Sending event %s with data %s" % (event, dataString))
+                
             topic = 'iot-2/type/' + deviceType + '/id/' + deviceId +'/evt/'+event+'/fmt/' + msgFormat
 
             if msgFormat in self._messageEncoderModules:
@@ -296,7 +303,14 @@ class Client(AbstractClient):
             self.logger.warning("Unable to send event %s because gateway as a device is not currently connected")
             return False
         else:
-            self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
+            if self.logger.isEnabledFor(logging.DEBUG):
+                # The data object may not be serializable, e.g. if using a custom binary format
+                try: 
+                    dataString = json.dumps(data)
+                except:
+                    dataString = str(data)
+                self.logger.debug("Sending event %s with data %s" % (event, dataString))
+                
             topic = 'iot-2/type/' + gatewayType + '/id/' + gatewayId +'/evt/'+event+'/fmt/' + msgFormat
 
             if msgFormat in self._messageEncoderModules:

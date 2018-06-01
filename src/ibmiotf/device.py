@@ -277,7 +277,13 @@ class Client(AbstractClient):
             self.logger.warning("Unable to send event %s because device is not currently connected", event)
             return False
         else:
-            self.logger.debug("Sending event %s with data %s", event, json.dumps(data))
+            if self.logger.isEnabledFor(logging.DEBUG):
+                # The data object may not be serializable, e.g. if using a custom binary format
+                try: 
+                    dataString = json.dumps(data)
+                except:
+                    dataString = str(data)
+                self.logger.debug("Sending event %s with data %s" % (event, dataString))
 
             topic = "iot-2/evt/{event}/fmt/{msg_format}".format(event=event, msg_format=msgFormat)
 
@@ -340,7 +346,30 @@ class Client(AbstractClient):
 
 class HttpClient(HttpAbstractClient):
     """
-    A basic device client with limited capabilies that forgoes an active MQTT connection to the service.
+    A basic device client with limited capabilies that forgoes 
+    an active MQTT connection to the service.  Extends #ibmiotf.HttpAbstractClient.
+        
+    # Parameters
+    options (dict): Configuration options for the client
+    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
+        which will result in a default log handler being created.
+        
+    # Configuration Options
+    The options parameter expects a Python dictionary containing the following keys:
+    
+    - `orgId` Your organization ID.
+    - `type` The type of the device. Think of the device type is analagous to a model number.
+    - `id` A unique ID to identify a device. Think of the device id as analagous to a serial number.
+    - `auth-method` The method of authentication. The only method that is currently supported is `token`.
+    - `auth-token` An authentication token to securely connect your device to Watson IoT Platform.
+    
+    
+    The HTTP client supports four content-types for posted events:
+    
+    - `application/xml`: for events/commands using message format `xml`
+    - `text/plain; charset=utf-8`: for events/commands using message format `plain`
+    - `application/octet-stream`: for events/commands using message format `bin`
+    - `application/json`: the default for all other message formats.
     """
 
     def __init__(self, options, logHandlers=None):
@@ -350,8 +379,6 @@ class HttpClient(HttpAbstractClient):
         if "domain" not in self._options:
             # Default to the domain for the public cloud offering
             self._options['domain'] = "internetofthings.ibmcloud.com"
-        if "clean-session" not in self._options:
-            self._options['clean-session'] = "true"
 
         ### REQUIRED ###
         if self._options['org'] is None:
@@ -385,8 +412,13 @@ class HttpClient(HttpAbstractClient):
     def publishEvent(self, event, msgFormat, data):
         """
         Publish an event over HTTP(s) as given supported format
-        Throws a ConnectionException with the message "Server not found" if the client is unable to reach the server
-        Otherwise it returns the HTTP status code, (200 - 207 for success)
+        
+        # Raises
+        MissingMessageEncoderException: If there is no registered encoder for `msgFormat`
+        Exception: If something went wrong
+        
+        # Returns
+        int: The HTTP status code for the publish
         """
         self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
 
@@ -403,20 +435,18 @@ class HttpClient(HttpAbstractClient):
             authMethod = None
             authToken = None
 
-        intermediateUrl = templateUrl % (orgid, self._options['domain'],
-                                         deviceType, deviceId, event)
+        intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
         self.logger.debug("URL: %s", intermediateUrl)
         try:
-            self.logger.debug("Sending event %s with data %s",
-                              event, json.dumps(data))
-
             if msgFormat in self._messageEncoderModules:
-                payload = self._messageEncoderModules[msgFormat].encode(
-                    data, datetime.now(pytz.timezone('UTC')))
+                payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
                 contentType = self._getContentType(msgFormat)
                 response = requests.post(
-                    intermediateUrl, auth=credentials, data=payload,
-                    headers={'content-type': contentType})
+                    intermediateUrl, 
+                    auth=credentials, 
+                    data=payload,
+                    headers={'content-type': contentType}
+                )
             else:
                 raise MissingMessageEncoderException(msgFormat)
 
@@ -1197,10 +1227,56 @@ class ManagedClient(Client):
 
 
 def ParseConfigFile(configFilePath):
+    """
+    Parse a configuration file into a Python dictionary suitable for passing to the 
+    device client constructor as the `options` parameter
+    
+    Note: Support for this is likely to be removed in favour of 
+    a yaml configuration configuration file as move towards the 1.0 release
+    
+    ```python
+    import ibmiotf.device
+    
+    try:
+        options = ibmiotf.device.ParseConfigFile(configFilePath)
+        client = ibmiotf.device.Client(options)
+    except ibmiotf.ConnectionException  as e:
+        pass
+        
+    ```
+    
+    # Example Configuration File
+    
+    ```
+    [device]
+    org=org1id
+    type=raspberry-pi-3
+    id=00ef08ac05
+    auth-method=token
+    auth-token=Ab$76s)asj8_s5
+    clean-session=true/false
+    domain=internetofthings.ibmcloud.com
+    port=8883
+    ```
+    
+    **Required Settings**
+    
+    - `org`
+    - `type`
+    - `id`
+    - `auth-method`
+    - `auth-token`
+
+    **Optional Settings**
+    
+    - `clean-session` Defaults to `false`
+    - `domain` Defaults to `internetofthings.ibmcloud.com`
+    - `port` Defaults to `8883`    
+    """
+    
     parms = configparser.ConfigParser({
         "domain": "internetofthings.ibmcloud.com",
-        "port": "8883",  # Even though this is a string here, the parms.getint
-                         # method will ensure it's assigned as an int
+        "port": "8883",  # Even though this is a string here, the parms.getint method will ensure it's assigned as an int
         "clean-session": "true"
     })
     sectionHeader = "device"
