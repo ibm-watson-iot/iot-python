@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+import logging
 import re
 import uuid
 import json
