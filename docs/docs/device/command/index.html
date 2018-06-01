@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../../img/favicon.ico">
-  <title>MissingMessageEncoderException - IBM Watson IoT Platform Python Library</title>
+  <title>Command - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "MissingMessageEncoderException";
-    var mkdocs_page_input_path = "docs\\exceptions\\missingEncoder.md";
-    var mkdocs_page_url = "/docs/exceptions/missingEncoder/";
+    var mkdocs_page_name = "Command";
+    var mkdocs_page_input_path = "docs\\device\\command.md";
+    var mkdocs_page_url = "/docs/device/command/";
   </script>
   
   <script src="../../../js/jquery-2.1.1.min.js"></script>
@@ -70,34 +70,31 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../connect/">ConnectionException</a>
+    <a class="" href="../../exceptions/connect/">ConnectionException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../config/">ConfigurationException</a>
+    <a class="" href="../../exceptions/config/">ConfigurationException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../auth/">UnsupportedAuthenticationMethod</a>
+    <a class="" href="../../exceptions/auth/">UnsupportedAuthenticationMethod</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../invalidEvent/">InvalidEventException</a>
+    <a class="" href="../../exceptions/invalidEvent/">InvalidEventException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../missingDecoder/">MissingMessageDecoderException</a>
-                </li>
-                <li class=" current">
-                    
-    <a class="current" href="./">MissingMessageEncoderException</a>
-    <ul class="subnav">
-            
-    </ul>
+    <a class="" href="../../exceptions/missingDecoder/">MissingMessageDecoderException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../api/">APIException</a>
+    <a class="" href="../../exceptions/missingEncoder/">MissingMessageEncoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/api/">APIException</a>
                 </li>
     </ul>
 	    </li>
@@ -108,19 +105,22 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../device/client/">Client</a>
+    <a class="" href="../client/">Client</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../device/httpClient/">HttpClient</a>
+    <a class="" href="../httpClient/">HttpClient</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../device/parseConfigFile/">ParseConfigFile</a>
+    <a class="" href="../parseConfigFile/">ParseConfigFile</a>
                 </li>
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="../../device/command/">Command</a>
+    <a class="current" href="./">Command</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
     </ul>
 	    </li>
@@ -147,11 +147,11 @@
     
       
         
-          <li>ibmiotf &raquo;</li>
+          <li>ibmiotf.device &raquo;</li>
         
       
     
-    <li>MissingMessageEncoderException</li>
+    <li>Command</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -161,15 +161,29 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="ibmiotf.MissingMessageEncoderException">MissingMessageEncoderException</h1>
+                <h1 id="ibmiotf.device.Command">Command</h1>
 
-<pre><code class="python">MissingMessageEncoderException(self, format)
+<pre><code class="python">Command(self, pahoMessage, messageEncoderModules)
 </code></pre>
 
-<p>Specific exception where there is no message encoder defined for the message format being processed</p>
+<p>Represents a command sent to a device.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>pahoMessage (?)</strong>: ?</li>
+<li><strong>messageEncoderModules (dict)</strong>: Dictionary of Python modules, keyed to the
+    message format the module should use.</li>
+</ul>
 <p><strong>Attributes</strong></p>
 <ul>
-<li><code>format (string)</code>: The message format for which no encoder could be found</li>
+<li><code>command (string)</code>: Identifies the command.</li>
+<li><code>format (string)</code>: The format can be any string, for example JSON.</li>
+<li><code>data (dict)</code>: The data for the payload. Maximum length is 131072 bytes.</li>
+<li><code>timestamp (datetime)</code>: The date and time of the event.</li>
+</ul>
+<p><strong>Raises</strong></p>
+<ul>
+<li><code>InvalidEventException</code>: If the command was recieved on a topic that does
+    not match the regular expression <code>iot-2/cmd/(.+)/fmt/(.+)</code></li>
 </ul>
               
             </div>
@@ -178,10 +192,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../api/" class="btn btn-neutral float-right" title="APIException">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-      
-        <a href="../missingDecoder/" class="btn btn-neutral" title="MissingMessageDecoderException"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../parseConfigFile/" class="btn btn-neutral" title="ParseConfigFile"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -207,10 +219,8 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../missingDecoder/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../parseConfigFile/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
-      
-        <span style="margin-left: 15px"><a href="../api/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

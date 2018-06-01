@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../../img/favicon.ico">
-  <title>MissingMessageEncoderException - IBM Watson IoT Platform Python Library</title>
+  <title>HttpClient - IBM Watson IoT Platform Python Library</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "MissingMessageEncoderException";
-    var mkdocs_page_input_path = "docs\\exceptions\\missingEncoder.md";
-    var mkdocs_page_url = "/docs/exceptions/missingEncoder/";
+    var mkdocs_page_name = "HttpClient";
+    var mkdocs_page_input_path = "docs\\device\\httpClient.md";
+    var mkdocs_page_url = "/docs/device/httpClient/";
   </script>
   
   <script src="../../../js/jquery-2.1.1.min.js"></script>
@@ -70,34 +70,31 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../connect/">ConnectionException</a>
+    <a class="" href="../../exceptions/connect/">ConnectionException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../config/">ConfigurationException</a>
+    <a class="" href="../../exceptions/config/">ConfigurationException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../auth/">UnsupportedAuthenticationMethod</a>
+    <a class="" href="../../exceptions/auth/">UnsupportedAuthenticationMethod</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../invalidEvent/">InvalidEventException</a>
+    <a class="" href="../../exceptions/invalidEvent/">InvalidEventException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../missingDecoder/">MissingMessageDecoderException</a>
-                </li>
-                <li class=" current">
-                    
-    <a class="current" href="./">MissingMessageEncoderException</a>
-    <ul class="subnav">
-            
-    </ul>
+    <a class="" href="../../exceptions/missingDecoder/">MissingMessageDecoderException</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../api/">APIException</a>
+    <a class="" href="../../exceptions/missingEncoder/">MissingMessageEncoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/api/">APIException</a>
                 </li>
     </ul>
 	    </li>
@@ -108,19 +105,22 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../device/client/">Client</a>
+    <a class="" href="../client/">Client</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">HttpClient</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../device/httpClient/">HttpClient</a>
+    <a class="" href="../parseConfigFile/">ParseConfigFile</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../device/parseConfigFile/">ParseConfigFile</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../device/command/">Command</a>
+    <a class="" href="../command/">Command</a>
                 </li>
     </ul>
 	    </li>
@@ -147,11 +147,11 @@
     
       
         
-          <li>ibmiotf &raquo;</li>
+          <li>ibmiotf.device &raquo;</li>
         
       
     
-    <li>MissingMessageEncoderException</li>
+    <li>HttpClient</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -161,16 +161,48 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="ibmiotf.MissingMessageEncoderException">MissingMessageEncoderException</h1>
+                <h1 id="ibmiotf.device.HttpClient">HttpClient</h1>
 
-<pre><code class="python">MissingMessageEncoderException(self, format)
+<pre><code class="python">HttpClient(self, options, logHandlers=None)
 </code></pre>
 
-<p>Specific exception where there is no message encoder defined for the message format being processed</p>
-<p><strong>Attributes</strong></p>
+<p>A basic device client with limited capabilies that forgoes
+an active MQTT connection to the service.  Extends <code>ibmiotf.HttpAbstractClient</code>.</p>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><code>format (string)</code>: The message format for which no encoder could be found</li>
+<li><strong>options (dict)</strong>: Configuration options for the client</li>
+<li><strong>logHandlers (list<logging.Handler>)</strong>: Log handlers to configure.  Defaults to <code>None</code>,
+    which will result in a default log handler being created.</li>
 </ul>
+<p><strong>Configuration Options</strong></p>
+<p>The options parameter expects a Python dictionary containing the following keys:</p>
+<ul>
+<li><code>orgId</code> Your organization ID.</li>
+<li><code>type</code> The type of the device. Think of the device type is analagous to a model number.</li>
+<li><code>id</code> A unique ID to identify a device. Think of the device id as analagous to a serial number.</li>
+<li><code>auth-method</code> The method of authentication. The only method that is currently supported is <code>token</code>.</li>
+<li><code>auth-token</code> An authentication token to securely connect your device to Watson IoT Platform.</li>
+</ul>
+<p>The HTTP client supports four content-types for posted events:</p>
+<ul>
+<li><code>application/xml</code>: for events/commands using message format <code>xml</code></li>
+<li><code>text/plain; charset=utf-8</code>: for events/commands using message format <code>plain</code></li>
+<li><code>application/octet-stream</code>: for events/commands using message format <code>bin</code></li>
+<li><code>application/json</code>: the default for all other message formats.</li>
+</ul>
+<h2 id="ibmiotf.device.HttpClient.publishEvent">publishEvent</h2>
+
+<pre><code class="python">HttpClient.publishEvent(self, event, msgFormat, data)
+</code></pre>
+
+<p>Publish an event over HTTP(s) as given supported format</p>
+<p><strong>Raises</strong></p>
+<ul>
+<li><code>MissingMessageEncoderException</code>: If there is no registered encoder for <code>msgFormat</code></li>
+<li><code>Exception</code>: If something went wrong</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>int</code>: The HTTP status code for the publish</p>
               
             </div>
           </div>
@@ -178,10 +210,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../api/" class="btn btn-neutral float-right" title="APIException">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../parseConfigFile/" class="btn btn-neutral float-right" title="ParseConfigFile">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../missingDecoder/" class="btn btn-neutral" title="MissingMessageDecoderException"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../client/" class="btn btn-neutral" title="Client"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -207,10 +239,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../missingDecoder/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../client/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../api/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../parseConfigFile/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
