@@ -1,14 +1,37 @@
-import testUtils
+import uuid
 from nose.tools import *
 from nose import SkipTest
 
+import testUtils
 from ibmiotf.api.registry import Registry
+from ibmiotf.api.registry.devices import DeviceUid
+
 class TestDevice(testUtils.AbstractTest):
     
     @classmethod
     def setup_class(self):
         self.registry = Registry(self.WIOTP_API_KEY, self.WIOTP_API_TOKEN)
 
+
+    # =========================================================================
+    # Bulk operations tests
+    # =========================================================================
+    def testBulkAddAndDelete(self):
+        device1Id = DeviceUid("test", str(uuid.uuid4()))
+        device2Id = DeviceUid("test", str(uuid.uuid4()))
+        
+        devicesToRegister = [device1Id, device2Id]
+        self.registry.devices.create(devicesToRegister)
+        
+        myDeviceType = self.registry.devicetypes["test"]        
+        assert_true(device1Id.deviceId in myDeviceType.devices)
+        assert_true(device2Id.deviceId in myDeviceType.devices)        
+    
+        self.registry.devices.delete(devicesToRegister)
+        assert_false(device1Id.deviceId in myDeviceType.devices)
+        assert_false(device2Id.deviceId in myDeviceType.devices)
+    
+            
     # =========================================================================
     # Device Type tests
     # =========================================================================

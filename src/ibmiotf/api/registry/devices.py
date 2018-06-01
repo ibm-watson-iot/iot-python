@@ -3,6 +3,19 @@ from collections import defaultdict
 
 from ibmiotf.api.common import IterableList
 
+class DeviceUid(defaultdict):
+    def __init__(self, typeId, deviceId):
+        dict.__init__(self, typeId=typeId, deviceId=deviceId)
+    
+    @property
+    def typeId(self):
+        return self["typeId"]
+        
+    @property
+    def deviceId(self):
+        return self["deviceId"]
+    
+
 class Device():
     def __init__(self, apiClient, data):
         self._data = data
@@ -169,3 +182,42 @@ class Devices(defaultdict):
         iterate through all devices
         """
         return IterableDeviceList(self.apiClient, self.typeId)
+    
+    
+    def create(self, listOfDevices):
+        """
+        Register multiple new devices, each request can contain a maximum of 512KB.
+        The response body will contain the generated authentication tokens for all devices.
+        You must make sure to record these tokens when processing the response.
+        We are not able to retrieve lost authentication tokens
+        It accepts accepts a list of devices (List of Dictionary of Devices)
+        In case of failure it throws APIException
+        """
+        r = self.apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
+
+        if r.status_code == 201:
+            print("All devices created successfully")
+            return r.json()
+        if r.status_code == 202:
+            print("Some devices created successfully")
+            return r.json()
+        else:
+            raise Exception("HTTP %s %s"% (r.status_code, r.text))
+
+
+    def delete(self, listOfDevicesUids):
+        """
+        Delete multiple devices, each request can contain a maximum of 512Kb
+        It accepts accepts a list of devices (List of Dictionary of Devices)
+        In case of failure it throws APIException
+        """
+        r = self.apiClient.post('api/v0002/bulk/devices/remove', listOfDevicesUids)
+
+        if r.status_code == 200:
+            print("All devices deleted successfully")
+            return r.json()
+        if r.status_code == 202:
+            print("Some devices deleted successfully")
+            return r.json()
+        else:
+            raise Exception("HTTP %s %s"% (r.status_code, r.text))

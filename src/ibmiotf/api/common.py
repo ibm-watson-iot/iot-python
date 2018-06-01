@@ -1,5 +1,6 @@
 import requests
 import logging
+import json
 
 class ApiClient():
     def __init__(self, options, logger=None):
@@ -42,7 +43,16 @@ class ApiClient():
 
     def delete(self, url):
         return requests.delete("https://%s/%s" % (self.host, url), auth = self.credentials, verify=self.verify)
-    
+
+    def post(self, url, data):
+        return requests.post(
+            "https://%s/%s" % (self.host, url), 
+            auth = self.credentials, 
+            data = json.dumps(data), 
+            headers = {'content-type': 'application/json'}, 
+            verify=self.verify
+        )
+
 
 class IterableList(object):
     def __init__(self, apiClient, castToClass, url, sort=None):
