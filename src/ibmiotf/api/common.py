@@ -60,6 +60,7 @@ class IterableList(object):
     def __iter__(self):
         return self
     
+    # Python 2.x
     def next(self):
         if len(self.listBuffer) == 0 and not self.noMoreResults:
             # We need to make an api call
@@ -76,6 +77,10 @@ class IterableList(object):
         else:
             raise StopIteration
     
+    # Python 3.x
+    def __next__(self):
+        return self.next()
+        
     def _makeApiCall(self, parameters = None):
         """
         Retrieve bulk devices
