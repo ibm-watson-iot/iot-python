@@ -30,7 +30,12 @@ setup(
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
-    packages=['ibmiotf', 'ibmiotf.codecs'],
+    packages=[
+        'ibmiotf', 
+        'ibmiotf.api',
+        'ibmiotf.api.registry',
+        'ibmiotf.codecs'
+    ],
     package_data={'ibmiotf': ['*.pem']},
     url='https://github.com/ibm-watson-iot/iot-python',
     license=open('LICENSE').read(),
