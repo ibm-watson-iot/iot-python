@@ -37,6 +37,9 @@ setup(
         'ibmiotf.codecs'
     ],
     package_data={'ibmiotf': ['*.pem']},
+    scripts=[
+        'bin/wiotp-cli'
+    ],
     url='https://github.com/ibm-watson-iot/iot-python',
     license=open('LICENSE').read(),
     description='Python Client for IBM Watson IoT Platform',

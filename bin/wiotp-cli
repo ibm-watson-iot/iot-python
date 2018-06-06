@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+
+# *****************************************************************************
+# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html 
+#
+# *****************************************************************************
+
+import argparse
+import os
+import sys
+import yaml
+from pprint import pprint
+try:
+	import ibmiotf.api.registry
+except ImportError:
+	# This part is only required to run the sample from within the samples
+	# directory when the module itself is not installed.
+	#
+	# If you have the module installed, just use "import ibmiotf"
+	import inspect
+	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../src")))
+	if cmd_subfolder not in sys.path:
+		sys.path.insert(0, cmd_subfolder)
+	import ibmiotf.api.registry
+
+
+class cli():
+	def __init__(self):
+		self.homeDir = os.path.expanduser("~")
+		self.configDir = os.path.join(self.homeDir, "wiotp")
+		self.configFile = os.path.join(self.configDir, "cli.yml")
+		if os.path.exists(self.configFile):
+			self.configured = True
+			with open(self.configFile, "r") as configFile:
+				config = yaml.load(configFile)
+			
+			if config is not None and "key" in config and "token" in config:
+				self.registry = ibmiotf.api.registry.Registry(config["key"], config["token"])
+		else:
+			self.configured = False
+	
+	def parseCommandLineArguments(self):
+		"""
+		wiotp config --api-key WIOTP_API_KEY --api-token WIOTP_API_TOKEN
+		wiotp ls type|device --limit 100
+		wiotp add device --typeId TYPE_ID --deviceId DEVICE_ID 
+		wiotp get device --typeId TYPE_ID --deviceId DEVICE_ID
+		wiotp get lastevent|lec --typeId TYPE_ID --deviceId DEVICE_ID --eventId EVENT_ID
+		wiotp rm device --typeId TYPE_ID --deviceId DEVICE_ID
+		wiotp rm device --typeId TYPE_ID --deviceId DEVICE_ID --metadata "{}"
+		wiotp log connection --typeId TYPE_ID --deviceId DEVICE_ID
+		"""
+		parser = argparse.ArgumentParser(prog='wiotp')
+		
+		# Credentials parser
+		credentials = argparse.ArgumentParser(add_help=False)
+		credentials.add_argument('-k', '--key', help='API Key', required=True)
+		credentials.add_argument('-t', '--token', help='API Token', required=True)
+		
+		# Required Device ID parser
+		deviceId = argparse.ArgumentParser(add_help=False)
+		deviceId.add_argument('-d', '--deviceId', help='Device ID', required=True)
+		
+		# Required type ID parser
+		typeId = argparse.ArgumentParser(add_help=False)
+		typeId.add_argument('-t', '--typeId', help='Type ID', required=True)
+		
+		# Optional Type ID parser
+		optionalTypeId = argparse.ArgumentParser(add_help=False)
+		optionalTypeId.add_argument('-t', '--typeId', help='Type ID', required=False, default=None)
+		
+		# Optional list limit parser
+		limit = argparse.ArgumentParser(add_help=False)
+		limit.add_argument('-l', '--limit', help='Maximum number of results to return (defaults to 10)', required=False, type=int, default=10)
+		
+		sp = parser.add_subparsers()
+		sp_config = sp.add_parser('config', parents=[credentials], help='Authenticate with WIoTP API key & token')
+		sp_list = sp.add_parser('ls', help='List resources')
+		sp_get = sp.add_parser('get', help='Get resources')
+		
+		sp_list_sp = sp_list.add_subparsers()
+		sp_list_devices = sp_list_sp.add_parser('devices', parents=[limit, optionalTypeId])
+		sp_list_types = sp_list_sp.add_parser('devicetypes', parents=[limit])
+		
+		sp_get_sp = sp_get.add_subparsers()
+		sp_get_device = sp_get_sp.add_parser('device', parents=[deviceId, typeId])
+		
+		# Set handler functions
+		sp_config.set_defaults(func=self.configure)
+		sp_list_devices.set_defaults(func=self.listDevices)
+		sp_list_types.set_defaults(func=self.listTypes)
+		sp_get_device.set_defaults(func=self.getDevice)
+		
+		self.args = parser.parse_args()
+		return self.args.func()
+	
+	def configure(self):
+		print("Configuration is saved to %s" % self.configFile)
+		if not os.path.exists(self.configDir):
+			os.makedirs(self.configDir)
+		
+		with open(self.configFile, "w") as configFile:
+			yaml.dump({"key": self.args.key, "token": self.args.token}, configFile, default_flow_style=False)
+		return 0
+	
+	def listDevices(self):
+		if not self.configured:
+			print("No configuration file found - use \"wiotp config\" command to configure the CLI")
+			return 1
+		
+		deviceList = []
+		i = 0
+		
+		if self.args.typeId is not None:
+			source = self.registry.devicetypes[self.args.typeId].devices
+		else:
+			source = self.registry.devices
+		
+		for device in source:
+			i += 1
+			if i > self.args.limit:
+				break
+			deviceList.append(device)
+		pprint(deviceList)
+		return 0
+	
+	def listTypes(self):
+		if not self.configured:
+			print("No configuration file found - use \"wiotp config\" command to configure the CLI")
+			return 1
+		
+		typeList = []
+		i = 0
+		
+		for type in self.registry.devicetypes:
+			i += 1
+			if i > self.args.limit:
+				break
+			typeList.append(type)
+		pprint(typeList)
+		return 0
+	
+	def getDevice(self):
+		if not self.configured:
+			print("No configuration file found - use \"wiotp config\" command to configure the CLI")
+			return 1
+		pprint(self.registry.devicetypes[self.args.typeId].devices[self.args.deviceId])
+		return 0
+	
+
+if __name__ == "__main__":
+	myCli = cli()
+	rc = myCli.parseCommandLineArguments()
+	sys.exit(rc)
