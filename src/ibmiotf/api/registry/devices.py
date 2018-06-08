@@ -15,10 +15,77 @@ class DeviceUid(defaultdict):
     def deviceId(self):
         return self["deviceId"]
     
+class DeviceCreateRequest(defaultdict):
+    def __init__(self, typeId, deviceId, authToken = None, deviceInfo = None, location = None, metadata=None):
+        dict.__init__(
+            self, 
+            typeId=typeId,
+            deviceId=deviceId,
+            authToken=authToken,
+            deviceInfo=deviceInfo, 
+            location=location, 
+            metadata=metadata
+        )
+    
+    @property
+    def typeId(self):
+        return self["typeId"]
+    @property
+    def deviceId(self):
+        return self["deviceId"]
+    @property
+    def authToken(self):
+        return self["authToken"]
+    @property
+    def deviceInfo(self):
+        return DeviceInfo(**self["deviceInfo"])
+    @property
+    def location(self):
+        return self["location"]
+    @property
+    def metadata(self):
+        return self["metadata"]
+    
+class DeviceInfo(defaultdict):
+    def __init__(self, description=None, deviceClass=None, fwVersion=None, hwVersion=None, manufacturer=None, model=None, serialNumber=None):
+        dict.__init__(
+            self, 
+            description=description,
+            deviceClass=deviceClass,
+            fwVersion=fwVersion,
+            hwVersion=hwVersion, 
+            manufacturer=manufacturer, 
+            model=model, 
+            serialNumber=serialNumber
+        )
+    
+    @property
+    def description(self):
+        return self["description"]
+    @property
+    def deviceClass(self):
+        return self["deviceClass"]
+    @property
+    def fwVersion(self):
+        return self["fwVersion"]
+    @property
+    def hwVersion(self):
+        return self["hwVersion"]
+    @property
+    def manufacturer(self):
+        return self["manufacturer"]
+    @property
+    def model(self):
+        return self["model"]
+    @property
+    def serialNumber(self):
+        return self["serialNumber"]
 
+    
 class Device():
     def __init__(self, apiClient, data):
         self._data = data
+        self._apiClient = apiClient
         
         if not set(['clientId', 'deviceId', 'typeId']).issubset(data):
             raise Exception("Data passed to Device is not correct: %s" % (json.dumps(data, sort_keys=True)))
@@ -54,6 +121,16 @@ class Device():
         return self._data["deviceId"]
     
     @property
+    def metadata(self):
+        return self._data["metadata"]
+    
+    @property
+    def deviceInfo(self):
+        # Unpack the deviceInfo dictionary into keyword arguments so that we 
+        # can return a DeviceIngo object instead of a plain dictionary
+        return DeviceInfo(**self._data["deviceInfo"])
+    
+    @property
     def typeId(self):
         return self._data["typeId"]
             
@@ -66,6 +143,17 @@ class Device():
     @property
     def json(self):
         return self._data
+    
+    def update(self, metadata = None, deviceInfo = None, status = None):
+        deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (self.typeId, self.deviceId)
+
+        data = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
+        
+        r = self._apiClient.put(deviceUrl, data)
+        if r.status_code == 200:
+            return Device(self._apiClient, r.json())
+        else:
+            raise Exception("HTTP %s %s" % (r.status_code, r.text))
     
     
 class IterableDeviceList(IterableList):
@@ -112,7 +200,7 @@ class Devices(defaultdict):
     """
     # https://docs.python.org/2/library/collections.html#defaultdict-objects
     def __init__(self, apiClient, typeId=None):
-        self.apiClient = apiClient
+        self._apiClient = apiClient
         self.typeId = typeId
     
     def __contains__(self, key):
@@ -125,7 +213,7 @@ class Devices(defaultdict):
         else:
             deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (self.typeId, key)
         
-        r = self.apiClient.get(deviceUrl)
+        r = self._apiClient.get(deviceUrl)
         if r.status_code == 200:
             return True
         elif r.status_code == 404:
@@ -143,9 +231,9 @@ class Devices(defaultdict):
         else:
             deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (self.typeId, key)
 
-        r = self.apiClient.get(deviceUrl)
+        r = self._apiClient.get(deviceUrl)
         if r.status_code == 200:
-            return Device(self.apiClient, r.json())
+            return Device(self._apiClient, r.json())
         elif r.status_code == 404:
             self.__missing__(key)
         else:
@@ -167,7 +255,7 @@ class Devices(defaultdict):
         else:
             deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (self.typeId, key)
 
-        r = self.apiClient.delete(deviceUrl)
+        r = self._apiClient.delete(deviceUrl)
         if r.status_code != 204:
             raise Exception("HTTP %s %s" %(r.status_Code, r.text))
     
@@ -181,19 +269,22 @@ class Devices(defaultdict):
         """
         iterate through all devices
         """
-        return IterableDeviceList(self.apiClient, self.typeId)
+        return IterableDeviceList(self._apiClient, self.typeId)
     
     
-    def create(self, listOfDevices):
+    def create(self, devices):
         """
-        Register multiple new devices, each request can contain a maximum of 512KB.
+        Register one or more new devices, each request can contain a maximum of 512KB.
         The response body will contain the generated authentication tokens for all devices.
         You must make sure to record these tokens when processing the response.
         We are not able to retrieve lost authentication tokens
         It accepts accepts a list of devices (List of Dictionary of Devices)
-        In case of failure it throws APIException
         """
-        r = self.apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
+        
+        if not isinstance(devices):
+            listOfDevices = [devices]
+        
+        r = self._apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
 
         if r.status_code == 201:
             print("All devices created successfully")
@@ -211,7 +302,7 @@ class Devices(defaultdict):
         It accepts accepts a list of devices (List of Dictionary of Devices)
         In case of failure it throws APIException
         """
-        r = self.apiClient.post('api/v0002/bulk/devices/remove', listOfDevicesUids)
+        r = self._apiClient.post('api/v0002/bulk/devices/remove', listOfDevicesUids)
 
         if r.status_code == 200:
             print("All devices deleted successfully")

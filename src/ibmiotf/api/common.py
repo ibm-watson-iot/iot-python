@@ -53,6 +53,14 @@ class ApiClient():
             verify=self.verify
         )
 
+    def put(self, url, data):
+        return requests.put(
+            "https://%s/%s" % (self.host, url), 
+            auth = self.credentials, 
+            data = json.dumps(data), 
+            headers = {'content-type': 'application/json'}, 
+            verify=self.verify
+        )
 
 class IterableList(object):
     def __init__(self, apiClient, castToClass, url, sort=None):
