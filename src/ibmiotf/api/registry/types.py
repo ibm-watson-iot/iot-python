@@ -77,7 +77,9 @@ class IterableDeviceTypeList(IterableList):
         
 class DeviceType():
     def __init__(self, apiClient, data):
+        self._apiClient = apiClient
         self._data = data
+        
         #{"classId": "Device", "createdDateTime": "2016-01-23T16:34:46+00:00", "description": 
         #"Extended color light", "deviceInfo": {"description": "Extended color light", "manufacturer": "Philips", "model": "LCT003"}, 
         #"id": "LCT003", "refs": {"logicalInterfaces": "api/v0002/device/types/LCT003/logicalinterfaces", "mappings": 

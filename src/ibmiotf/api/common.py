@@ -64,34 +64,34 @@ class ApiClient():
 
 class IterableList(object):
     def __init__(self, apiClient, castToClass, url, sort=None):
-        self.apiClient = apiClient
-        self.castToClass = castToClass
-        self.url = url
-        self.sort = sort
+        self._apiClient = apiClient
+        self._castToClass = castToClass
+        self._url = url
+        self._sort = sort
         
         # For paging through the API
-        self.limit = 50
-        self.bookmark = None
-        self.listBuffer = []
-        self.noMoreResults = False
+        self._limit = 50
+        self._bookmark = None
+        self._listBuffer = []
+        self._noMoreResults = False
         
     def __iter__(self):
         return self
     
     # Python 2.x
     def next(self):
-        if len(self.listBuffer) == 0 and not self.noMoreResults:
+        if len(self._listBuffer) == 0 and not self._noMoreResults:
             # We need to make an api call
-            apiResponse = self._makeApiCall(parameters = {"_limit": self.limit, "_bookmark": self.bookmark, "_sort": self.sort})
-            self.listBuffer = apiResponse["results"]
+            apiResponse = self._makeApiCall(parameters = {"_limit": self._limit, "_bookmark": self._bookmark, "_sort": self._sort})
+            self._listBuffer = apiResponse["results"]
             
             if "bookmark" in apiResponse:
-                self.bookmark = apiResponse["bookmark"]
+                self._bookmark = apiResponse["bookmark"]
             else:
-                self.noMoreResults = True
+                self._noMoreResults = True
         
-        if len(self.listBuffer) > 0:
-            return self.castToClass(self.apiClient, self.listBuffer.pop(0))
+        if len(self._listBuffer) > 0:
+            return self._castToClass(self._apiClient, self._listBuffer.pop(0))
         else:
             raise StopIteration
     
@@ -105,7 +105,7 @@ class IterableList(object):
         It accepts accepts a list of parameters
         In case of failure it throws APIException
         """
-        r = self.apiClient.get(self.url, parameters)
+        r = self._apiClient.get(self._url, parameters)
         if r.status_code == 200:
             return r.json()
         else:

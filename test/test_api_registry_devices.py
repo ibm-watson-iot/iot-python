@@ -4,7 +4,7 @@ from nose import SkipTest
 
 import testUtils
 from ibmiotf.api.registry import Registry
-from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo
+from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
 
 class TestRegistryDevices(testUtils.AbstractTest):
     
@@ -23,9 +23,9 @@ class TestRegistryDevices(testUtils.AbstractTest):
         devicesToRegister = [device1Id, device2Id]
         self.registry.devices.create(devicesToRegister)
         
-        myDeviceType = self.registry.devicetypes["test"]        
+        myDeviceType = self.registry.devicetypes["test"]
         assert_true(device1Id.deviceId in myDeviceType.devices)
-        assert_true(device2Id.deviceId in myDeviceType.devices)        
+        assert_true(device2Id.deviceId in myDeviceType.devices)
     
         self.registry.devices.delete(devicesToRegister)
         assert_false(device1Id.deviceId in myDeviceType.devices)
@@ -69,7 +69,7 @@ class TestRegistryDevices(testUtils.AbstractTest):
         
         assert_equals("123", myDeviceType.devices[deviceUid.deviceId].deviceInfo.serialNumber)
         
-        myDeviceType.devices[deviceUid.deviceId].update(metadata={"foo": "bar"})
+        self.registry.devices.update(deviceUid, metadata={"foo": "bar"})
         
         assert_true("foo" in myDeviceType.devices[deviceUid.deviceId].metadata)
         assert_equals("bar", myDeviceType.devices[deviceUid.deviceId].metadata["foo"])
@@ -78,11 +78,11 @@ class TestRegistryDevices(testUtils.AbstractTest):
         assert_equals(None, myDeviceType.devices[deviceUid.deviceId].deviceInfo.model)
         
         # Update description only
-        myDeviceType.devices[deviceUid.deviceId].update(deviceInfo={"description": "hello"})
+        self.registry.devices.update(deviceUid, deviceInfo={"description": "hello"})
         assert_equals("hello", myDeviceType.devices[deviceUid.deviceId].deviceInfo.description)
         
         # Update model, verify that description wasn't wiped
-        myDeviceType.devices[deviceUid.deviceId].update(deviceInfo=DeviceInfo(model="foobar"))
+        self.registry.devices.update(deviceUid, deviceInfo=DeviceInfo(model="foobar"))
         assert_equals("hello", myDeviceType.devices[deviceUid.deviceId].deviceInfo.description)
         assert_equals("foobar", myDeviceType.devices[deviceUid.deviceId].deviceInfo.model)
         
@@ -90,7 +90,7 @@ class TestRegistryDevices(testUtils.AbstractTest):
         assert_true("foo" in myDeviceType.devices[deviceUid.deviceId].metadata)
         assert_equals("bar", myDeviceType.devices[deviceUid.deviceId].metadata["foo"])
 
-        self.registry.devices.delete(devicesToRegister)
+        self.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
         assert_false(deviceUid.deviceId in myDeviceType.devices)
         
     @raises(Exception)

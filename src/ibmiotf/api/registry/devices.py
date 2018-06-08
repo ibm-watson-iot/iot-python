@@ -82,10 +82,10 @@ class DeviceInfo(defaultdict):
         return self["serialNumber"]
 
     
-class Device():
+class Device(object):
     def __init__(self, apiClient, data):
-        self._data = data
         self._apiClient = apiClient
+        self._data = data
         
         if not set(['clientId', 'deviceId', 'typeId']).issubset(data):
             raise Exception("Data passed to Device is not correct: %s" % (json.dumps(data, sort_keys=True)))
@@ -144,17 +144,6 @@ class Device():
     def json(self):
         return self._data
     
-    def update(self, metadata = None, deviceInfo = None, status = None):
-        deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (self.typeId, self.deviceId)
-
-        data = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
-        
-        r = self._apiClient.put(deviceUrl, data)
-        if r.status_code == 200:
-            return Device(self._apiClient, r.json())
-        else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
-    
     
 class IterableDeviceList(IterableList):
     def __init__(self, apiClient, typeId=None):
@@ -162,7 +151,6 @@ class IterableDeviceList(IterableList):
             super(IterableDeviceList, self).__init__(apiClient, Device, 'api/v0002/bulk/devices', 'typeId,deviceId')
         else:
             super(IterableDeviceList, self).__init__(apiClient, Device, 'api/v0002/device/types/%s/devices/' % (typeId), 'deviceId')
-        self.apiClient = apiClient
 
 
 class Devices(defaultdict):
@@ -281,9 +269,11 @@ class Devices(defaultdict):
         It accepts accepts a list of devices (List of Dictionary of Devices)
         """
         
-        if not isinstance(devices):
+        if not isinstance(devices, list):
             listOfDevices = [devices]
-        
+        else:
+            listOfDevices = devices
+            
         r = self._apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
 
         if r.status_code == 201:
@@ -295,14 +285,29 @@ class Devices(defaultdict):
         else:
             raise Exception("HTTP %s %s"% (r.status_code, r.text))
 
+    def update(self, deviceUid, metadata = None, deviceInfo = None, status = None):
+        deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (deviceUid.typeId, deviceUid.deviceId)
 
-    def delete(self, listOfDevicesUids):
+        data = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
+        
+        r = self._apiClient.put(deviceUrl, data)
+        if r.status_code == 200:
+            return Device(self._apiClient, r.json())
+        else:
+            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+
+    def delete(self, devices):
         """
         Delete multiple devices, each request can contain a maximum of 512Kb
         It accepts accepts a list of devices (List of Dictionary of Devices)
         In case of failure it throws APIException
         """
-        r = self._apiClient.post('api/v0002/bulk/devices/remove', listOfDevicesUids)
+        if not isinstance(devices, list):
+            listOfDevices = [devices]
+        else:
+            listOfDevices = devices
+            
+        r = self._apiClient.post('api/v0002/bulk/devices/remove', listOfDevices)
 
         if r.status_code == 200:
             print("All devices deleted successfully")
