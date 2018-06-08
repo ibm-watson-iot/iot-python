@@ -59,7 +59,7 @@ class TestRegistryDevices(testUtils.AbstractTest):
             typeId="test", 
             deviceId=str(uuid.uuid4()), 
             authToken="NotVerySecretPassw0rd",
-            deviceInfo=DeviceInfo(serialNumber="123")
+            deviceInfo=DeviceInfo(serialNumber="123", descriptiveLocation="Floor 3, Room 2")
         )
         
         self.registry.devices.create(deviceUid)
@@ -67,15 +67,18 @@ class TestRegistryDevices(testUtils.AbstractTest):
         myDeviceType = self.registry.devicetypes[deviceUid.typeId]        
         assert_true(deviceUid.deviceId in myDeviceType.devices)
         
-        assert_equals("123", myDeviceType.devices[deviceUid.deviceId].deviceInfo.serialNumber)
+        deviceAfterCreate = myDeviceType.devices[deviceUid.deviceId]
+        assert_equals("123", deviceAfterCreate.deviceInfo.serialNumber)
+        assert_equals("Floor 3, Room 2", deviceAfterCreate.deviceInfo.descriptiveLocation)
         
         self.registry.devices.update(deviceUid, metadata={"foo": "bar"})
         
-        assert_true("foo" in myDeviceType.devices[deviceUid.deviceId].metadata)
-        assert_equals("bar", myDeviceType.devices[deviceUid.deviceId].metadata["foo"])
+        deviceAfterUpdate = myDeviceType.devices[deviceUid.deviceId]
+        assert_true("foo" in deviceAfterUpdate.metadata)
+        assert_equals("bar", deviceAfterUpdate.metadata["foo"])
         
-        assert_equals(None, myDeviceType.devices[deviceUid.deviceId].deviceInfo.description)
-        assert_equals(None, myDeviceType.devices[deviceUid.deviceId].deviceInfo.model)
+        assert_equals(None, deviceAfterUpdate.deviceInfo.description)
+        assert_equals(None, deviceAfterUpdate.deviceInfo.model)
         
         # Update description only
         self.registry.devices.update(deviceUid, deviceInfo={"description": "hello"})
@@ -83,13 +86,15 @@ class TestRegistryDevices(testUtils.AbstractTest):
         
         # Update model, verify that description wasn't wiped
         self.registry.devices.update(deviceUid, deviceInfo=DeviceInfo(model="foobar"))
-        assert_equals("hello", myDeviceType.devices[deviceUid.deviceId].deviceInfo.description)
-        assert_equals("foobar", myDeviceType.devices[deviceUid.deviceId].deviceInfo.model)
-        
-        # Cleanup
-        assert_true("foo" in myDeviceType.devices[deviceUid.deviceId].metadata)
-        assert_equals("bar", myDeviceType.devices[deviceUid.deviceId].metadata["foo"])
 
+        deviceAfter3rdUpdate = myDeviceType.devices[deviceUid.deviceId]
+        assert_true("foo" in deviceAfter3rdUpdate.metadata)
+        assert_equals("bar", deviceAfter3rdUpdate.metadata["foo"])
+        assert_equals("hello", deviceAfter3rdUpdate.deviceInfo.description)
+        assert_equals("foobar", deviceAfter3rdUpdate.deviceInfo.model)
+        assert_equals("Floor 3, Room 2", deviceAfter3rdUpdate.deviceInfo.descriptiveLocation)
+
+        # Cleanup
         self.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
         assert_false(deviceUid.deviceId in myDeviceType.devices)
         

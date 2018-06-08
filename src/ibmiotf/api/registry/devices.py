@@ -47,7 +47,7 @@ class DeviceCreateRequest(defaultdict):
         return self["metadata"]
     
 class DeviceInfo(defaultdict):
-    def __init__(self, description=None, deviceClass=None, fwVersion=None, hwVersion=None, manufacturer=None, model=None, serialNumber=None):
+    def __init__(self, description=None, deviceClass=None, fwVersion=None, hwVersion=None, manufacturer=None, model=None, serialNumber=None, descriptiveLocation=None):
         dict.__init__(
             self, 
             description=description,
@@ -56,7 +56,8 @@ class DeviceInfo(defaultdict):
             hwVersion=hwVersion, 
             manufacturer=manufacturer, 
             model=model, 
-            serialNumber=serialNumber
+            serialNumber=serialNumber,
+            descriptiveLocation=descriptiveLocation
         )
     
     @property
@@ -80,6 +81,9 @@ class DeviceInfo(defaultdict):
     @property
     def serialNumber(self):
         return self["serialNumber"]
+    @property
+    def descriptiveLocation(self):
+        return self["descriptiveLocation"]
 
     
 class Device(object):
@@ -140,7 +144,6 @@ class Device(object):
     def __repr__(self):
         return json.dumps(self._data, sort_keys=True, indent=2)
     
-    @property
     def json(self):
         return self._data
     
