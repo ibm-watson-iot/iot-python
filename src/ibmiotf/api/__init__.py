@@ -173,30 +173,6 @@ class ApiClient():
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    def deleteDevice(self, typeId, deviceId):
-        """
-        Delete an existing device.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceUrl = ApiClient.deviceUrl % (self.host, typeId, deviceId)
-
-        r = requests.delete(deviceUrl, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("Device was successfully removed")
-            return True
-        elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
-
-
-
 
     #This method returns the organization
     def getOrganizationDetails(self):
@@ -226,12 +202,40 @@ class ApiClient():
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
 
+    # =============================================================================================
+    # Start of methods that are moving in to api.registry
+    # =============================================================================================
+    def deleteDevice(self, typeId, deviceId):
+        """
+        Delete an existing device.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use 'del api.registry.devicetypes[deviceId].devices[deviceId]'")
+        deviceUrl = ApiClient.deviceUrl % (self.host, typeId, deviceId)
+
+        r = requests.delete(deviceUrl, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Device was successfully removed")
+            return True
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+    
     def getDevices(self, parameters = None):
         """
         Retrieve bulk devices
         It accepts accepts a list of parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'for device in api.registry.devices'")
+
         bulkRetrieve = ApiClient.bulkRetrieve % (self.host )
         r = requests.get(bulkRetrieve, auth = self.credentials, params = parameters, verify=self.verify)
 
@@ -261,6 +265,9 @@ class ApiClient():
         It accepts accepts a list of devices (List of Dictionary of Devices)
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices.create(listOfDevices)'")
+        
         bulkAdd = ApiClient.bulkAddUrl % (self.host )
         r = requests.post(bulkAdd, auth = self.credentials, data = json.dumps(listOfDevices), headers = {'content-type': 'application/json'}, verify=self.verify)
 
@@ -313,6 +320,8 @@ class ApiClient():
         It accepts accepts an optional query parameters (Dictionary)
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'for devicetype in api.registry.devicetypes'")
+
         deviceTypeUrl = ApiClient.deviceTypesUrl % (self.host)
         r = requests.get(deviceTypeUrl, auth=self.credentials, params = parameters, verify=self.verify)
         status = r.status_code
@@ -337,6 +346,8 @@ class ApiClient():
         It accepts typeId (string), description (string), deviceInfo(dict) and metadata(dict) as parameter
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devicetypes.create()'")
+
         deviceTypesUrl = ApiClient.deviceTypesUrl % (self.host)
         payload = {'id' : typeId, 'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata,'classId': classId}
 
@@ -365,6 +376,8 @@ class ApiClient():
         It accepts typeId (string) as the parameter
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'del api.registry.devicetypes[deviceId]'")
+        
         deviceTypeUrl = ApiClient.deviceTypeUrl % (self.host, typeId)
 
         r = requests.delete(deviceTypeUrl, auth=self.credentials, verify=self.verify)
@@ -387,6 +400,8 @@ class ApiClient():
         It accepts typeId (string) as the parameter
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devicetypes[typeId]'")
+        
         deviceTypeUrl = ApiClient.deviceTypeUrl % (self.host, typeId)
         r = requests.get(deviceTypeUrl, auth=self.credentials, verify=self.verify)
         status = r.status_code
@@ -411,6 +426,8 @@ class ApiClient():
         It accepts typeId (string), description (string), deviceInfo (JSON) and metadata(JSON) as the parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devicetypes[typeId].update()'")
+
         deviceTypeUrl = ApiClient.deviceTypeUrl % (self.host, typeId)
         deviceTypeUpdate = {'description' : description, 'deviceInfo' : deviceInfo, 'metadata' : metadata}
         r = requests.put(deviceTypeUrl, auth=self.credentials, data=json.dumps(deviceTypeUpdate), headers = {'content-type': 'application/json'}, verify=self.verify)
@@ -447,6 +464,9 @@ class ApiClient():
         It accepts typeId (string), deviceId (string), authToken (string), location (JSON) and metadata (JSON) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices.create()'")
+
+
         devicesUrl = ApiClient.devicesUrl % (self.host, typeId)
         payload = {'deviceId' : deviceId, 'authToken' : authToken, 'deviceInfo' : deviceInfo, 'location' : location, 'metadata': metadata}
 
@@ -475,6 +495,8 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and expand (JSON) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devicetypes[typeId].devices[deviceId]'")
+
         deviceUrl = ApiClient.deviceUrl % (self.host, typeId, deviceId)
 
         r = requests.get(deviceUrl, auth=self.credentials, params = expand, verify=self.verify)
@@ -501,6 +523,8 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and expand (JSON) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'for device in api.registry.devicetypes[typeId].devices'")
+        
         deviceUrl = ApiClient.devicesUrl % (self.host, typeId)
 
         r = requests.get(deviceUrl, auth=self.credentials, params = parameters, verify=self.verify)
@@ -527,6 +551,8 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'del api.registry.devicetypes[typeId].devices[deviceId]'")
+        
         deviceUrl = ApiClient.deviceUrl % (self.host, typeId, deviceId)
 
         r = requests.delete(deviceUrl, auth=self.credentials, verify=self.verify)
@@ -550,6 +576,8 @@ class ApiClient():
         It accepts typeId (string), deviceId (string), metadata (JSON), deviceInfo (JSON) and status(JSON) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devicetypes[typeId].devices[deviceId].update()'")
+        
         deviceUrl = ApiClient.deviceUrl % (self.host, typeId, deviceId)
 
         payload = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
@@ -571,7 +599,10 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
+    
+    # =============================================================================================
+    # End of methods that are moving in to api.registry
+    # =============================================================================================
     
     """
     Thing API methods
