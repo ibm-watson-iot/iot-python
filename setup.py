@@ -34,6 +34,8 @@ setup(
         'ibmiotf', 
         'ibmiotf.api',
         'ibmiotf.api.registry',
+        'ibmiotf.api.status',
+        'ibmiotf.api.usage',
         'ibmiotf.codecs'
     ],
     package_data={'ibmiotf': ['*.pem']},

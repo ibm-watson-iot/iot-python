@@ -255,7 +255,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
     def registerDevices(self, listOfDevices):
         """
         Register multiple new devices, each request can contain a maximum of 512KB.
@@ -289,13 +288,15 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
     def deleteMultipleDevices(self, listOfDevices):
         """
         Delete multiple devices, each request can contain a maximum of 512Kb
         It accepts accepts a list of devices (List of Dictionary of Devices)
         In case of failure it throws APIException
         """
+
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices.delete(listOfDevices)'")
+        
         bulkRemove = ApiClient.bulkRemoveUrl % (self.host )
         r = requests.post(bulkRemove, auth = self.credentials, data = json.dumps(listOfDevices), headers = {'content-type': 'application/json'}, verify=self.verify)
 
@@ -311,8 +312,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
 
     def getDeviceTypes(self, parameters = None):
         """
@@ -337,8 +336,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
 
     def addDeviceType(self, typeId, description = None, deviceInfo = None, metadata = None, classId = "Device"):
         """
@@ -368,7 +365,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
 
     def deleteDeviceType(self, typeId):
         """
@@ -418,7 +414,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
 
     def updateDeviceType(self, typeId, description, deviceInfo, metadata = None):
         """
@@ -488,7 +483,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
     def getDevice(self, typeId, deviceId, expand = None):
         """
         Gets device details.
@@ -516,7 +510,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
     def getDevicesForType(self, typeId, parameters = None):
         """
         Gets details for multiple devices of a type
@@ -543,8 +536,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
-
     def removeDevice(self, typeId, deviceId):
         """
         Delete an existing device.
@@ -568,7 +559,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
 
     def updateDevice(self, typeId, deviceId, metadata, deviceInfo = None, status = None):
         """
@@ -1315,6 +1305,9 @@ class ApiClient():
         Retrieve the organization-specific status of each of the services offered by the IBM Watson IoT Platform.
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.status.serviceStatus()'")
+
         serviceStatus = ApiClient.serviceStatus % (self.host)
         r = requests.get(serviceStatus, auth=self.credentials, verify=self.verify)
 
@@ -1331,38 +1324,16 @@ class ApiClient():
     """
     ===========================================================================
     Usage API
-    - Active Devices
     - Data Traffic
-    - Storage
     ===========================================================================
     """
-
-    def getActiveDevices(self, options):
-        """
-        Retrieve the number of active devices over a period of time.
-        In case of failure it throws APIException
-        """
-        activeDevices = (ApiClient.usageMgmt + '/active-devices') % (self.host)
-        r = requests.get(activeDevices, auth=self.credentials, params=options, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Active Devices = ", r.json() )
-            return r.json()
-        elif status == 400:
-            raise ibmiotf.APIException(400, "Bad Request", r.json())
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
 
     def getDataTraffic(self, options):
         """
         Retrieve the amount of data used.
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.usage.dataTransfer(start=datetime.date, end=datetime.date, detail=boolean)'")
         dataTraffic = (ApiClient.usageMgmt + '/data-traffic') % (self.host)
         r = requests.get(dataTraffic, auth=self.credentials, params=options, verify=self.verify)
 
