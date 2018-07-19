@@ -20,9 +20,7 @@ import uuid
 from datetime import datetime
 
 from ibmiotf import HttpAbstractClient, ConnectionException, MissingMessageEncoderException
-from ibmiotf.codecs import jsonIotfCodec
 from ibmiotf.codecs import jsonCodec
-from ibmiotf.codecs import xmlCodec
 import ibmiotf.api
 import paho.mqtt.client as paho
 
@@ -233,8 +231,6 @@ class Client(ibmiotf.AbstractClient):
         self.client.on_connect = self.on_connect
 
         self.setMessageEncoderModule('json', jsonCodec)
-        self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
-        self.setMessageEncoderModule('xml', xmlCodec)
 
         # Create an api client if not connected in QuickStart mode
         if self._options['org'] != "quickstart":
@@ -616,8 +612,6 @@ class HttpClient(HttpAbstractClient):
             logHandlers = logHandlers
         )
         self.setMessageEncoderModule('json', jsonCodec)
-        self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
-        self.setMessageEncoderModule('xml', xmlCodec)
 
 
         # Create an api client if not connected in QuickStart mode

@@ -280,10 +280,8 @@ class Devices(defaultdict):
         r = self._apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
 
         if r.status_code == 201:
-            print("All devices created successfully")
             return r.json()
         if r.status_code == 202:
-            print("Some devices created successfully")
             return r.json()
         else:
             raise Exception("HTTP %s %s"% (r.status_code, r.text))
@@ -313,10 +311,8 @@ class Devices(defaultdict):
         r = self._apiClient.post('api/v0002/bulk/devices/remove', listOfDevices)
 
         if r.status_code == 200:
-            print("All devices deleted successfully")
             return r.json()
         if r.status_code == 202:
-            print("Some devices deleted successfully")
             return r.json()
         else:
             raise Exception("HTTP %s %s"% (r.status_code, r.text))

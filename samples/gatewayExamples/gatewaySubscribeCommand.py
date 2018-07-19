@@ -19,8 +19,8 @@ from time import sleep
 
 
 try:
+    import ibmiotf.application
 	import ibmiotf.gateway
-	from ibmiotf.codecs import jsonCodec, jsonIotfCodec
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.

@@ -30,9 +30,10 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
     def testGetDeviceType(self):
         # Get a device, and cache the response in a local object
         myDeviceType = self.registry.devicetypes["vm"]
-        print(myDeviceType.id)
-        print(myDeviceType.classId)
-        print(myDeviceType)
+        # {"classId": "Device", "createdDateTime": "2015-09-17T09:10:27+00:00", "description": "Virtual Machine", "deviceInfo": {}, "id": "vm", "refs": {"logicalInterfaces": "api/v0002/device/types/vm/logicalinterfaces", "mappings": "api/v0002/device/types/vm/mappings", "physicalInterface": "api/v0002/device/types/vm/physicalinterface"}, "updatedDateTime": "2017-02-27T10:27:11.959Z"}
+        assert_true(True)
+        assert_equals(myDeviceType.id, "vm")
+        assert_equals(myDeviceType.classId, "Device")
     
     @raises(Exception)
     def testGetDeviceTypeThatDoesntExist(self):
@@ -44,12 +45,45 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
         
     def testListDeviceTypes(self):
         count = 0
-        print("First 10 types:")
         for type in self.registry.devicetypes:
-            print("%s %s" % (type.id, type.classId))
             count += 1
             if count > 10:
-                break    
+                break
+    
+    def testCreateDeviceType(self):
+        typeId = str(uuid.uuid4())
+        myDeviceType = self.registry.devicetypes.create( {"id": typeId, "description": "This is a test"} )
+        
+        myDeviceTypeRetrieved = self.registry.devicetypes[typeId]
+        
+        assert_equals(myDeviceTypeRetrieved.id, typeId)
+        assert_equals(myDeviceTypeRetrieved.description, "This is a test")
+        
+        del self.registry.devicetypes[typeId]
+        
+    def testUpdateDeviceType(self):
+        typeId = str(uuid.uuid4())
+        myDeviceType = self.registry.devicetypes.create( {"id": typeId} )
+        myDeviceTypeRetrieved = self.registry.devicetypes[typeId]
+        
+        assert_equals(myDeviceTypeRetrieved.id, typeId)
+        assert_equals(myDeviceTypeRetrieved.description, None)
+
+        myUpdatedDeviceType = self.registry.devicetypes.update(typeId, description="This is still a test")
+        myUpdatedDeviceTypeRetrieved = self.registry.devicetypes[typeId]
+        assert_equals(myUpdatedDeviceTypeRetrieved.description, "This is still a test")
+        
+        del self.registry.devicetypes[typeId]
+    
+    def testPartialDeviceTypeUpdate(self):
+        typeId = str(uuid.uuid4())
+        myDeviceType = self.registry.devicetypes.create( {"id": typeId} )
+        myDeviceTypeRetrieved = self.registry.devicetypes[typeId]
+        
+        assert_equals(myDeviceTypeRetrieved.id, typeId)
+        assert_equals(myDeviceTypeRetrieved.description, None)
+        
+        del self.registry.devicetypes[typeId]
             
     # =========================================================================
     # Device under DeviceType tests
@@ -69,17 +103,12 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
     def testGetDeviceFromDeviceType(self):
         # Get a device, and cache the response in a local object
         myDevice = self.registry.devicetypes["vm"].devices["iot-test-02"]
-        print(myDevice.clientId)
-        print(myDevice.typeId)
-        print(myDevice.deviceId)
-        print(myDevice)
     
     def testListDevicesFromDeviceType(self):
         # Get a device, and cache the response in a local object
         myDeviceType = self.registry.devicetypes["vm"]
         count = 0
         for device in myDeviceType.devices:
-            print(device.clientId)
             count += 1
             if count > 10:
                 break

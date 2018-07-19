@@ -23,7 +23,7 @@ from ibmiotf import (
     UnsupportedAuthenticationMethod, ConfigurationException,
     ConnectionException, MissingMessageEncoderException,
     MissingMessageDecoderException)
-from ibmiotf.codecs import jsonCodec, jsonIotfCodec, xmlCodec
+from ibmiotf.codecs import jsonCodec
 
 
 # Support Python 2.7 and 3.4 versions of configparser
@@ -217,8 +217,6 @@ class Client(AbstractClient):
         self.client.on_connect = self._onConnect
 
         self.setMessageEncoderModule('json', jsonCodec)
-        self.setMessageEncoderModule('json-iotf', jsonIotfCodec)
-        self.setMessageEncoderModule('xml', xmlCodec)
 
 
     def _onConnect(self, mqttc, userdata, flags, rc):
@@ -406,7 +404,6 @@ class HttpClient(HttpAbstractClient):
         )
 
         self.setMessageEncoderModule('json', jsonCodec)
-        self.setMessageEncoderModule('xml', xmlCodec)
 
 
 

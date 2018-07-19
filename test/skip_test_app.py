@@ -112,26 +112,21 @@ class TestApplication(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert(self.appClient.publishEvent(self.deviceType,self.deviceId,"testPublishEvent", "json", myData, on_publish=appEventPublishCallback))
-        assert(self.appClient.publishEvent(self.deviceType,self.deviceId,"testPublishEvent", "xml", myData, on_publish=appEventPublishCallback))
 
     def testPublishOverHTTPs(self):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_equals(self.httpClient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPs", myData),200)
-        assert_equals(self.httpClient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPs", myData,"xml"),200)
 
         myCMD={'command':'Reboot'}
         assert_equals(self.httpClient.publishCommand(self.deviceType,self.deviceId,"testPublishCMDHTTPQS", myCMD),200)
-        assert_equals(self.httpClient.publishCommand(self.deviceType,self.deviceId,"testPublishCMDHTTPQS", myCMD,"xml"),200)
 
     def testPublishOverHTTPQS(self):
         hclient  = ibmiotf.application.HttpClient({"org": "quickstart", "type": "standalone","id": "MyFirstDevice"})
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_equals(hclient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPQS", myData),200)
-        assert_equals(hclient.publishEvent(self.deviceType,self.deviceId,"testPublishEventHTTPQS", myData,"xml"),200)
 
         myCMD={'command':'Reboot'}
         assert_equals(hclient.publishCommand(self.deviceType,self.deviceId,"testPublishCMDHTTPQS", myCMD),200)
-        assert_equals(hclient.publishCommand(self.deviceType,self.deviceId,"testPublishCMDHTTPQS", myCMD,"xml"),200)
 
     @raises(Exception)
     def testMissingMessageEncoderForPublishCommand(self):

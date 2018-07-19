@@ -51,9 +51,7 @@ setup(
         "paho-mqtt >= 1.3.1",
         "pytz >= 2017.3",
         "requests >= 2.18.4",
-        "requests_toolbelt >= 0.8.0",
-        "dicttoxml >= 1.7.4",
-        "xmltodict >= 0.11.0"
+        "requests_toolbelt >= 0.8.0"
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

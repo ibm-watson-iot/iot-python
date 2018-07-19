@@ -59,7 +59,6 @@ class TestDevice(testUtils.AbstractTest):
     def testPublishEventOverHTTPs(self):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", "json",myData),200)
-        assert_equals(self.httpClient.publishEvent("testPublishEventHTTPs", "xml",myData),200)
     
     
     def testPublishEventOverHTTP(self):
@@ -67,5 +66,4 @@ class TestDevice(testUtils.AbstractTest):
                                         "auth-method":"None", "auth-token":"None" })
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_equals(client.publishEvent("testPublishEventHTTP", "json",myData),200)
-        assert_equals(client.publishEvent("testPublishEventHTTP", "xml",myData),200)
     

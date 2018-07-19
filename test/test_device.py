@@ -174,6 +174,5 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         self.deviceClient.connect()
         assert_true(self.deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
-        assert_true(self.deviceClient.publishEvent("testPublishXMLEvent", "xml", myData,on_publish=devPublishCallback,qos=2))
         self.deviceClient.disconnect()
     

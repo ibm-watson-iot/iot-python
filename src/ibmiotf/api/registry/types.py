@@ -27,6 +27,13 @@ class DeviceType(object):
         return self._data["id"]
             
     @property
+    def description(self):
+        if "description" in self._data:
+            return self._data["description"]
+        else: 
+            return None
+        
+    @property
     def classId(self):
         return self._data["classId"]
     
@@ -43,7 +50,7 @@ class DeviceType(object):
 class DeviceTypes(defaultdict):
     
     def __init__(self, apiClient):
-        self.apiClient = apiClient
+        self._apiClient = apiClient
     
     def __contains__(self, key):
         """
@@ -52,7 +59,7 @@ class DeviceTypes(defaultdict):
         
         url = 'api/v0002/device/types/%s' % (key)
 
-        r = self.apiClient.get(url)
+        r = self._apiClient.get(url)
         if r.status_code == 200:
             return True
         elif r.status_code == 404:
@@ -66,9 +73,9 @@ class DeviceTypes(defaultdict):
         """
         url = 'api/v0002/device/types/%s' % (key)
 
-        r = self.apiClient.get(url)
+        r = self._apiClient.get(url)
         if r.status_code == 200:
-            return DeviceType(self.apiClient, r.json())
+            return DeviceType(self._apiClient, r.json())
         elif r.status_code == 404:
             self.__missing__(key)
         else:
@@ -86,7 +93,7 @@ class DeviceTypes(defaultdict):
         """
         url = 'api/v0002/device/types/%s' % (key)
 
-        r = self.apiClient.delete(url)
+        r = self._apiClient.delete(url)
         if r.status_code != 204:
             raise Exception("HTTP %s %s" %(r.status_Code, r.text))
     
@@ -100,13 +107,30 @@ class DeviceTypes(defaultdict):
         """
         iterate through all devices
         """
-        return IterableDeviceTypeList(self.apiClient)
+        return IterableDeviceTypeList(self._apiClient)
     
-    def create(self):
-        pass
+    def create(self, deviceType):
+        """
+        Register one or more new device types, each request can contain a maximum of 512KB.
+        """
+        
+        r = self._apiClient.post('api/v0002/device/types', deviceType)
+
+        if r.status_code == 201:
+            return DeviceType(self._apiClient, r.json())
+        else:
+            raise Exception("HTTP %s %s"% (r.status_code, r.text))
     
-    def update(self):
-        pass
-    
-    def delete(self):
-        pass
+    def update(self, typeId, description = None, deviceInfo = None, metadata = None):
+        devicetypeUrl = 'api/v0002/device/types/%s' % (typeId)
+
+        data = {'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata}
+        
+        r = self._apiClient.put(devicetypeUrl, data)
+        if r.status_code == 200:
+            return DeviceType(self._apiClient, r.json())
+        else:
+            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+        
+    def delete(self, typeId):
+        del self[typeId]

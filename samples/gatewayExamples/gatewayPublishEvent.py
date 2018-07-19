@@ -19,7 +19,6 @@ import uuid
 try:
 	import ibmiotf.application
 	import ibmiotf.gateway
-	from ibmiotf.codecs import jsonCodec, jsonIotfCodec
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
@@ -66,8 +65,6 @@ for x in range (0,5):
 	altitude = sensorValues["altitude"]
 	temperature = sensorValues["temperature"]
 	myData = {'timestamp': timestamp, 'moisture': moisture, 'pressure': pressure, 'altitude': altitude, 'temperature': temperature}
-
-	gatewayCli.setMessageEncoderModule('json', jsonCodec)
 
 	gatewaySuccess = gatewayCli.publishGatewayEvent("greeting", "json", myData, qos=1, on_publish=myOnPublishCallback )
 	deviceSuccess = gatewayCli.publishDeviceEvent("DEVICE TYPE OF AUTO REGISTERED DEVICE", "DEVICE ID OF AUTO REGSITERED DEVICE", "greeting", "json", myData, qos=1, on_publish=myOnPublishCallback )

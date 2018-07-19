@@ -171,9 +171,7 @@ class TestGateway(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_true(gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, on_publish=publishCallback))
-        assert_true(gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventXML", "xml", myData, on_publish=publishCallback))
         assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEventJson", "json", myData, on_publish=publishCallback))
-        assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEventXML", "xml", myData, on_publish=publishCallback))
 
         assert_true(gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID))
         assert_true(gatewayClient.subscribeToGatewayCommands())
