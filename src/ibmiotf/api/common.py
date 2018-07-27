@@ -15,9 +15,9 @@ class ApiClient():
 
         self.logger = logger
 
-        if 'auth-key' not in self.__options or self.__options['auth-key'] is None:
+        if self.__options.get('auth-key') is None:
             raise ConfigurationException("Missing required property for API key based authentication: auth-key")
-        if 'auth-token' not in self.__options or self.__options['auth-token'] is None:
+        if self.__options.get('auth-token') is None:
             raise ConfigurationException("Missing required property for API key based authentication: auth-token")
 
         # Get the orgId from the apikey
