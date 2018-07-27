@@ -39,8 +39,6 @@ def myAppEventCallback(event):
 	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
 
 
-
-
 try:
 	opts, args = getopt.getopt(sys.argv[1:], "a:d:", ["app=", "device="])
 except getopt.GetoptError as err:

@@ -61,6 +61,7 @@
 
         10. Cleanup and Sample Terminates by accepting q from user.
 '''
+from __future__ import print_function
 
 # Import required modules
 import ibmiotf.device
@@ -69,6 +70,12 @@ import ibmiotf.api
 import logging
 import threading
 import json
+
+try:
+    raw_input          # Python 2
+except NameError:
+    raw_input = input  # Python 3
+
 
 # Define callback for Received Device events at Application Client Side
 def deviceEventCallback(event):
@@ -195,8 +202,8 @@ mgmtRequest = {"action": "example-dme-actions-v1/updatePublishInterval",
                                  "value": 10,}],
                "devices": [{ "typeId": deviceType, "deviceId": deviceId }]}
 while(True):
-    print "Device events getting published for every %s seconds" %(pInterval)
-    print "Enter Seconds to update Publish Interval / q to Quit"
+    print("Device events getting published for every %s seconds" %(pInterval))
+    print("Enter Seconds to update Publish Interval / q to Quit")
     flag = raw_input("Waiting for your Input  :")
     if flag == 'q':
         pThread.cancel()
@@ -215,7 +222,7 @@ while(True):
         updPubReqId = initResult['reqId']
 
     else:
-        print "Invalid Input, try again!"
+        print("Invalid Input, try again!")
 
 
 # It's time of clear of DME and DM request from the IoT Platform

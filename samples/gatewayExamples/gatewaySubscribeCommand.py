@@ -11,15 +11,11 @@
 # *****************************************************************************
 
 import signal
-import time
 import sys
-import pprint
-import uuid
 from time import sleep
 
-
 try:
-    import ibmiotf.application
+	import ibmiotf.application
 	import ibmiotf.gateway
 except ImportError:
 	# This part is only required to run the sample from within the samples
@@ -87,4 +83,3 @@ while True:
 	sleep(1)
 # Disconnect the device and application from the cloud
 gatewayCli.disconnect()
-

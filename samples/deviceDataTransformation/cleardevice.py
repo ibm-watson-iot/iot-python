@@ -43,7 +43,7 @@ if __name__ == "__main__":
     print("Application interfaces found:", ids)
     print("Schemas found:", schemaIds)
   except:
-    ids = result = []    
+    ids = result = []
 
   # disassociate and delete the application interfaces from the device type
   count = 0
@@ -56,7 +56,7 @@ if __name__ == "__main__":
   # delete the application interface schemas
   count = 0
   for schemaId in schemaIds:
-    result = deleteSchema(applicationInterfaceId)
+    result = api.deleteSchema(applicationInterfaceId)
     count += 1
   print("Application interface schemas deleted:", count, schemaIds)
 
@@ -75,8 +75,8 @@ if __name__ == "__main__":
     for eventId in eventIds:
      	result = api.deleteEvent(physicalInterfaceId, eventId) # remove event mapping from device type
 
-  	result = api.deletePhysicalInterface(physicalInterfaceId)
-  	print("Physical interface deleted")
+    result = api.deletePhysicalInterface(physicalInterfaceId)
+    print("Physical interface deleted")
 
     # delete event types and schemas
     count = 0; schemaIds = []
