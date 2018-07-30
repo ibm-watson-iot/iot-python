@@ -55,8 +55,8 @@ class DayDataTransfer(defaultdict):
 
 class Usage():
 
-    def __init__(self, key, token):
-        self._apiClient = ApiClient({"auth-key": key, "auth-token": token})
+    def __init__(self, apiClient):
+        self._apiClient = apiClient
         
     
     def dataTransfer(self, start, end, detail=False):

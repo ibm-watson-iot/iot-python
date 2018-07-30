@@ -26,6 +26,11 @@ import logging
 from symbol import parameters
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
+from ibmiotf.api.registry import Registry
+from ibmiotf.api.usage import Usage
+from ibmiotf.api.status import Status
+from ibmiotf.api.common import ApiClient as NewApiClient
+
 
 class ApiClient():
     #Organization URL
@@ -172,6 +177,12 @@ class ApiClient():
         if not self.verify:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        
+        self.newApiClient = NewApiClient(options, self.logger)
+        self.registry = Registry(self.newApiClient)
+        self.status = Status(self.newApiClient)
+        self.usage = Usage(self.newApiClient)
+
 
 
     #This method returns the organization

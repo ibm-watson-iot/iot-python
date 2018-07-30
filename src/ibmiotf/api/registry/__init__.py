@@ -13,8 +13,8 @@ from ibmiotf.api.registry.types import DeviceTypes
 
 class Registry():
 
-    def __init__(self, key, token):
-        self._apiClient = ApiClient({"auth-key": key, "auth-token": token})
+    def __init__(self, apiClient):
+        self._apiClient = apiClient
         
         self.devices = Devices(self._apiClient)
         self.devicetypes = DeviceTypes(self._apiClient)

@@ -3,15 +3,9 @@ from nose.tools import *
 from nose import SkipTest
 
 import testUtils
-from ibmiotf.api.status import Status
 
-class TestRegistryDevices(testUtils.AbstractTest):
+class TestRegistryStatus(testUtils.AbstractTest):
     
-    @classmethod
-    def setup_class(self):
-        self.status = Status(self.WIOTP_API_KEY, self.WIOTP_API_TOKEN)
-
-
     # =========================================================================
     # Service Status
     # =========================================================================

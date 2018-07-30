@@ -3,15 +3,9 @@ from nose.tools import *
 from nose import SkipTest
 
 import testUtils
-from ibmiotf.api.registry import Registry
 from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
 
 class TestRegistryDevices(testUtils.AbstractTest):
-    
-    @classmethod
-    def setup_class(self):
-        self.registry = Registry(self.WIOTP_API_KEY, self.WIOTP_API_TOKEN)
-
 
     # =========================================================================
     # Bulk operations tests

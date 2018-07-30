@@ -4,15 +4,10 @@ from nose import SkipTest
 
 from datetime import date, timedelta, datetime
 import testUtils
-from ibmiotf.api.usage import Usage, DayDataTransfer, DataTransferSummary
+from ibmiotf.api.usage import DayDataTransfer, DataTransferSummary
 
-class TestRegistryDevices(testUtils.AbstractTest):
+class TestRegistryUsage(testUtils.AbstractTest):
     
-    @classmethod
-    def setup_class(self):
-        self.usage = Usage(self.WIOTP_API_KEY, self.WIOTP_API_TOKEN)
-
-
     # =========================================================================
     # Service Status
     # =========================================================================

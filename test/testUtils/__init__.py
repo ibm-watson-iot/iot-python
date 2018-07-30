@@ -14,5 +14,9 @@ class AbstractTest(object):
     if ORG_ID is None:
         raise Exception("WIOTP_ORG_ID environment variable is not set")
     
-    appOptions = {'auth-key': WIOTP_API_KEY, 'auth-token': WIOTP_API_TOKEN}
-    setupAppClient = ibmiotf.application.Client(appOptions)
+    options = {'auth-key': WIOTP_API_KEY, 'auth-token': WIOTP_API_TOKEN}
+    setupAppClient = ibmiotf.application.Client(options)
+    
+    registry = setupAppClient.api.registry
+    status = setupAppClient.api.status
+    usage = setupAppClient.api.usage

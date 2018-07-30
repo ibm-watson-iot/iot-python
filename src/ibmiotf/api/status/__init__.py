@@ -12,8 +12,8 @@ from ibmiotf.api.common import ApiClient
 
 class Status():
 
-    def __init__(self, key, token):
-        self._apiClient = ApiClient({"auth-key": key, "auth-token": token})
+    def __init__(self, apiClient):
+        self._apiClient = apiClient
         
     
     def serviceStatus(self):
