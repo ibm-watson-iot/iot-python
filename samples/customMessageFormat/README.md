@@ -1,4 +1,4 @@
-#Custom Message Format Sample
+# Custom Message Format Sample
 Sample code demonstrating how to send and process events in a custom format.  This sample extends the HelloWorld sample but uses a custom message formar for the events.
 
 ## Building the custom codec
@@ -58,7 +58,7 @@ except Exception as e:
 	sys.exit()
 ```
 
-##Usage
+## Usage
 
 ```
 me@localhost ~ $ python customCodecSample.py
