@@ -2,6 +2,8 @@ import requests
 import logging
 import json
 
+from ibmiotf import ConfigurationException
+
 class ApiClient():
     def __init__(self, options, logger=None):
         self.__options = options
@@ -13,10 +15,10 @@ class ApiClient():
 
         self.logger = logger
 
-        if 'auth-key' not in self.__options or self.__options['auth-key'] is None:
-            raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
-        if 'auth-token' not in self.__options or self.__options['auth-token'] is None:
-            raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
+        if self.__options.get('auth-key') is None:
+            raise ConfigurationException("Missing required property for API key based authentication: auth-key")
+        if self.__options.get('auth-token') is None:
+            raise ConfigurationException("Missing required property for API key based authentication: auth-token")
 
         # Get the orgId from the apikey
         self.__options['org'] = self.__options['auth-key'][2:8]
@@ -110,4 +112,3 @@ class IterableList(object):
             return r.json()
         else:
             raise Exception("HTTP %s %s" % (r.status_code, r.text))
-

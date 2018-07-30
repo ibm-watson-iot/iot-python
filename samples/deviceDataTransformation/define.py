@@ -159,7 +159,7 @@ if __name__ == "__main__":
   verify = None
   params = {"auth-key": properties.key, "auth-token": properties.token}
   if "domain" in property_names:
-    params["domain"] = domain
+    params["domain"] = properties.domain
 
   if "verify" in property_names:
     verify = properties.verify
