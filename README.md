@@ -15,8 +15,6 @@ Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and ope
 -  [pytz](https://pypi.python.org/pypi/pytz)
 -  [requests](https://pypi.python.org/pypi/requests)
 -  [requests_toolbelt](https://pypi.python.org/pypi/requests_toolbelt)
--  [dicttoxml](https://pypi.python.org/pypi/dicttoxml)
--  [xmltodict](https://pypi.python.org/pypi/xmltodict)
 
 
 ## Installation
