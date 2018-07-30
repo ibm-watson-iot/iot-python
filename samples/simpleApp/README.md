@@ -1,4 +1,4 @@
-#Python Simple Application
+# Python Simple Application
 
 Sample code for a very basic appliation which subscribes to both events and connectivity status from one or more devices connected to the IBM Internet of Things service.
 
@@ -30,7 +30,7 @@ Timestamp                        Device                        Event
 ## Registered Organization Usage
 Once you have access to an API Key for an organization in the Internet of Things Cloud additional the application can be used to display events from multiple devices: 
 
-###Using an application configuration file
+### Using an application configuration file
 Create a file named application.cfg in the simpleApp directory and insert the credentials for your API key as well as an ID that is unique to your application instance. 
 ```
 [application]
@@ -53,7 +53,7 @@ Timestamp                        Device                        Event
 2014-07-07T12:16:55.821000+00:00 psutil:001                    psutil: {"mem": 75.0, "network_up": 0.27, "cpu": 1.8, "name": "W520", "network_down": 0.29}
 ```
 
-###Using command line options
+### Using command line options
 ```
 [me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token
 ```
@@ -64,22 +64,22 @@ By default the application will attempt to subscribe to all events from all devi
  * Device Id
  * Event
 
-####Example 1: Subscribe to all events from all connected devices
+#### Example 1: Subscribe to all events from all connected devices
 ```
 [me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token
 ```
 
-####Example 2: Subscribe to all events from all connected devices of a specific type
+#### Example 2: Subscribe to all events from all connected devices of a specific type
 ```
 [me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token -T $deviceType
 ```
 
-####Example 3: Subscribe to all events from a specific device
+#### Example 3: Subscribe to all events from a specific device
 ```
 [me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token -T $deviceType -I deviceId
 ```
 
-####Example 4: Subscribe a specific event sent from any connected device
+#### Example 4: Subscribe a specific event sent from any connected device
 ```
 [me@localhost ~] python simpleApp.py -o $orgId -i myApplication -k $key -t $token -E $event
 ```

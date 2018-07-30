@@ -43,7 +43,6 @@ try:
 	opts, args = getopt.getopt(sys.argv[1:], "a:d:", ["app=", "device="])
 except getopt.GetoptError as err:
 	print(str(err))
-	usage()
 	sys.exit(2)
 
 appConfigFilePath = None

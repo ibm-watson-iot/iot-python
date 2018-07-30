@@ -34,7 +34,7 @@ except ImportError:
 
 
 def myAppEventCallback(event):
-	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
+	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), event.data['hello'], event.data['x']))
 
 def myOnPublishCallback():
 	print("Confirmed event %s received by IBM Watson IoT Platform\n" % x)
