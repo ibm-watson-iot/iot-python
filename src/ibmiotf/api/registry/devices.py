@@ -1,11 +1,13 @@
 import json
 from collections import defaultdict
 
-from ibmiotf.api.common import IterableList
+from ibmiotf.api.common import IterableList, ApiException
 
 class DeviceUid(defaultdict):
-    def __init__(self, typeId, deviceId):
-        dict.__init__(self, typeId=typeId, deviceId=deviceId)
+    def __init__(self, **kwargs):
+        if not set(['deviceId', 'typeId']).issubset(kwargs):
+            raise Exception("typeId and deviceId are required properties to uniquely identify a device")
+        dict.__init__(self, **kwargs)
     
     @property
     def typeId(self):
@@ -196,7 +198,7 @@ class Devices(defaultdict):
     
     def __contains__(self, key):
         """
-        get a device from the registry
+        Does a device exist?
         """
         if self.typeId is None:
             (classIdentifier, orgId, typeId, deviceId) = key.split(":")
@@ -210,11 +212,11 @@ class Devices(defaultdict):
         elif r.status_code == 404:
             return False
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise ApiException(r)
     
     def __getitem__(self, key):
         """
-        get a device from the registry
+        Get a device from the registry
         """
         if self.typeId is None:
             (classIdentifier, orgId, typeId, deviceId) = key.split(":")
@@ -228,17 +230,17 @@ class Devices(defaultdict):
         elif r.status_code == 404:
             self.__missing__(key)
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise ApiException(r)
     
     def __setitem__(self, key, value):
         """
-        register a new device
+        Register a new device - not currently supported via this interface, use: `registry.devices.create()`
         """
         raise Exception("Unable to register or update a device via this interface at the moment.")
     
     def __delitem__(self, key):
         """
-        delete a device
+        Delete a device
         """
         if self.typeId is None:
             (classIdentifier, orgId, typeId, deviceId) = key.split(":")
@@ -247,18 +249,20 @@ class Devices(defaultdict):
             deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (self.typeId, key)
 
         r = self._apiClient.delete(deviceUrl)
-        if r.status_code != 204:
-            raise Exception("HTTP %s %s" %(r.status_Code, r.text))
+        if r.status_code == 404:
+            self.__missing__(key)
+        elif r.status_code != 204:
+            raise ApiException(r)
     
     def __missing__(self, key):
         """
-        device does not exist
+        Device does not exist
         """
-        raise Exception("Device %s does not exist" % (key))
+        raise KeyError("Device %s does not exist" % (key))
 
     def __iter__(self, *args, **kwargs):
         """
-        iterate through all devices
+        Iterate through all devices
         """
         return IterableDeviceList(self._apiClient, self.typeId)
     
@@ -279,14 +283,20 @@ class Devices(defaultdict):
             
         r = self._apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
 
-        if r.status_code == 201:
-            return r.json()
-        if r.status_code == 202:
+        if r.status_code in [201, 202]:
             return r.json()
         else:
-            raise Exception("HTTP %s %s"% (r.status_code, r.text))
+            raise ApiException(r)
+
 
     def update(self, deviceUid, metadata = None, deviceInfo = None, status = None):
+        """
+        Update an existing device
+        """
+        
+        if not isinstance(deviceUid, DeviceUid) and isinstance(deviceUid, dict):
+            deviceUid = DeviceUid(**deviceUid)
+        
         deviceUrl = 'api/v0002/device/types/%s/devices/%s' % (deviceUid.typeId, deviceUid.deviceId)
 
         data = {'status' : status, 'deviceInfo' : deviceInfo, 'metadata': metadata}
@@ -295,11 +305,12 @@ class Devices(defaultdict):
         if r.status_code == 200:
             return Device(self._apiClient, r.json())
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise ApiException(r)
 
+    
     def delete(self, devices):
         """
-        Delete multiple devices, each request can contain a maximum of 512Kb
+        Delete one or more devices, each request can contain a maximum of 512Kb
         It accepts accepts a list of devices (List of Dictionary of Devices)
         In case of failure it throws APIException
         """
@@ -310,9 +321,7 @@ class Devices(defaultdict):
             
         r = self._apiClient.post('api/v0002/bulk/devices/remove', listOfDevices)
 
-        if r.status_code == 200:
-            return r.json()
-        if r.status_code == 202:
+        if r.status_code in [200, 202]:
             return r.json()
         else:
-            raise Exception("HTTP %s %s"% (r.status_code, r.text))
+            raise ApiException(r)

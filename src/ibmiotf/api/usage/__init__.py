@@ -9,7 +9,7 @@
 
 from datetime import datetime
 from collections import defaultdict
-from ibmiotf.api.common import ApiClient 
+from ibmiotf.api.common import ApiClient, ApiException
 
 class DataTransferSummary(defaultdict):
     def __init__(self, **kwargs):
@@ -70,5 +70,5 @@ class Usage():
         if r.status_code == 200:
             return DataTransferSummary(**r.json())
         else:
-            raise Exception("HTTP %s %s"% (r.status_code, r.text))
+            raise ApiException(r)
 

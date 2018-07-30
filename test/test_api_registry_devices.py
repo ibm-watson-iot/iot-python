@@ -4,6 +4,7 @@ from nose import SkipTest
 
 import testUtils
 from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
+from ibmiotf.api.common import ApiException
 
 class TestRegistryDevices(testUtils.AbstractTest):
 
@@ -11,8 +12,8 @@ class TestRegistryDevices(testUtils.AbstractTest):
     # Bulk operations tests
     # =========================================================================
     def testBulkAddAndDelete(self):
-        device1Id = DeviceUid("test", str(uuid.uuid4()))
-        device2Id = DeviceUid("test", str(uuid.uuid4()))
+        device1Id = DeviceUid(typeId="test", deviceId=str(uuid.uuid4()))
+        device2Id = DeviceUid(typeId="test", deviceId=str(uuid.uuid4()))
         
         devicesToRegister = [device1Id, device2Id]
         self.registry.devices.create(devicesToRegister)
@@ -22,6 +23,20 @@ class TestRegistryDevices(testUtils.AbstractTest):
         assert_true(device2Id.deviceId in myDeviceType.devices)
     
         self.registry.devices.delete(devicesToRegister)
+        assert_false(device1Id.deviceId in myDeviceType.devices)
+        assert_false(device2Id.deviceId in myDeviceType.devices)
+
+    def testBulkDeleteThatDoesntExist(self):
+        device1Id = DeviceUid(typeId="test", deviceId=str(uuid.uuid4()))
+        device2Id = DeviceUid(typeId="test", deviceId=str(uuid.uuid4()))
+        
+        myDeviceType = self.registry.devicetypes["test"]
+        assert_false(device1Id.deviceId in myDeviceType.devices)
+        assert_false(device2Id.deviceId in myDeviceType.devices)
+        
+        devicesToDelete = [device1Id, device2Id]
+        self.registry.devices.delete(devicesToDelete)
+        
         assert_false(device1Id.deviceId in myDeviceType.devices)
         assert_false(device2Id.deviceId in myDeviceType.devices)
     
@@ -43,10 +58,10 @@ class TestRegistryDevices(testUtils.AbstractTest):
     def testGetDevice(self):
         # Get a device, and cache the response in a local object
         myDevice = self.registry.devices["d:hldtxx:vm:iot-test-02"]
-        print(myDevice.clientId)
-        print(myDevice.typeId)
-        print(myDevice.deviceId)
-        print(myDevice)
+        assert_equals("d:hldtxx:vm:iot-test-02", myDevice.clientId)
+        assert_equals("vm", myDevice.typeId)
+        assert_equals("iot-test-02", myDevice.deviceId)
+        
     
     def testCreateAndUpdate1Device(self):
         deviceUid = DeviceCreateRequest(
@@ -91,20 +106,31 @@ class TestRegistryDevices(testUtils.AbstractTest):
         # Cleanup
         self.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
         assert_false(deviceUid.deviceId in myDeviceType.devices)
-        
-    @raises(Exception)
+    
+    @raises(KeyError)
     def testGetDeviceThatDoesntExist(self):
         self.registry.devices["d:hldtxx:vm:iot-test-06"]
 
+    @raises(KeyError)
+    def testDeleteDeviceThatDoesntExist(self):
+        del self.registry.devices["d:hldtxx:vm:iot-test-06"]
+        
     @raises(Exception)
     def testUnsupportedCreateUpdate(self):
         self.registry.devices["d:hldtxx:vm:iot-test-06"] = {"foo", "bar"}
-        
+
+    def testUpdateDeviceThatDoesntExistUsingDictInsteadOfDeviceUidObject(self):
+        id = str(uuid.uuid4())
+        try:
+            self.registry.devices.update({"typeId": "test", "deviceId": id}, metadata={"foo": "bar"})
+        except ApiException as e:
+            assert_equals(404, e.response.status_code) 
+            
     def testListDevices(self):
         count = 0
-        print("First 10 devices:")
+        #print("First 10 devices:")
         for device in self.registry.devices:
-            print(device.clientId)
+            #print(device.clientId)
             count += 1
             if count > 10:
                 break

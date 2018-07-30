@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from ibmiotf.api.common import IterableList
 from ibmiotf.api.registry.devices import Devices
+from ibmiotf.api.common import ApiException
 
 class IterableDeviceTypeList(IterableList):
     def __init__(self, apiClient):
@@ -65,7 +66,7 @@ class DeviceTypes(defaultdict):
         elif r.status_code == 404:
             return False
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise ApiException(r)
     
     def __getitem__(self, key):
         """
@@ -79,7 +80,7 @@ class DeviceTypes(defaultdict):
         elif r.status_code == 404:
             self.__missing__(key)
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise ApiException(r)
     
     def __setitem__(self, key, value):
         """
@@ -95,13 +96,13 @@ class DeviceTypes(defaultdict):
 
         r = self._apiClient.delete(url)
         if r.status_code != 204:
-            raise Exception("HTTP %s %s" %(r.status_Code, r.text))
+            raise ApiException(r)
     
     def __missing__(self, key):
         """
         device type does not exist
         """
-        raise Exception("Device type %s does not exist" % (key))
+        raise KeyError("Device type %s does not exist" % (key))
     
     def __iter__(self, *args, **kwargs):
         """
@@ -119,7 +120,7 @@ class DeviceTypes(defaultdict):
         if r.status_code == 201:
             return DeviceType(self._apiClient, r.json())
         else:
-            raise Exception("HTTP %s %s"% (r.status_code, r.text))
+            raise ApiException(r)
     
     def update(self, typeId, description = None, deviceInfo = None, metadata = None):
         devicetypeUrl = 'api/v0002/device/types/%s' % (typeId)
@@ -130,7 +131,7 @@ class DeviceTypes(defaultdict):
         if r.status_code == 200:
             return DeviceType(self._apiClient, r.json())
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise ApiException(r)
         
     def delete(self, typeId):
         del self[typeId]

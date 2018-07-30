@@ -64,6 +64,20 @@ class ApiClient():
             verify=self.verify
         )
 
+class ApiException(Exception):
+    """
+    Exception raised when any API call fails unexpectedly
+    
+    # Attributes
+    response (requests.Response): See: http://docs.python-requests.org/en/master/api/#requests.Response
+    """
+    def __init__(self, response):
+        self.response = response
+
+    def __str__(self):
+        return "Unexpected return code from API: %s (%s) - %s\n%s" % (self.response.status_code, self.response.reason, self.response.url, self.response.text)
+    
+
 class IterableList(object):
     def __init__(self, apiClient, castToClass, url, sort=None):
         self._apiClient = apiClient

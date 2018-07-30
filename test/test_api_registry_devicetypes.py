@@ -3,7 +3,6 @@ from nose.tools import *
 from nose import SkipTest
 
 import testUtils
-from ibmiotf.api.registry.devices import DeviceUid
 
 class TestRegistryDevicetypes(testUtils.AbstractTest):
     

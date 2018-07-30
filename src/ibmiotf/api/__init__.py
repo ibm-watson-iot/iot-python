@@ -152,7 +152,6 @@ class ApiClient():
             logger.setLevel(logging.INFO)
 
         self.logger = logger
-
         if 'auth-key' not in self.__options or self.__options['auth-key'] is None:
             raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-key")
         if 'auth-token' not in self.__options or self.__options['auth-token'] is None:

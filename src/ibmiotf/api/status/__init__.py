@@ -7,7 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-from ibmiotf.api.common import ApiClient
+from ibmiotf.api.common import ApiClient, ApiException
 
 
 class Status():
@@ -27,4 +27,4 @@ class Status():
         if r.status_code == 200:
             return r.json()
         else:
-            raise Exception("HTTP %s %s"% (r.status_code, r.text))
+            raise ApiException(r)
