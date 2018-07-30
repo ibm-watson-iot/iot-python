@@ -4,7 +4,7 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -13,61 +13,61 @@
         
     <url>
      <loc>/docs/abstractClient/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/httpAbstractClient/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/message/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/connect/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/config/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/auth/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/invalidEvent/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/missingDecoder/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/missingEncoder/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/exceptions/api/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -77,25 +77,35 @@
         
     <url>
      <loc>/docs/device/client/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/device/httpClient/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/device/parseConfigFile/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/docs/device/command/</loc>
-     <lastmod>2018-06-01</lastmod>
+     <lastmod>2018-07-30</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
+    <url>
+     <loc>/docs/app/client/</loc>
+     <lastmod>2018-07-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

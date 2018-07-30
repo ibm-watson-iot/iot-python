@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../../img/favicon.ico">
+  <title>Client - IBM Watson IoT Platform Python Library</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Client";
+    var mkdocs_page_input_path = "docs\\app\\client.md";
+    var mkdocs_page_url = "/docs/app/client/";
+  </script>
+  
+  <script src="../../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../../.." class="icon icon-home"> IBM Watson IoT Platform Python Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../abstractClient/">AbstractClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../httpAbstractClient/">HttpAbstractClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../message/">Message</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/connect/">ConnectionException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/config/">ConfigurationException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/auth/">UnsupportedAuthenticationMethod</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/invalidEvent/">InvalidEventException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/missingDecoder/">MissingMessageDecoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/missingEncoder/">MissingMessageEncoderException</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/api/">APIException</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf.device</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../device/client/">Client</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../device/httpClient/">HttpClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../device/parseConfigFile/">ParseConfigFile</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../device/command/">Command</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">ibmiotf.application</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">Client</a>
+    <ul class="subnav">
+            
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../..">IBM Watson IoT Platform Python Library</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>ibmiotf.application &raquo;</li>
+        
+      
+    
+    <li>Client</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="ibmiotf.application.Client">Client</h1>
+
+<pre><code class="python">Client(self, options, logHandlers=None)
+</code></pre>
+
+<p>Extends <code>ibmiotf.AbstractClient</code> to implement an application client supporting
+messaging over MQTT</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>options (dict)</strong>: Configuration options for the client</li>
+<li><strong>logHandlers (list<logging.Handler>)</strong>: Log handlers to configure.  Defaults to <code>None</code>,
+    which will result in a default log handler being created.</li>
+</ul>
+<p><strong>Configuration Options</strong></p>
+<p>The options parameter expects a Python dictionary containing the following keys:</p>
+<ul>
+<li><code>auth-key</code> The API key to to securely connect your application to Watson IoT Platform.</li>
+<li><code>auth-token</code> An authentication token to securely connect your application to Watson IoT Platform.</li>
+<li><code>clean-session</code> A boolean value indicating whether to use MQTT clean session.</li>
+</ul>
+<h2 id="ibmiotf.application.Client.subscribeToDeviceCommands">subscribeToDeviceCommands</h2>
+
+<pre><code class="python">Client.subscribeToDeviceCommands(self, deviceType='+', deviceId='+', command='+', msgFormat='+')
+</code></pre>
+
+<p>Subscribe to device command messages</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>deviceType (string)</strong>: typeId for the subscription, optional.  Defaults to all device types (MQTT <code>+</code> wildcard)</li>
+<li><strong>deviceId (string)</strong>: deviceId for the subscription, optional.  Defaults to all devices (MQTT <code>+</code> wildcard)</li>
+<li><strong>command (string)</strong>: commandId for the subscription, optional.  Defaults to all commands (MQTT <code>+</code> wildcard)</li>
+<li><strong>msgFormat (string)</strong>: msgFormat for the subscription, optional.  Defaults to all formats (MQTT <code>+</code> wildcard)</li>
+<li><strong>qos (int)</strong>: MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>int</code>: If the subscription was successful then the return Message ID (mid) for the subscribe request
+    will be returned. The mid value can be used to track the subscribe request by checking against
+    the mid argument if you register a subscriptionCallback method.
+    If the subscription fails then the return value will be <code>0</code></p>
+<h2 id="ibmiotf.application.Client.publishCommand">publishCommand</h2>
+
+<pre><code class="python">Client.publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0, on_publish=None)
+</code></pre>
+
+<p>Publish a command to a device</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>deviceType (string) </strong>: The type of the device this command is to be published to</li>
+<li><strong>deviceId (string)</strong>: The id of the device this command is to be published to</li>
+<li><strong>command (string) </strong>: The name of the command</li>
+<li><strong>msgFormat (string) </strong>: The format of the command payload</li>
+<li><strong>data (dict) </strong>: The command data</li>
+<li><strong>qos (int) </strong>: The equivalent MQTT semantics of quality of service using the same constants (optional, defaults to <code>0</code>)</li>
+<li><strong>on_publish (function) </strong>: A function that will be called when receipt of the publication is confirmed.  This has</li>
+<li><strong>different implications depending on the qos</strong>:</li>
+<li><strong>- qos 0 </strong>: the client has asynchronously begun to send the event</li>
+<li><strong>- qos 1 and 2 </strong>: the client has confirmation of delivery from WIoTP</li>
+</ul>
+<h2 id="ibmiotf.application.Client.subscribeToDeviceStatus">subscribeToDeviceStatus</h2>
+
+<pre><code class="python">Client.subscribeToDeviceStatus(self, deviceType='+', deviceId='+')
+</code></pre>
+
+<p>Subscribe to device status messages</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>deviceType (string)</strong>: typeId for the subscription, optional.  Defaults to all device types (MQTT <code>+</code> wildcard)</li>
+<li><strong>deviceId (string)</strong>: deviceId for the subscription, optional.  Defaults to all devices (MQTT <code>+</code> wildcard)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>int</code>: If the subscription was successful then the return Message ID (mid) for the subscribe request
+    will be returned. The mid value can be used to track the subscribe request by checking against
+    the mid argument if you register a subscriptionCallback method.
+    If the subscription fails then the return value will be <code>0</code></p>
+<h2 id="ibmiotf.application.Client.subscribeToDeviceEvents">subscribeToDeviceEvents</h2>
+
+<pre><code class="python">Client.subscribeToDeviceEvents(self, deviceType='+', deviceId='+', event='+', msgFormat='+', qos=0)
+</code></pre>
+
+<p>Subscribe to device event messages</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>deviceType (string)</strong>: typeId for the subscription, optional.  Defaults to all device types (MQTT <code>+</code> wildcard)</li>
+<li><strong>deviceId (string)</strong>: deviceId for the subscription, optional.  Defaults to all devices (MQTT <code>+</code> wildcard)</li>
+<li><strong>event (string)</strong>: eventId for the subscription, optional.  Defaults to all events (MQTT <code>+</code> wildcard)</li>
+<li><strong>msgFormat (string)</strong>: msgFormat for the subscription, optional.  Defaults to all formats (MQTT <code>+</code> wildcard)</li>
+<li><strong>qos (int)</strong>: MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>int</code>: If the subscription was successful then the return Message ID (mid) for the subscribe request
+    will be returned. The mid value can be used to track the subscribe request by checking against
+    the mid argument if you register a subscriptionCallback method.
+    If the subscription fails then the return value will be <code>0</code></p>
+<h2 id="ibmiotf.application.Client.publishEvent">publishEvent</h2>
+
+<pre><code class="python">Client.publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None)
+</code></pre>
+
+<p>Publish an event on behalf of a device.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>deviceType (string)</strong>: The typeId of the device this event is to be published from</li>
+<li><strong>deviceId (string)</strong>: The deviceId of the device this event is to be published from</li>
+<li><strong>event (string)</strong>: The name of this event</li>
+<li><strong>msgFormat (string)</strong>: The format of the data for this event</li>
+<li><strong>data (dict) </strong>: The data for this event</li>
+<li><strong>qos (int) </strong>: The equivalent MQTT semantics of quality of service using the same constants (optional, defaults to <code>0</code>)</li>
+<li><strong>on_publish (function) </strong>: A function that will be called when receipt of the publication is confirmed.  This</li>
+<li><strong>has different implications depending on the qos</strong>:</li>
+<li><strong>- qos 0 </strong>: the client has asynchronously begun to send the event</li>
+<li><strong>- qos 1 and 2 </strong>: the client has confirmation of delivery from IoTF</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../../device/command/" class="btn btn-neutral" title="Command"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../../device/command/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/require.js"></script>
+      <script src="../../../search/search.js"></script>
+
+</body>
+</html>

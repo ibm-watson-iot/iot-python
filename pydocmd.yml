@@ -1,4 +1,6 @@
-# To generate documentation: pydocmd build
+# To generate documentation: 
+# 
+# python setup.py sdist & pip uninstall -y ibmiotf & pip install dist/ibmiotf-0.3.5.tar.gz & pydocmd build
 
 site_name: "IBM Watson IoT Platform Python Library"
 
@@ -39,6 +41,10 @@ generate:
 #  - ibmiotf.device.ManagedClient++
 #  - ibmiotf.device.DeviceInfo++
 #  - ibmiotf.device.DeviceFirmware++
+
+- docs/app/client.md:
+  - ibmiotf.application.Client++
+
   
 # MkDocs pages configuration. The `<<` operator is sugar added by pydocmd
 # that allows you to use an external Markdown file (eg. your project's README)
@@ -61,6 +67,8 @@ pages:
   - HttpClient: docs/device/httpClient.md
   - ParseConfigFile: docs/device/parseConfigFile.md
   - Command: docs/device/command.md
+- ibmiotf.application:
+  - Client: docs/app/client.md
 
 # These options all show off their default values. You don't have to add
 # them to your configuration if you're fine with the default.
