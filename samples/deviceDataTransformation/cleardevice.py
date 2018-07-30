@@ -56,7 +56,7 @@ if __name__ == "__main__":
   # delete the application interface schemas
   count = 0
   for schemaId in schemaIds:
-    result = deleteSchema(applicationInterfaceId)
+    result = deleteSchema(schemaId)
     count += 1
   print("Application interface schemas deleted:", count, schemaIds)
 
