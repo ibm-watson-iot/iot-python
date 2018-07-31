@@ -651,6 +651,587 @@ class ApiClient():
     # End of methods that are moving in to api.lec
     # =============================================================================================
     
+
+    """
+    ===========================================================================
+    Extended Device Model Methods
+     - get location for device
+     - update location for device
+     - get device management information
+    ===========================================================================
+    """
+
+    def getDeviceLocation(self, typeId, deviceId):
+        """
+        Retrieve Device Location.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceUrl = ApiClient.deviceUrlLocation % (self.host, typeId, deviceId)
+
+        r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Device Location was successfully obtained")
+            return r.json()
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device location information not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def updateDeviceLocation(self, typeId, deviceId, deviceLocation):
+        """
+        Updates the location information for a device. If no date is supplied, the entry is added with the current date and time.
+        It accepts typeId (string), deviceId (string) and deviceLocation (JSON) as parameters
+        In case of failure it throws APIException
+        """
+        deviceUrl = ApiClient.deviceUrlLocation % (self.host, typeId, deviceId)
+
+        r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(deviceLocation), headers = {'content-type': 'application/json'}, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Device Location was successfully modified")
+            return r.json()
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device location information not found", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The update could not be completed due to a conflict", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getDeviceManagementInformation(self, typeId, deviceId):
+        """
+        Gets device management information for a device.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceUrl = ApiClient.deviceUrlMgmt % (self.host, typeId, deviceId)
+        r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Device Management Information was successfully obtained")
+            return r.json()
+        #This also throws a 403, which has not been documented
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getConnectionLogs(self, parameters):
+        """
+        List connection log events for a device to aid in diagnosing connectivity problems.
+        The entries record successful connection, unsuccessful connection attempts, intentional disconnection and server-initiated disconnection.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        logs = ApiClient.deviceLogs % (self.host)
+        r = requests.get(logs, auth=self.credentials, params = parameters, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Connection Logs were successfully obtained")
+            return r.json()
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    """
+    ===========================================================================
+    Device Diagnostics - Logs
+     - get logs
+     - clear logs
+     - add log
+     - get log
+    ===========================================================================
+    """
+
+    def getAllDiagnosticLogs(self, typeId, deviceId):
+        """
+        Retrieves All Device Diagnostic Logs.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
+        r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("All Diagnostic logs successfully retrieved")
+            return r.json()
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def clearAllDiagnosticLogs(self, typeId, deviceId):
+        """
+        Deletes All Device Diagnostic Logs.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
+        r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("All Diagnostic logs successfully cleared")
+            return True
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def addDiagnosticLog(self, typeId, deviceId, logs):
+        """
+        Add Device Diagnostic Logs.
+        It accepts typeId (string), deviceId (string) and logs (JSON) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
+        r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(logs), headers = {'content-type': 'application/json'}, verify=self.verify)
+
+        status = r.status_code
+        if status == 201:
+            self.logger.debug("Diagnostic entry was successfully added")
+            return True
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getDiagnosticLog(self, typeId, deviceId, logId):
+        """
+        Retrieves Device Diagnostic Logs.
+        It accepts typeId (string), deviceId (string) and logId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, typeId, deviceId, logId)
+        r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Diagnostic log successfully retrieved")
+            return r.json()
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def clearDiagnosticLog(self, typeId, deviceId, logId):
+        """
+        Delete Device Diagnostic Logs.
+        It accepts typeId (string), deviceId (string) and logId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, typeId, deviceId, logId)
+        r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Diagnostic log successfully cleared")
+            return True
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Device not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+
+    """
+    ===========================================================================
+    Device Diagnostics - Error Codes
+     - add error code
+     - get all error codes
+     - clear all error codes
+    ===========================================================================
+    """
+
+    def addErrorCode(self, typeId, deviceId, errorCode):
+        """
+        Adds an error code to the list of error codes for the device. The list may be pruned as the new entry is added.
+        It accepts typeId (string), deviceId (string) and errorCode (JSON) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
+        r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(errorCode), headers = {'content-type': 'application/json'}, verify=self.verify)
+
+        status = r.status_code
+        if status == 201:
+            self.logger.debug("Error code was successfully added")
+            return True
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error Code not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getAllDiagnosticErrorCodes(self, typeId, deviceId):
+        """
+        Gets diagnostic error codes for a device.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
+        r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Error codes were successfully retrieved")
+            return r.json()
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error Code not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def clearAllErrorCodes(self, typeId, deviceId):
+        """
+        Clears the list of error codes for the device. The list is replaced with a single error code of zero.
+        It accepts typeId (string) and deviceId (string) as parameters
+        In case of failure it throws APIException
+        """
+        deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
+        r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Error codes successfully cleared")
+            return True
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error Code not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+
+    # =============================================================================================
+    # Start of methods that are moving in to api.status
+    #
+    # All migrated
+    # =============================================================================================
+    def getServiceStatus(self):
+        """
+        Retrieve the organization-specific status of each of the services offered by the IBM Watson IoT Platform.
+        In case of failure it throws APIException
+        """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.status.serviceStatus()'")
+
+        serviceStatus = ApiClient.serviceStatus % (self.host)
+        r = requests.get(serviceStatus, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Service status successfully retrieved")
+            return r.json()
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    # =============================================================================================
+    # End of methods that are moving in to api.status
+    # =============================================================================================
+    
+    
+    # =============================================================================================
+    # Start of methods that are moving in to api.usage
+    #
+    # All migrated
+    # =============================================================================================
+    def getDataTraffic(self, options):
+        """
+        Retrieve the amount of data used.
+        In case of failure it throws APIException
+        """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.usage.dataTransfer(start=datetime.date, end=datetime.date, detail=boolean)'")
+        dataTraffic = (ApiClient.usageMgmt + '/data-traffic') % (self.host)
+        r = requests.get(dataTraffic, auth=self.credentials, params=options, verify=self.verify)
+
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Data Traffic = ", r.json() )
+            return r.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Bad Request", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    # =============================================================================================
+    # End of methods that are moving in to api.usage
+    # =============================================================================================
+    
+    
+
+    """
+    ===========================================================================
+    Device Management API
+    - Get all requests
+    - Initiate new request
+    - Delete request
+    - Get request
+    - Get request status
+    - Get request status for specific device
+    ===========================================================================
+    """
+
+    def getAllDeviceManagementRequests(self):
+        """
+        Gets a list of device management requests, which can be in progress or recently completed.
+        In case of failure it throws APIException
+        """
+        mgmtRequests = ApiClient.mgmtRequests % (self.host)
+        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Retrieved all device management requests")
+            return r.json()
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def initiateDeviceManagementRequest(self, deviceManagementRequest):
+        """
+        Initiates a device management request, such as reboot.
+        In case of failure it throws APIException
+        """
+        mgmtRequests = ApiClient.mgmtRequests % (self.host)
+        r = requests.post(mgmtRequests, auth=self.credentials, data=json.dumps(deviceManagementRequest), headers = {'content-type': 'application/json'}, verify=self.verify)
+
+        status = r.status_code
+        if status == 202:
+            self.logger.debug("The request has been accepted for processing")
+            return r.json()
+        elif status == 403:
+            raise ibmiotf.APIException(500, "Devices don't support the requested operation", r.json())
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def deleteDeviceManagementRequest(self, requestId):
+        """
+        Clears the status of a device management request.
+        You can use this operation to clear the status for a completed request, or for an in-progress request which may never complete due to a problem.
+        It accepts requestId (string) as parameters
+        In case of failure it throws APIException
+        """
+        mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
+        r = requests.delete(mgmtRequests, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Request status cleared")
+            return True
+        #403 and 404 error code needs to be added in Swagger documentation
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Request Id not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getDeviceManagementRequest(self, requestId):
+        """
+        Gets details of a device management request.
+        It accepts requestId (string) as parameters
+        In case of failure it throws APIException
+        """
+        mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
+        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Retrieving single management request")
+            return r.json()
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Request Id not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getDeviceManagementRequestStatus(self, requestId):
+        """
+        Get a list of device management request device statuses.
+        In case of failure it throws APIException
+        """
+        mgmtRequests = ApiClient.mgmtRequestStatus % (self.host, requestId)
+        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Retrieved all device management request statuses")
+            return r.json()
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Request status not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getDeviceManagementRequestStatusByDevice(self, requestId, typeId, deviceId):
+        """
+        Get an individual device mangaement request device status.
+        In case of failure it throws APIException
+        """
+        mgmtRequests = ApiClient.mgmtRequestSingleDeviceStatus % (self.host, requestId, typeId, deviceId)
+        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+
+        if status == 200:
+            self.logger.debug("Retrieved device management request status of single device")
+            return r.json()
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Request status not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    """
+    ===========================================================================
+    Device Management Extension API
+        - List all device management extension packages
+        - Create a new device management extension package
+        - Delete a device management extension package
+        - Get a specific device management extension package
+        - Update a device management extension package
+    ===========================================================================
+    """
+
+    def getAllDeviceManagementExtensionPkgs(self):
+        """
+        List all device management extension packages
+        """
+        dmeReq = ApiClient.dmeRequests % (self.host)
+        r = requests.get(dmeReq, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Retrieved all Device Management Extension Packages")
+            return r.json()
+        else:
+            raise ibmiotf.APIException(status,"HTTP Error in getAllDeviceManagementExtensionPkgs", r)
+
+    def createDeviceManagementExtensionPkg(self, dmeData):
+        """
+        Create a new device management extension package
+        In case of failure it throws APIException
+        """
+        dmeReq = ApiClient.dmeRequests % (self.host)
+        r = requests.post(dmeReq, auth=self.credentials, data=json.dumps(dmeData),
+                      headers = {'content-type': 'application/json'}, verify=self.verify)
+        status = r.status_code
+        if status == 201:
+            self.logger.debug("The DME package request has been accepted for processing")
+            return r.json()
+        else:
+            raise ibmiotf.APIException(status,"HTTP Error in createDeviceManagementExtensionPkg", r)
+
+    def deleteDeviceManagementExtensionPkg(self, bundleId):
+        """
+        Delete a device management extension package
+        It accepts bundleId (string) as parameters
+        In case of failure it throws APIException
+        """
+        dmeReq = ApiClient.dmeSingleRequest % (self.host, bundleId)
+        r = requests.delete(dmeReq, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 204:
+            self.logger.debug("Device Management Extension Package removed")
+            return True
+        else:
+            raise ibmiotf.APIException(status,"HTTP Error in deleteDeviceManagementExtensionPkg", r)
+
+    def getDeviceManagementExtensionPkg(self, bundleId):
+        """
+        Get a specific device management extension package
+        It accepts bundleId (string) as parameters
+        In case of failure it throws APIException
+        """
+        dmeReq = ApiClient.dmeSingleRequest % (self.host, bundleId)
+        r = requests.get(dmeReq, auth=self.credentials, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Device Management Extension Package retrieved")
+            return r.json()
+        else:
+            raise ibmiotf.APIException(status,"HTTP Error in getDeviceManagementExtensionPkg", r)
+
+    def updateDeviceManagementExtensionPkg(self, bundleId, dmeData):
+        """
+        Update a device management extension package
+        It accepts bundleId (string) as parameters
+        In case of failure it throws APIException
+        """
+        dmeReq = ApiClient.dmeSingleRequest % (self.host, bundleId)
+        r = requests.put(dmeReq, auth=self.credentials, data=json.dumps(dmeData),
+                      headers = {'content-type': 'application/json'}, verify=self.verify)
+        status = r.status_code
+        if status == 200:
+            self.logger.debug("Device Management Extension Package updated")
+            return r.json()
+        else:
+            raise ibmiotf.APIException(status,"HTTP Error in updateDeviceManagementExtensionPkg", r)
+
+
+
     """
     Thing API methods
      - register a new thing
@@ -984,595 +1565,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
-
-    """
-    ===========================================================================
-    Extended Device Model Methods
-     - get location for device
-     - update location for device
-     - get device management information
-    ===========================================================================
-    """
-
-    def getDeviceLocation(self, typeId, deviceId):
-        """
-        Retrieve Device Location.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceUrl = ApiClient.deviceUrlLocation % (self.host, typeId, deviceId)
-
-        r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Device Location was successfully obtained")
-            return r.json()
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device location information not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def updateDeviceLocation(self, typeId, deviceId, deviceLocation):
-        """
-        Updates the location information for a device. If no date is supplied, the entry is added with the current date and time.
-        It accepts typeId (string), deviceId (string) and deviceLocation (JSON) as parameters
-        In case of failure it throws APIException
-        """
-        deviceUrl = ApiClient.deviceUrlLocation % (self.host, typeId, deviceId)
-
-        r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(deviceLocation), headers = {'content-type': 'application/json'}, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Device Location was successfully modified")
-            return r.json()
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device location information not found", None)
-        elif status == 409:
-            raise ibmiotf.APIException(409, "The update could not be completed due to a conflict", r.json())
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getDeviceManagementInformation(self, typeId, deviceId):
-        """
-        Gets device management information for a device.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceUrl = ApiClient.deviceUrlMgmt % (self.host, typeId, deviceId)
-        r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Device Management Information was successfully obtained")
-            return r.json()
-        #This also throws a 403, which has not been documented
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getConnectionLogs(self, parameters):
-        """
-        List connection log events for a device to aid in diagnosing connectivity problems.
-        The entries record successful connection, unsuccessful connection attempts, intentional disconnection and server-initiated disconnection.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        logs = ApiClient.deviceLogs % (self.host)
-        r = requests.get(logs, auth=self.credentials, params = parameters, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Connection Logs were successfully obtained")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    """
-    ===========================================================================
-    Device Diagnostics - Logs
-     - get logs
-     - clear logs
-     - add log
-     - get log
-    ===========================================================================
-    """
-
-    def getAllDiagnosticLogs(self, typeId, deviceId):
-        """
-        Retrieves All Device Diagnostic Logs.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
-        r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("All Diagnostic logs successfully retrieved")
-            return r.json()
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-
-    def clearAllDiagnosticLogs(self, typeId, deviceId):
-        """
-        Deletes All Device Diagnostic Logs.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
-        r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("All Diagnostic logs successfully cleared")
-            return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def addDiagnosticLog(self, typeId, deviceId, logs):
-        """
-        Add Device Diagnostic Logs.
-        It accepts typeId (string), deviceId (string) and logs (JSON) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
-        r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(logs), headers = {'content-type': 'application/json'}, verify=self.verify)
-
-        status = r.status_code
-        if status == 201:
-            self.logger.debug("Diagnostic entry was successfully added")
-            return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getDiagnosticLog(self, typeId, deviceId, logId):
-        """
-        Retrieves Device Diagnostic Logs.
-        It accepts typeId (string), deviceId (string) and logId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, typeId, deviceId, logId)
-        r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Diagnostic log successfully retrieved")
-            return r.json()
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def clearDiagnosticLog(self, typeId, deviceId, logId):
-        """
-        Delete Device Diagnostic Logs.
-        It accepts typeId (string), deviceId (string) and logId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, typeId, deviceId, logId)
-        r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("Diagnostic log successfully cleared")
-            return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Device not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    """
-    ===========================================================================
-    Device Diagnostics - Error Codes
-     - add error code
-     - get all error codes
-     - clear all error codes
-    ===========================================================================
-    """
-
-    def addErrorCode(self, typeId, deviceId, errorCode):
-        """
-        Adds an error code to the list of error codes for the device. The list may be pruned as the new entry is added.
-        It accepts typeId (string), deviceId (string) and errorCode (JSON) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
-        r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(errorCode), headers = {'content-type': 'application/json'}, verify=self.verify)
-
-        status = r.status_code
-        if status == 201:
-            self.logger.debug("Error code was successfully added")
-            return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Error Code not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getAllDiagnosticErrorCodes(self, typeId, deviceId):
-        """
-        Gets diagnostic error codes for a device.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
-        r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Error codes were successfully retrieved")
-            return r.json()
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Error Code not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def clearAllErrorCodes(self, typeId, deviceId):
-        """
-        Clears the list of error codes for the device. The list is replaced with a single error code of zero.
-        It accepts typeId (string) and deviceId (string) as parameters
-        In case of failure it throws APIException
-        """
-        deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
-        r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("Error codes successfully cleared")
-            return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Error Code not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    """
-    ===========================================================================
-    Service Status API
-    - Retrieve service status
-    ===========================================================================
-    """
-
-    def getServiceStatus(self):
-        """
-        Retrieve the organization-specific status of each of the services offered by the IBM Watson IoT Platform.
-        In case of failure it throws APIException
-        """
-        
-        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.status.serviceStatus()'")
-
-        serviceStatus = ApiClient.serviceStatus % (self.host)
-        r = requests.get(serviceStatus, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Service status successfully retrieved")
-            return r.json()
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    """
-    ===========================================================================
-    Usage API
-    - Data Traffic
-    ===========================================================================
-    """
-
-    def getDataTraffic(self, options):
-        """
-        Retrieve the amount of data used.
-        In case of failure it throws APIException
-        """
-        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.usage.dataTransfer(start=datetime.date, end=datetime.date, detail=boolean)'")
-        dataTraffic = (ApiClient.usageMgmt + '/data-traffic') % (self.host)
-        r = requests.get(dataTraffic, auth=self.credentials, params=options, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Data Traffic = ", r.json() )
-            return r.json()
-        elif status == 400:
-            raise ibmiotf.APIException(400, "Bad Request", r.json())
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    """
-    ===========================================================================
-    Device Management API
-    - Get all requests
-    - Initiate new request
-    - Delete request
-    - Get request
-    - Get request status
-    - Get request status for specific device
-    ===========================================================================
-    """
-
-    def getAllDeviceManagementRequests(self):
-        """
-        Gets a list of device management requests, which can be in progress or recently completed.
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtRequests % (self.host)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieved all device management requests")
-            return r.json()
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def initiateDeviceManagementRequest(self, deviceManagementRequest):
-        """
-        Initiates a device management request, such as reboot.
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtRequests % (self.host)
-        r = requests.post(mgmtRequests, auth=self.credentials, data=json.dumps(deviceManagementRequest), headers = {'content-type': 'application/json'}, verify=self.verify)
-
-        status = r.status_code
-        if status == 202:
-            self.logger.debug("The request has been accepted for processing")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(500, "Devices don't support the requested operation", r.json())
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def deleteDeviceManagementRequest(self, requestId):
-        """
-        Clears the status of a device management request.
-        You can use this operation to clear the status for a completed request, or for an in-progress request which may never complete due to a problem.
-        It accepts requestId (string) as parameters
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
-        r = requests.delete(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("Request status cleared")
-            return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request Id not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getDeviceManagementRequest(self, requestId):
-        """
-        Gets details of a device management request.
-        It accepts requestId (string) as parameters
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieving single management request")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request Id not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getDeviceManagementRequestStatus(self, requestId):
-        """
-        Get a list of device management request device statuses.
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtRequestStatus % (self.host, requestId)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieved all device management request statuses")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request status not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getDeviceManagementRequestStatusByDevice(self, requestId, typeId, deviceId):
-        """
-        Get an individual device mangaement request device status.
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtRequestSingleDeviceStatus % (self.host, requestId, typeId, deviceId)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieved device management request status of single device")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request status not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    """
-    ===========================================================================
-    Device Management Extension API
-        - List all device management extension packages
-        - Create a new device management extension package
-        - Delete a device management extension package
-        - Get a specific device management extension package
-        - Update a device management extension package
-    ===========================================================================
-    """
-
-    def getAllDeviceManagementExtensionPkgs(self):
-        """
-        List all device management extension packages
-        """
-        dmeReq = ApiClient.dmeRequests % (self.host)
-        r = requests.get(dmeReq, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Retrieved all Device Management Extension Packages")
-            return r.json()
-        else:
-            raise ibmiotf.APIException(status,"HTTP Error in getAllDeviceManagementExtensionPkgs", r)
-
-    def createDeviceManagementExtensionPkg(self, dmeData):
-        """
-        Create a new device management extension package
-        In case of failure it throws APIException
-        """
-        dmeReq = ApiClient.dmeRequests % (self.host)
-        r = requests.post(dmeReq, auth=self.credentials, data=json.dumps(dmeData),
-                      headers = {'content-type': 'application/json'}, verify=self.verify)
-        status = r.status_code
-        if status == 201:
-            self.logger.debug("The DME package request has been accepted for processing")
-            return r.json()
-        else:
-            raise ibmiotf.APIException(status,"HTTP Error in createDeviceManagementExtensionPkg", r)
-
-    def deleteDeviceManagementExtensionPkg(self, bundleId):
-        """
-        Delete a device management extension package
-        It accepts bundleId (string) as parameters
-        In case of failure it throws APIException
-        """
-        dmeReq = ApiClient.dmeSingleRequest % (self.host, bundleId)
-        r = requests.delete(dmeReq, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("Device Management Extension Package removed")
-            return True
-        else:
-            raise ibmiotf.APIException(status,"HTTP Error in deleteDeviceManagementExtensionPkg", r)
-
-    def getDeviceManagementExtensionPkg(self, bundleId):
-        """
-        Get a specific device management extension package
-        It accepts bundleId (string) as parameters
-        In case of failure it throws APIException
-        """
-        dmeReq = ApiClient.dmeSingleRequest % (self.host, bundleId)
-        r = requests.get(dmeReq, auth=self.credentials, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Device Management Extension Package retrieved")
-            return r.json()
-        else:
-            raise ibmiotf.APIException(status,"HTTP Error in getDeviceManagementExtensionPkg", r)
-
-    def updateDeviceManagementExtensionPkg(self, bundleId, dmeData):
-        """
-        Update a device management extension package
-        It accepts bundleId (string) as parameters
-        In case of failure it throws APIException
-        """
-        dmeReq = ApiClient.dmeSingleRequest % (self.host, bundleId)
-        r = requests.put(dmeReq, auth=self.credentials, data=json.dumps(dmeData),
-                      headers = {'content-type': 'application/json'}, verify=self.verify)
-        status = r.status_code
-        if status == 200:
-            self.logger.debug("Device Management Extension Package updated")
-            return r.json()
-        else:
-            raise ibmiotf.APIException(status,"HTTP Error in updateDeviceManagementExtensionPkg", r)
 
     """
     ===========================================================================

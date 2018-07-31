@@ -58,7 +58,9 @@ class TestLEC(testUtils.AbstractTest):
         assert_true(isinstance(lastEvent.timestamp, datetime))
         
         # Base64 decode the payload from the lEC and compare to the json dump of the data we sent
-        assert_equals(base64.b64decode(lastEvent.payload), json.dumps({"foo": "bar1"}))
+        decodedPayload = json.loads(base64.b64decode(lastEvent.payload))
+        assert_true("foo" in decodedPayload)
+        assert_equals(decodedPayload["foo"], "bar1")
 
         lastEvents = self.lec.getAll(device1Id)
         
@@ -68,12 +70,16 @@ class TestLEC(testUtils.AbstractTest):
         assert_equals(lastEvents[0].format, "json")
         assert_equals(lastEvents[0].deviceId, device1Id.deviceId)
         assert_equals(lastEvents[0].typeId, device1Id.typeId)
-        assert_equals(base64.b64decode(lastEvents[0].payload), json.dumps({"foo": "bar1"}))
+        decodedPayload1 = json.loads(base64.b64decode(lastEvents[0].payload))
+        assert_true("foo" in decodedPayload1)
+        assert_equals(decodedPayload1["foo"], "bar1")
         
         assert_equals(lastEvents[1].format, "json")
         assert_equals(lastEvents[1].deviceId, device1Id.deviceId)
         assert_equals(lastEvents[1].typeId, device1Id.typeId)
-        assert_equals(base64.b64decode(lastEvents[1].payload), json.dumps({"foo": "bar2"}))
+        decodedPayload2 = json.loads(base64.b64decode(lastEvents[1].payload))
+        assert_true("foo" in decodedPayload2)
+        assert_equals(decodedPayload2["foo"], "bar2")
         
         self.registry.devices.delete(device1Id)
         assert_false(device1Id.deviceId in myDeviceType.devices)
