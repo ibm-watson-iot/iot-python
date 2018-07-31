@@ -18,7 +18,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 import paho.mqtt.client as paho
 import threading
-import iso8601
 import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode

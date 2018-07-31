@@ -5,19 +5,11 @@
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   David Parker
-#   Paul Slater
-#   Amit M Mangalvedkar
-#   Lokesh K Haralakatta
-#   Ian Craggs
 # *****************************************************************************
 
 import ibmiotf
 import json
 import requests
-import iso8601
 import base64
 import json
 from datetime import datetime
@@ -29,6 +21,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from ibmiotf.api.registry import Registry
 from ibmiotf.api.usage import Usage
 from ibmiotf.api.status import Status
+from ibmiotf.api.lec import LEC
 from ibmiotf.api.common import ApiClient as NewApiClient
 
 
@@ -181,6 +174,7 @@ class ApiClient():
         self.registry = Registry(self.newApiClient)
         self.status = Status(self.newApiClient)
         self.usage = Usage(self.newApiClient)
+        self.lec = LEC(self.newApiClient)
 
 
 
@@ -214,6 +208,8 @@ class ApiClient():
 
     # =============================================================================================
     # Start of methods that are moving in to api.registry
+    #
+    # All migrated
     # =============================================================================================
     def deleteDevice(self, typeId, deviceId):
         """
@@ -453,16 +449,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-    """
-    ===========================================================================
-    Device API methods
-     - register a new device
-     - get a single device
-     - remove device
-     - update device
-    ===========================================================================
-    """
-
     def registerDevice(self, typeId, deviceId, authToken = None, deviceInfo = None, location = None, metadata=None):
         """
         Registers a new device.
@@ -604,6 +590,67 @@ class ApiClient():
     # End of methods that are moving in to api.registry
     # =============================================================================================
     
+    
+    # =============================================================================================
+    # Start of methods that are moving in to api.lec
+    #
+    # All migrated
+    # =============================================================================================
+    def getLastEvent(self, typeId, deviceId, eventId):
+        """
+        Retrieves Last Cached Event.
+        """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.lec.get(DeviceUid, eventId)'")
+
+        events = ApiClient.deviceEventCacheUrl % (self.host, typeId, deviceId, eventId)
+        r = requests.get(events, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+        if status == 200:
+            response = r.json()
+            if response["format"] == "json":
+                # Convert from base64 to byte to string to dictionary
+                jsonPayload = json.loads(base64.b64decode(response["payload"]))
+                response["data"] = jsonPayload
+            return response
+
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Event not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    def getLastEvents(self, typeId, deviceId):
+        """
+        Retrieves all last cached events
+        """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.lec.getAll(DeviceUid)'")
+        
+        events = ApiClient.deviceEventListCacheUrl % (self.host, typeId, deviceId)
+        r = requests.get(events, auth=self.credentials, verify=self.verify)
+
+        status = r.status_code
+        if status == 200:
+            response = r.json()
+            for event in response:
+                if event["format"] == "json":
+                    # Convert from base64 to byte to string to dictionary
+                    jsonPayload = json.loads(base64.b64decode(event["payload"]))
+                    event["data"] = jsonPayload
+            return response
+
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Event not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(None, "Unexpected error", None)
+
+    # =============================================================================================
+    # End of methods that are moving in to api.lec
+    # =============================================================================================
+    
     """
     Thing API methods
      - register a new thing
@@ -642,7 +689,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
         
-    
     def getThing(self, thingTypeId, thingId):
         """
         Gets thing details.
@@ -670,7 +716,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
     def getThingsForType(self, thingTypeId, parameters = None):
         """
         Gets details for multiple things of a type
@@ -694,8 +739,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
 
     def removeThing(self, thingTypeId, thingId):
         """
@@ -722,7 +765,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-
 
     def updateThing(self, thingTypeId, thingId, name, description, aggregatedObjects, metadata = None):
         """
@@ -839,7 +881,6 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
     
     def getDraftThingType(self, thingTypeId, parameters = None):
         """
@@ -866,8 +907,7 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
-        
+            
     def deleteDraftThingType(self, thingTypeId):
         """
         Deletes a Thing type.
@@ -894,7 +934,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
         
-    
     def getActiveThingTypes(self, parameters = None):
         """
         Retrieves all existing active thing types.
@@ -918,8 +957,7 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-    
-    
+        
     def getActiveThingType(self, thingTypeId, parameters = None):
         """
         Retrieves all existing Active thing types.
@@ -946,61 +984,6 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
-
-    """
-    ===========================================================================
-    Last Event Cache Methods
-     - get event(s) from cache for device
-    ===========================================================================
-    """
-
-    def getLastEvent(self, typeId, deviceId, eventId):
-        """
-        Retrieves Last Cached Event.
-        """
-        events = ApiClient.deviceEventCacheUrl % (self.host, typeId, deviceId, eventId)
-        r = requests.get(events, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-        if status == 200:
-            response = r.json()
-            if response["format"] == "json":
-                # Convert from base64 to byte to string to dictionary
-                jsonPayload = json.loads(base64.b64decode(response["payload"]))
-                response["data"] = jsonPayload
-            return response
-
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Event not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-
-    def getLastEvents(self, typeId, deviceId):
-        """
-        Retrieves all last cached events
-        """
-        events = ApiClient.deviceEventListCacheUrl % (self.host, typeId, deviceId)
-        r = requests.get(events, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-        if status == 200:
-            response = r.json()
-            for event in response:
-                if event["format"] == "json":
-                    # Convert from base64 to byte to string to dictionary
-                    jsonPayload = json.loads(base64.b64decode(event["payload"]))
-                    event["data"] = jsonPayload
-            return response
-
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Event not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
 
 
     """

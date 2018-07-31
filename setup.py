@@ -1,3 +1,12 @@
+# *****************************************************************************
+# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+
 import sys
 sys.path.insert(0, 'src')
 
@@ -36,6 +45,7 @@ setup(
         'ibmiotf.api.registry',
         'ibmiotf.api.status',
         'ibmiotf.api.usage',
+        'ibmiotf.api.lec',
         'ibmiotf.codecs'
     ],
     package_data={'ibmiotf': ['*.pem']},
@@ -48,8 +58,8 @@ setup(
     long_description=read_md('README.md'),
     install_requires=[
         "iso8601 >= 0.1.12",
-        "paho-mqtt >= 1.3.1",
         "pytz >= 2017.3",
+        "paho-mqtt >= 1.3.1",
         "requests >= 2.18.4",
         "requests_toolbelt >= 0.8.0"
     ],
