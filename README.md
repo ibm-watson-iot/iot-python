@@ -1,5 +1,7 @@
 # Python for IBM Watson IoT Platform
 
+[![Build Status](https://travis-ci.org/ibm-watson-iot/iot-python.svg?branch=master)](https://travis-ci.org/ibm-watson-iot/iot-python)
+
 Python module for interacting with the [IBM Watson IoT Platform](https://internetofthings.ibmcloud.com).
 
 -  [Python 3.6](https://www.python.org/downloads/release/python-360/)
