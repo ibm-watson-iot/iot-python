@@ -58,7 +58,7 @@ class TestLEC(testUtils.AbstractTest):
         assert_true(isinstance(lastEvent.timestamp, datetime))
         
         # Base64 decode the payload from the lEC and compare to the json dump of the data we sent
-        decodedPayload = json.loads(base64.b64decode(lastEvent.payload))
+        decodedPayload = json.loads(base64.b64decode(lastEvent.payload).decode('utf-8'))
         assert_true("foo" in decodedPayload)
         assert_equals(decodedPayload["foo"], "bar1")
 
@@ -70,14 +70,14 @@ class TestLEC(testUtils.AbstractTest):
         assert_equals(lastEvents[0].format, "json")
         assert_equals(lastEvents[0].deviceId, device1Id.deviceId)
         assert_equals(lastEvents[0].typeId, device1Id.typeId)
-        decodedPayload1 = json.loads(base64.b64decode(lastEvents[0].payload))
+        decodedPayload1 = json.loads(base64.b64decode(lastEvents[0].payload).decode('utf-8'))
         assert_true("foo" in decodedPayload1)
         assert_equals(decodedPayload1["foo"], "bar1")
         
         assert_equals(lastEvents[1].format, "json")
         assert_equals(lastEvents[1].deviceId, device1Id.deviceId)
         assert_equals(lastEvents[1].typeId, device1Id.typeId)
-        decodedPayload2 = json.loads(base64.b64decode(lastEvents[1].payload))
+        decodedPayload2 = json.loads(base64.b64decode(lastEvents[1].payload).decode('utf-8'))
         assert_true("foo" in decodedPayload2)
         assert_equals(decodedPayload2["foo"], "bar2")
         
