@@ -1,6 +1,11 @@
 # Python for IBM Watson IoT Platform
 
 [![Build Status](https://travis-ci.org/ibm-watson-iot/iot-python.svg?branch=master)](https://travis-ci.org/ibm-watson-iot/iot-python)
+[![GitHub issues](https://img.shields.io/github/issues/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/issues)
+[![GitHub](https://img.shields.io/github/license/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/blob/master/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/ibmiotf.svg)](https://pypi.org/project/ibmiotf/)
+
+
 
 Python module for interacting with the [IBM Watson IoT Platform](https://internetofthings.ibmcloud.com).
 
