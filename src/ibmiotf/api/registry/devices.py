@@ -56,7 +56,21 @@ class DeviceCreateRequest(defaultdict):
     @property
     def metadata(self):
         return self["metadata"]
+
+class DeviceCreateResponse(defaultdict):
+    def __init__(self, **kwargs):
+        dict.__init__(self, **kwargs)
     
+    @property
+    def typeId(self):
+        return self["typeId"]
+    @property
+    def deviceId(self):
+        return self["deviceId"]
+    @property
+    def authToken(self):
+        return self["authToken"]
+
 class DeviceInfo(defaultdict):
     def __init__(self, description=None, deviceClass=None, fwVersion=None, hwVersion=None, manufacturer=None, model=None, serialNumber=None, descriptiveLocation=None):
         dict.__init__(
@@ -293,7 +307,10 @@ class Devices(defaultdict):
         r = self._apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
 
         if r.status_code in [201, 202]:
-            return r.json()
+            responseList = []
+            for entry in r.json():
+                responseList.append(DeviceCreateResponse(**entry))
+            return responseList
         else:
             raise ApiException(r)
 

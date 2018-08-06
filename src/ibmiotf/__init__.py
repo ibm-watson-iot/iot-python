@@ -64,7 +64,7 @@ class AbstractClient(object):
     client (paho.mqtt.client.Client): Built-in Paho MQTT client handling connectivity for the client.
     logger (logging.logger): Client logger.
     """
-    def __init__(self, domain, organization, clientId, username, password, port=8883, logHandlers=None, cleanSession="true", transport="tcp"):
+    def __init__(self, domain, organization, clientId, username, password, port=None, logHandlers=None, cleanSession="true", transport="tcp"):
         self.organization = organization
         self.username = username
         self.password = password
@@ -120,12 +120,34 @@ class AbstractClient(object):
             self.logger.addHandler(ch)
 
         self.client = paho.Client(self.clientId, transport=transport, clean_session=False if cleanSession == "false" else True)
-
-        try:
-            self.tlsVersion = ssl.PROTOCOL_TLSv1_2
-        except:
+        
+        # Normal usage puts the client in an auto-detect mode, where it will try to use 
+        # TLS, and fall back to unencrypted mode ONLY if TLS 1.2 is unavailable.
+        # However, we now support explicit override of this by allowing the client to be 
+        # configured to use a specific port.
+        #
+        # If there is no specific port set in the configuration then we will auto-negotiate TLS if possible
+        # If the port has been configured to 80 or 1883 we should not try to auto-enable TLS configuration
+        # if the port has been configured to 443 or 8883 we should not auto-fallback to no TLS on 1883
+        if self.port is None:
+            try:
+                self.tlsVersion = ssl.PROTOCOL_TLSv1_2
+                self.port = 8883
+            except:
+                self.tlsVersion = None
+                self.port = 1883
+                self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
+        elif self.port == 1883:
             self.tlsVersion = None
-
+            self.logger.warning("Unable to encrypt messages because client configuration has overridden port selection to an insecure port (%s)" % self.port)
+        elif self.port == 8883:
+            self.tlsVersion = ssl.PROTOCOL_TLSv1_2
+            # We allow an exception to raise here if running in an environment where 
+            # TLS 1.2 is unavailable because the configuration explicitly requested 
+            # to use encrypted connection
+        else:
+            raise Exception("Unsupported value for port override: %s.  Supported values are 1883 & 8883." % self.port)
+            
         # Configure authentication
         if self.username is not None:
             # In environments where either ssl is not available, or TLSv1.2 is not available we will fallback to MQTT over TCP
@@ -133,9 +155,6 @@ class AbstractClient(object):
                 # Path to certificate
                 caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
                 self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
-            else:
-                self.port = 1883
-                self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
             self.client.username_pw_set(self.username, self.password)
 
         # Attach MQTT callbacks

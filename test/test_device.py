@@ -10,6 +10,8 @@
 #   Lokesh Haralakatta  - Initial Contribution
 # *****************************************************************************
 
+import copy
+
 import ibmiotf.device
 import ibmiotf.application
 import uuid
@@ -31,21 +33,21 @@ class TestDevice(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         try: 
-            deviceType = self.setupAppClient.api.getDeviceType(self.DEVICE_TYPE)
-        except APIException as e:
+            deviceType = self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE]
+        except ApiException as e:
             if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.addDeviceType(self.DEVICE_TYPE)
+                deviceType = self.setupAppClient.api.registry.devicetypes.create(self.DEVICE_TYPE)
             else: 
                 raise e
         
-        self.registeredDevice = self.setupAppClient.api.registerDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        self.registeredDevices = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options={
             "org": self.ORG_ID,
-            "type": self.registeredDevice["typeId"],
-            "id": self.registeredDevice["deviceId"],
+            "type": self.registeredDevices[0].typeId,
+            "id": self.registeredDevices[0].deviceId,
             "auth-method": "token",
-            "auth-token": self.registeredDevice["authToken"]
+            "auth-token": self.registeredDevices[0].authToken
         }
         
         self.deviceClient = ibmiotf.device.Client(self.options)
@@ -59,7 +61,7 @@ class TestDevice(testUtils.AbstractTest):
     def teardown_class(self):
         del self.deviceClient
         del self.managedClient
-        self.setupAppClient.api.deleteDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        self.setupAppClient.api.registry.devices.delete({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
     
     
     @raises(Exception)
@@ -71,48 +73,48 @@ class TestDevice(testUtils.AbstractTest):
     @raises(Exception)
     def testMissingOrg(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": None, "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
-                                   "auth-method": "token", "auth-token": self.registeredDevice["authToken"] })
+            ibmiotf.device.Client({"org": None, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
+                                   "auth-method": "token", "auth-token": self.registeredDevices[0].authToken })
         assert_equal(e.exception.msg, 'Missing required property: org')
 
     @raises(Exception)
     def testMissingType(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": None, "id": self.registeredDevice["deviceId"],
-                                   "auth-method": "token", "auth-token": self.registeredDevice["authToken"] })
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": None, "id": self.registeredDevices[0].deviceId,
+                                   "auth-method": "token", "auth-token": self.registeredDevices[0].authToken })
         assert_equal(e.exception.msg, 'Missing required property: type')
 
     @raises(Exception)
     def testMissingId(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice["typeId"], "id": None,
-                                   "auth-method": "token", "auth-token": self.registeredDevice["authToken"]})
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": None,
+                                   "auth-method": "token", "auth-token": self.registeredDevices[0].authToken})
         assert_equal(e.exception.msg, 'Missing required property: id')
 
     @raises(Exception)
     def testMissingAuthMethod(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
-                                   "auth-method": None, "auth-token": self.registeredDevice["authToken"]})
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
+                                   "auth-method": None, "auth-token": self.registeredDevices[0].authToken})
         assert_equal(e.exception.msg, 'Missing required property: auth-method')
 
     @raises(Exception)
     def testMissingAuthToken(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
                                    "auth-method": "token", "auth-token": None })
         assert_equal(e.exception.msg, 'Missing required property: auth-token')
 
     @raises(Exception)
     def testUnSupportedAuthMethod(self):
         with assert_raises(UnsupportedAuthenticationMethod) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
-                                   "auth-method": "unsupported-method", "auth-token": self.registeredDevice["authToken"]})
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
+                                   "auth-method": "unsupported-method", "auth-token": self.registeredDevices[0].authToken})
         assert_equal(e.exception_type,UnsupportedAuthenticationMethod)
 
     def testDeviceClientInstance(self):
-        deviceCli = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
-                                           "auth-method": "token", "auth-token": self.registeredDevice["authToken"]})
+        deviceCli = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
+                                           "auth-method": "token", "auth-token": self.registeredDevices[0].authToken})
         assert_is_instance(deviceCli , ibmiotf.device.Client)
 
     @raises(Exception)
@@ -131,7 +133,7 @@ class TestDevice(testUtils.AbstractTest):
     
     @SkipTest
     def testNotAuthorizedConnect(self):
-        client = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
+        client = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
                                               "auth-method": "token", "auth-token": "MGhUixxxxxxxxxxxx", "auth-key":"a-xxxxxx-s1tsofmoxo"})
         with assert_raises(ConnectionException) as e:
             client.connect()
@@ -175,4 +177,38 @@ class TestDevice(testUtils.AbstractTest):
         self.deviceClient.connect()
         assert_true(self.deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         self.deviceClient.disconnect()
+    
+    def testPublishEventPort1883(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 1883
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
+
+    def testPublishEventPort8883(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 8883
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
+    
+    @raises(Exception)
+    def testPublishEventPortInvalid(self):
+        options = copy.deepcopy(self.options)
+        options["port"] = 100
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        deviceClient.disconnect()
     
