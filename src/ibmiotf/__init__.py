@@ -129,15 +129,7 @@ class AbstractClient(object):
         # If there is no specific port set in the configuration then we will auto-negotiate TLS if possible
         # If the port has been configured to 80 or 1883 we should not try to auto-enable TLS configuration
         # if the port has been configured to 443 or 8883 we should not auto-fallback to no TLS on 1883
-        if self.port is None:
-            try:
-                self.tlsVersion = ssl.PROTOCOL_TLSv1_2
-                self.port = 8883
-            except:
-                self.tlsVersion = None
-                self.port = 1883
-                self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
-        elif self.port == 1883:
+        if self.port == 1883:
             self.tlsVersion = None
             self.logger.warning("Unable to encrypt messages because client configuration has overridden port selection to an insecure port (%s)" % self.port)
         elif self.port == 8883:
@@ -145,6 +137,14 @@ class AbstractClient(object):
             # We allow an exception to raise here if running in an environment where 
             # TLS 1.2 is unavailable because the configuration explicitly requested 
             # to use encrypted connection
+        elif self.port is None:
+            try:
+                self.tlsVersion = ssl.PROTOCOL_TLSv1_2
+                self.port = 8883
+            except:
+                self.tlsVersion = None
+                self.port = 1883
+                self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
         else:
             raise Exception("Unsupported value for port override: %s.  Supported values are 1883 & 8883." % self.port)
             
