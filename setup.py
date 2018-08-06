@@ -35,7 +35,7 @@ except:
 
 setup(
     name='ibmiotf',
-    version="0.3.6",
+    version="0.4.0",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},

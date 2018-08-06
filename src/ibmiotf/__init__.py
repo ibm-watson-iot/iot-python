@@ -22,7 +22,7 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.3.6"
+__version__ = "0.4.0"
 
 
 class Message:
@@ -40,6 +40,16 @@ class Message:
     def __init__(self, data, timestamp=None):
         self.data = data
         self.timestamp = timestamp
+
+class MessageCodec(object):
+    @staticmethod
+    def encode(data=None, timestamp=None):
+        raise NotImplementedError()
+    
+    @staticmethod
+    def decode(message):
+        raise NotImplementedError()
+
 
 
 class AbstractClient(object):
@@ -340,13 +350,6 @@ class AbstractClient(object):
         """
         return(self.keepAlive)
 
-
-class Codec:
-    def encode(data=None, timestamp=None):
-        raise NotImplementedError()
-    
-    def decode(message):
-        raise NotImplementedError()
 
 class ConnectionException(Exception):
     """
