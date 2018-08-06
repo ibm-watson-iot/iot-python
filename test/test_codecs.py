@@ -23,7 +23,8 @@ from nose import SkipTest
 import logging
 import testUtils
 
-class myCodec(ibmiotf.MessageCodec):
+class MyCodec(ibmiotf.MessageCodec):
+    @staticmethod
     def encode(data=None, timestamp=None):
         '''
         Dedicated encoder for supporting a very specific dataset, serialises a dictionary object
@@ -38,6 +39,7 @@ class myCodec(ibmiotf.MessageCodec):
         '''
         return data['hello'] + "," + str(data['x'])
     
+    @staticmethod
     def decode(message):
         '''
         The decoder understands the comma-seperated format produced by the encoder and 
@@ -88,7 +90,6 @@ class TestDevice(testUtils.AbstractTest):
         }
         
         self.deviceClient = ibmiotf.device.Client(self.options)
-        self.deviceClient.setMessageEncoderModule("custom", myCodec)
 
     @classmethod
     def teardown_class(self):
@@ -109,12 +110,14 @@ class TestDevice(testUtils.AbstractTest):
                 failed = False
             calledBack = True
 
-        self.setupAppClient.setMessageEncoderModule("custom", myCodec)
+        self.setupAppClient.setMessageEncoderModule("custom", MyCodec)
         self.setupAppClient.connect()
         self.setupAppClient.subscribeToDeviceEvents(self.DEVICE_TYPE, self.DEVICE_ID, "greeting")
         self.setupAppClient.deviceEventCallback = myAppEventCallback
         
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        
+        self.deviceClient.setMessageEncoderModule("custom", MyCodec)
         self.deviceClient.connect()
         data = { 'hello' : 'world', 'x' : 100}
         self.deviceClient.publishEvent("greeting", "custom", data, qos=1)
