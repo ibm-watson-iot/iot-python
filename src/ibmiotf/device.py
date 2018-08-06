@@ -164,9 +164,6 @@ class Client(AbstractClient):
             # Default to the quickstart
             self._options['org'] = "quickstart"
 
-        if "port" not in self._options and self._options["org"] != "quickstart":
-            self._options["port"] = 8883
-
         if self._options["org"] == "quickstart":
             self._options["port"] = 1883
 
@@ -200,7 +197,7 @@ class Client(AbstractClient):
             password = self._options['auth-token'],
             logHandlers = logHandlers,
             cleanSession = self._options['clean-session'],
-            port = self._options['port'],
+            port = self._options.get('port', None),
             transport = self._options['transport']
         )
 

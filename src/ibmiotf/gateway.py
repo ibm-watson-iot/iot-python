@@ -89,9 +89,6 @@ class Client(AbstractClient):
         if "clean-session" not in self._options:
             self._options['clean-session'] = "true"
 
-        if "port" not in self._options and self._options["org"] != "quickstart":
-            self._options["port"] = 8883;
-
         if self._options["org"] == "quickstart":
             self._options["port"] = 1883;
 
@@ -127,7 +124,7 @@ class Client(AbstractClient):
             username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
             password = self._options['auth-token'],
             logHandlers = logHandlers,
-            port = self._options['port'],
+            port = self._options.get('port', None),
             transport = self._options['transport']
         )
 

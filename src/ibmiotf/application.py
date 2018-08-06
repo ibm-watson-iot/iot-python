@@ -161,15 +161,10 @@ class Client(ibmiotf.AbstractClient):
         if "domain" not in self._options:
             # Default to the domain for the public cloud offering
             self._options['domain'] = "internetofthings.ibmcloud.com"
+            
         if "clean-session" not in self._options:
             self._options['clean-session'] = "true"
-        if "org" not in self._options:
-            # Default to the quickstart
-            self._options['org'] = "quickstart"
-        if "port" not in self._options and self._options["org"] != "quickstart":
-            self._options["port"] = 8883;
-        if self._options["org"] == "quickstart":
-            self._options["port"] = 1883;
+            
         if "transport" not in self._options:
             self._options["transport"] = "tcp"
 
@@ -177,6 +172,7 @@ class Client(ibmiotf.AbstractClient):
         if 'auth-key' not in self._options or self._options['auth-key'] is None:
             # Configure for Quickstart
             self._options['org'] = "quickstart"
+            self._options['port'] = 1883
         else:
             # Get the orgId from the apikey (format: a-orgid-randomness)
             self._options['org'] = self._options['auth-key'].split("-")[1]
@@ -203,7 +199,7 @@ class Client(ibmiotf.AbstractClient):
             password = password,
             logHandlers = logHandlers,
             cleanSession = self._options['clean-session'],
-            port = self._options['port'],
+            port = self._options.get('port', None),
             transport = self._options['transport']
         )
 
