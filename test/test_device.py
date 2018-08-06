@@ -203,7 +203,18 @@ class TestDevice(testUtils.AbstractTest):
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
 
-    
+    def testPublishEventPort443(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 443
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
     @raises(Exception)
     def testPublishEventPortInvalid(self):
         options = copy.deepcopy(self.options)

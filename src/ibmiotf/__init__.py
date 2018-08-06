@@ -22,7 +22,7 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.4.0"
+__version__ = "0.3.6"
 
 
 class Message:
@@ -130,9 +130,10 @@ class AbstractClient(object):
         # If the port has been configured to 80 or 1883 we should not try to auto-enable TLS configuration
         # if the port has been configured to 443 or 8883 we should not auto-fallback to no TLS on 1883
         if self.port == 1883:
+            # Note: We don't seem to support port 80 fallback (anymore?)
             self.tlsVersion = None
             self.logger.warning("Unable to encrypt messages because client configuration has overridden port selection to an insecure port (%s)" % self.port)
-        elif self.port == 8883:
+        elif self.port in [443, 8883]:
             self.tlsVersion = ssl.PROTOCOL_TLSv1_2
             # We allow an exception to raise here if running in an environment where 
             # TLS 1.2 is unavailable because the configuration explicitly requested 
@@ -339,6 +340,13 @@ class AbstractClient(object):
         """
         return(self.keepAlive)
 
+
+class Codec:
+    def encode(data=None, timestamp=None):
+        raise NotImplementedError()
+    
+    def decode(message):
+        raise NotImplementedError()
 
 class ConnectionException(Exception):
     """
