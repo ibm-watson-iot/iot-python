@@ -495,18 +495,12 @@ class Client(ibmiotf.AbstractClient):
         """
         self.logger.warning("Received messaging on unsupported topic '%s' on topic '%s'" % (message.payload, message.topic))
 
-        with self._recvLock:
-            self.recv = self.recv + 1
-
 
     def __onDeviceEvent(self, client, userdata, pahoMessage):
         """
         Internal callback for device event messages, parses source device from topic string and
         passes the information on to the registerd device event callback
         """
-        with self._recvLock:
-            self.recv = self.recv + 1
-
         try:
             event = Event(pahoMessage, self._messageEncoderModules)
             self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.deviceType, event.deviceId))
@@ -520,9 +514,6 @@ class Client(ibmiotf.AbstractClient):
         Internal callback for device command messages, parses source device from topic string and
         passes the information on to the registerd device command callback
         """
-        with self._recvLock:
-            self.recv = self.recv + 1
-
         try:
             command = Command(pahoMessage, self._messageEncoderModules)
             self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.deviceType, command.deviceId))
@@ -536,8 +527,6 @@ class Client(ibmiotf.AbstractClient):
         Internal callback for device status messages, parses source device from topic string and
         passes the information on to the registerd device status callback
         """
-        with self._recvLock:
-            self.recv = self.recv + 1
 
         try:
             status = Status(pahoMessage)
@@ -552,8 +541,6 @@ class Client(ibmiotf.AbstractClient):
         Internal callback for application command messages, parses source application from topic string and
         passes the information on to the registerd applicaion status callback
         """
-        with self._recvLock:
-            self.recv = self.recv + 1
 
         statusMatchResult = self.__appStatusPattern.match(message.topic)
         if statusMatchResult:

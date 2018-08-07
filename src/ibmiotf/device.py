@@ -328,8 +328,6 @@ class Client(AbstractClient):
         Internal callback for device command messages, parses source device from topic string and
         passes the information on to the registered device command callback
         """
-        with self._recvLock:
-            self.recv = self.recv + 1
         try:
             command = Command(pahoMessage, self._messageEncoderModules)
         except InvalidEventException as e:
@@ -911,9 +909,6 @@ class ManagedClient(Client):
         return resolvedEvent
 
     def __onDeviceMgmtResponse(self, client, userdata, pahoMessage):
-
-        with self._recvLock:
-            self.recv = self.recv + 1
 
         try:
             data = json.loads(pahoMessage.payload.decode("utf-8"))

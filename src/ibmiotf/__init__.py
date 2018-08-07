@@ -84,19 +84,18 @@ class AbstractClient(object):
 
         self.connectEvent = threading.Event()
 
-        self._recvLock = threading.Lock()
-        self._messagesLock = threading.Lock()
 
         # If we are disconnected we lose all our active subscriptions.  Keep
         # track of all subscriptions so that we can internally restore all
         # subscriptions on reconnect
+        # Also, create a lock for gating access to the subscription dictionary
         self._subscriptions = {}
-
-        # Create a lock for the subscription dictionary
         self._subLock = threading.Lock()
 
-        self.messages = 0
-        self.recv = 0
+        # Create a map to contain mids for onPublish() callback handling.
+        # and a lock to gate access to the dictionary
+        self._onPublishCallbacks = {}
+        self._messagesLock = threading.Lock()
 
         self.clientId = clientId
 
@@ -176,11 +175,6 @@ class AbstractClient(object):
         # Initialize default message encoders and decoders.
         self._messageEncoderModules = {}
 
-        self.start = time.time()
-
-        # initialize callbacks
-        self._onPublishCallbacks = {}
-
 
     def getMessageEncoderModule(self, messageFormat):
         """
@@ -249,22 +243,7 @@ class AbstractClient(object):
         # If we don't call loop_stop() it appears we end up with a zombie thread which continues to process
         # network traffic, preventing any subsequent attempt to reconnect using connect()
         self.client.loop_stop()
-        #self.stats()
         self.logger.info("Closed connection to the IBM Watson IoT Platform")
-
-
-    def stats(self):
-        """
-        I think we killed the use of this and this is dead code
-        
-        TODO: clean all this up .. should we really be tracking these stats within the client itself in the first place?
-        """
-        elapsed = ((time.time()) - self.start)
-
-        msgPerSecond = 0 if self.messages == 0 else elapsed/self.messages
-        recvPerSecond = 0 if self.recv == 0 else elapsed/self.recv
-        self.logger.debug("Messages published : %s, life: %.0fs, rate: 1/%.2fs" % (self.messages, elapsed, msgPerSecond))
-        self.logger.debug("Messages received  : %s, life: %.0fs, rate: 1/%.2fs" % (self.recv, elapsed, recvPerSecond))
 
 
     def _onLog(self, mqttc, obj, level, string):
@@ -302,7 +281,6 @@ class AbstractClient(object):
             self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform: %d" % (rc))
         else:
             self.logger.info("Disconnected from the IBM Watson IoT Platform")
-        self.stats()
 
     def _onPublish(self, mqttc, obj, mid):
         """
@@ -316,7 +294,6 @@ class AbstractClient(object):
         mid (int): Gives the message id of the successfully published message.
         """
         with self._messagesLock:
-            self.messages = self.messages + 1
             if mid in self._onPublishCallbacks:
                 midOnPublish = self._onPublishCallbacks.get(mid)
                 del self._onPublishCallbacks[mid]
