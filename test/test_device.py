@@ -190,6 +190,45 @@ class TestDevice(testUtils.AbstractTest):
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
 
+    @SkipTest
+    # Currently, port 80 only works with websockets, not tcp :/
+    def testPublishEventPort80(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 80
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
+    def testPublishEventPort80ws(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 80
+        options["transport"] = "websockets"
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
+    def testPublishEventPort1883ws(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 1883
+        options["transport"] = "websockets"
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
 
     def testPublishEventPort8883(self):
         def devPublishCallback():
@@ -202,6 +241,20 @@ class TestDevice(testUtils.AbstractTest):
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
+    
+    def testPublishEventPort8883ws(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 8883
+        options["transport"] = "websockets"
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
 
     def testPublishEventPort443(self):
         def devPublishCallback():
@@ -210,6 +263,19 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["port"] = 443
+        deviceClient = ibmiotf.device.Client(options)
+        deviceClient.connect()
+        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        deviceClient.disconnect()
+
+    def testPublishEventPort443ws(self):
+        def devPublishCallback():
+            print("Device Publish Event done!!!")
+
+        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+        options = copy.deepcopy(self.options)
+        options["port"] = 443
+        options["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))

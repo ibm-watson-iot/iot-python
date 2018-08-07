@@ -92,9 +92,6 @@ class Client(AbstractClient):
         if self._options["org"] == "quickstart":
             self._options["port"] = 1883;
 
-        if "transport" not in self._options:
-            self._options["transport"] = "tcp"
-
         #Check for any missing required properties
         if self._options['org'] == None:
             raise ConfigurationException("Missing required property: org")
@@ -125,7 +122,7 @@ class Client(AbstractClient):
             password = self._options['auth-token'],
             logHandlers = logHandlers,
             port = self._options.get('port', None),
-            transport = self._options['transport']
+            transport = self._options.get('transport', 'tcp')
         )
 
         # Add handler for subscriptions

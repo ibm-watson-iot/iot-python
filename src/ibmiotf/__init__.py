@@ -139,7 +139,7 @@ class AbstractClient(object):
         # If there is no specific port set in the configuration then we will auto-negotiate TLS if possible
         # If the port has been configured to 80 or 1883 we should not try to auto-enable TLS configuration
         # if the port has been configured to 443 or 8883 we should not auto-fallback to no TLS on 1883
-        if self.port == 1883:
+        if self.port in [80, 1883]:
             # Note: We don't seem to support port 80 fallback (anymore?)
             self.tlsVersion = None
             self.logger.warning("Unable to encrypt messages because client configuration has overridden port selection to an insecure port (%s)" % self.port)

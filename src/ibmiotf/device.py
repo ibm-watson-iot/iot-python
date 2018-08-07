@@ -167,9 +167,6 @@ class Client(AbstractClient):
         if self._options["org"] == "quickstart":
             self._options["port"] = 1883
 
-        if "transport" not in self._options:
-            self._options["transport"] = "tcp"
-
         ### REQUIRED ###
         if self._options['org'] is None:
             raise ConfigurationException("Missing required property: org")
@@ -198,7 +195,7 @@ class Client(AbstractClient):
             logHandlers = logHandlers,
             cleanSession = self._options['clean-session'],
             port = self._options.get('port', None),
-            transport = self._options['transport']
+            transport = self._options.get('transport', 'tcp')
         )
 
         # Add handler for commands if not connected to QuickStart
