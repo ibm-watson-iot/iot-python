@@ -66,9 +66,9 @@ Please note the documentation is very much a work in progress at the moment, and
 - **Auto Reconnect**: All clients support automatic reconnect to the Platform in the event of a network interruption.
 - **Event/Command publish**: Offers a pure HTTP client supporting messaging over HTTP in addition to the full features client that utilizes HTTP and MQTT technologies as appropriate 
 - **Data Format Support**: JSON, XML, & user-defined.
+- **Websockets**: Support device/gateway/application connectivity to Watson IoT Platform using WebSocket
 
 ## Unsupported Features
 - **Client side Certificate based authentication**: [Client side Certificate based authentication](https://console.ng.bluemix.net/docs/services/IoT/reference/security/RM_security.html)n
-- **Websockets**: Support device/gateway/application connectivity to Watson IoT Platform using WebSocket
 
 
