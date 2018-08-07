@@ -253,23 +253,27 @@ class Client(AbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 
-                try:
-                    result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
-                    if result[0] == paho.MQTT_ERR_SUCCESS:
-                        self._messagesLock.acquire()
+                result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
+                if result[0] == paho.MQTT_ERR_SUCCESS:
+                    # Because we are dealing with aync pub/sub model and callbacks it is possible that 
+                    # the _onPublish() callback for this mid is called before we obtain the lock to place
+                    # the mid into the _onPublishCallbacks list.
+                    #
+                    # _onPublish knows how to handle a scenario where the mid is not present (no nothing)
+                    # in this scenario we will need to invoke the callback directly here, because at the time
+                    # the callback was invoked the mid was not yet in the list.
+                    with self._messagesLock:
                         if result[1] in self._onPublishCallbacks:
-                            # paho callback beat this thread so call callback inline now
+                            # Paho callback beat this thread so call callback inline now
                             del self._onPublishCallbacks[result[1]]
                             if on_publish is not None:
                                 on_publish()
                         else:
                             # this thread beat paho callback so set up for call later
                             self._onPublishCallbacks[result[1]] = on_publish
-                        return True
-                    else:
-                        return False
-                finally:
-                    self._messagesLock.release()
+                    return True
+                else:
+                    return False
             else:
                 raise MissingMessageEncoderException(msgFormat)
 
@@ -308,10 +312,16 @@ class Client(AbstractClient):
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
 
-                try:
-                    result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
-                    if result[0] == paho.MQTT_ERR_SUCCESS:
-                        self._messagesLock.acquire()
+                result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
+                if result[0] == paho.MQTT_ERR_SUCCESS:
+                    # Because we are dealing with aync pub/sub model and callbacks it is possible that 
+                    # the _onPublish() callback for this mid is called before we obtain the lock to place
+                    # the mid into the _onPublishCallbacks list.
+                    #
+                    # _onPublish knows how to handle a scenario where the mid is not present (no nothing)
+                    # in this scenario we will need to invoke the callback directly here, because at the time
+                    # the callback was invoked the mid was not yet in the list.
+                    with self._messagesLock:
                         if result[1] in self._onPublishCallbacks:
                             # paho callback beat this thread so call callback inline now
                             if on_publish is not None:
@@ -320,11 +330,9 @@ class Client(AbstractClient):
                         else:
                             # this thread beat paho callback so set up for call later
                             self._onPublishCallbacks[result[1]] = on_publish
-                        return True
-                    else:
-                        return False
-                finally:
-                    self._messagesLock.release()
+                    return True
+                else:
+                    return False
             else:
                 raise MissingMessageEncoderException(msgFormat)
 
