@@ -41,28 +41,37 @@ class ApiClient():
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     
     def get(self, url, parameters=None):
-        return requests.get("https://%s/%s" % (self.host, url), auth = self.credentials, params = parameters, verify=self.verify)
+        resp = requests.get("https://%s/%s" % (self.host, url), auth = self.credentials, params = parameters, verify=self.verify)
+        resp.encoding="utf-8"
+        return resp
 
     def delete(self, url):
-        return requests.delete("https://%s/%s" % (self.host, url), auth = self.credentials, verify=self.verify)
+        resp = requests.delete("https://%s/%s" % (self.host, url), auth = self.credentials, verify=self.verify)
+        resp.encoding="utf-8"
+        return resp
 
     def post(self, url, data):
-        return requests.post(
+        resp = requests.post(
             "https://%s/%s" % (self.host, url), 
             auth = self.credentials, 
             data = json.dumps(data), 
             headers = {'content-type': 'application/json'}, 
             verify=self.verify
         )
+        resp.encoding="utf-8"
+        return resp
 
     def put(self, url, data):
-        return requests.put(
+        resp = requests.put(
             "https://%s/%s" % (self.host, url), 
             auth = self.credentials, 
             data = json.dumps(data), 
             headers = {'content-type': 'application/json'}, 
             verify=self.verify
         )
+        resp.encoding="utf-8"
+        return resp
+
 
 class ApiException(Exception):
     """
@@ -73,10 +82,44 @@ class ApiException(Exception):
     """
     def __init__(self, response):
         self.response = response
+        
+        try:
+            self.body = self.response.json()
+            self.detail = self.body.get("exception", None)
+        except ValueError:
+            self.body = None
+            self.detail = None
+        
+    @property
+    def id(self):
+        if self.detail is not None:  
+            return self.detail.get("id", None)
+
+    @property
+    def message(self):
+        if self.detail is not None:  
+            return self.detail.get("message", None)
+    
+    @property
+    def violations(self):
+        violations = self.body.get("violations", None)
+        if violations is None:
+            return None
+        else:
+            returnArray = []
+            for violation in violations:
+                returnArray.append(violation.get("message", None))
+            return returnArray
+        
 
     def __str__(self):
-        return "Unexpected return code from API: %s (%s) - %s\n%s" % (self.response.status_code, self.response.reason, self.response.url, self.response.text)
+        if self.message:
+            return self.message 
+        else:
+            return "Unexpected return code from API: %s (%s) - %s\n%s" % (self.response.status_code, self.response.reason, self.response.url, self.response.text)
     
+    def __repr__(self):
+        return self.response.__repr__()
 
 class IterableList(object):
     def __init__(self, apiClient, castToClass, url, sort=None):
