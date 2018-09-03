@@ -667,6 +667,9 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].getLocation()'")
+
         deviceUrl = ApiClient.deviceUrlLocation % (self.host, typeId, deviceId)
 
         r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
@@ -687,6 +690,9 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and deviceLocation (JSON) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].setLocation(DeviceLocation)'")
+        
         deviceUrl = ApiClient.deviceUrlLocation % (self.host, typeId, deviceId)
 
         r = requests.put(deviceUrl, auth=self.credentials, data=json.dumps(deviceLocation), headers = {'content-type': 'application/json'}, verify=self.verify)

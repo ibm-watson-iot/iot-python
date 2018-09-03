@@ -7,7 +7,10 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
+import iso8601
+from datetime import datetime
 import json
+from copy import deepcopy
 from collections import defaultdict
 
 from ibmiotf.api.common import IterableList, ApiException
@@ -56,6 +59,34 @@ class DeviceCreateRequest(defaultdict):
     @property
     def metadata(self):
         return self["metadata"]
+
+class DeviceLocation(defaultdict):
+    def __init__(self, **kwargs):
+        if not set(['latitude', 'longitude']).issubset(kwargs):
+            raise Exception("Data passed to Device is not correct: %s" % (json.dumps(kwargs, sort_keys=True)))
+        
+        params = deepcopy(kwargs)
+        if 'measuredDateTime' in kwargs and not isinstance(kwargs['measuredDateTime'], datetime):
+            kwargs['measuredDateTime'] = iso8601.parse_date(kwargs['measuredDateTime']) 
+            
+        if 'updatedDateTime' in kwargs and not isinstance(kwargs['updatedDateTime'], datetime):
+            kwargs['updatedDateTime'] = iso8601.parse_date(kwargs['updatedDateTime'])
+
+        dict.__init__(self, **kwargs)
+    
+    @property
+    def latitude(self):
+        return self["latitude"]
+    @property
+    def longitude(self):
+        return self["longitude"]
+    @property
+    def measuredDateTime(self):
+        return self.get("measuredDateTime", None)
+    @property
+    def updatedDateTime(self):
+        return self.get("updatedDateTime", None)
+    
 
 class DeviceCreateResponse(defaultdict):
     def __init__(self, **kwargs):
@@ -162,7 +193,7 @@ class Device(object):
     @property
     def typeId(self):
         return self._data["typeId"]
-            
+    
     def __str__(self):
         return json.dumps(self._data, sort_keys=True)
     
@@ -171,6 +202,29 @@ class Device(object):
     
     def json(self):
         return self._data
+    
+    
+    # Extended properties
+    
+    def getLocation(self):
+        r = self._apiClient.get('api/v0002/device/types/%s/devices/%s/location' % (self.typeId, self.deviceId))
+
+        if r.status_code == 200:
+            return DeviceLocation(**r.json())
+        if r.status_code == 404:
+            # It's perfectly valid for a device to not have a location set, if this is the case, set response to None 
+            return None
+        else:
+            raise ApiException(r)
+    
+    def setLocation(self, value):
+        r = self._apiClient.put('api/v0002/device/types/%s/devices/%s/location' % (self.typeId, self.deviceId), value)
+
+        if r.status_code == 200:
+            return DeviceLocation(**r.json())
+        else:
+            raise ApiException(r)
+    
     
     
 class IterableDeviceList(IterableList):
