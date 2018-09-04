@@ -22,7 +22,7 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 
 class Message:
