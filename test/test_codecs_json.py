@@ -20,11 +20,21 @@ from ibmiotf import InvalidEventException
 
 class DummyPahoMessage(object):
     def __init__(self, object):
-        self.payload = json.dumps(object)
+        self.payload = bytearray()
+        try:
+            self.payload.extend(json.dumps(object))
+        except:
+            #python 3
+            self.payload.extend(map(ord, json.dumps(object)))
 
 class NonJsonDummyPahoMessage(object):
     def __init__(self, object):
-        self.payload = object
+        self.payload = bytearray()
+        try:
+            self.payload.extend(object)
+        except:
+            #python 3
+            self.payload.extend(map(ord, object))
 
 class TestDevice(testUtils.AbstractTest):
     
@@ -37,7 +47,11 @@ class TestDevice(testUtils.AbstractTest):
     def testJsonString(self):
         codec = jsonCodec()
         message = codec.decode(DummyPahoMessage("bar"))
-        assert_true(isinstance(message.data, unicode))
+        try:
+            assert_true(isinstance(message.data, unicode))
+        except NameError as e:
+            # Python 3
+            assert_true(isinstance(message.data, str))
         
     def testJsonBoolean(self):
         codec = jsonCodec()
@@ -52,4 +66,4 @@ class TestDevice(testUtils.AbstractTest):
     @raises(InvalidEventException)
     def testInvalidJson(self):
         codec = jsonCodec()
-        message = codec.decode(NonJsonDummyPahoMessage("{sss,eee}"))
+        message = codec.decode(NonJsonDummyPahoMessage('{sss,eee}'))

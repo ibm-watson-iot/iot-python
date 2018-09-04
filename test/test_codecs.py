@@ -79,14 +79,14 @@ class TestDevice(testUtils.AbstractTest):
             else: 
                 raise e
         
-        self.registeredDevices = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options={
             "org": self.ORG_ID,
-            "type": self.registeredDevices[0].typeId,
-            "id": self.registeredDevices[0].deviceId,
+            "type": self.registeredDevice.typeId,
+            "id": self.registeredDevice.deviceId,
             "auth-method": "token",
-            "auth-token": self.registeredDevices[0].authToken
+            "auth-token": self.registeredDevice.authToken
         }
         
         self.deviceClient = ibmiotf.device.Client(self.options)

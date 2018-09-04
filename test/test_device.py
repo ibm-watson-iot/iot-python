@@ -40,14 +40,14 @@ class TestDevice(testUtils.AbstractTest):
             else: 
                 raise e
         
-        self.registeredDevices = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options={
             "org": self.ORG_ID,
-            "type": self.registeredDevices[0].typeId,
-            "id": self.registeredDevices[0].deviceId,
+            "type": self.registeredDevice.typeId,
+            "id": self.registeredDevice.deviceId,
             "auth-method": "token",
-            "auth-token": self.registeredDevices[0].authToken
+            "auth-token": self.registeredDevice.authToken
         }
         
         self.deviceClient = ibmiotf.device.Client(self.options)
@@ -73,48 +73,48 @@ class TestDevice(testUtils.AbstractTest):
     @raises(Exception)
     def testMissingOrg(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": None, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
-                                   "auth-method": "token", "auth-token": self.registeredDevices[0].authToken })
+            ibmiotf.device.Client({"org": None, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
+                                   "auth-method": "token", "auth-token": self.registeredDevice.authToken })
         assert_equal(e.exception.msg, 'Missing required property: org')
 
     @raises(Exception)
     def testMissingType(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": None, "id": self.registeredDevices[0].deviceId,
-                                   "auth-method": "token", "auth-token": self.registeredDevices[0].authToken })
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": None, "id": self.registeredDevice.deviceId,
+                                   "auth-method": "token", "auth-token": self.registeredDevice.authToken })
         assert_equal(e.exception.msg, 'Missing required property: type')
 
     @raises(Exception)
     def testMissingId(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": None,
-                                   "auth-method": "token", "auth-token": self.registeredDevices[0].authToken})
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": None,
+                                   "auth-method": "token", "auth-token": self.registeredDevice.authToken})
         assert_equal(e.exception.msg, 'Missing required property: id')
 
     @raises(Exception)
     def testMissingAuthMethod(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
-                                   "auth-method": None, "auth-token": self.registeredDevices[0].authToken})
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
+                                   "auth-method": None, "auth-token": self.registeredDevice.authToken})
         assert_equal(e.exception.msg, 'Missing required property: auth-method')
 
     @raises(Exception)
     def testMissingAuthToken(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
                                    "auth-method": "token", "auth-token": None })
         assert_equal(e.exception.msg, 'Missing required property: auth-token')
 
     @raises(Exception)
     def testUnSupportedAuthMethod(self):
         with assert_raises(UnsupportedAuthenticationMethod) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
-                                   "auth-method": "unsupported-method", "auth-token": self.registeredDevices[0].authToken})
+            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
+                                   "auth-method": "unsupported-method", "auth-token": self.registeredDevice.authToken})
         assert_equal(e.exception_type,UnsupportedAuthenticationMethod)
 
     def testDeviceClientInstance(self):
-        deviceCli = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
-                                           "auth-method": "token", "auth-token": self.registeredDevices[0].authToken})
+        deviceCli = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
+                                           "auth-method": "token", "auth-token": self.registeredDevice.authToken})
         assert_is_instance(deviceCli , ibmiotf.device.Client)
 
     @raises(Exception)
@@ -133,7 +133,7 @@ class TestDevice(testUtils.AbstractTest):
     
     @SkipTest
     def testNotAuthorizedConnect(self):
-        client = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevices[0].typeId, "id": self.registeredDevices[0].deviceId,
+        client = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
                                               "auth-method": "token", "auth-token": "MGhUixxxxxxxxxxxx", "auth-key":"a-xxxxxx-s1tsofmoxo"})
         with assert_raises(ConnectionException) as e:
             client.connect()

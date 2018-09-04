@@ -29,7 +29,7 @@ class TestLEC(testUtils.AbstractTest):
     def testLEC(self):
         device1Id = DeviceUid(typeId="test", deviceId=str(uuid.uuid4()))
         
-        registeredDevices = self.registry.devices.create(device1Id)
+        registeredDevice = self.registry.devices.create(device1Id)
         
         myDeviceType = self.registry.devicetypes["test"]
         assert_true(device1Id.deviceId in myDeviceType.devices)
@@ -40,7 +40,7 @@ class TestLEC(testUtils.AbstractTest):
             "type": device1Id.typeId,
             "id": device1Id.deviceId,
             "auth-method": "token",
-            "auth-token": registeredDevices[0]["authToken"]
+            "auth-token": registeredDevice.authToken
         }
         
         deviceClient = ibmiotf.device.Client(deviceOptions)

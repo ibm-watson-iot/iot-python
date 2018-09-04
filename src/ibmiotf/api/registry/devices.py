@@ -15,6 +15,22 @@ from collections import defaultdict
 
 from ibmiotf.api.common import IterableList, ApiException
 
+
+class LogEntry(defaultdict):
+    def __init__(self, **kwargs):
+        if not set(['message', 'timestamp']).issubset(kwargs):
+            raise Exception("message and timestamp are required properties for a LogEntry")
+
+        kwargs['timestamp'] = iso8601.parse_date(kwargs['timestamp'])
+        dict.__init__(self, **kwargs)
+    
+    @property
+    def message(self):
+        return self["message"]
+    @property
+    def timestamp(self):
+        return self["timestamp"]    
+    
 class DeviceUid(defaultdict):
     def __init__(self, **kwargs):
         if not set(['deviceId', 'typeId']).issubset(kwargs):
@@ -98,6 +114,9 @@ class DeviceCreateResponse(defaultdict):
     @property
     def deviceId(self):
         return self["deviceId"]
+    @property
+    def success(self):
+        return self.get("success", None)
     @property
     def authToken(self):
         return self["authToken"]
@@ -206,6 +225,18 @@ class Device(object):
     
     # Extended properties
     
+    def getMgmt(self):
+        r = self._apiClient.get('api/v0002/device/types/%s/devices/%s/mgmt' % (self.typeId, self.deviceId))
+
+        if r.status_code == 200:
+            return r.json()
+        if r.status_code == 404:
+            # It's perfectly valid for a device to not have a location set, if this is the case, set response to None 
+            return None
+        else:
+            raise ApiException(r)
+    
+
     def getLocation(self):
         r = self._apiClient.get('api/v0002/device/types/%s/devices/%s/location' % (self.typeId, self.deviceId))
 
@@ -225,6 +256,17 @@ class Device(object):
         else:
             raise ApiException(r)
     
+    
+    def getConnectionLogs(self):
+        r = self._apiClient.get('api/v0002/logs/connection',  parameters = {"typeId": self.typeId, "deviceId": self.deviceId})
+
+        if r.status_code == 200:
+            responseList = []
+            for entry in r.json():
+                responseList.append(LogEntry(**entry))
+            return responseList
+        else:
+            raise ApiException(r)
     
     
 class IterableDeviceList(IterableList):
@@ -350,21 +392,29 @@ class Devices(defaultdict):
         The response body will contain the generated authentication tokens for all devices.
         You must make sure to record these tokens when processing the response.
         We are not able to retrieve lost authentication tokens
-        It accepts accepts a list of devices (List of Dictionary of Devices)
-        """
         
+        It accepts accepts a list of devices (List of Dictionary of Devices), or a single device
+        
+        If you provide a list as the parameter it will return a list in response
+        If you provide a singular device it will return a singular response
+        """
         if not isinstance(devices, list):
             listOfDevices = [devices]
+            returnAsAList = False
         else:
             listOfDevices = devices
-            
+            returnAsAList = True
+
         r = self._apiClient.post('api/v0002/bulk/devices/add', listOfDevices)
 
         if r.status_code in [201, 202]:
-            responseList = []
-            for entry in r.json():
-                responseList.append(DeviceCreateResponse(**entry))
-            return responseList
+            if returnAsAList:
+                responseList = []
+                for entry in r.json():
+                    responseList.append(DeviceCreateResponse(**entry))
+                return responseList
+            else:
+                return DeviceCreateResponse(**r.json()[0])
         else:
             raise ApiException(r)
 

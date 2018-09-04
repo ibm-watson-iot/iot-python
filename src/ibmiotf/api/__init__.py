@@ -652,6 +652,12 @@ class ApiClient():
     # =============================================================================================
     
 
+    # =============================================================================================
+    # Start of methods that are moving in to api.registry.device
+    #
+    # All migrated
+    # =============================================================================================
+
     """
     ===========================================================================
     Extended Device Model Methods
@@ -715,6 +721,9 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].getMgmt()'")
+
         deviceUrl = ApiClient.deviceUrlMgmt % (self.host, typeId, deviceId)
         r = requests.get(deviceUrl, auth=self.credentials, verify=self.verify)
         status = r.status_code
@@ -738,6 +747,9 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].getConnectionLogs()'")
+
         logs = ApiClient.deviceLogs % (self.host)
         r = requests.get(logs, auth=self.credentials, params = parameters, verify=self.verify)
         status = r.status_code
@@ -752,6 +764,11 @@ class ApiClient():
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
+
+
+    # =============================================================================================
+    # End of methods that are moving in to api.registry.device
+    # =============================================================================================
 
     """
     ===========================================================================
