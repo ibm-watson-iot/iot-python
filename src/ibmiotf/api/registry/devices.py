@@ -13,7 +13,7 @@ import json
 from collections import defaultdict
 
 from ibmiotf.api.common import IterableList, ApiException
-from ibmiotf.api.registry.diag import DeviceLogs
+from ibmiotf.api.registry.diag import DeviceLogs, DeviceErrorCodes
 
 
 class LogEntry(defaultdict):
@@ -170,6 +170,7 @@ class Device(object):
             raise Exception("Data passed to Device is not correct: %s" % (json.dumps(data, sort_keys=True)))
         
         self.diagLogs = DeviceLogs(self._apiClient, data['typeId'], data['deviceId'])
+        self.diagErrorCodes = DeviceErrorCodes(self._apiClient, data['typeId'], data['deviceId'])
         
         #{u'clientId': u'xxxxxxxxx',
         # u'deviceId': u'xxxxxxx',

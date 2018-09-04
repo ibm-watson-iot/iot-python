@@ -35,8 +35,8 @@ class TestRegistryDevicesDiag(testUtils.AbstractTest):
         assert_equals(0, len(deviceAfterCreate.diagLogs))
         
         # Create a log 
-        deviceAfterCreate.diagLogs.append(DeviceLog(message="hi dave0", data="0", timestamp=datetime.now(), severity=0))
-        time.sleep(10)
+        deviceAfterCreate.diagLogs.append(message="hi dave0", data="0", timestamp=datetime.now(), severity=0)
+        time.sleep(5)
         assert_equals(1, len(deviceAfterCreate.diagLogs))
         
         assert_equals("hi dave0", deviceAfterCreate.diagLogs[0].message)
@@ -52,19 +52,17 @@ class TestRegistryDevicesDiag(testUtils.AbstractTest):
         
         deviceAfterCreate.diagLogs.append(DeviceLog(message="hi dave1", data="1", timestamp=datetime.now(), severity=1))
         time.sleep(5)
-        deviceAfterCreate.diagLogs.append(DeviceLog(message="hi dave2", data="2", timestamp=datetime.now(), severity=2))
-        time.sleep(5)
 
-        assert_equals(3, len(deviceAfterCreate.diagLogs))
+        assert_equals(2, len(deviceAfterCreate.diagLogs))
         
         # Logs are in decending order
-        assert_equals("hi dave2", deviceAfterCreate.diagLogs[0].message)
-        assert_equals("2", deviceAfterCreate.diagLogs[0].data)
-        assert_equals(2, deviceAfterCreate.diagLogs[0].severity)
+        assert_equals("hi dave1", deviceAfterCreate.diagLogs[0].message)
+        assert_equals("1", deviceAfterCreate.diagLogs[0].data)
+        assert_equals(1, deviceAfterCreate.diagLogs[0].severity)
 
         del deviceAfterCreate.diagLogs[0]
         time.sleep(5)
-        assert_equals(2, len(deviceAfterCreate.diagLogs))
+        assert_equals(1, len(deviceAfterCreate.diagLogs))
 
         deviceAfterCreate.diagLogs.clear()
         time.sleep(5)

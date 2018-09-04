@@ -780,6 +780,12 @@ class ApiClient():
     ===========================================================================
     """
 
+    # =============================================================================================
+    # Start of methods that are moving in to api.registry.diag
+    #
+    # All migrated
+    # =============================================================================================
+
     def getAllDiagnosticLogs(self, typeId, deviceId):
         """
         Retrieves All Device Diagnostic Logs.
@@ -915,6 +921,8 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and errorCode (JSON) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].diagErrorCodes.append(DeviceErrorCode)'")
+        
         deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
         r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(errorCode), headers = {'content-type': 'application/json'}, verify=self.verify)
 
@@ -938,6 +946,9 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'for ec in api.registry.devices[deviceUID].diagErrorCodes'")
+        
         deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
         r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
 
@@ -961,6 +972,8 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].diagErrorCodes.clear()'")
         deviceDiagnostics = ApiClient.deviceDiagErrorCodes % (self.host, typeId, deviceId)
         r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
 
@@ -978,6 +991,9 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
 
+    # =============================================================================================
+    # End of methods that are moving in to api.registry.diag
+    # =============================================================================================
 
     # =============================================================================================
     # Start of methods that are moving in to api.status
