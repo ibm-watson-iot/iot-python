@@ -1,6 +1,7 @@
 import requests
 import logging
 import json
+from datetime import datetime
 
 from ibmiotf import ConfigurationException
 
@@ -54,7 +55,7 @@ class ApiClient():
         resp = requests.post(
             "https://%s/%s" % (self.host, url), 
             auth = self.credentials, 
-            data = json.dumps(data), 
+            data = json.dumps(data, cls=DateTimeEncoder), 
             headers = {'content-type': 'application/json'}, 
             verify=self.verify
         )
@@ -65,7 +66,7 @@ class ApiClient():
         resp = requests.put(
             "https://%s/%s" % (self.host, url), 
             auth = self.credentials, 
-            data = json.dumps(data), 
+            data = json.dumps(data, cls=DateTimeEncoder), 
             headers = {'content-type': 'application/json'}, 
             verify=self.verify
         )
@@ -83,23 +84,31 @@ class ApiException(Exception):
     def __init__(self, response):
         self.response = response
         
+        # {
+        #   "violations":[
+        #     {
+        #       "message":"CUDRS0012E: The severity field has a value that is too high. Specify a value equal to or less than 2.",
+        #       "exception":{"id":"CUDRS0012E","properties":["severity","2"]}
+        #     }
+        #   ],
+        #   "message":"CUDRS0007E: The request was not valid. Review the constraint violations provided.",
+        #   "exception":{"id":"CUDRS0007E","properties":[]}
+        # }
+        
         try:
             self.body = self.response.json()
-            self.detail = self.body.get("exception", None)
+            self.message = self.body.get("message", None)
+            self.exception = self.body.get("exception", None)
         except ValueError:
             self.body = None
-            self.detail = None
+            self.message = None
+            self.exception = None
         
     @property
     def id(self):
-        if self.detail is not None:  
-            return self.detail.get("id", None)
+        if self.exception is not None:  
+            return self.exception.get("id", None)
 
-    @property
-    def message(self):
-        if self.detail is not None:  
-            return self.detail.get("message", None)
-    
     @property
     def violations(self):
         violations = self.body.get("violations", None)
@@ -169,3 +178,15 @@ class IterableList(object):
             return r.json()
         else:
             raise Exception("HTTP %s %s" % (r.status_code, r.text))
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    '''
+    See: https://stackoverflow.com/a/27058505/3818286
+    '''
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        #return json.JSONEncoder.default(self, o)
+        return super(DateTimeEncoder, self).default(o)

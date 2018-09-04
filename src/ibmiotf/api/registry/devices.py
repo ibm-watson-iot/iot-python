@@ -10,10 +10,10 @@
 import iso8601
 from datetime import datetime
 import json
-from copy import deepcopy
 from collections import defaultdict
 
 from ibmiotf.api.common import IterableList, ApiException
+from ibmiotf.api.registry.diag import DeviceLogs
 
 
 class LogEntry(defaultdict):
@@ -81,7 +81,6 @@ class DeviceLocation(defaultdict):
         if not set(['latitude', 'longitude']).issubset(kwargs):
             raise Exception("Data passed to Device is not correct: %s" % (json.dumps(kwargs, sort_keys=True)))
         
-        params = deepcopy(kwargs)
         if 'measuredDateTime' in kwargs and not isinstance(kwargs['measuredDateTime'], datetime):
             kwargs['measuredDateTime'] = iso8601.parse_date(kwargs['measuredDateTime']) 
             
@@ -103,6 +102,7 @@ class DeviceLocation(defaultdict):
     def updatedDateTime(self):
         return self.get("updatedDateTime", None)
     
+
 
 class DeviceCreateResponse(defaultdict):
     def __init__(self, **kwargs):
@@ -168,7 +168,8 @@ class Device(object):
         
         if not set(['clientId', 'deviceId', 'typeId']).issubset(data):
             raise Exception("Data passed to Device is not correct: %s" % (json.dumps(data, sort_keys=True)))
-            
+        
+        self.diagLogs = DeviceLogs(self._apiClient, data['typeId'], data['deviceId'])
         
         #{u'clientId': u'xxxxxxxxx',
         # u'deviceId': u'xxxxxxx',
@@ -221,8 +222,7 @@ class Device(object):
     
     def json(self):
         return self._data
-    
-    
+        
     # Extended properties
     
     def getMgmt(self):

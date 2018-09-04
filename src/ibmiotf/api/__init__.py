@@ -786,6 +786,8 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'for logs in api.registry.devices[deviceUID].diagLogs'")
+
         deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
         r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
         status = r.status_code
@@ -805,6 +807,9 @@ class ApiClient():
         It accepts typeId (string) and deviceId (string) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].diagLogs.clear()'")
+
         deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
         r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
         status = r.status_code
@@ -827,6 +832,9 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and logs (JSON) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].diagLogs.append(DeviceLog)'")
+        
         deviceDiagnostics = ApiClient.deviceDiagLogs % (self.host, typeId, deviceId)
         r = requests.post(deviceDiagnostics, auth=self.credentials, data = json.dumps(logs), headers = {'content-type': 'application/json'}, verify=self.verify)
 
@@ -850,6 +858,9 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and logId (string) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'api.registry.devices[deviceUID].diagLogs[ID or index]'")
+        
         deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, typeId, deviceId, logId)
         r = requests.get(deviceDiagnostics, auth=self.credentials, verify=self.verify)
         status = r.status_code
@@ -869,6 +880,9 @@ class ApiClient():
         It accepts typeId (string), deviceId (string) and logId (string) as parameters
         In case of failure it throws APIException
         """
+        
+        self.logger.warning("DEPRECATION NOTICE: In the 1.0.0 release this method will be removed.  Use: 'del api.registry.devices[deviceUID].diagLogs[ID or index]'")
+        
         deviceDiagnostics = ApiClient.deviceDiagLogsLogId % (self.host, typeId, deviceId, logId)
         r = requests.delete(deviceDiagnostics, auth=self.credentials, verify=self.verify)
         status = r.status_code
