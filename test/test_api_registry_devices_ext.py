@@ -133,7 +133,8 @@ class TestRegistryDevices(testUtils.AbstractTest):
         deviceClient.connect()
         time.sleep(10)
         deviceClient.disconnect()
-        time.sleep(10)
+        # Allow 30 seconds for the logs to make it through
+        time.sleep(30)
         
         deviceAfterCreate = self.registry.devicetypes[deviceUid.typeId].devices[deviceUid.deviceId]
         
