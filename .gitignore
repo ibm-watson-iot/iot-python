@@ -10,6 +10,8 @@
 .cache
 .pytest_cache/*
 _build/*
+.python-version
+.vscode
 src/ibmiotf.egg-info/*
 MANIFEST
 README.txt
