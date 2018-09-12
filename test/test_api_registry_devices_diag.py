@@ -14,94 +14,58 @@ from ibmiotf.api.common import ApiException, DateTimeEncoder
 class TestRegistryDevicesDiag(testUtils.AbstractTest):
 
 
-    def testDeviceDiagLogs(self):
-        deviceUid = DeviceCreateRequest(
-            typeId="test", 
-            deviceId=str(uuid.uuid4()), 
-            authToken="NotVerySecretPassw0rd",
-            deviceInfo=DeviceInfo(serialNumber="123", descriptiveLocation="Floor 3, Room 2")
-        )
-        
-        self.registry.devices.create(deviceUid)
-        
-        myDeviceType = self.registry.devicetypes[deviceUid.typeId]        
-        assert_true(deviceUid.deviceId in myDeviceType.devices)
-        
-        deviceAfterCreate = myDeviceType.devices[deviceUid.deviceId]
-        assert_equals("123", deviceAfterCreate.deviceInfo.serialNumber)
-        assert_equals("Floor 3, Room 2", deviceAfterCreate.deviceInfo.descriptiveLocation)
+    def testDeviceDiagLogs(self, deviceType, device):       
+        assert_true(device.deviceId in deviceType.devices)
 
         # Check it's empty
-        assert_equals(0, len(deviceAfterCreate.diagLogs))
+        assert_equals(0, len(device.diagLogs))
         
         # Create a log 
-        deviceAfterCreate.diagLogs.append(message="hi dave0", data="0", timestamp=datetime.now(), severity=0)
+        device.diagLogs.append(message="hi dave0", data="0", timestamp=datetime.now(), severity=0)
         time.sleep(5)
-        assert_equals(1, len(deviceAfterCreate.diagLogs))
+        assert_equals(1, len(device.diagLogs))
         
-        assert_equals("hi dave0", deviceAfterCreate.diagLogs[0].message)
-        assert_equals("0", deviceAfterCreate.diagLogs[0].data)
-        assert_equals(0, deviceAfterCreate.diagLogs[0].severity)
+        assert_equals("hi dave0", device.diagLogs[0].message)
+        assert_equals("0", device.diagLogs[0].data)
+        assert_equals(0, device.diagLogs[0].severity)
         
         # Get the id
-        logEntry1id = deviceAfterCreate.diagLogs[0].id
+        logEntry1id = device.diagLogs[0].id
         
-        assert_equals("hi dave0", deviceAfterCreate.diagLogs[logEntry1id].message)
-        assert_equals("0", deviceAfterCreate.diagLogs[logEntry1id].data)
-        assert_equals(0, deviceAfterCreate.diagLogs[logEntry1id].severity)
+        assert_equals("hi dave0", device.diagLogs[logEntry1id].message)
+        assert_equals("0", device.diagLogs[logEntry1id].data)
+        assert_equals(0, device.diagLogs[logEntry1id].severity)
         
-        deviceAfterCreate.diagLogs.append(DeviceLog(message="hi dave1", data="1", timestamp=datetime.now(), severity=1))
+        device.diagLogs.append(DeviceLog(message="hi dave1", data="1", timestamp=datetime.now(), severity=1))
         time.sleep(5)
 
-        assert_equals(2, len(deviceAfterCreate.diagLogs))
+        assert_equals(2, len(device.diagLogs))
         
         # Logs are in decending order
-        assert_equals("hi dave1", deviceAfterCreate.diagLogs[0].message)
-        assert_equals("1", deviceAfterCreate.diagLogs[0].data)
-        assert_equals(1, deviceAfterCreate.diagLogs[0].severity)
+        assert_equals("hi dave1", device.diagLogs[0].message)
+        assert_equals("1", device.diagLogs[0].data)
+        assert_equals(1, device.diagLogs[0].severity)
 
-        del deviceAfterCreate.diagLogs[0]
+        del device.diagLogs[0]
         time.sleep(5)
-        assert_equals(1, len(deviceAfterCreate.diagLogs))
+        assert_equals(1, len(device.diagLogs))
 
-        deviceAfterCreate.diagLogs.clear()
+        device.diagLogs.clear()
         time.sleep(5)
-        assert_equals(0, len(deviceAfterCreate.diagLogs))
+        assert_equals(0, len(device.diagLogs))    
+    
+    def testDeviceBadDiagLogs(self, deviceType, device):
+        assert_true(device.deviceId in deviceType.devices)
                 
-        # Cleanup
-        self.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
-        assert_false(deviceUid.deviceId in myDeviceType.devices)
-    
-    
-    def testDeviceBadDiagLogs(self):
-        deviceUid = DeviceCreateRequest(
-            typeId="test", 
-            deviceId=str(uuid.uuid4()), 
-            authToken="NotVerySecretPassw0rd",
-            deviceInfo=DeviceInfo(serialNumber="123", descriptiveLocation="Floor 3, Room 2")
-        )
-        
-        self.registry.devices.create(deviceUid)
-        
-        myDeviceType = self.registry.devicetypes[deviceUid.typeId]        
-        assert_true(deviceUid.deviceId in myDeviceType.devices)
-        
-        deviceAfterCreate = myDeviceType.devices[deviceUid.deviceId]
-        assert_equals("123", deviceAfterCreate.deviceInfo.serialNumber)
-        assert_equals("Floor 3, Room 2", deviceAfterCreate.deviceInfo.descriptiveLocation)
-
         # Check it's empty
-        assert_equals(0, len(deviceAfterCreate.diagLogs))
+        assert_equals(0, len(device.diagLogs))
         
         # Create a log with invalid severity
         try:
-            deviceAfterCreate.diagLogs.append(DeviceLog(message="hi dave0", data="0", timestamp=datetime.now(), severity=3))
+            device.diagLogs.append(DeviceLog(message="hi dave0", data="0", timestamp=datetime.now(), severity=3))
             # Fail if doesn't raise an exception
             assert_true(False)
         except ApiException as e:
             assert_equals("CUDRS0007E", e.id)
             assert_equals(1, len(e.violations))
-                            
-        # Cleanup
-        self.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
-        assert_false(deviceUid.deviceId in myDeviceType.devices)
+
