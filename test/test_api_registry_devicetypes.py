@@ -9,8 +9,8 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
     # =========================================================================
     # Device Type tests
     # =========================================================================
-    def testDeviceTypeExistsCheck(self):
-        if "vm" in self.registry.devicetypes:
+    def testDeviceTypeExistsCheck(self, deviceType):
+        if deviceType.id in self.registry.devicetypes:
             pass
         else:
             raise Exception()
@@ -20,13 +20,10 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
         else:
             raise Exception()
         
-    def testGetDeviceType(self):
-        # Get a device, and cache the response in a local object
-        myDeviceType = self.registry.devicetypes["vm"]
-        # {"classId": "Device", "createdDateTime": "2015-09-17T09:10:27+00:00", "description": "Virtual Machine", "deviceInfo": {}, "id": "vm", "refs": {"logicalInterfaces": "api/v0002/device/types/vm/logicalinterfaces", "mappings": "api/v0002/device/types/vm/mappings", "physicalInterface": "api/v0002/device/types/vm/physicalinterface"}, "updatedDateTime": "2017-02-27T10:27:11.959Z"}
-        assert_true(True)
-        assert_equals(myDeviceType.id, "vm")
-        assert_equals(myDeviceType.classId, "Device")
+    def testGetDeviceType(self, deviceType):
+        retrievedDeviceType = self.registry.devicetypes[deviceType.id]
+        assert_equals(retrievedDeviceType.id, deviceType.id)
+        assert_equals(retrievedDeviceType.classId, "Device")
     
     @raises(Exception)
     def testGetDeviceTypeThatDoesntExist(self):
@@ -36,7 +33,7 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
     def testUnsupportedCreateUpdate(self):
         self.registry.devicetypes["d:hldtxx:vm:iot-test-06"] = {"foo", "bar"}
         
-    def testListDeviceTypes(self):
+    def testListDeviceTypes(self, deviceType):
         count = 0
         for type in self.registry.devicetypes:
             count += 1
@@ -54,54 +51,32 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
         
         del self.registry.devicetypes[typeId]
         
-    def testUpdateDeviceType(self):
-        typeId = str(uuid.uuid4())
-        myDeviceType = self.registry.devicetypes.create( {"id": typeId} )
-        myDeviceTypeRetrieved = self.registry.devicetypes[typeId]
-        
-        assert_equals(myDeviceTypeRetrieved.id, typeId)
-        assert_equals(myDeviceTypeRetrieved.description, None)
-
-        myUpdatedDeviceType = self.registry.devicetypes.update(typeId, description="This is still a test")
-        myUpdatedDeviceTypeRetrieved = self.registry.devicetypes[typeId]
-        assert_equals(myUpdatedDeviceTypeRetrieved.description, "This is still a test")
-        
-        del self.registry.devicetypes[typeId]
-    
-    def testPartialDeviceTypeUpdate(self):
-        typeId = str(uuid.uuid4())
-        myDeviceType = self.registry.devicetypes.create( {"id": typeId} )
-        myDeviceTypeRetrieved = self.registry.devicetypes[typeId]
-        
-        assert_equals(myDeviceTypeRetrieved.id, typeId)
-        assert_equals(myDeviceTypeRetrieved.description, None)
-        
-        del self.registry.devicetypes[typeId]
+    def testUpdateDeviceType(self, deviceType):
+        self.registry.devicetypes.update(deviceType.id, description="This is still a test")
+        updatedDeviceType = self.registry.devicetypes[deviceType.id]
+        assert_equals(updatedDeviceType.description, "This is still a test")
             
     # =========================================================================
     # Device under DeviceType tests
     # =========================================================================
-    def testDeviceExistsCheck(self):
-        myDeviceType = self.registry.devicetypes["vm"]
-        if "iot-test-02" in myDeviceType.devices:
+    def testDeviceExistsCheck(self, deviceType, device):
+        if device.deviceId in deviceType.devices:
             pass
         else:
             raise Exception()
         
-        if "iot-test-06" not in myDeviceType.devices:
+        if "wheredidyago" not in deviceType.devices:
             pass
         else:
             raise Exception()
 
-    def testGetDeviceFromDeviceType(self):
-        # Get a device, and cache the response in a local object
-        myDevice = self.registry.devicetypes["vm"].devices["iot-test-02"]
+    def testGetDeviceFromDeviceType(self, deviceType, device):
+        myDevice = self.registry.devicetypes[deviceType.id].devices[device.deviceId]
     
-    def testListDevicesFromDeviceType(self):
+    def testListDevicesFromDeviceType(self, deviceType, device):
         # Get a device, and cache the response in a local object
-        myDeviceType = self.registry.devicetypes["vm"]
         count = 0
-        for device in myDeviceType.devices:
+        for device in deviceType.devices:
             count += 1
             if count > 10:
                 break

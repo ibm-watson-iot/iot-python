@@ -12,6 +12,7 @@ import uuid
 import os
 import json
 
+import pytest
 from nose.tools import *
 from nose import SkipTest
 
@@ -21,26 +22,26 @@ from datetime import datetime
 from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
 from ibmiotf.api.common import ApiException
 
+import logging
+logger = logging.getLogger()
+
 class TestLEC(testUtils.AbstractTest):
 
     # =========================================================================
-    # Bulk operations tests
+    # LEC tests
     # =========================================================================
-    def testLEC(self):
-        device1Id = DeviceUid(typeId="test", deviceId=str(uuid.uuid4()))
+    def testLEC(self, deviceType, device, authToken):
         
-        registeredDevice = self.registry.devices.create(device1Id)
-        
-        myDeviceType = self.registry.devicetypes["test"]
-        assert_true(device1Id.deviceId in myDeviceType.devices)
+        # Ensure test device type and device exist
+        assert_true(device.deviceId in deviceType.devices)
     
         # Connect the device and send an event
         deviceOptions={
             "org": os.getenv("WIOTP_ORG_ID"),
-            "type": device1Id.typeId,
-            "id": device1Id.deviceId,
+            "type": device.typeId,
+            "id": device.deviceId,
             "auth-method": "token",
-            "auth-token": registeredDevice.authToken
+            "auth-token": authToken
         }
         
         deviceClient = ibmiotf.device.Client(deviceOptions)
@@ -50,11 +51,11 @@ class TestLEC(testUtils.AbstractTest):
         deviceClient.disconnect()
         
         # Check the LEC
-        lastEvent = self.lec.get(device1Id, "test1")
+        lastEvent = self.lec.get(device, "test1")
         
         assert_equals(lastEvent.format, "json")
-        assert_equals(lastEvent.deviceId, device1Id.deviceId)
-        assert_equals(lastEvent.typeId, device1Id.typeId)
+        assert_equals(lastEvent.deviceId, device.deviceId)
+        assert_equals(lastEvent.typeId, device.typeId)
         assert_true(isinstance(lastEvent.timestamp, datetime))
         
         # Base64 decode the payload from the lEC and compare to the json dump of the data we sent
@@ -62,25 +63,22 @@ class TestLEC(testUtils.AbstractTest):
         assert_true("foo" in decodedPayload)
         assert_equals(decodedPayload["foo"], "bar1")
 
-        lastEvents = self.lec.getAll(device1Id)
+        lastEvents = self.lec.getAll(device)
         
         assert_equals(len(lastEvents), 2)
         
         # Results should be sorted by eventId ... "test1" event should be lsited first
         assert_equals(lastEvents[0].format, "json")
-        assert_equals(lastEvents[0].deviceId, device1Id.deviceId)
-        assert_equals(lastEvents[0].typeId, device1Id.typeId)
+        assert_equals(lastEvents[0].deviceId, device.deviceId)
+        assert_equals(lastEvents[0].typeId, device.typeId)
         decodedPayload1 = json.loads(base64.b64decode(lastEvents[0].payload).decode('utf-8'))
         assert_true("foo" in decodedPayload1)
         assert_equals(decodedPayload1["foo"], "bar1")
         
         assert_equals(lastEvents[1].format, "json")
-        assert_equals(lastEvents[1].deviceId, device1Id.deviceId)
-        assert_equals(lastEvents[1].typeId, device1Id.typeId)
+        assert_equals(lastEvents[1].deviceId, device.deviceId)
+        assert_equals(lastEvents[1].typeId, device.typeId)
         decodedPayload2 = json.loads(base64.b64decode(lastEvents[1].payload).decode('utf-8'))
         assert_true("foo" in decodedPayload2)
         assert_equals(decodedPayload2["foo"], "bar2")
-        
-        self.registry.devices.delete(device1Id)
-        assert_false(device1Id.deviceId in myDeviceType.devices)
 
