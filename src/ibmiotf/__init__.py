@@ -427,6 +427,8 @@ class APIException(Exception):
         self.response = response
 
     def __str__(self):
+        if self.response:
+            return "[%s] %s . Response: %s" % (self.httpCode, self.message, self.response)
         return "[%s] %s" % (self.httpCode, self.message)
 
 
