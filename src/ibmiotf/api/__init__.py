@@ -134,6 +134,22 @@ class ApiClient():
     
     # Thing state
     thingStateUrl = "https://%s/api/v0002/thing/types/%s/things/%s/state/%s"
+    
+    # Service to service URLs
+    allServicesUrl = "https://%s/api/v0002/s2s/services"
+    oneServiceUrl = "https://%s/api/v0002/s2s/services/%s"
+    
+    # Historian connectors URLs
+    allHistorianConnectorsUrl = "https://%s/api/v0002/historianconnectors"
+    oneHistorianConnectorUrl = "https://%s/api/v0002/historianconnectors/%s"
+    
+    # Historian connectors Destinations URLs
+    allHistorianConnectorDestinationsUrl = "https://%s/api/v0002/historianconnectors/%s/destinations"
+    oneHistorianConnectorDestinationUrl = "https://%s/api/v0002/historianconnectors/%s/destinations/%s"
+    
+    # Historian connectors forwarding rules URLs
+    allHistorianConnectorForwardingRulesUrl = "https://%s/api/v0002/historianconnectors/%s/forwardingrules"
+    oneHistorianConnectorForwardingRulesUrl = "https://%s/api/v0002/historianconnectors/%s/forwardingrules/%s"
 
     
     def __init__(self, options, logger=None):
@@ -2870,4 +2886,868 @@ class ApiClient():
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error updating thing type mappings for logical interface", resp)
         return resp.json()
+        
+        
+    """
+    ===========================================================================
+    Information Management Historical Data Storage Extension APIs
+    ===========================================================================
+    """
+    
+    def getServices(self, nameFilter=None, typeFilter=None, bindingModeFilter=None, boundFilter=None):
+        """
+        Gets the list of services that the Watson IoT Platform can connect to. 
+        The list can include a mixture of services that are either bound or unbound.
+        
+        Parameters:
+        
+            - nameFilter(string) - Filter the results by the specified name
+            - typeFilter(string) - Filter the results by the specified type, Available values : cloudant, eventstreams
+            - bindingModeFilter(string) - Filter the results by the specified binding mode, Available values : automatic, manual
+            - boundFilter(boolean) - Filter the results by the bound flag 
+        
+        Throws APIException on failure.
+        """
+        
+        allServiceReq = ApiClient.allServicesUrl % self.host
+        
+        if nameFilter or typeFilter or bindingModeFilter or (boundFilter == True) or (boundFilter == False):
+            allServiceReq += "?"
+            isQueryParamAdded = False
+            
+            if nameFilter:
+                allServiceReq += "name=%s" % nameFilter
+                isQueryParamAdded = True
+            
+            if typeFilter:
+                if isQueryParamAdded:
+                    allServiceReq += "&"
+                allServiceReq += "type=%s" % typeFilter
+                isQueryParamAdded = True
+            
+            if bindingModeFilter:
+                if isQueryParamAdded:
+                    allServiceReq += "&"
+                allServiceReq += "bindingMode=%s" % bindingModeFilter
+                isQueryParamAdded = True
+                
+            if boundFilter:
+                if isQueryParamAdded:
+                    allServiceReq += "&"
+                allServiceReq += "bound=true"
+            else:
+                if isQueryParamAdded:
+                    allServiceReq += "&"
+                allServiceReq += "bound=false"
+        
+        resp = requests.get(allServiceReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
 
+        if status == 200:
+            self.logger.debug("Services retrieved")
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Not Found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+        
+    
+    def getService(self, serviceId):
+        """
+        Retrieve the service with the specified id.
+        Parameters:
+            - serviceId (String), Service Id which is a UUID
+        Throws APIException on failure.
+
+        """
+        
+        oneServiceReq = ApiClient.oneServiceUrl % (self.host, serviceId)
+        resp = requests.get(oneServiceReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Service details for the given Id[%s] is retrieved." % serviceId)
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Service not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def addService(self, serviceName, serviceType, credentials, description):
+        """
+        Create a new external service. 
+        The service must include all of the details required to connect 
+        and authenticate to the external service in the credentials property. 
+        Parameters:
+            - serviceName (string) - Name of the service
+            - serviceType (string) - must be either eventstreams or cloudant
+            - credentials (json object) - Should have a valid structure for the service type.
+            - description (string) - description of the service
+        Throws APIException on failure
+        """
+        
+        postServicesReq = ApiClient.allServicesUrl % self.host
+        try:
+            bodyJson = json.dumps({
+                "name" : serviceName,
+                "type" : serviceType,
+                "credentials" : credentials,
+                "description" : description
+            })
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+        
+        resp = requests.post(postServicesReq, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyJson,
+               verify=self.verify)
+        status = resp.status_code
+
+        if status == 201:
+            self.logger.debug("Service is created.")
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def updateService(self, serviceId, serviceName, credentials, description):
+        """
+        Updates the service with the specified id.
+        if description is empty, the existing description will be removed.
+        Parameters:
+            - serviceId (String), Service Id which is a UUID
+            - serviceName (string), name of service
+            - credentials (json), json object of credentials
+            - description - description of the service
+        Throws APIException on failure.
+
+        """
+        
+        serviceReq = ApiClient.oneServiceUrl % (self.host, serviceId)
+        
+        resp = requests.get(serviceReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            serviceBody = resp.json()
+        else:
+            raise ibmiotf.APIException(status, "Error occurred while fetching service of id[%s]" % serviceId, None)
+        
+        if serviceName:
+            serviceBody['name'] = serviceName
+        
+        if description:
+            serviceBody['description'] = description
+        
+        if credentials:
+            serviceBody['credentials'] = credentials
+        
+        try:
+            bodyJson = json.dumps(serviceBody)
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+        print("bodyJson: %s" % bodyJson)
+        
+        resp = requests.put(serviceReq, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyJson,
+               verify=self.verify)
+        status = resp.status_code
+        if status == 200:
+            self.logger.debug("Service details for the given Id[%s] is updated." % serviceId)
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Service not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    
+    def deleteService(self, serviceId):
+        """
+        Deletes service with service id
+        Parameters:
+            - serviceId (string) - Service id of the service
+        Throws APIException on failure
+        """
+        
+        deleteServiceReq = ApiClient.oneServiceUrl % (self.host, serviceId)
+    
+        resp = requests.delete(deleteServiceReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+        
+        if status == 204:
+            self.logger.debug("Service for the given Id[%s] is deleted." % serviceId)
+            return resp
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Service not found", None)
+        elif status == 405:
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+            
+
+    def getHistorianConnectors(self, nameFilter=None, typeFilter=None, enabledFilter=None, serviceId=None, limit=None, bookmark=None):
+        """
+        Gets the list of Historian connectors, they are used to configure the Watson IoT Platform to store IoT data in compatible services.
+        
+        Parameters:
+        
+            - nameFilter(string) -      Filter the results by the specified name
+            - typeFilter(string) -      Filter the results by the specified type, Available values : cloudant, eventstreams
+            - enabledFilter(boolean) -  Filter the results by the enabled flag 
+            - serviceId(string) -       Filter the results by the service id
+            - limit(number) -           Max number of results returned, defaults 25
+            - bookmark(string) -        used for paging through results
+        
+        Throws APIException on failure.
+        """
+        
+        allHistConnReq = ApiClient.allHistorianConnectorsUrl % self.host
+        
+        if nameFilter or typeFilter or limit or serviceId or (enabledFilter == True) or (enabledFilter == False) or bookmark:
+            allHistConnReq += "?"
+            isQueryParamAdded = False
+            
+            if nameFilter:
+                allHistConnReq += "name=%s" % nameFilter
+                isQueryParamAdded = True
+            
+            if typeFilter:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "type=%s" % typeFilter
+                isQueryParamAdded = True
+
+            if bookmark:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "_bookmark=%s" % bookmark
+                isQueryParamAdded = True
+            
+            if limit:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "_limit=%s" % limit
+                isQueryParamAdded = True
+
+            if serviceId:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "serviceId=%s" % serviceId
+                isQueryParamAdded = True
+                
+            if enabledFilter:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "enabled=true"
+            else:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "enabled=false"
+        
+        resp = requests.get(allHistConnReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Historian connectors retrieved")
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Not Found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+        
+    
+    def getHistorianConnector(self, connectorId):
+        """
+        Retrieve the connector with the specified id.
+        Parameters:
+            - connectorId (String), Connector Id which is a UUID
+        Throws APIException on failure.
+
+        """
+        
+        oneHistConnReq = ApiClient.oneHistorianConnectorUrl % (self.host, connectorId)
+        resp = requests.get(oneHistConnReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Historian connector for the given Id[%s] is retrieved." % connectorId)
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Historian connector not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def addHistorianConnector(self, name, serviceId, timezone, description, enabled):
+        """
+        Create a connector for the organization in the Watson IoT Platform. 
+        The connector must reference the target service that the Watson IoT Platform will store the IoT data in.
+        Parameters:
+            - name (string) - Name of the service
+            - serviceId (string) - must be either eventstreams or cloudant
+            - timezone (json) - Should have a valid structure for the service type.
+            - description (string) - description of the service
+            - enabled (boolean) - enabled
+        Throws APIException on failure
+        """
+
+        postHistConnReq = ApiClient.allHistorianConnectorsUrl % self.host
+
+        try:
+            bodyStr = json.dumps({
+                "name" : name,
+                "description" : description,
+                "serviceId" : serviceId,
+                "timezone" : timezone,
+                "enabled" : enabled
+            })
+            
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+            
+        resp = requests.post(postHistConnReq, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyStr,
+               verify=self.verify)
+        status = resp.status_code
+
+        if status == 201:
+            self.logger.debug("Historian connector is created.")
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def updateHistorianConnector(self, connectorId, name, description, timezone, enabled):
+        """
+        Updates the connector with the specified uuid.
+        if description is empty, the existing description will be removed.
+        Parameters:
+            - connector (String), Connnector Id which is a UUID
+            - name (string) - Name of the service
+            - timezone (json object) - Should have a valid structure for the service type.
+            - description (string) - description of the service
+            - enabled (boolean) - enabled
+        Throws APIException on failure.
+
+        """
+        
+        req = ApiClient.oneHistorianConnectorUrl % (self.host, connectorId)
+        
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            connectorBody = resp.json()
+        else:
+            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, None)
+            
+        if name:
+            connectorBody['name'] = name
+        
+        if description:
+            connectorBody['description'] = description
+        
+        if timezone:
+            connectorBody['timezone'] = timezone
+
+        if enabled:
+            connectorBody['enabled'] = enabled
+        
+        try:
+            bodyJson = json.dumps(connectorBody)
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+        
+        resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyJson,
+               verify=self.verify)
+        status = resp.status_code
+        if status == 200:
+            self.logger.debug("Historian connector details for the given Id[%s] is updated." % connectorId)
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Service not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    
+    def deleteHistorianConnector(self, connectorId):
+        """
+        Deletes Historian connector with connector id
+        Parameters:
+            - connectorId (string) - id of the Historian connector
+        Throws APIException on failure
+        """
+        
+        deleteConnectorReq = ApiClient.oneHistorianConnectorUrl % (self.host, connectorId)
+    
+        resp = requests.delete(deleteConnectorReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+        
+        if status == 204:
+            self.logger.debug("Historian connector for the given Id[%s] is deleted." % connectorId)
+            return resp
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Connector not found", None)
+        elif status == 405:
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+
+    def getHistorianDestinations(self, connectorId, nameFilter=None):
+        """
+        Gets the List of Historian connector's destinations.
+        A destination is used to configure a specific location to write to on the target service for the historian connector. 
+        For example, if the target service on the historian connector is eventstreams, a destination would be used to configure an individual topic to write data to.
+        The destinations endpoint returns the list of all of the destinations that the have been configured for a historian connector.
+        
+        Parameters:
+            - connectorId (string) -    id of the historian connector
+            - nameFilter(string) -      Filter the results by the specified name
+        
+        Throws APIException on failure.
+        """
+        
+        allReq = ApiClient.allHistorianConnectorDestinationsUrl % (self.host, connectorId)
+        
+        if nameFilter:
+            allReq += "?name=%s" % nameFilter
+                    
+        resp = requests.get(allReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Historian connector's destinations are retrieved")
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Not Found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+        
+    
+    def getHistorianConnectorDestination(self, connectorId, destinationName):
+        """
+        Retrieve the destination with the specified name for the given connector Id.
+        Parameters:
+            - connectorId (String), Connector Id which is a UUID
+            - destinationName (String), Name of the destination
+        Throws APIException on failure.
+
+        """
+        
+        oneReq = ApiClient.oneHistorianConnectorDestinationUrl % (self.host, connectorId, destinationName)
+        resp = requests.get(oneReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Historian connector's destination for the given name[%s] is retrieved." % destinationName)
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Historian connector destination not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def addHistorianConnectorDestination(self, connectorId, name, type, configuration):
+        """
+        Create a destination for the historian connector. 
+        The structure of the configuration property will depend on the type of the target service.
+        Parameters:
+            - connectorId (string) - Id of the connector
+            - name (string) - Name of the service
+            - type (string) - must be either eventstreams or cloudant
+            - configuration (json) - destination json object 
+            
+        Throws APIException on failure
+        """
+
+        postReq = ApiClient.allHistorianConnectorDestinationsUrl % (self.host, connectorId)
+
+        try:
+            bodyStr = json.dumps({
+                "name" : name,
+                "type" : type,
+                "configuration" : configuration
+            })
+            
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+            
+        resp = requests.post(postReq, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyStr,
+               verify=self.verify)
+        status = resp.status_code
+
+        if status == 201:
+            self.logger.debug("Historian connector destination is created.")
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    
+    def deleteHistorianConnectorDestination(self, connectorId, destinationName):
+        """
+        Deletes Historian connector destination
+        Parameters:
+            - connectorId (string) - id of the Historian connector
+            - destinationName (string) - name of the destination
+        Throws APIException on failure
+        """
+        
+        oneReq = ApiClient.oneHistorianConnectorDestinationUrl % (self.host, connectorId, destinationName)    
+        resp = requests.delete(oneReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+        
+        if status == 204:
+            self.logger.debug("Historian connector destination[%s] for the given Id[%s] is deleted." % (destinationName, connectorId))
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Connector not found", None)
+        elif status == 405:
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    
+    def getHistorianConnectorsForwardingRules(self, connectorId, nameFilter=None, typeFilter=None, enabledFilter=None, destinationNameFilter=None, limit=None, bookmark=None):
+        """
+        Gets List of Historian connectors Forwarding rules.
+        A forwarding rule is used to configure which data (events or state data) are written to which destinations.
+        The forwarding rules endpoint returns the list of all of the forwarding rules that the have been configured a historian connector.
+        
+        Parameters:
+            - connectorId(string) -                 Id of the connector
+            - nameFilter(string) -                  Filter the results by the specified name
+            - typeFilter(string) -                  Filter the results by the specified type, Available values : event, state
+            - enabledFilter(boolean) -              Filter the results by the enabled flag 
+            - destinationNameFilter(string) -       Filter the results by the service id
+            - limit(number) -                       Max number of results returned, defaults 25
+            - bookmark(string) -                    used for paging through results
+        
+        Throws APIException on failure.
+        """
+        
+        allHistConnReq = ApiClient.allHistorianConnectorForwardingRulesUrl % self.host
+        
+        if nameFilter or typeFilter or limit or connectorId or (enabledFilter == True) or (enabledFilter == False) or bookmark:
+            allHistConnReq += "?"
+            isQueryParamAdded = False
+            
+            if nameFilter:
+                allHistConnReq += "name=%s" % nameFilter
+                isQueryParamAdded = True
+            
+            if typeFilter:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "type=%s" % typeFilter
+                isQueryParamAdded = True
+
+            if bookmark:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "_bookmark=%s" % bookmark
+                isQueryParamAdded = True
+            
+            if limit:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "_limit=%s" % limit
+                isQueryParamAdded = True
+
+            if destinationNameFilter:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "destinationName=%s" % destinationNameFilter
+                isQueryParamAdded = True
+                
+            if enabledFilter:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "enabled=true"
+            else:
+                if isQueryParamAdded:
+                    allHistConnReq += "&"
+                allHistConnReq += "enabled=false"
+        
+        resp = requests.get(allHistConnReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Historian connectors forwarding rules retrieved")
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Not Found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+        
+    
+    def getHistorianConnectorForwardingRule(self, connectorId, forwardingRuleId):
+        """
+        Retrieve the forwarding rule with the specified id.
+        Parameters:
+            - connectorId (String), Connector Id which is a UUID
+            - forwardingRuleId (String), id of the forwarding rule
+        Throws APIException on failure.
+
+        """
+        
+        oneReq = ApiClient.oneHistorianConnectorForwardingRulesUrl % (self.host, connectorId, forwardingRuleId)
+        resp = requests.get(oneReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            self.logger.debug("Historian connector forwarding rule for the given Id[%s] is retrieved." % forwardingRuleId)
+            return resp.json()
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Historian connector forwarding rule not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def addHistorianConnectorForwardingRule(self, connectorId, name, description, destinationName, type, selector, enabled):
+        """
+        Create a forwarding rule for the historian connector. 
+        The structure of the selector property will depend on the type of the forwarding rule.
+        Parameters:
+            - name (string) - Name of the service
+            - description (string) - Description of the rule
+            - destinationName (string) - Name of the destination
+            - type (string) - Type should be event or state.
+            - selector (json) - json object of the selector
+            - enabled (boolean) - rule is enabled or not 
+        Throws APIException on failure
+        """
+
+        postReq = ApiClient.allHistorianConnectorForwardingRulesUrl % (self.host, connectorId)
+
+        try:
+            bodyStr = json.dumps({
+                "name" : name,
+                "destinationName" : destinationName,
+                "type" : type,
+                "selector" : selector,
+                "description" : description,
+                "enabled" : enabled
+            })
+            
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+            
+        resp = requests.post(postReq, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyStr,
+               verify=self.verify)
+        status = resp.status_code
+
+        if status == 201:
+            self.logger.debug("Historian connector  forwarding rule is created.")
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    def updateHistorianConnectorForwardingRule(self, connectorId, forwardingRuleId, name, description, destinationName, selector, enabled):
+        """
+        Updates the forwarding rule
+        if description is empty, the existing description will be removed.
+        Parameters:
+            - connectorId (String), Connnector Id which is a UUID
+            - forwardingRuleId (String), Id of the forwarding rule
+            - name (string) - Name of the service
+            - description (string) - description of the service
+            - destinationName (string) - name of the destination
+            - selector(json) - json object fo the selector
+            - enabled (boolean) - enabled
+        Throws APIException on failure.
+
+        """
+        
+        req = ApiClient.oneHistorianConnectorForwardingRulesUrl % (self.host, connectorId, forwardingRuleId)
+        
+        resp = requests.get(req, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+
+        if status == 200:
+            connectorBody = resp.json()
+        else:
+            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, None)
+            
+        if name:
+            connectorBody['name'] = name
+        
+        if description:
+            connectorBody['description'] = description
+        
+        if destinationName:
+            connectorBody['destinationName'] = destinationName
+
+        if enabled:
+            connectorBody['enabled'] = enabled
+
+        if selector:
+            connectorBody['selector'] = selector
+        
+        try:
+            bodyJson = json.dumps(connectorBody)
+        except Exception as exc:
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+        
+        resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyJson,
+               verify=self.verify)
+        status = resp.status_code
+        if status == 200:
+            self.logger.debug("Historian connector forwarding rule is updated.")
+            return resp.json()
+        elif status == 400:
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. forwarding rule not found", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
+            
+    
+    def deleteHistorianConnectorForwardingRuleId(self, connectorId, forwardingRuleId):
+        """
+        Deletes Historian connector forwarding rule with given id
+        Parameters:
+            - connectorId (string) - id of the Historian connector
+            - forwardingRuleId (string) - id of the forwarding rule
+        Throws APIException on failure
+        """
+        
+        deleteReq = ApiClient.oneHistorianConnectorForwardingRulesUrl % (self.host, connectorId, forwardingRuleId)
+    
+        resp = requests.delete(deleteReq, auth=self.credentials, verify=self.verify)
+        status = resp.status_code
+        
+        if status == 204:
+            self.logger.debug("Historian connector forwarding rule for the given Id[%s] is deleted." % forwardingRuleId)
+            return resp
+        elif status == 401:
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+        elif status == 403:
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+        elif status == 404:
+            raise ibmiotf.APIException(404, "Error. Connector not found", None)
+        elif status == 405:
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+        elif status == 409:
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+        elif status == 500:
+            raise ibmiotf.APIException(500, "Unexpected error", None)
+        else:
+            raise ibmiotf.APIException(status, "Unexpected error", None)
