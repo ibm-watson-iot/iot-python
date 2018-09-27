@@ -3204,7 +3204,7 @@ class ApiClient():
 
         """
         
-        oneHistConnReq = ApiClient.oneHistorianConnectorUrl % (self.host, serviceId)
+        oneHistConnReq = ApiClient.oneHistorianConnectorUrl % (self.host, connectorId)
         resp = requests.get(oneHistConnReq, auth=self.credentials, verify=self.verify)
         status = resp.status_code
 
@@ -3289,7 +3289,7 @@ class ApiClient():
         if status == 200:
             connectorBody = resp.json()
         else:
-            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % serviceId, None)
+            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, None)
             
         if name:
             connectorBody['name'] = name
@@ -3520,7 +3520,7 @@ class ApiClient():
         
         allHistConnReq = ApiClient.allHistorianConnectorForwardingRulesUrl % self.host
         
-        if nameFilter or typeFilter or limit or serviceId or (enabledFilter == True) or (enabledFilter == False) or bookmark:
+        if nameFilter or typeFilter or limit or connectorId or (enabledFilter == True) or (enabledFilter == False) or bookmark:
             allHistConnReq += "?"
             isQueryParamAdded = False
             
@@ -3678,7 +3678,7 @@ class ApiClient():
         if status == 200:
             connectorBody = resp.json()
         else:
-            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % serviceId, None)
+            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, None)
             
         if name:
             connectorBody['name'] = name
@@ -3686,7 +3686,7 @@ class ApiClient():
         if description:
             connectorBody['description'] = description
         
-        if timezone:
+        if destinationName:
             connectorBody['destinationName'] = destinationName
 
         if enabled:
