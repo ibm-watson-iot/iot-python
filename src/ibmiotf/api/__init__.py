@@ -3482,8 +3482,12 @@ class ApiClient():
         resp = requests.delete(oneReq, auth=self.credentials, verify=self.verify)
         status = resp.status_code
         
-        if status == 204:
+        if status == 200:
             self.logger.debug("Historian connector destination[%s] for the given Id[%s] is deleted." % (destinationName, connectorId))
+            return resp
+        elif status == 204:
+            self.logger.debug("Historian connector destination[%s] for the given Id[%s] is deleted." % (destinationName, connectorId))
+            return resp
         elif status == 401:
             raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
         elif status == 403:
