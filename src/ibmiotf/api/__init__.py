@@ -2947,15 +2947,15 @@ class ApiClient():
             self.logger.debug("Services retrieved")
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Not Found", None)
+            raise ibmiotf.APIException(404, "Error. Not Found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
         
     
     def getService(self, serviceId):
@@ -2975,15 +2975,15 @@ class ApiClient():
             self.logger.debug("Service details for the given Id[%s] is retrieved." % serviceId)
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Service not found", None)
+            raise ibmiotf.APIException(404, "Error. Service not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def addService(self, serviceName, serviceType, credentials, description):
         """
@@ -3017,15 +3017,15 @@ class ApiClient():
             self.logger.debug("Service is created.")
             return resp.json()
         elif status == 400:
-            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp)
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def updateService(self, serviceId, serviceName, credentials, description):
         """
@@ -3048,7 +3048,7 @@ class ApiClient():
         if status == 200:
             serviceBody = resp.json()
         else:
-            raise ibmiotf.APIException(status, "Error occurred while fetching service of id[%s]" % serviceId, None)
+            raise ibmiotf.APIException(status, "Error occurred while fetching service of id[%s]" % serviceId, resp)
         
         if serviceName:
             serviceBody['name'] = serviceName
@@ -3072,17 +3072,17 @@ class ApiClient():
             self.logger.debug("Service details for the given Id[%s] is updated." % serviceId)
             return resp.json()
         elif status == 400:
-            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp)
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Service not found", None)
+            raise ibmiotf.APIException(404, "Error. Service not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     
     def deleteService(self, serviceId):
@@ -3102,19 +3102,19 @@ class ApiClient():
             self.logger.debug("Service for the given Id[%s] is deleted." % serviceId)
             return resp
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Service not found", None)
+            raise ibmiotf.APIException(404, "Error. Service not found", resp)
         elif status == 405:
-            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", resp)
         elif status == 409:
-            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
             
 
@@ -3184,15 +3184,15 @@ class ApiClient():
             self.logger.debug("Historian connectors retrieved")
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Not Found", None)
+            raise ibmiotf.APIException(404, "Error. Not Found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
         
     
     def getHistorianConnector(self, connectorId):
@@ -3212,15 +3212,15 @@ class ApiClient():
             self.logger.debug("Historian connector for the given Id[%s] is retrieved." % connectorId)
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Historian connector not found", None)
+            raise ibmiotf.APIException(404, "Error. Historian connector not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def addHistorianConnector(self, name, serviceId, timezone, description, enabled):
         """
@@ -3259,13 +3259,13 @@ class ApiClient():
         elif status == 400:
             raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def updateHistorianConnector(self, connectorId, name, description, timezone, enabled):
         """
@@ -3280,6 +3280,7 @@ class ApiClient():
         Throws APIException on failure.
 
         """
+        from __builtin__ import str
         
         req = ApiClient.oneHistorianConnectorUrl % (self.host, connectorId)
         
@@ -3289,7 +3290,7 @@ class ApiClient():
         if status == 200:
             connectorBody = resp.json()
         else:
-            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, None)
+            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, resp)
             
         if name:
             connectorBody['name'] = name
@@ -3306,7 +3307,7 @@ class ApiClient():
         try:
             bodyJson = json.dumps(connectorBody)
         except Exception as exc:
-            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON", exc)
+            raise ibmiotf.APIException(-1, "Exception formatting the body to JSON. Err: %s" % str(exc), None)
         
         resp = requests.put(req, auth=self.credentials, headers={"Content-Type":"application/json"}, data=bodyJson,
                verify=self.verify)
@@ -3315,17 +3316,17 @@ class ApiClient():
             self.logger.debug("Historian connector details for the given Id[%s] is updated." % connectorId)
             return resp.json()
         elif status == 400:
-            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp)
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Service not found", None)
+            raise ibmiotf.APIException(404, "Error. Service not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     
     def deleteHistorianConnector(self, connectorId):
@@ -3345,19 +3346,19 @@ class ApiClient():
             self.logger.debug("Historian connector for the given Id[%s] is deleted." % connectorId)
             return resp
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Connector not found", None)
+            raise ibmiotf.APIException(404, "Error. Connector not found", resp)
         elif status == 405:
-            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", resp)
         elif status == 409:
-            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
 
     def getHistorianDestinations(self, connectorId, nameFilter=None):
@@ -3386,15 +3387,15 @@ class ApiClient():
             self.logger.debug("Historian connector's destinations are retrieved")
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Not Found", None)
+            raise ibmiotf.APIException(404, "Error. Not Found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
         
     
     def getHistorianConnectorDestination(self, connectorId, destinationName):
@@ -3415,15 +3416,15 @@ class ApiClient():
             self.logger.debug("Historian connector's destination for the given name[%s] is retrieved." % destinationName)
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Historian connector destination not found", None)
+            raise ibmiotf.APIException(404, "Error. Historian connector destination not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def addHistorianConnectorDestination(self, connectorId, name, type, configuration):
         """
@@ -3458,15 +3459,15 @@ class ApiClient():
             self.logger.debug("Historian connector destination is created.")
             return resp.json()
         elif status == 400:
-            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp)
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     
     def deleteHistorianConnectorDestination(self, connectorId, destinationName):
@@ -3489,19 +3490,19 @@ class ApiClient():
             self.logger.debug("Historian connector destination[%s] for the given Id[%s] is deleted." % (destinationName, connectorId))
             return resp
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Connector not found", None)
+            raise ibmiotf.APIException(404, "Error. Connector not found", resp)
         elif status == 405:
-            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", resp)
         elif status == 409:
-            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     
     def getHistorianConnectorsForwardingRules(self, connectorId, nameFilter=None, typeFilter=None, enabledFilter=None, destinationNameFilter=None, limit=None, bookmark=None):
@@ -3572,15 +3573,15 @@ class ApiClient():
             self.logger.debug("Historian connectors forwarding rules retrieved")
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Not Found", None)
+            raise ibmiotf.APIException(404, "Error. Not Found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
         
     
     def getHistorianConnectorForwardingRule(self, connectorId, forwardingRuleId):
@@ -3601,15 +3602,15 @@ class ApiClient():
             self.logger.debug("Historian connector forwarding rule for the given Id[%s] is retrieved." % forwardingRuleId)
             return resp.json()
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Historian connector forwarding rule not found", None)
+            raise ibmiotf.APIException(404, "Error. Historian connector forwarding rule not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def addHistorianConnectorForwardingRule(self, connectorId, name, description, destinationName, type, selector, enabled):
         """
@@ -3648,15 +3649,15 @@ class ApiClient():
             self.logger.debug("Historian connector  forwarding rule is created.")
             return resp.json()
         elif status == 400:
-            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp)
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     def updateHistorianConnectorForwardingRule(self, connectorId, forwardingRuleId, name, description, destinationName, selector, enabled):
         """
@@ -3682,7 +3683,7 @@ class ApiClient():
         if status == 200:
             connectorBody = resp.json()
         else:
-            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, None)
+            raise ibmiotf.APIException(status, "Error occurred while fetching connector with id[%s]" % connectorId, resp)
             
         if name:
             connectorBody['name'] = name
@@ -3711,17 +3712,17 @@ class ApiClient():
             self.logger.debug("Historian connector forwarding rule is updated.")
             return resp.json()
         elif status == 400:
-            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp.json())
+            raise ibmiotf.APIException(400, "Invalid request (No body, invalid JSON, unexpected key, bad value).", resp)
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. forwarding rule not found", None)
+            raise ibmiotf.APIException(404, "Error. forwarding rule not found", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
             
     
     def deleteHistorianConnectorForwardingRuleId(self, connectorId, forwardingRuleId):
@@ -3742,16 +3743,16 @@ class ApiClient():
             self.logger.debug("Historian connector forwarding rule for the given Id[%s] is deleted." % forwardingRuleId)
             return resp
         elif status == 401:
-            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", None)
+            raise ibmiotf.APIException(401, "The authentication token is empty or invalid", resp)
         elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
+            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", resp)
         elif status == 404:
-            raise ibmiotf.APIException(404, "Error. Connector not found", None)
+            raise ibmiotf.APIException(404, "Error. Connector not found", resp)
         elif status == 405:
-            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", None)
+            raise ibmiotf.APIException(404, "The service with the specified uuid is not an external service, it is an automatically bound service. Automatically bound services cannot be deleted and can only be unbound using the Watson IoT Platform Dashboard UI.", resp)
         elif status == 409:
-            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", None)
+            raise ibmiotf.APIException(409, "The service with the specified id is currently being referenced by another object.", resp)
         elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+            raise ibmiotf.APIException(500, "Unexpected error", resp)
         else:
-            raise ibmiotf.APIException(status, "Unexpected error", None)
+            raise ibmiotf.APIException(status, "Unexpected error", resp)
