@@ -43,6 +43,7 @@ setup(
         'ibmiotf', 
         'ibmiotf.api',
         'ibmiotf.api.registry',
+        'ibmiotf.api.mgmt',
         'ibmiotf.api.status',
         'ibmiotf.api.usage',
         'ibmiotf.api.lec',
