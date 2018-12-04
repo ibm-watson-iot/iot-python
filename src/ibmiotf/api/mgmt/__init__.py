@@ -9,7 +9,9 @@
 
 from ibmiotf.api.common import ApiClient 
 from ibmiotf.api.registry.devices import Devices 
-from ibmiotf.api.registry.types import DeviceTypes 
+from ibmiotf.api.registry.types import DeviceTypes
+from ibmiotf.api.mgmt.extensions import MgmtExtensions
+from ibmiotf.api.mgmt.requests import MgmtRequests
 
 class Mgmt():
 

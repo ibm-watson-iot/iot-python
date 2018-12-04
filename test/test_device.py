@@ -17,6 +17,7 @@ import ibmiotf.application
 import uuid
 import os
 from ibmiotf import *
+from ibmiotf.api.common import ApiException
 from nose.tools import *
 from nose import SkipTest
 import logging
@@ -42,12 +43,15 @@ class TestDevice(testUtils.AbstractTest):
         
         self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
-        self.options={
-            "org": self.ORG_ID,
-            "type": self.registeredDevice.typeId,
-            "id": self.registeredDevice.deviceId,
-            "auth-method": "token",
-            "auth-token": self.registeredDevice.authToken
+        self.options = {
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": self.registeredDevice.typeId,
+                "deviceId": self.registeredDevice.deviceId
+            },
+            "auth": {
+                "token": self.registeredDevice.authToken
+            }
         }
         
         self.deviceClient = ibmiotf.device.Client(self.options)
@@ -184,7 +188,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 1883
+        options["options"]["port"] = 1883
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -198,7 +202,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 80
+        options["options"]["port"] = 80
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -210,8 +214,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 80
-        options["transport"] = "websockets"
+        options["options"]["port"] = 80
+        options["options"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -223,8 +227,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 1883
-        options["transport"] = "websockets"
+        options["options"]["port"] = 1883
+        options["options"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -236,7 +240,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 8883
+        options["options"]["port"] = 8883
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -248,8 +252,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 8883
-        options["transport"] = "websockets"
+        options["options"]["port"] = 8883
+        options["options"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -262,7 +266,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 443
+        options["options"]["port"] = 443
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -274,8 +278,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["port"] = 443
-        options["transport"] = "websockets"
+        options["options"]["port"] = 443
+        options["options"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -284,7 +288,7 @@ class TestDevice(testUtils.AbstractTest):
     @raises(Exception)
     def testPublishEventPortInvalid(self):
         options = copy.deepcopy(self.options)
-        options["port"] = 100
+        options["options"]["port"] = 100
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         deviceClient.disconnect()

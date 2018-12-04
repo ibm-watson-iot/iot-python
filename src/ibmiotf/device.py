@@ -7,10 +7,12 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
+import os
 import logging
 import re
 import uuid
 import json
+import yaml
 import threading
 from datetime import datetime
 
@@ -149,57 +151,26 @@ class Client(AbstractClient):
     
     _COMMAND_TOPIC = "iot-2/cmd/+/fmt/+"
 
-    def __init__(self, options, logHandlers=None):
-        self._options = options
+    def __init__(self, config, logHandlers=None):
+        self._config = config
 
-        ### DEFAULTS ###
-        if "domain" not in self._options:
-            # Default to the domain for the public cloud offering
-            self._options['domain'] = "internetofthings.ibmcloud.com"
-        
-        if "clean-session" not in self._options:
-            self._options['clean-session'] = "true"
-
-        if "org" not in self._options:
-            # Default to the quickstart
-            self._options['org'] = "quickstart"
-
-        if self._options["org"] == "quickstart":
-            self._options["port"] = 1883
-
-        ### REQUIRED ###
-        if self._options['org'] is None:
-            raise ConfigurationException("Missing required property: org")
-        if self._options['type'] is None:
-            raise ConfigurationException("Missing required property: type")
-        if self._options['id'] is None:
-            raise ConfigurationException("Missing required property: id")
-
-        if self._options['org'] != "quickstart":
-            if self._options['auth-method'] is None:
-                raise ConfigurationException("Missing required property: auth-method")
-
-            if (self._options['auth-method'] == "token"):
-                if self._options['auth-token'] is None:
-                    raise ConfigurationException("Missing required property for token based authentication: auth-token")
-            else:
-                raise UnsupportedAuthenticationMethod(options['auth-method'])
+        self._validateOptions()
 
         AbstractClient.__init__(
             self,
-            domain = self._options['domain'],
-            organization = self._options['org'],
-            clientId = "d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
-            username = "use-token-auth" if (self._options['auth-method'] == "token") else None,
-            password = self._options['auth-token'],
+            domain = self._config['options']['domain'],
+            organization = self._config['identity']['orgId'],
+            clientId = "d:" + self._config['identity']['orgId'] + ":" + self._config['identity']['typeId'] + ":" + self._config['identity']['deviceId'],
+            username = "use-token-auth" if ('auth' in self._config) else None,
+            password = self._config['auth']['token'] if ('auth' in self._config) else None,
             logHandlers = logHandlers,
-            cleanSession = self._options['clean-session'],
-            port = self._options.get('port', None),
-            transport = self._options.get('transport', 'tcp')
+            cleanSession = self._config['options']['cleanSession'],
+            port = self._config['options']['port'],
+            transport = self._config['options']['transport']
         )
 
         # Add handler for commands if not connected to QuickStart
-        if self._options['org'] != "quickstart":
+        if self._config['org'] != "quickstart":
             self.client.message_callback_add("iot-2/cmd/+/fmt/+", self._onCommand)
 
         self.subscriptionsAcknowledged = threading.Event()
@@ -210,6 +181,50 @@ class Client(AbstractClient):
         self.client.on_connect = self._onConnect
 
         self.setMessageEncoderModule('json', jsonCodec)
+
+
+    def _validateOptions(self):
+        if 'identity' not in self._config:
+            raise ConfigurationException("Missing identity from configuration")
+        if 'orgId' not in self._config['identity'] or self._config['identity']['orgId'] is None:
+            raise ConfigurationException("Missing identity.orgId from configuration")
+        if 'typeId' not in self._config['identity'] or self._config['identity']['typeId'] is None:
+            raise ConfigurationException("Missing identity.typeId from configuration")
+        if 'deviceId' not in self._config['identity'] or self._config['identity']['deviceId'] is None:
+            raise ConfigurationException("Missing identity.deviceId from configuration")
+        
+        # Authentication is not supported for quickstart
+        if self._config['identity']['orgId'] is "quickstart":
+            if 'auth' in self._config:
+                raise ConfigurationException("Quickstart service does not support device authentication")
+        else:
+            if 'auth' not in self._config:
+                raise ConfigurationException("Missing auth from configuration")
+            if 'token' not in self._config['auth'] or self._config['auth']['token'] is None:
+                raise ConfigurationException("Missing auth.token from configuration")
+        
+        if 'options' in self._config and 'port' in self._config['options'] and not isinstance(self._config['options']['port'], int):
+            raise ConfigurationException("Optional setting options.port must be a number if provided")
+        if 'options' in self._config and 'cleanSession' in self._config['options'] and not isinstance(self._config['options']['cleanSession'], bool):
+            raise ConfigurationException("Optional setting options.cleanSession must be a boolean if provided")
+        
+        # Set defaults for optional configuration
+        if 'options' not in self._config:
+            self._config['options'] = {}
+        
+        if "domain" not in self._config['options']:
+            self._config['options']['domain'] = "internetofthings.ibmcloud.com"
+        
+        if "clean-session" not in self._config['options']:
+            self._config['options']['clean-session'] = True
+
+        if "port" not in self._config['options']:
+            # None allows the underlying MQTT client to auto-select the port
+            self._config['options']['port'] = None
+        
+        if "transport" not in self._config['options']:
+            self._config['options']['transport'] = 'tcp'
+
 
 
     def _onConnect(self, mqttc, userdata, flags, rc):
@@ -238,7 +253,7 @@ class Client(AbstractClient):
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s" % (self.clientId))
-            if self._options['org'] != "quickstart":
+            if self._config['org'] != "quickstart":
                 self._subscribeToCommands()
         elif rc == 5:
             self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
@@ -311,7 +326,7 @@ class Client(AbstractClient):
         """
         Subscribe to commands sent to this device.
         """
-        if self._options['org'] == "quickstart":
+        if self._config['org'] == "quickstart":
             self.logger.warning("QuickStart applications do not support commands")
             return False
 
@@ -336,120 +351,6 @@ class Client(AbstractClient):
             self.logger.debug("Received command '%s'" % (command.command))
             if self.commandCallback:
                 self.commandCallback(command)
-
-
-class HttpClient(HttpAbstractClient):
-    """
-    A basic device client with limited capabilies that forgoes 
-    an active MQTT connection to the service.  Extends #ibmiotf.HttpAbstractClient.
-        
-    # Parameters
-    options (dict): Configuration options for the client
-    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
-        which will result in a default log handler being created.
-        
-    # Configuration Options
-    The options parameter expects a Python dictionary containing the following keys:
-    
-    - `orgId` Your organization ID.
-    - `type` The type of the device. Think of the device type is analagous to a model number.
-    - `id` A unique ID to identify a device. Think of the device id as analagous to a serial number.
-    - `auth-method` The method of authentication. The only method that is currently supported is `token`.
-    - `auth-token` An authentication token to securely connect your device to Watson IoT Platform.
-    
-    
-    The HTTP client supports four content-types for posted events:
-    
-    - `application/xml`: for events/commands using message format `xml`
-    - `text/plain; charset=utf-8`: for events/commands using message format `plain`
-    - `application/octet-stream`: for events/commands using message format `bin`
-    - `application/json`: the default for all other message formats.
-    """
-
-    def __init__(self, options, logHandlers=None):
-        self._options = options
-
-        ### DEFAULTS ###
-        if "domain" not in self._options:
-            # Default to the domain for the public cloud offering
-            self._options['domain'] = "internetofthings.ibmcloud.com"
-
-        ### REQUIRED ###
-        if self._options['org'] is None:
-            raise ConfigurationException("Missing required property: org")
-        if self._options['type'] is None:
-            raise ConfigurationException("Missing required property: type")
-        if self._options['id'] is None:
-            raise ConfigurationException("Missing required property: id")
-
-        if self._options['org'] != "quickstart":
-            if self._options['auth-method'] is None:
-                raise ConfigurationException("Missing required property: auth-method")
-
-            if (self._options['auth-method'] == "token"):
-                if self._options['auth-token'] is None:
-                    raise ConfigurationException("Missing required property for token based authentication: auth-token")
-            else:
-                raise UnsupportedAuthenticationMethod(options['authMethod'])
-
-        HttpAbstractClient.__init__(
-            self,
-            clientId="d:" + self._options['org'] + ":" + self._options['type'] + ":" + self._options['id'],
-            logHandlers=logHandlers
-        )
-
-        self.setMessageEncoderModule('json', jsonCodec)
-
-
-
-    def publishEvent(self, event, msgFormat, data):
-        """
-        Publish an event over HTTP(s) as given supported format
-        
-        # Raises
-        MissingMessageEncoderException: If there is no registered encoder for `msgFormat`
-        Exception: If something went wrong
-        
-        # Returns
-        int: The HTTP status code for the publish
-        """
-        self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
-
-        templateUrl = 'https://%s.messaging.%s/api/v0002/device/types/%s/devices/%s/events/%s'
-
-        orgid = self._options['org']
-        deviceType = self._options['type']
-        deviceId = self._options['id']
-        authMethod = "use-token-auth"
-        authToken = self._options['auth-token']
-        credentials = (authMethod, authToken)
-
-        if orgid == 'quickstart':
-            authMethod = None
-            authToken = None
-
-        intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
-        self.logger.debug("URL: %s", intermediateUrl)
-        try:
-            if msgFormat in self._messageEncoderModules:
-                payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-                contentType = self._getContentType(msgFormat)
-                response = requests.post(
-                    intermediateUrl, 
-                    auth=credentials, 
-                    data=payload,
-                    headers={'content-type': contentType}
-                )
-            else:
-                raise MissingMessageEncoderException(msgFormat)
-
-        except Exception as e:
-            self.logger.error(e)
-            raise e
-
-        if response.status_code >= 300:
-            self.logger.warning("Unable to send event: HTTP response code = %s" % (response.status_code))
-        return response.status_code
 
 
 class DeviceInfo(object):
@@ -524,12 +425,11 @@ class ManagedClient(Client):
     UPDATESTATE_INVALID_URI = 6
 
 
-    def __init__(self, options, logHandlers=None, deviceInfo=None):
-        if options['org'] == "quickstart":
+    def __init__(self, config, logHandlers=None, deviceInfo=None):
+        if config['identity']['orgId'] == "quickstart":
             raise Exception("Unable to create ManagedClient instance.  QuickStart devices do not support device management")
 
-        Client.__init__(self, options, logHandlers)
-        # TODO: Raise fatal exception if tries to create managed device client for QuickStart
+        Client.__init__(self, config, logHandlers)
 
         # Initialize user supplied callback
         self.deviceActionCallback = None
@@ -653,7 +553,7 @@ class ManagedClient(Client):
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
-            if self._options['org'] != "quickstart":
+            if self._config['org'] != "quickstart":
                 self.client.subscribe(
                     [
                         (ManagedClient.DM_RESPONSE_TOPIC, 1),
@@ -717,7 +617,7 @@ class ManagedClient(Client):
         # Register the future call back to Watson IoT Platform 2 minutes before the device lifetime expiry
         if lifetime != 0:
             if self.manageTimer is not None:
-                self._logger.debug("Cancelling existing manage timer")
+                self.logger.debug("Cancelling existing manage timer")
                 self.manageTimer.cancel()
             self.manageTimer = threading.Timer(
                 lifetime - 120,
@@ -1215,14 +1115,92 @@ class ManagedClient(Client):
                 name='respondDeviceAction')
             thread.start()
 
+def parseEnvVars():
+    """
+    Parse environment variables into a Python dictionary suitable for passing to the 
+    device client constructor as the `options` parameter
+
+    **Identity**
+    - `WIOTP_ORG_ID`
+    - `WIOTP_TYPE_ID`
+    - `WIOTP_DEVICE_ID`
+    
+    **Auth**
+    - `WIOTP_AUTH_TOKEN`
+    
+    **Options**
+    - `WIOTP_DOMAIN` (optional)
+    - `WIOTP_PORT` (optional)
+    - `WIOTP_TRANSPORT` (optional)
+    - `WIOTP_CA_FILE` (optional)
+    - `WIOTP_CLEAN_SESSION` (optional)
+
+
+    ```python
+    import ibmiotf.device
+    
+    try:
+        options = ibmiotf.device.ParseEnvVars()
+        client = ibmiotf.device.Client(options)
+    except ibmiotf.ConnectionException  as e:
+        pass
+        
+    ```
+    """
+
+    # Identify
+    orgId     = os.getenv("WIOTP_ORG_ID", None)
+    typeId    = os.getenv("WIOTP_TYPE_ID", None)
+    deviceId  = os.getenv("WIOTP_DEVICE_ID", None)
+    # Auth
+    authToken = os.getenv("WIOTP_AUTH_TOKEN", None)
+    # Options
+    domain    = os.getenv("WIOTP_DOMAIN", None)
+    port      = os.getenv("WIOTP_PORT", None)
+    transport = os.getenv("WIOTP_TRANSPORT", None)
+    caFile    = os.getenv("WIOTP_CA_FILE", None)
+    cleanSession = os.getenv("WIOTP_CLEAN_SESSION", "True")
+    
+    if orgId is None:
+        raise ConfigurationException("Missing WIOTP_ORG_ID environment variable")
+    if typeId is None:
+        raise ConfigurationException("Missing WIOTP_TYPE_ID environment variable")
+    if deviceId is None:
+        raise ConfigurationException("Missing WIOTP_DEVICE_ID environment variable")
+    if orgId is not "quickstart" and authToken is None:
+        raise ConfigurationException("Missing WIOTP_AUTH_TOKEN environment variable")
+    if port is not None:
+        try:
+            port = int(port)
+        except ValueError as e:
+            raise ConfigurationException("Missing WIOTP_PORT must be a number")
+
+    cfg = {
+        'identity': {
+            'orgId': orgId,
+            'typeId': typeId,
+            'deviceId': deviceId
+        },
+        'options': {
+            'domain': domain,
+            'port': port,
+            'transport': transport,
+            'caFile': caFile,
+            'clean-session': cleanSession in ["True", "true", "1"]
+        }
+    }
+
+    # Quickstart doesn't support auth, so ensure we only add this if it's defined
+    if authToken is not None:
+        cfg['auth'] = { 'token': authToken }
+    
+    return cfg
+
 
 def ParseConfigFile(configFilePath):
     """
-    Parse a configuration file into a Python dictionary suitable for passing to the 
+    Parse a yaml configuration file into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
-    
-    Note: Support for this is likely to be removed in favour of 
-    a yaml configuration configuration file as move towards the 1.0 release
     
     ```python
     import ibmiotf.device
@@ -1237,70 +1215,36 @@ def ParseConfigFile(configFilePath):
     
     # Example Configuration File
     
+    device.yaml
     ```
-    [device]
-    org=org1id
-    type=raspberry-pi-3
-    id=00ef08ac05
-    auth-method=token
-    auth-token=Ab$76s)asj8_s5
-    clean-session=true/false
-    domain=internetofthings.ibmcloud.com
-    port=8883
+    identity:
+      orgId: org1id
+      typeId: raspberry-pi-3
+      deviceId: 00ef08ac05
+    auth:
+      token: Ab$76s)asj8_s5
+    options:
+      domain: internetofthings.ibmcloud.com
+      port: 8883
+      transport: tcp
+      caFile: /path/to/certificateAuthorityFile.pem
+      cleanSession: true
     ```
     
-    **Required Settings**
-    
-    - `org`
-    - `type`
-    - `id`
-    - `auth-method`
-    - `auth-token`
-
     **Optional Settings**
     
-    - `clean-session` Defaults to `false`
-    - `domain` Defaults to `internetofthings.ibmcloud.com`
-    - `port` Defaults to `8883`    
+    - `options.domain` Defaults to `internetofthings.ibmcloud.com`
+    - `options.port` Defaults to `8883`    
+    - `options.transport` Defaults to `tcp`    
+    - `options.caFile` Defaults to `messaging.pem` inside this module    
+    - `options.cleanSession` Defaults to `false`
     """
     
-    parms = configparser.ConfigParser({
-        "domain": "internetofthings.ibmcloud.com",
-        "port": "8883",  # Even though this is a string here, the parms.getint method will ensure it's assigned as an int
-        "clean-session": "true"
-    })
-    sectionHeader = "device"
-
     try:
         with open(configFilePath) as f:
-            try:
-                parms.read_file(f)
-            except AttributeError:
-                # Python 2.7 support
-                # https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read_file
-                parms.readfp(f)
-
-        domain = parms.get(sectionHeader, "domain")
-        organization = parms.get(sectionHeader, "org")
-        deviceType = parms.get(sectionHeader, "type")
-        deviceId = parms.get(sectionHeader, "id")
-
-        authMethod = parms.get(sectionHeader, "auth-method")
-        authToken = parms.get(sectionHeader, "auth-token")
-        cleanSession = parms.get(sectionHeader, "clean-session")
-        port = parms.getint(sectionHeader, "port")
-
+            data = yaml.load(f)
     except IOError as e:
         reason = "Error reading device configuration file '%s' (%s)" % (configFilePath, e[1])
         raise ConfigurationException(reason)
 
-    return {
-        'domain': domain,
-        'org': organization,
-        'type': deviceType,
-        'id': deviceId,
-        'auth-method': authMethod,
-        'auth-token': authToken,
-        'clean-session': cleanSession,
-        'port': int(port)
-    }
+    return data

@@ -74,7 +74,7 @@ class AbstractClient(object):
     client (paho.mqtt.client.Client): Built-in Paho MQTT client handling connectivity for the client.
     logger (logging.logger): Client logger.
     """
-    def __init__(self, domain, organization, clientId, username, password, port=None, logHandlers=None, cleanSession="true", transport="tcp"):
+    def __init__(self, domain, organization, clientId, username, password, port=None, logHandlers=None, cleanSession=True, transport="tcp", caFile=None):
         self.organization = organization
         self.username = username
         self.password = password
@@ -128,7 +128,7 @@ class AbstractClient(object):
             self.logger.addHandler(rfh)
             self.logger.addHandler(ch)
 
-        self.client = paho.Client(self.clientId, transport=transport, clean_session=False if cleanSession == "false" else True)
+        self.client = paho.Client(self.clientId, transport=transport, clean_session=cleanSession)
         
         # Normal usage puts the client in an auto-detect mode, where it will try to use 
         # TLS, and fall back to unencrypted mode ONLY if TLS 1.2 is unavailable.
@@ -162,8 +162,10 @@ class AbstractClient(object):
         if self.username is not None:
             # In environments where either ssl is not available, or TLSv1.2 is not available we will fallback to MQTT over TCP
             if self.tlsVersion is not None:
-                # Path to certificate
-                caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
+                # Path to default CA certificate if none provided
+                if caFile is None:
+                    caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
+
                 self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
             self.client.username_pw_set(self.username, self.password)
 
