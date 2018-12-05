@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>ibmiotf.device - IBM Watson IoT Platform</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "ibmiotf.device";
+    var mkdocs_page_input_path = "device.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> IBM Watson IoT Platform</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">ibmiotf.device</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#device-client-package">Device Client Package</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#client">Client</a></li>
+        
+            <li><a class="toctree-l3" href="#configuration">Configuration</a></li>
+        
+            <li><a class="toctree-l3" href="#keepalive">KeepAlive</a></li>
+        
+            <li><a class="toctree-l3" href="#connectivity">Connectivity</a></li>
+        
+            <li><a class="toctree-l3" href="#publishing-events">Publishing Events</a></li>
+        
+            <li><a class="toctree-l3" href="#handling-commands">Handling Commands</a></li>
+        
+            <li><a class="toctree-l3" href="#custom-message-format-support">Custom Message Format Support</a></li>
+        
+            <li><a class="toctree-l3" href="#managedclient">ManagedClient</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">IBM Watson IoT Platform</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>ibmiotf.device</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="device-client-package">Device Client Package<a class="headerlink" href="#device-client-package" title="Permanent link"></a></h1>
+<p>The <code>ibmiotf.device</code> package includes the following:</p>
+<ul>
+<li><code>ibmiotf.device.Client</code></li>
+<li><code>ibmiotf.device.ManagedClient</code></li>
+<li><code>ibmiotf.device.Command</code></li>
+<li><code>ibmiotf.device.DeviceInfo</code></li>
+<li><code>ibmiotf.device.DeviceFirmware</code></li>
+<li><code>ibmiotf.device.ParseConfigFile</code></li>
+<li><code>ibmiotf.device.ParseEnvVars</code></li>
+</ul>
+<h2 id="client">Client<a class="headerlink" href="#client" title="Permanent link"></a></h2>
+<pre><code class="python">import ibmiotf.device
+
+def myCommandCallback(cmd):
+    print(&quot;Command received: %s&quot; % cmd.data)
+
+
+myConfig = ibmiotf.device.ParseConfigFile(&quot;device.yaml&quot;)
+
+# Create an instance of the client
+client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+
+# Configure KeepAlive
+client.setKeepAliveInterval(60)
+
+# Register Command Handler
+client.commandCallback = myCommandCallback
+
+print(&quot;Connecting using keepalive interval of %s seconds&quot; % (client.getKeepAliveInterval()) )
+# Connect the device
+client.connect()
+
+# Create some data
+myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+
+# Publish an event
+client.publishEvent(event=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, on_publish=None)
+
+# Disconnect
+client.disconnect()
+</code></pre>
+
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link"></a></h2>
+<p>The config parameter expects a dictionary in the following structure:</p>
+<pre><code class="python">{ &quot;identity&quot;: {
+        &quot;orgId&quot;: &quot;org1id&quot;,
+        &quot;typeId&quot;: &quot;raspberry-pi-3&quot;
+        &quot;deviceId&quot;: &quot;00ef08ac05&quot;
+    }.
+    &quot;auth&quot; {
+        &quot;token&quot;: &quot;Ab$76s)asj8_s5&quot;
+    },
+    &quot;options&quot;: {
+        &quot;domain&quot;: &quot;internetofthings.ibmcloud.com&quot;,
+        &quot;mqtt&quot;: {
+            &quot;port&quot;: 8883
+            &quot;transport&quot;: &quot;tcp&quot;
+            &quot;cleanSession&quot;: True
+            &quot;caFile&quot;: &quot;/path/to/certificateAuthorityFile.pem&quot;
+        }
+    }
+}
+</code></pre>
+
+<ul>
+<li><code>identity.orgId</code> Your organization ID.</li>
+<li><code>identity.typeId</code> The type of the device. Think of the device type is analagous to a model number.</li>
+<li><code>identity.deviceId</code> A unique ID to identify a device. Think of the device id as analagous to a serial number.</li>
+<li><code>auth.token</code> An authentication token to securely connect your device to Watson IoT Platform.</li>
+<li><code>options.domain</code> Optional. A boolean value indicating which Watson IoT Platform domain to connect to (e.g. if you have a dedicated platform instance). Defaults to <code>internetofthings.ibmcloud.com</code></li>
+<li><code>options.mqtt.port</code> Optional. A integer value defining the MQTT port.</li>
+<li><code>options.mqtt.transport</code> Optional. The transport to use for MQTT connectivity - <code>tcp</code> or <code>websockets</code>.</li>
+<li><code>options.mqtt.cleanSession</code> Optional. A boolean value indicating whether to use MQTT clean session.  Defaults to <code>True</code></li>
+<li><code>options.mqtt.caFile</code> Optional. A String value indicating the path to a CA file (in pem format) to use in verifying the server certificate.  Defaults to <code>messaging.pem</code> inside this module</li>
+</ul>
+<p>In most cases you will not manually build the <code>config</code> dictionary, we support two methods to generate device configuration:</p>
+<h3 id="1-from-a-configuration-file">1. From a Configuration File<a class="headerlink" href="#1-from-a-configuration-file" title="Permanent link"></a></h3>
+<p><code>ParseConfigFile()</code> allows one to easily pass in device configuration from environment variables.</p>
+<pre><code class="python">import ibmiotf.device
+
+myConfig = ibmiotf.device.ParseConfigFile(&quot;device.yaml&quot;)
+client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+</code></pre>
+
+<p><strong>Basic Configuration File</strong></p>
+<pre><code class="yaml">identity:
+    orgId: org1id
+    typeId: raspberry-pi
+    deviceId: 00ef08ac05
+auth:
+    token: Ab$76s)asj8_s5
+</code></pre>
+
+<p><strong>Advanced Configuration File</strong> </p>
+<p>This file defines all optional configuration parameters.</p>
+<pre><code class="yaml">identity:
+    orgId: org1id
+    typeId: raspberry-pi
+    deviceId: 00ef08ac05
+auth:
+    token: Ab$76s)asj8_s5
+options:
+    domain: internetofthings.ibmcloud.com
+    mqtt:
+        port: 8883
+        transport: tcp
+        cleanSession: true
+        caFile: /path/to/certificateAuthorityFile.pem
+</code></pre>
+
+<h3 id="2-from-environment-variables">2. From Environment Variables<a class="headerlink" href="#2-from-environment-variables" title="Permanent link"></a></h3>
+<p><code>ParseEnvVars()</code> allows one to easily pass in device configuration from environment variables.</p>
+<pre><code class="python">import ibmiotf.device
+
+myConfig = ibmiotf.device.ParseEnvVars()
+client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+</code></pre>
+
+<ul>
+<li><code>WIOTP_ORG_ID</code></li>
+<li><code>WIOTP_TYPE_ID</code></li>
+<li><code>WIOTP_DEVICE_ID</code></li>
+<li><code>WIOTP_AUTH_TOKEN</code></li>
+<li><code>WIOTP_DOMAIN</code></li>
+<li><code>WIOTP_MQTT_PORT</code></li>
+<li><code>WIOTP_MQTT_TRANSPORT</code></li>
+<li><code>WIOTP_MQTT_CAFILE</code></li>
+<li><code>WIOTP_MQTT_CLEANSESSION</code></li>
+</ul>
+<h2 id="keepalive">KeepAlive<a class="headerlink" href="#keepalive" title="Permanent link"></a></h2>
+<p><code>Client.setKeepAliveInterval()</code> allows the user to reconfigure the keepalive value for any subsequent MQTT connection made by the client.<br />
+This does not affect the keep alive setting of any existing connection.  Traffic generated by keep alive is minimal, but
+also billable as part of your data transfer to/from the Platform.</p>
+<p><code>Client.getKeepAliveInterval(numSeconds)</code> allows the user to retrieve the current setting for keepalive.  </p>
+<p>Note: This is not necessarily the value used by the current active connection, as any changes to this value
+are only applied when a new connection to the Platform is established</p>
+<h2 id="connectivity">Connectivity<a class="headerlink" href="#connectivity" title="Permanent link"></a></h2>
+<p><code>Client.connect()</code> &amp; <code>Client.disconnect()</code> are used to manage the MQTT connection to IBM Watson IoT Platform that allows the device to 
+handle commands and publish events.</p>
+<h2 id="publishing-events">Publishing Events<a class="headerlink" href="#publishing-events" title="Permanent link"></a></h2>
+<p>Events are the mechanism by which devices publish data to the Watson IoT Platform. The device
+controls the content of the event and assigns a name for each event that it sends.</p>
+<p>When an event is received by Watson IoT Platform, the credentials of the received event identify
+the sending device, which means that a device cannot impersonate another device.</p>
+<p>Events can be published with any of the three quality of service (QoS) levels that are defined
+by the MQTT protocol. By default, events are published with a QoS level of 0.</p>
+<p><code>Client.publishEvent()</code> takes up to 5 arguments:</p>
+<ul>
+<li><code>event</code> Name of this event</li>
+<li><code>msgFormat</code> Format of the data for this event</li>
+<li><code>data</code> Data for this event</li>
+<li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+<li><code>on_publish</code> A function that will be called when receipt of the publication is confirmed.</li>
+</ul>
+<p><strong>Callback and QoS</strong></p>
+<p>The use of the optional <code>on_publish</code> function has different implications depending
+on the level of qos used to publish the event:</p>
+<ul>
+<li>qos 0: the client has asynchronously begun to send the event</li>
+<li>qos 1 and 2: the client has confirmation of delivery from the platform</li>
+</ul>
+<h2 id="handling-commands">Handling Commands<a class="headerlink" href="#handling-commands" title="Permanent link"></a></h2>
+<p>When the device client connects, it automatically subscribes to any command that is specified for
+this device. To process specific commands, you need to register a command callback method.</p>
+<pre><code class="python">def myCommandCallback(cmd):
+    print(&quot;Command received: %s&quot; % cmd.data)
+
+client.commandCallback = myCommandCallback
+</code></pre>
+
+<p>The messages are returned as an instance of the <code>Command</code> class with the following attributes:</p>
+<ul>
+<li><code>command</code>: Identifies the command</li>
+<li><code>format</code>: Format that the command was encoded in, for example <code>json</code></li>
+<li><code>data</code>: Data for the payload converted to a Python dict by an impleentation of <code>MessageCodec</code></li>
+<li><code>timestamp</code>: Date and time that the event was recieved (as <code>datetime.datetime</code> object)</li>
+</ul>
+<p>If a command is recieved in an unknown format or if a device does not recognize the format, the device
+library raises <code>ibmiotf.MissingMessageDecoderException</code>.</p>
+<h2 id="custom-message-format-support">Custom Message Format Support<a class="headerlink" href="#custom-message-format-support" title="Permanent link"></a></h2>
+<p>By default, the client library support encoding and decoding events and commands as <code>json</code> messages.  To add support
+for your own custom message formats you can create and register implementations of <code>MessageCodec</code>:</p>
+<p>MessageCodecs work for both commands and events.  To Implement a MessageCodec you must support two static class methods:</p>
+<h3 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link"></a></h3>
+<p>The job of the <code>encode(data, timestamp)</code> method is to take <code>data</code> (any python object) and optionally a <code>timestamp</code> (a <code>datetime.datetime</code> object) and 
+return a String representation of the message ready to be sent over MQTT.</p>
+<h3 id="decoding">Decoding<a class="headerlink" href="#decoding" title="Permanent link"></a></h3>
+<p>The job of <code>decode(message)</code> is to decode an incoming MQTT message and return an instance of <code>ibmiotf.Message</code></p>
+<pre><code class="python">import yaml
+import imbiotf.device
+import ibmiotf.Message
+import ibmiotf.MessageCodec
+
+class YamlCodec(ibmiotf.MessageCodec):
+
+    @staticmethod
+    def encode(data=None, timestamp=None):
+        return yaml.dumps(data)
+
+    @staticmethod
+    def decode(message):
+        try:
+            data = yaml.loads(message.payload.decode(&quot;utf-8&quot;))
+        except ValueError as e:
+            raise InvalidEventException(&quot;Unable to parse YAML.  payload=\&quot;%s\&quot; error=%s&quot; % (message.payload, str(e)))
+
+        timestamp = datetime.now(pytz.timezone('UTC'))
+
+        return ibmiotf.Message(data, timestamp)
+
+myConfig = ibmiotf.device.ParseConfigFile(&quot;device.yaml&quot;)
+client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+client.setMessageEncoderModule(&quot;yaml&quot;, YamlCodec)
+myData = { 'hello' : 'world', 'x' : 100}
+# Publish the same event, in both json and yaml formats:
+client.publishEvent(&quot;status&quot;, &quot;json&quot;, myData)
+client.publishEvent(&quot;status&quot;, &quot;yaml&quot;, myData)
+</code></pre>
+
+<p>If you want to lookup which encoder is set for a specific message format call <code>client.getMessageEncoderModule(msgFormt)</code>:</p>
+<p>If an event is sent in an unknown format or if a device does not recognize the format, the device
+library raises <code>ibmiotf.MissingMessageEncoderException</code>.</p>
+<h2 id="managedclient">ManagedClient<a class="headerlink" href="#managedclient" title="Permanent link"></a></h2>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

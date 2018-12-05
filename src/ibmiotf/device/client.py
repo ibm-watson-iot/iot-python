@@ -19,7 +19,7 @@ from ibmiotf.device.command import Command
 from ibmiotf.device.config import DeviceClientConfig
 
 
-class Client(AbstractClient):
+class DeviceClient(AbstractClient):
     """
     Extends #ibmiotf.AbstractClient to implement a device client supporting 
     messaging over MQTT
@@ -28,76 +28,6 @@ class Client(AbstractClient):
     options (dict): Configuration options for the client
     logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
         which will result in a default log handler being created.
-        
-    # Configuration Options
-    The options parameter expects a Python dictionary containing the following keys:
-    
-    - `identity.orgId` Your organization ID.
-    - `identity.typeId` The type of the device. Think of the device type is analagous to a model number.
-    - `identity.deviceId` A unique ID to identify a device. Think of the device id as analagous to a serial number.
-    - `auth.token` An authentication token to securely connect your device to Watson IoT Platform.
-    - `options.domain` Optional. A boolean value indicating which Watson IoT Platform domain to connect to (e.g. if you have a dedicated platform instance).
-    - `options.mqtt.port` Optional. A integer value defining the MQTT port .
-    - `options.mqtt.transport` Optional. The transport to use for MQTT connectivity - `tcp` or `websockets`.
-    - `options.mqtt.cleanSession` Optional. A boolean value indicating whether to use MQTT clean session.
-    - `options.mqtt.caFile` Optional. A String value indicating the path to a CA file (in pem format) to use in verifying the server certificate.
-    
-    # Publishing events
-    Events are the mechanism by which devices publish data to the Watson IoT Platform. The device 
-    controls the content of the event and assigns a name for each event that it sends.
-
-    When an event is received by Watson IoT Platform, the credentials of the received event identify 
-    the sending device, which means that a device cannot impersonate another device.
-
-    Events can be published with any of the three quality of service (QoS) levels that are defined 
-    by the MQTT protocol. By default, events are published with a QoS level of 0.
-
-    ```python
-    client.connect()
-    qos=0
-    myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-    client.publishEvent("status", "json", myData, qos)
-    ```
-    
-    # Handling commands
-    When the device client connects, it automatically subscribes to any command that is specified for 
-    this device. To process specific commands, you need to register a command callback method. 
-    
-    The messages are returned as an instance of the #Command class
-
-    ```python
-    def myCommandCallback(cmd):
-        print("Command received: %s" % cmd.data)
-        if cmd.command == "setInterval":
-            if 'interval' not in cmd.data:
-                print("Error - command is missing required information: 'interval'")
-            else:
-                interval = cmd.data['interval']
-        elif cmd.command == "print":
-            if 'message' not in cmd.data:
-                print("Error - command is missing required information: 'message'")
-            else:
-                print(cmd.data['message'])
-    client.connect()
-    client.commandCallback = myCommandCallback
-    ```
-
-    # Custom message format support
-    By default, the message format is set to json, which means that the library supports the encoding 
-    and decoding of Python dictionary objects in JSON format. To add support for your own custom message formats, 
-    see the Custom Message Format sample.
-
-    When you create a custom encoder module, you must register it in the device client:
-    
-    ```
-    import myCustomCodec
-
-    client.setMessageEncoderModule("custom", myCustomCodec)
-    client.publishEvent("status", "custom", myData)
-    ```
-    
-    If an event is sent in an unknown format or if a device does not recognize the format, the device 
-    library raises #ibmiotf.MissingMessageDecoderException.
     """
     
     _COMMAND_TOPIC = "iot-2/cmd/+/fmt/+"
@@ -121,8 +51,6 @@ class Client(AbstractClient):
         # Add handler for commands if not connected to QuickStart
         if not self._config.isQuickstart():
             self.client.message_callback_add("iot-2/cmd/+/fmt/+", self._onCommand)
-
-        self.subscriptionsAcknowledged = threading.Event()
 
         # Initialize user supplied callback
         self.commandCallback = None
@@ -185,6 +113,10 @@ class Client(AbstractClient):
         - qos 0: the client has asynchronously begun to send the event
         - qos 1 and 2: the client has confirmation of delivery from the platform
         """
+        topic = "iot-2/evt/{event}/fmt/{msg_format}".format(event=event, msg_format=msgFormat)
+        return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
+
+    def _publishEvent(self, topic, event, msgFormat, data, qos=0, on_publish=None):
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because device is not currently connected", event)
             return False
@@ -196,8 +128,6 @@ class Client(AbstractClient):
                 except:
                     dataString = str(data)
                 self.logger.debug("Sending event %s with data %s" % (event, dataString))
-
-            topic = "iot-2/evt/{event}/fmt/{msg_format}".format(event=event, msg_format=msgFormat)
 
             if msgFormat in self._messageEncoderModules:
                 payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))

@@ -17,12 +17,12 @@ class TestDeviceCfg(testUtils.AbstractTest):
 
     def testMissingOptions(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({})
+            ibmiotf.device.DeviceClient({})
         assert_equal(e.exception.reason, 'Missing identity from configuration')
 
     def testMissingOrg(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({
+            ibmiotf.device.DeviceClient({
                 "identity": {
                     "orgId": None, "typeId": "myType", "deviceId": "myId"
                 },
@@ -32,7 +32,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
 
     def testMissingType(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({
+            ibmiotf.device.DeviceClient({
                 "identity": {
                     "orgId": "myOrg", "typeId": None, "deviceId": "myId"
                 },
@@ -42,7 +42,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
 
     def testMissingId(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({
+            ibmiotf.device.DeviceClient({
                 "identity": {
                     "orgId": "myOrg", "typeId": "myType", "deviceId": None
                 },
@@ -52,13 +52,13 @@ class TestDeviceCfg(testUtils.AbstractTest):
 
     def testMissingAuthToken(self):
         with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({
+            ibmiotf.device.DeviceClient({
                 "identity": {
                     "orgId": "myOrg", "typeId": "myType", "deviceId": "myId"
                 },
                 "auth": { "token" : None }
             })
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
+            ibmiotf.device.DeviceClient({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
                                    "auth-method": None, "auth-token": self.registeredDevice.authToken})
         assert_equal(e.exception.reason, 'Missing auth.token from configuration')
 

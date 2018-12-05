@@ -33,107 +33,52 @@ class TestGateway(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         # Register a Device
-        try: 
-            deviceType = self.setupAppClient.api.getDeviceType(self.DEVICE_TYPE)
-        except APIException as e:
-            if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.addDeviceType(self.DEVICE_TYPE)
-            else: 
-                raise e
-        self.registeredDevice = self.setupAppClient.api.registerDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+
+        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         # Register a Gateway
-        try: 
-            gatewayType = self.setupAppClient.api.getDeviceType(self.GATEWAY_TYPE)
-        except APIException as e:
-            if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.addDeviceType(self.GATEWAY_TYPE, classId = "Gateway")
-            else: 
-                raise e
-        self.registeredGateway = self.setupAppClient.api.registerDevice(self.GATEWAY_TYPE, self.GATEWAY_ID)
+        if self.GATEWAY_TYPE not in self.setupAppClient.api.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.GATEWAY_TYPE, "classId": "Gateway"})
+
+        self.registeredGateway = self.setupAppClient.api.registry.devices.create({"typeId": self.GATEWAY_TYPE, "deviceId": self.GATEWAY_ID})
         
         self.options={
-            "org": self.ORG_ID,
-            "type": self.registeredGateway["typeId"],
-            "id": self.registeredGateway["deviceId"],
-            "auth-method": "token",
-            "auth-token": self.registeredGateway["authToken"]
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": self.registeredGateway["typeId"],
+                "deviceId": self.registeredGateway["deviceId"]
+            },
+            "auth": {
+                "token": self.registeredGateway["authToken"]
+            }
         }
         
         
 
     @classmethod
     def teardown_class(self):
-        self.setupAppClient.api.deleteDevice(self.DEVICE_TYPE, self.DEVICE_ID)
-        self.setupAppClient.api.deleteDevice(self.GATEWAY_TYPE, self.GATEWAY_ID)
-
-
-    @raises(Exception)
-    def testMissingOptions(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.Client({})
-        assert_equal(e.exception.msg, 'Missing required property: org')
-
-    @raises(Exception)
-    def testMissingOrg(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.Client({"org": None, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": self.registeredGateway["authToken"] })
-        assert_equal(e.exception.msg, 'Missing required property: org')
-
-    @raises(Exception)
-    def testMissingType(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.Client({"org": self.ORG_ID, "type": None, "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": self.registeredGateway["authToken"] })
-        assert_equal(e.exception.msg, 'Missing required property: type')
-
-    @raises(Exception)
-    def testMissingId(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": None, "auth-method": "token", "auth-token": self.registeredGateway["authToken"]})
-        assert_equal(e.exception.msg, 'Missing required property: id')
-
-    @raises(Exception)
-    def testMissingAuthMethod(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": None, "auth-token": self.registeredGateway["authToken"]})
-        assert_equal(e.exception.msg, 'Missing required property: auth-method')
-
-    @raises(Exception)
-    def testMissingAuthToken(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": None })
-        assert_equal(e.exception.msg, 'Missing required property: auth-token')
-
-    @raises(Exception)
-    def testUnSupportedAuthMethod(self):
-        with assert_raises(UnsupportedAuthenticationMethod) as e:
-            ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "unsupported-method", "auth-token": self.registeredGateway["authToken"]})
-        assert_equal(e.exception_type,UnsupportedAuthenticationMethod)
+        del self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
+        del self.setupAppClient.api.registry.devicetypes[self.GATEWAY_TYPE].devices[self.GATEWAY_ID]
 
 
     def testGatewayClientInstance(self):
-        gatewayCli = ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": self.registeredGateway["authToken"]})
-        assert_is_instance(gatewayCli , ibmiotf.gateway.Client)
+        gatewayCli = ibmiotf.gateway.GatewayClient({
+            "identity": { "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] }, 
+            "auth": { "token": self.registeredGateway["authToken"] }
+        })
+        assert_is_instance(gatewayCli , ibmiotf.gateway.GatewayClient)
 
-    @raises(Exception)
-    def testMissingConfigFile(self):
-        deviceFile="InvalidFile.out"
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.ParseConfigFile(deviceFile)
-        assert_equal(e.exception.msg, 'Error reading device configuration file')
-
-    @raises(Exception)
-    def testInvalidConfigFile(self):
-        deviceFile="nullValues.conf"
-        with assert_raises(AttributeError) as e:
-            ibmiotf.gateway.ParseConfigFile(deviceFile)
-        assert_equal(e.exception, AttributeError)
 
     def testNotAuthorizedConnect(self):
         # Delay 5 seconds so that the gateway is active before we try to connect
         time.sleep(5)
 
-        client = ibmiotf.gateway.Client({"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method": "token", "auth-token": "MGxxx3g7Yjt-6keG(l", "auth-key":"a-xxxxxx-s1tsofmoxo"})
+        client = ibmiotf.gateway.GatewayClient({
+            "identity": { "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] }, 
+            "auth": { "token": "MGxxxxxxxxxxxxx" }
+        })
         with assert_raises(ConnectionException) as e:
             client.connect()
 
@@ -141,29 +86,29 @@ class TestGateway(testUtils.AbstractTest):
         # Delay 5 seconds so that the gateway is active before we try to connect
         time.sleep(5)
         
-        gatewayClient = ibmiotf.gateway.Client(self.options)
+        gatewayClient = ibmiotf.gateway.GatewayClient(self.options)
         gatewayClient.connect()
 
         with assert_raises(MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
             gatewayClient.publishDeviceEvent(self.registeredGateway["typeId"],self.registeredGateway["deviceId"],"missingMsgEncode", "jason", myData)
 
-    def testMissingMessageEncoderWithPublishGatewayEvent(self):
+    def testMissingMessageEncoderWithPublishEvent(self):
         # Delay 5 seconds so that the gateway is active before we try to connect
         time.sleep(5)
         
-        gatewayClient = ibmiotf.gateway.Client(self.options)
+        gatewayClient = ibmiotf.gateway.GatewayClient(self.options)
         gatewayClient.connect()
 
         with assert_raises(MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-            gatewayClient.publishGatewayEvent("missingMsgEncode", "jason", myData)
+            gatewayClient.publishEvent("missingMsgEncode", "jason", myData)
 
     def testGatewayPubSubMethods(self):
         # Delay 5 seconds so that the gateway is active before we try to connect
         time.sleep(5)
         
-        gatewayClient = ibmiotf.gateway.Client(self.options)
+        gatewayClient = ibmiotf.gateway.GatewayClient(self.options)
         gatewayClient.connect()
 
         def publishCallback():
@@ -171,32 +116,11 @@ class TestGateway(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         assert_true(gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, on_publish=publishCallback))
-        assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEventJson", "json", myData, on_publish=publishCallback))
+        assert_true(gatewayClient.publishEvent("testGatewayPublishEventJson", "json", myData, on_publish=publishCallback))
 
         assert_true(gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID))
-        assert_true(gatewayClient.subscribeToGatewayCommands())
-        assert_true(gatewayClient.subscribeToGatewayNotifications())
-
-        gatewayClient.disconnect()
-
-    def testGatewayPubSubMethodsInQSMode(self):
-        # Delay 5 seconds so that the gateway is active before we try to connect
-        time.sleep(5)
-        
-        gatewayClient = ibmiotf.gateway.Client({"org": "quickstart", "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"None", "auth-token":"None" })
-        gatewayClient.connect()
-
-        def publishCallback():
-            print("Publish Event done!!!")
-
-        myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        
-        assert_true(gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEvent", "json", myData, on_publish=publishCallback))
-        assert_true(gatewayClient.publishGatewayEvent("testGatewayPublishEvent", "json", myData, on_publish=publishCallback))
-
-        assert_false(gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID))
-        assert_false(gatewayClient.subscribeToGatewayCommands())
-        assert_false(gatewayClient.subscribeToGatewayNotifications())
+        assert_true(gatewayClient.subscribeToCommands())
+        assert_true(gatewayClient.subscribeToNotifications())
 
         gatewayClient.disconnect()
 
@@ -219,15 +143,15 @@ class TestGateway(testUtils.AbstractTest):
         def appCmdPublishCallback():
             print("Application Publish Command done!!!")
 
-        gatewayClient = ibmiotf.gateway.Client(self.options)
+        gatewayClient = ibmiotf.gateway.GatewayClient(self.options)
         
         gatewayClient.commandCallback = gatewayCmdCallback
         gatewayClient.deviceCommandCallback = deviceCmdCallback
         gatewayClient.notificationCallback = notificationCallback
         gatewayClient.connect()
         gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID)
-        gatewayClient.subscribeToGatewayCommands()
-        gatewayClient.subscribeToGatewayNotifications()
+        gatewayClient.subscribeToCommands()
+        gatewayClient.subscribeToNotifications()
 
         appClient = ibmiotf.application.Client(self.appOptions)
         appClient.connect()
@@ -246,7 +170,7 @@ class TestGateway(testUtils.AbstractTest):
     @SkipTest
     # This can be enabled once platform update 102 is released and fixes a bug in the gateway device registration
     def testGatewayApiClientSupport(self):
-        gatewayClient = ibmiotf.gateway.Client(self.options)
+        gatewayClient = ibmiotf.gateway.GatewayClient(self.options)
         assert_is_instance(gatewayClient.api, ibmiotf.api.ApiClient)
 
         #Add new device

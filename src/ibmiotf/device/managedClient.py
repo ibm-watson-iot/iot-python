@@ -14,12 +14,12 @@ import threading
 import pytz
 import uuid
 
-from ibmiotf import ConnectionException
-from ibmiotf.device.client import Client
+from ibmiotf import ConnectionException, ConfigurationException
+from ibmiotf.device.client import DeviceClient
 from ibmiotf.device.deviceInfo import DeviceInfo
 from ibmiotf.device.deviceFirmware import DeviceFirmware
 
-class ManagedClient(Client):
+class ManagedDeviceClient(DeviceClient):
 
     # Publish MQTT topics
     MANAGE_TOPIC = 'iotdevice-1/mgmt/manage'
@@ -63,9 +63,9 @@ class ManagedClient(Client):
 
     def __init__(self, config, logHandlers=None, deviceInfo=None):
         if config['identity']['orgId'] == "quickstart":
-            raise Exception("Unable to create ManagedClient instance.  QuickStart devices do not support device management")
+            raise ConfigurationException("QuickStart does not support device management")
 
-        Client.__init__(self, config, logHandlers)
+        DeviceClient.__init__(self, config, logHandlers)
 
         # Initialize user supplied callback
         self.deviceActionCallback = None
@@ -74,14 +74,14 @@ class ManagedClient(Client):
 
         messages_callbacks = (
             ("iotdm-1/#", self.__onDeviceMgmtResponse),
-            (ManagedClient.DM_REBOOT_TOPIC, self.__onRebootRequest),
-            (ManagedClient.DM_FACTORY_REESET, self.__onFactoryResetRequest),
-            (ManagedClient.DM_FIRMWARE_UPDATE_TOPIC, self.__onFirmwereUpdate),
-            (ManagedClient.DM_OBSERVE_TOPIC, self.__onFirmwereObserve),
-            (ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC, self.__onFirmwereDownload),
-            (ManagedClient.DM_UPDATE_TOPIC, self.__onUpdatedDevice),
-            (ManagedClient.DM_CANCEL_OBSERVE_TOPIC, self.__onFirmwereCancel),
-            (ManagedClient.DME_ACTION_TOPIC, self.__onDMEActionRequest),
+            (ManagedDeviceClient.DM_REBOOT_TOPIC, self.__onRebootRequest),
+            (ManagedDeviceClient.DM_FACTORY_REESET, self.__onFactoryResetRequest),
+            (ManagedDeviceClient.DM_FIRMWARE_UPDATE_TOPIC, self.__onFirmwereUpdate),
+            (ManagedDeviceClient.DM_OBSERVE_TOPIC, self.__onFirmwereObserve),
+            (ManagedDeviceClient.DM_FIRMWARE_DOWNLOAD_TOPIC, self.__onFirmwereDownload),
+            (ManagedDeviceClient.DM_UPDATE_TOPIC, self.__onUpdatedDevice),
+            (ManagedDeviceClient.DM_CANCEL_OBSERVE_TOPIC, self.__onFirmwereCancel),
+            (ManagedDeviceClient.DME_ACTION_TOPIC, self.__onDMEActionRequest),
         )
 
         # Add handler for supported device management commands
@@ -164,10 +164,10 @@ class ManagedClient(Client):
                 }
 
                 resolvedEvent = threading.Event()
-                self.client.publish(ManagedClient.NOTIFY_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+                self.client.publish(ManagedDeviceClient.NOTIFY_TOPIC, payload=json.dumps(message), qos=1, retain=False)
                 with self._deviceMgmtRequestsPendingLock:
                     self._deviceMgmtRequestsPending[reqId] = {
-                        "topic": ManagedClient.NOTIFY_TOPIC,
+                        "topic": ManagedDeviceClient.NOTIFY_TOPIC,
                         "message": message,
                         "event": resolvedEvent
                     }
@@ -192,16 +192,16 @@ class ManagedClient(Client):
             if self._config['org'] != "quickstart":
                 self.client.subscribe(
                     [
-                        (ManagedClient.DM_RESPONSE_TOPIC, 1),
-                        (ManagedClient.DM_OBSERVE_TOPIC, 1),
-                        (ManagedClient.DM_REBOOT_TOPIC, 1),
-                        (ManagedClient.DM_FACTORY_REESET, 1),
-                        (ManagedClient.DM_UPDATE_TOPIC, 1),
-                        (ManagedClient.DM_FIRMWARE_UPDATE_TOPIC, 1),
-                        (ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC, 1),
-                        (ManagedClient.DM_CANCEL_OBSERVE_TOPIC, 1),
+                        (ManagedDeviceClient.DM_RESPONSE_TOPIC, 1),
+                        (ManagedDeviceClient.DM_OBSERVE_TOPIC, 1),
+                        (ManagedDeviceClient.DM_REBOOT_TOPIC, 1),
+                        (ManagedDeviceClient.DM_FACTORY_REESET, 1),
+                        (ManagedDeviceClient.DM_UPDATE_TOPIC, 1),
+                        (ManagedDeviceClient.DM_FIRMWARE_UPDATE_TOPIC, 1),
+                        (ManagedDeviceClient.DM_FIRMWARE_DOWNLOAD_TOPIC, 1),
+                        (ManagedDeviceClient.DM_CANCEL_OBSERVE_TOPIC, 1),
                         (self._COMMAND_TOPIC, 1),
-                        (ManagedClient.DME_ACTION_TOPIC, 1)
+                        (ManagedDeviceClient.DME_ACTION_TOPIC, 1)
                     ]
                 )
         elif rc == 5:
@@ -246,9 +246,9 @@ class ManagedClient(Client):
                 message['d']['supports'][bundleId] = supportDeviceMgmtExtActions
 
         resolvedEvent = threading.Event()
-        self.client.publish(ManagedClient.MANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
+        self.client.publish(ManagedDeviceClient.MANAGE_TOPIC, payload=json.dumps(message), qos=1, retain=False)
         with self._deviceMgmtRequestsPendingLock:
-            self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedClient.MANAGE_TOPIC, "message": message, "event": resolvedEvent}
+            self._deviceMgmtRequestsPending[reqId] = {"topic": ManagedDeviceClient.MANAGE_TOPIC, "message": message, "event": resolvedEvent}
 
         # Register the future call back to Watson IoT Platform 2 minutes before the device lifetime expiry
         if lifetime != 0:
@@ -282,11 +282,11 @@ class ManagedClient(Client):
         }
 
         resolvedEvent = threading.Event()
-        self.client.publish(ManagedClient.UNMANAGE_TOPIC,
+        self.client.publish(ManagedDeviceClient.UNMANAGE_TOPIC,
                             payload=json.dumps(message), qos=1, retain=False)
         with self._deviceMgmtRequestsPendingLock:
             self._deviceMgmtRequestsPending[reqId] = {
-                "topic": ManagedClient.UNMANAGE_TOPIC,
+                "topic": ManagedDeviceClient.UNMANAGE_TOPIC,
                 "message": message,
                 "event": resolvedEvent
             }
@@ -322,11 +322,11 @@ class ManagedClient(Client):
         }
 
         resolvedEvent = threading.Event()
-        self.client.publish(ManagedClient.UPDATE_LOCATION_TOPIC,
+        self.client.publish(ManagedDeviceClient.UPDATE_LOCATION_TOPIC,
                             payload=json.dumps(message), qos=1, retain=False)
         with self._deviceMgmtRequestsPendingLock:
             self._deviceMgmtRequestsPending[reqId] = {
-                "topic": ManagedClient.UPDATE_LOCATION_TOPIC,
+                "topic": ManagedDeviceClient.UPDATE_LOCATION_TOPIC,
                 "message": message,
                 "event": resolvedEvent
             }
@@ -352,14 +352,14 @@ class ManagedClient(Client):
 
         resolvedEvent = threading.Event()
         self.client.publish(
-            ManagedClient.ADD_ERROR_CODE_TOPIC,
+            ManagedDeviceClient.ADD_ERROR_CODE_TOPIC,
             payload=json.dumps(message),
             qos=1,
             retain=False
         )
         with self._deviceMgmtRequestsPendingLock:
             self._deviceMgmtRequestsPending[reqId] = {
-                "topic": ManagedClient.ADD_ERROR_CODE_TOPIC,
+                "topic": ManagedDeviceClient.ADD_ERROR_CODE_TOPIC,
                 "message": message,
                 "event": resolvedEvent
             }
@@ -380,11 +380,11 @@ class ManagedClient(Client):
         }
 
         resolvedEvent = threading.Event()
-        self.client.publish(ManagedClient.CLEAR_ERROR_CODES_TOPIC,
+        self.client.publish(ManagedDeviceClient.CLEAR_ERROR_CODES_TOPIC,
                             payload=json.dumps(message), qos=1, retain=False)
         with self._deviceMgmtRequestsPendingLock:
             self._deviceMgmtRequestsPending[reqId] = {
-                "topic": ManagedClient.CLEAR_ERROR_CODES_TOPIC,
+                "topic": ManagedDeviceClient.CLEAR_ERROR_CODES_TOPIC,
                 "message": message,
                 "event": resolvedEvent
             }
@@ -410,11 +410,11 @@ class ManagedClient(Client):
         }
 
         resolvedEvent = threading.Event()
-        self.client.publish(ManagedClient.ADD_LOG_TOPIC,
+        self.client.publish(ManagedDeviceClient.ADD_LOG_TOPIC,
                             payload=json.dumps(message), qos=1, retain=False)
         with self._deviceMgmtRequestsPendingLock:
             self._deviceMgmtRequestsPending[reqId] = {
-                "topic": ManagedClient.ADD_LOG_TOPIC,
+                "topic": ManagedDeviceClient.ADD_LOG_TOPIC,
                 "message": message,
                 "event": resolvedEvent
             }
@@ -433,11 +433,11 @@ class ManagedClient(Client):
         }
 
         resolvedEvent = threading.Event()
-        self.client.publish(ManagedClient.CLEAR_LOG_TOPIC,
+        self.client.publish(ManagedDeviceClient.CLEAR_LOG_TOPIC,
                             payload=json.dumps(message), qos=1, retain=False)
         with self._deviceMgmtRequestsPendingLock:
             self._deviceMgmtRequestsPending[reqId] = {
-                "topic": ManagedClient.CLEAR_LOG_TOPIC,
+                "topic": ManagedDeviceClient.CLEAR_LOG_TOPIC,
                 "message": message,
                 "event": resolvedEvent
             }
@@ -477,32 +477,32 @@ class ManagedClient(Client):
                 return False
 
             state = {
-                ManagedClient.MANAGE_TOPIC: {
+                ManagedDeviceClient.MANAGE_TOPIC: {
                     # rc, json.dumps(request['message'])
                     'msg_succ': "[%s] Manage action completed: %s",
                     'msg_fail': "[%s] Manage action failed: %s",
                 },
-                ManagedClient.UNMANAGE_TOPIC: {
+                ManagedDeviceClient.UNMANAGE_TOPIC: {
                     'msg_succ': "[%s] Unmanage action completed: %s",
                     'msg_fail': "[%s] Unmanage action failed: %s"
                 },
-                ManagedClient.UPDATE_LOCATION_TOPIC: {
+                ManagedDeviceClient.UPDATE_LOCATION_TOPIC: {
                     'msg_succ': "[%s] Location update action completed: %s",
                     'msg_fail': "[%s] Location update action failed: %s"
                 },
-                ManagedClient.ADD_ERROR_CODE_TOPIC: {
+                ManagedDeviceClient.ADD_ERROR_CODE_TOPIC: {
                     'msg_succ': "[%s] Add error code action completed: %s",
                     'msg_fail': "[%s] Add error code action failed: %s"
                 },
-                ManagedClient.CLEAR_ERROR_CODES_TOPIC: {
+                ManagedDeviceClient.CLEAR_ERROR_CODES_TOPIC: {
                     'msg_succ': "[%s] Clear error codes action completed: %s",
                     'msg_fail': "[%s] Clear error codes action failed: %s"
                 },
-                ManagedClient.ADD_LOG_TOPIC: {
+                ManagedDeviceClient.ADD_LOG_TOPIC: {
                     'msg_succ': "[%s] Add log action completed: %s",
                     'msg_fail': "[%s] Add log action failed: %s"
                 },
-                ManagedClient.CLEAR_LOG_TOPIC: {
+                ManagedDeviceClient.CLEAR_LOG_TOPIC: {
                     'msg_succ': "[%s] Clear log action completed: %s",
                     'msg_fail': "[%s] Clear log action failed: %s"
                 }
@@ -521,9 +521,9 @@ class ManagedClient(Client):
                 else:
                     self.logger.critical(msg_fail, rc, dump_str)
 
-                if request['topic'] == ManagedClient.MANAGE_TOPIC:
+                if request['topic'] == ManagedDeviceClient.MANAGE_TOPIC:
                     self.readyForDeviceMgmt.set()
-                elif request['topic'] == ManagedClient.UNMANAGE_TOPIC:
+                elif request['topic'] == ManagedDeviceClient.UNMANAGE_TOPIC:
                     self.readyForDeviceMgmt.clear()
 
             # Now clear the event, allowing anyone that was waiting on this to proceed
@@ -534,7 +534,7 @@ class ManagedClient(Client):
     def __onRebootRequest(self, client, userdata, pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_REBOOT_TOPIC, paho_payload)
+                         ManagedDeviceClient.DM_REBOOT_TOPIC, paho_payload)
         try:
             data = json.loads(paho_payload)
             reqId = data['reqId']
@@ -546,7 +546,7 @@ class ManagedClient(Client):
     def __onFactoryResetRequest(self, client, userdata, pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_FACTORY_REESET,
+                         ManagedDeviceClient.DM_FACTORY_REESET,
                          paho_payload)
         try:
             data = json.loads(paho_payload)
@@ -572,16 +572,16 @@ class ManagedClient(Client):
     def __onFirmwereDownload(self, client, userdata, pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_FIRMWARE_DOWNLOAD_TOPIC,
+                         ManagedDeviceClient.DM_FIRMWARE_DOWNLOAD_TOPIC,
                          paho_payload)
 
         data = json.loads(paho_payload)
         reqId = data['reqId']
-        rc = ManagedClient.RESPONSECODE_ACCEPTED
+        rc = ManagedDeviceClient.RESPONSECODE_ACCEPTED
         msg = ""
 
-        if self.__firmwareUpdate.state != ManagedClient.UPDATESTATE_IDLE:
-            rc = ManagedClient.RESPONSECODE_BAD_REQUEST
+        if self.__firmwareUpdate.state != ManagedDeviceClient.UPDATESTATE_IDLE:
+            rc = ManagedDeviceClient.RESPONSECODE_BAD_REQUEST
             msg = "Cannot download as the device is not in idle state"
         thread = threading.Thread(target=self.respondDeviceAction,
                                   args=(reqId, rc, msg),
@@ -594,7 +594,7 @@ class ManagedClient(Client):
     def __onFirmwereCancel(self, client, userdata, pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_CANCEL_OBSERVE_TOPIC,
+                         ManagedDeviceClient.DM_CANCEL_OBSERVE_TOPIC,
                          paho_payload)
         data = json.loads(paho_payload)
         reqId = data['reqId']
@@ -606,7 +606,7 @@ class ManagedClient(Client):
     def __onFirmwereObserve(self, client, userdata, pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_OBSERVE_TOPIC, paho_payload)
+                         ManagedDeviceClient.DM_OBSERVE_TOPIC, paho_payload)
         data = json.loads(paho_payload)
         reqId = data['reqId']
         # TODO: Proprer validation for fields in payload
@@ -618,7 +618,7 @@ class ManagedClient(Client):
     def __onUpdatedDevice(self, client, userdata, pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_UPDATE_TOPIC, paho_payload)
+                         ManagedDeviceClient.DM_UPDATE_TOPIC, paho_payload)
 
         data = json.loads(paho_payload)
         if 'reqId' in data:
@@ -683,7 +683,7 @@ class ManagedClient(Client):
                     {
                         "field": "mgmt.firmware",
                         "value": {
-                            "state": ManagedClient.UPDATESTATE_IDLE,
+                            "state": ManagedDeviceClient.UPDATESTATE_IDLE,
                             "updateStatus": status
                         }
                     }
@@ -691,7 +691,7 @@ class ManagedClient(Client):
             }
         }
         if self.__firmwareUpdate is not None:
-            self.__firmwareUpdate.state = ManagedClient.UPDATESTATE_IDLE
+            self.__firmwareUpdate.state = ManagedDeviceClient.UPDATESTATE_IDLE
             self.__firmwareUpdate.updateStatus = status
 
         self.logger.info("Publishing  Update Status  with payload :%s",
@@ -705,14 +705,14 @@ class ManagedClient(Client):
     def __onFirmwereUpdate(self,client,userdata,pahoMessage):
         paho_payload = pahoMessage.payload.decode("utf-8")
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DM_FIRMWARE_UPDATE_TOPIC, paho_payload)
+                         ManagedDeviceClient.DM_FIRMWARE_UPDATE_TOPIC, paho_payload)
 
         data = json.loads(paho_payload)
         reqId = data['reqId']
-        rc = ManagedClient.RESPONSECODE_ACCEPTED
+        rc = ManagedDeviceClient.RESPONSECODE_ACCEPTED
         msg = ""
-        if self.__firmwareUpdate.state != ManagedClient.UPDATESTATE_DOWNLOADED:
-            rc = ManagedClient.RESPONSECODE_BAD_REQUEST
+        if self.__firmwareUpdate.state != ManagedDeviceClient.UPDATESTATE_DOWNLOADED:
+            rc = ManagedDeviceClient.RESPONSECODE_BAD_REQUEST
             msg = "Firmware is still not successfully downloaded."
         thread = threading.Thread(
             target=self.respondDeviceAction,
@@ -725,7 +725,7 @@ class ManagedClient(Client):
     def __onDMEActionRequest(self, client, userdata, pahoMessage):
         data = json.loads(pahoMessage.payload.decode("utf-8"))
         self.logger.info("Message received on topic :%s with payload %s",
-                         ManagedClient.DME_ACTION_TOPIC, data)
+                         ManagedDeviceClient.DME_ACTION_TOPIC, data)
 
         reqId = data['reqId']
         if self.dmeActionCallback:

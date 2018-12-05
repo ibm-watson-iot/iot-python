@@ -33,14 +33,9 @@ class TestDevice(testUtils.AbstractTest):
     
     @classmethod
     def setup_class(self):
-        try: 
-            deviceType = self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE]
-        except ApiException as e:
-            if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.registry.devicetypes.create(self.DEVICE_TYPE)
-            else: 
-                raise e
-        
+        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+
         self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options = {
@@ -54,12 +49,12 @@ class TestDevice(testUtils.AbstractTest):
             }
         }
         
-        self.deviceClient = ibmiotf.device.Client(self.options)
+        self.deviceClient = ibmiotf.device.DeviceClient(self.options)
 
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
         deviceInfoObj = ibmiotf.device.DeviceInfo()
         deviceInfoObj.fwVersion = 0.0
-        self.managedClient = ibmiotf.device.ManagedClient(self.options, deviceInfo=deviceInfoObj)    
+        self.managedClient = ibmiotf.device.ManagedDeviceClient(self.options, deviceInfo=deviceInfoObj)    
 
     @classmethod
     def teardown_class(self):
@@ -69,18 +64,18 @@ class TestDevice(testUtils.AbstractTest):
 
 
     def testDeviceClientInstance(self):
-        deviceCli = ibmiotf.device.Client({
+        deviceCli = ibmiotf.device.DeviceClient({
             "identity": {
                 "orgId": self.ORG_ID,  "typeId": self.registeredDevice.typeId,  "deviceId": self.registeredDevice.deviceId
             },
             "auth": { "token": self.registeredDevice.authToken }
         })
-        assert_is_instance(deviceCli , ibmiotf.device.Client)
+        assert_is_instance(deviceCli , ibmiotf.device.DeviceClient)
 
     
     @SkipTest
     def testNotAuthorizedConnect(self):
-        client = ibmiotf.device.Client({
+        client = ibmiotf.device.DeviceClient({
             "identity": {
                 "orgId": self.ORG_ID, "typeId": self.registeredDevice.typeId, "deviceId": self.registeredDevice.deviceId
             },
@@ -109,9 +104,6 @@ class TestDevice(testUtils.AbstractTest):
         assert_is_instance(deviceFWObj, ibmiotf.device.DeviceFirmware)
         print(deviceFWObj)
 
-    def testManagedClientInstance(self):
-        managedClient = ibmiotf.device.ManagedClient(self.options)
-        assert_is_instance(managedClient, ibmiotf.device.ManagedClient)
 
     def testKeepAliveIntervalMethods(self):
         assert_equals(self.deviceClient.getKeepAliveInterval(), 60)
@@ -136,7 +128,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 1883 } }
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -150,7 +142,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 80 } }
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -163,7 +155,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 80 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -176,7 +168,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 1883 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -188,7 +180,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 8883 } }
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -201,7 +193,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 8883 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -214,7 +206,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 443 } }
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -227,7 +219,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 443 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -236,7 +228,7 @@ class TestDevice(testUtils.AbstractTest):
     def testPublishEventPortInvalid(self):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 100 } }
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         deviceClient.disconnect()
     

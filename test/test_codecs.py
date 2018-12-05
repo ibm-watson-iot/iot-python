@@ -82,14 +82,17 @@ class TestDevice(testUtils.AbstractTest):
         self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options={
-            "org": self.ORG_ID,
-            "type": self.registeredDevice.typeId,
-            "id": self.registeredDevice.deviceId,
-            "auth-method": "token",
-            "auth-token": self.registeredDevice.authToken
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": self.registeredDevice.typeId,
+                "deviceId": self.registeredDevice.deviceId
+            },
+            "auth": { 
+                "token": self.registeredDevice.authToken
+            }
         }
         
-        self.deviceClient = ibmiotf.device.Client(self.options)
+        self.deviceClient = ibmiotf.device.DeviceClient(self.options)
 
     @classmethod
     def teardown_class(self):

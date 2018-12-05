@@ -42,6 +42,8 @@ setup(
     packages=[
         'ibmiotf', 
         'ibmiotf.device', 
+        'ibmiotf.gateway', 
+        'ibmiotf.application', 
         'ibmiotf.api',
         'ibmiotf.api.registry',
         'ibmiotf.api.mgmt',

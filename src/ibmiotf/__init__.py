@@ -279,10 +279,13 @@ class AbstractClient(object):
             unexpected, such as might be caused by a network error.
         
         """
+        # Clear the event to indicate we're no longer connected
+        self.connectEvent.clear()
+
         if rc != 0:
-            self.logger.error("Unexpected disconnect from the IBM Watson IoT Platform: %d" % (rc))
+            self.logger.error("Unexpected disconnect from IBM Watson IoT Platform: %d" % (rc))
         else:
-            self.logger.info("Disconnected from the IBM Watson IoT Platform")
+            self.logger.info("Disconnected from IBM Watson IoT Platform")
 
     def _onPublish(self, mqttc, obj, mid):
         """

@@ -1,0 +1,12 @@
+# mkdocs build -d ../docs
+
+site_name: IBM Watson IoT Platform
+nav:
+  - 'Home': index.md
+  - 'ibmiotf.device': device.md
+
+theme: readthedocs
+
+markdown_extensions:
+  - toc:
+      permalink: 

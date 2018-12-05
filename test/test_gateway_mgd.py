@@ -32,50 +32,50 @@ class TestGateway(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         # Register a Device
-        try: 
-            deviceType = self.setupAppClient.api.getDeviceType(self.DEVICE_TYPE)
-        except APIException as e:
-            if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.addDeviceType(self.DEVICE_TYPE)
-            else: 
-                raise e
-        self.registeredDevice = self.setupAppClient.api.registerDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+        
+        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.TYPE_ID, "deviceId": self.DEVICE_ID})
         
         # Register a Gateway
-        try: 
-            gatewayType = self.setupAppClient.api.getDeviceType(self.GATEWAY_TYPE)
-        except APIException as e:
-            if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.addDeviceType(self.GATEWAY_TYPE, classId = "Gateway")
-            else: 
-                raise e
-        self.registeredGateway = self.setupAppClient.api.registerDevice(self.GATEWAY_TYPE, self.GATEWAY_ID)
+        if self.GATEWAY_TYPE not in self.setupAppClient.api.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.GATEWAY})
+
+        self.registeredGateway = self.setupAppClient.api.registry.devices.create({"typeId": self.GATEWAY_TYPE, "deviceId": self.GATEWAY_ID})
         
         self.options={
-            "org": self.ORG_ID,
-            "type": self.registeredGateway["typeId"],
-            "id": self.registeredGateway["deviceId"],
-            "auth-method": "token",
-            "auth-token": self.registeredGateway["authToken"]
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": self.registeredGateway["typeId"],
+                "deviceId": self.registeredGateway["deviceId"]
+            },
+            "auth": {
+                "token": self.registeredGateway["authToken"]
+            }
         }
         
 
     @classmethod
     def teardown_class(self):
-        self.setupAppClient.api.deleteDevice(self.DEVICE_TYPE, self.DEVICE_ID)
-        self.setupAppClient.api.deleteDevice(self.GATEWAY_TYPE, self.GATEWAY_ID)
+        del self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
+        del self.setupAppClient.api.registry.devicetypes[self.GATEWAY_TYPE].devices[self.GATEWAY_ID]
 
 
     def testManagedGatewayInstance(self):
         managedGateway = ibmiotf.gateway.ManagedClient(self.options)
         assert_is_instance(managedGateway, ibmiotf.gateway.ManagedClient)
 
-    @raises(Exception)
     def testManagedgatewayQSException(self):
         with assert_raises(Exception)as e:
-            options={"org": "quickstart", "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"None", "auth-token":"None" }
+            options={
+                "identity": {
+                    "orgId": "quickstart", 
+                    "typeId": self.registeredGateway["typeId"], 
+                    "deviceId": self.registeredGateway["deviceId"]
+                },
+            }
             ibmiotf.gateway.managedClient(options)
-        assert_equals(e.exception, Exception)
+        assert_equals("QuickStart does not support device management", e.exception.reason)
 
     def testManagedGatewayConnectException(self):
         badOptions = {"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"token", "auth-token":"xxxxxxxxxxxxxxxxxx" }

@@ -9,9 +9,9 @@
 
 
 # Expose public API for this package
-from ibmiotf.device.client import Client
+from ibmiotf.device.client import DeviceClient
 from ibmiotf.device.command import Command
 from ibmiotf.device.config import ParseConfigFile, ParseEnvVars
 from ibmiotf.device.deviceFirmware import DeviceFirmware
 from ibmiotf.device.deviceInfo import DeviceInfo
-from ibmiotf.device.managedClient import ManagedClient
+from ibmiotf.device.managedClient import ManagedDeviceClient

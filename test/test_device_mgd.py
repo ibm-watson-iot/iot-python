@@ -1,13 +1,10 @@
 # *****************************************************************************
-# Copyright (c) 2016 IBM Corporation and other Contributors.
+# Copyright (c) 2016,2018 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Lokesh Haralakatta  - Initial Contribution
 # *****************************************************************************
 
 import ibmiotf.device
@@ -29,22 +26,20 @@ class TestDevice(testUtils.AbstractTest):
 
     @classmethod
     def setup_class(self):
-        try:
-            deviceType = self.setupAppClient.api.getDeviceType(self.DEVICE_TYPE)
-        except APIException as e:
-            if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.addDeviceType(self.DEVICE_TYPE)
-            else:
-                raise e
+        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
 
-        self.registeredDevice = self.setupAppClient.api.registerDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
 
         self.options={
-            "org": self.ORG_ID,
-            "type": self.registeredDevice["typeId"],
-            "id": self.registeredDevice["deviceId"],
-            "auth-method": "token",
-            "auth-token": self.registeredDevice["authToken"]
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": self.registeredDevice["typeId"],
+                "deviceId": self.registeredDevice["deviceId"]
+            },
+            "auth" : {
+                "token": self.registeredDevice["authToken"]
+            }
         }
 
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
@@ -55,16 +50,24 @@ class TestDevice(testUtils.AbstractTest):
     @classmethod
     def teardown_class(self):
         del self.managedClient
-        self.setupAppClient.api.deleteDevice(self.DEVICE_TYPE, self.DEVICE_ID)
+        del self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
 
 
-    @raises(Exception)
     def testManagedClientQSException(self):
-        with assert_raises(Exception)as e:
-            options={"org": "quickstart", "type": self.registeredDevice["typeId"], "id": self.registeredDevice["deviceId"],
-                                        "auth-method":"None", "auth-token":"None" }
+        with assert_raises(ConfigurationException) as e:
+            options={
+                "identity": {
+                    "orgId": "quickstart", 
+                    "typeId": self.registeredDevice["typeId"], 
+                    "deviceId": self.registeredDevice["deviceId"]
+                }
+            }
             ibmiotf.device.ManagedClient(options)
-        assert_equals(e.exception, Exception)
+        assert_equals("QuickStart does not support device management", e.exception.reason)
+
+    def testManagedClientInstance(self):
+        managedClient = ibmiotf.device.ManagedDeviceClient(self.options)
+        assert_is_instance(managedClient, ibmiotf.device.ManagedClient)
 
     @SkipTest
     def testManagedClientSetMethods(self):

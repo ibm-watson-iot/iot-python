@@ -110,32 +110,15 @@ def ParseEnvVars():
     Parse environment variables into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
 
-    **Identity**
     - `WIOTP_ORG_ID`
     - `WIOTP_TYPE_ID`
     - `WIOTP_DEVICE_ID`
-    
-    **Auth**
     - `WIOTP_AUTH_TOKEN`
-    
-    **Advanced Options**
     - `WIOTP_DOMAIN` (optional)
     - `WIOTP_MQTT_PORT` (optional)
     - `WIOTP_MQTT_TRANSPORT` (optional)
     - `WIOTP_MQTT_CAFILE` (optional)
     - `WIOTP_MQTT_CLEANSESSION` (optional)
-
-
-    ```python
-    import ibmiotf.device
-    
-    try:
-        options = ibmiotf.device.ParseEnvVars()
-        client = ibmiotf.device.Client(options)
-    except ibmiotf.ConnectionException  as e:
-        pass
-        
-    ```
     """
 
     # Identify
@@ -194,20 +177,8 @@ def ParseConfigFile(configFilePath):
     Parse a yaml configuration file into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
     
-    ```python
-    import ibmiotf.device
-    
-    try:
-        options = ibmiotf.device.ParseConfigFile(configFilePath)
-        client = ibmiotf.device.Client(options)
-    except ibmiotf.ConnectionException  as e:
-        pass
-        
-    ```
-    
     # Example Configuration File
     
-    ```yaml
     identity:
       orgId: org1id
       typeId: raspberry-pi-3
@@ -221,15 +192,7 @@ def ParseConfigFile(configFilePath):
         transport: tcp
         cleanSession: true
         caFile: /path/to/certificateAuthorityFile.pem
-    ```
     
-    **Advanced Options**
-    
-    - `options.domain` Defaults to `internetofthings.ibmcloud.com`
-    - `options.mqtt.port` Defaults to `8883`    
-    - `options.mqtt.transport` Defaults to `tcp`    
-    - `options.mqtt.caFile` Defaults to `messaging.pem` inside this module    
-    - `options.mqtt.cleanSession` Defaults to `false`
     """
     
     try:
