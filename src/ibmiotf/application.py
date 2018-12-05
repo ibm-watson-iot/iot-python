@@ -14,7 +14,7 @@ import iso8601
 import uuid
 from datetime import datetime
 
-from ibmiotf import HttpAbstractClient, ConnectionException, MissingMessageEncoderException
+from ibmiotf import ConnectionException, MissingMessageEncoderException
 from ibmiotf.codecs import jsonCodec
 import ibmiotf.api
 import paho.mqtt.client as paho
@@ -549,125 +549,6 @@ class Client(ibmiotf.AbstractClient):
             if self.appStatusCallback: self.appStatusCallback(statusMatchResult.group(1), status)
         else:
             self.logger.warning("Received application status on invalid topic: %s" % (message.topic))
-
-
-
-class HttpClient(HttpAbstractClient):
-    def __init__(self, options, logHandlers=None):
-        self._options = options
-
-        username = None
-        password = None
-
-        ### DEFAULTS ###
-        if "domain" not in self._options:
-            # Default to the domain for the public cloud offering
-            self._options['domain'] = "internetofthings.ibmcloud.com"
-        if "org" not in self._options:
-            # Default to the quickstart
-            self._options['org'] = "quickstart"
-
-        ### REQUIRED ###
-        if 'auth-key' not in self._options or self._options['auth-key'] is None:
-            # Configure for Quickstart
-            self._options['org'] = "quickstart"
-        else:
-            # Get the orgId from the apikey (format: a-orgid-randomness)
-            self._options['org'] = self._options['auth-key'].split("-")[1]
-
-            if 'auth-token' not in self._options or self._options['auth-token'] == None:
-                raise ibmiotf.ConfigurationException("Missing required property for API key based authentication: auth-token")
-
-            username = self._options['auth-key']
-            password = self._options['auth-token']
-
-        HttpAbstractClient.__init__(
-            self,
-            clientId = "a:" + self._options['org'] + ":" + str(uuid.uuid4()),
-            logHandlers = logHandlers
-        )
-        self.setMessageEncoderModule('json', jsonCodec)
-
-
-        # Create an api client if not connected in QuickStart mode
-        if self._options['org'] != "quickstart":
-            self.api = ibmiotf.api.ApiClient(self._options, self.logger)
-
-        self.orgId = self._options['org']
-        self.appId = self._options['id']
-
-    def publishEvent(self, deviceType, deviceId, event, data, dataFormat="json"):
-        """
-        This method is used by the application to publish events over HTTP(s)
-        Paramaters - deviceType, deviceId, event , data and  dataFormat by default json
-        It throws a ConnectionException with the message "Server not found" if the application is unable to reach the server
-        Otherwise it returns the HTTP status code, (200 - 207 for success)
-        """
-        self.logger.debug("Sending event %s with data %s" % (event, json.dumps(data)))
-
-        templateUrl = 'https://%s.messaging.%s/api/v0002/application/types/%s/devices/%s/events/%s'
-
-        orgid = self._options['org']
-        if orgid == 'quickstart':
-            authKey = None
-            authToken = None
-        else:
-            authKey = self._options['auth-key']
-            authToken = self._options['auth-token']
-
-        credentials = (authKey, authToken)
-        #String replacement from template to actual URL
-        intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
-
-        try:
-            self.logger.debug("Data Format = %s",(dataFormat))
-            contentType = self._getContentType(dataFormat)
-            self.logger.debug("contentType = %s",(contentType))
-            payload = self._messageEncoderModules[dataFormat].encode(data, datetime.now())
-            response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
-        except Exception as e:
-            self.logger.error("POST Failed")
-            self.logger.error(e)
-            raise ConnectionException("Server not found")
-
-        if response.status_code >= 300:
-            self.logger.warning(response.headers)
-        return response.status_code
-
-
-    def publishCommand(self, deviceType, deviceId, event, cmdData, cmdFormat="json"):
-        """
-        This method is used by the application to publish device command over HTTP(s)
-        Parameters - deviceType, deviceId, event, cmdData and cmdFormat by default JSON
-        It throws a ConnectionException with the message "Server not found" if the
-        application is unable to reach the server, Otherwise it returns the
-        HTTP status code, (200 - 207 for success)
-        """
-        self.logger.debug("Sending event %s with command format %s" % (event, json.dumps(cmdData)))
-        templateUrl = 'https://%s.messaging.%s/api/v0002/application/types/%s/devices/%s/commands/%s'
-        orgid = self._options['org']
-        if orgid == 'quickstart':
-            authKey = None
-            authToken = None
-        else:
-            authKey = self._options['auth-key']
-            authToken = self._options['auth-token']
-        credentials = (authKey, authToken)
-        #String replacement from template to actual URL
-        intermediateUrl = templateUrl % (orgid, self._options['domain'], deviceType, deviceId, event)
-        try:
-            self.logger.debug("Data Format = %s",(cmdFormat))
-            contentType = self._getContentType(cmdFormat)
-            self.logger.debug("contentType = %s",(contentType))
-            payload = self._messageEncoderModules[cmdFormat].encode(cmdData, datetime.now())
-            response = requests.post(intermediateUrl, auth = credentials, data = payload, headers = {'content-type': contentType})
-        except Exception as e:
-            self.logger.error("POST Failed")
-            self.logger.error(e)
-            raise ConnectionException("Server not found")
-        if response.status_code >= 300:
-            self.logger.warning(response.headers)
-        return response.status_code
 
 
 def ParseConfigFile(configFilePath):

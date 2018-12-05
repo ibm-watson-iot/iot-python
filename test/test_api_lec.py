@@ -37,11 +37,14 @@ class TestLEC(testUtils.AbstractTest):
     
         # Connect the device and send an event
         deviceOptions={
-            "org": os.getenv("WIOTP_ORG_ID"),
-            "type": device.typeId,
-            "id": device.deviceId,
-            "auth-method": "token",
-            "auth-token": authToken
+            "identity": {
+                "orgId": os.getenv("WIOTP_ORG_ID"),
+                "typeId": device.typeId,
+                "deviceId": device.deviceId
+            },
+            "auth": {
+                "token": authToken
+            }
         }
         
         deviceClient = ibmiotf.device.Client(deviceOptions)

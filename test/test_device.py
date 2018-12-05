@@ -66,79 +66,26 @@ class TestDevice(testUtils.AbstractTest):
         del self.deviceClient
         del self.managedClient
         self.setupAppClient.api.registry.devices.delete({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
-    
-    
-    @raises(Exception)
-    def testMissingOptions(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({})
-        assert_equal(e.exception.msg, 'Missing required property: org')
 
-    @raises(Exception)
-    def testMissingOrg(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": None, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
-                                   "auth-method": "token", "auth-token": self.registeredDevice.authToken })
-        assert_equal(e.exception.msg, 'Missing required property: org')
-
-    @raises(Exception)
-    def testMissingType(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": None, "id": self.registeredDevice.deviceId,
-                                   "auth-method": "token", "auth-token": self.registeredDevice.authToken })
-        assert_equal(e.exception.msg, 'Missing required property: type')
-
-    @raises(Exception)
-    def testMissingId(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": None,
-                                   "auth-method": "token", "auth-token": self.registeredDevice.authToken})
-        assert_equal(e.exception.msg, 'Missing required property: id')
-
-    @raises(Exception)
-    def testMissingAuthMethod(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
-                                   "auth-method": None, "auth-token": self.registeredDevice.authToken})
-        assert_equal(e.exception.msg, 'Missing required property: auth-method')
-
-    @raises(Exception)
-    def testMissingAuthToken(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
-                                   "auth-method": "token", "auth-token": None })
-        assert_equal(e.exception.msg, 'Missing required property: auth-token')
-
-    @raises(Exception)
-    def testUnSupportedAuthMethod(self):
-        with assert_raises(UnsupportedAuthenticationMethod) as e:
-            ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
-                                   "auth-method": "unsupported-method", "auth-token": self.registeredDevice.authToken})
-        assert_equal(e.exception_type,UnsupportedAuthenticationMethod)
 
     def testDeviceClientInstance(self):
-        deviceCli = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
-                                           "auth-method": "token", "auth-token": self.registeredDevice.authToken})
+        deviceCli = ibmiotf.device.Client({
+            "identity": {
+                "orgId": self.ORG_ID,  "typeId": self.registeredDevice.typeId,  "deviceId": self.registeredDevice.deviceId
+            },
+            "auth": { "token": self.registeredDevice.authToken }
+        })
         assert_is_instance(deviceCli , ibmiotf.device.Client)
 
-    @raises(Exception)
-    def testMissingConfigFile(self):
-        deviceFile="InvalidFile.out"
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.ParseConfigFile(deviceFile)
-        assert_equal(e.exception.msg, 'Error reading device configuration file')
-
-    @raises(Exception)
-    def testInvalidConfigFile(self):
-        deviceFile="nullValues.conf"
-        with assert_raises(AttributeError) as e:
-            ibmiotf.device.ParseConfigFile(deviceFile)
-        assert_equal(e.exception, AttributeError)
     
     @SkipTest
     def testNotAuthorizedConnect(self):
-        client = ibmiotf.device.Client({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
-                                              "auth-method": "token", "auth-token": "MGhUixxxxxxxxxxxx", "auth-key":"a-xxxxxx-s1tsofmoxo"})
+        client = ibmiotf.device.Client({
+            "identity": {
+                "orgId": self.ORG_ID, "typeId": self.registeredDevice.typeId, "deviceId": self.registeredDevice.deviceId
+            },
+            "auth": { "token": "MGhUixxxxxxxxxxxx" }
+        })
         with assert_raises(ConnectionException) as e:
             client.connect()
         assert_equals(e.exception, ConnectionException)
@@ -188,7 +135,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 1883
+        options["options"] = {"mqtt": { "port": 1883 } }
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -202,7 +149,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 80
+        options["options"] = {"mqtt": { "port": 80 } }
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -214,8 +161,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 80
-        options["options"]["transport"] = "websockets"
+        options["options"] = {"mqtt": { "port": 80 } }
+        options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -227,8 +174,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 1883
-        options["options"]["transport"] = "websockets"
+        options["options"] = {"mqtt": { "port": 1883 } }
+        options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -240,7 +187,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 8883
+        options["options"] = {"mqtt": { "port": 8883 } }
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -252,8 +199,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 8883
-        options["options"]["transport"] = "websockets"
+        options["options"] = {"mqtt": { "port": 8883 } }
+        options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -266,7 +213,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 443
+        options["options"] = {"mqtt": { "port": 443 } }
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -278,8 +225,8 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 443
-        options["options"]["transport"] = "websockets"
+        options["options"] = {"mqtt": { "port": 443 } }
+        options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
@@ -288,7 +235,7 @@ class TestDevice(testUtils.AbstractTest):
     @raises(Exception)
     def testPublishEventPortInvalid(self):
         options = copy.deepcopy(self.options)
-        options["options"]["port"] = 100
+        options["options"] = {"mqtt": { "port": 100 } }
         deviceClient = ibmiotf.device.Client(options)
         deviceClient.connect()
         deviceClient.disconnect()

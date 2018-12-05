@@ -58,11 +58,14 @@ class TestRegistryDevices(testUtils.AbstractTest):
         assert_true(device.deviceId in deviceType.devices)
                 
         options={
-            "org": self.ORG_ID,
-            "type": device.typeId,
-            "id": device.deviceId,
-            "auth-method": "token",
-            "auth-token": authToken
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": device.typeId,
+                "deviceId": device.deviceId
+            },
+            "auth": {
+                "token": authToken
+            }
         }
         
         deviceClient = ibmiotf.device.Client(options)

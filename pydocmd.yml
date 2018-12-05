@@ -1,6 +1,6 @@
 # To generate documentation: 
 # 
-# python setup.py sdist & pip uninstall -y ibmiotf & pip install dist/ibmiotf-0.3.5.tar.gz & pydocmd build
+# python setup.py sdist & pip uninstall -y ibmiotf & pip install dist/ibmiotf-0.5.1.tar.gz & pydocmd build
 
 site_name: "IBM Watson IoT Platform Python Library"
 
@@ -9,10 +9,8 @@ site_name: "IBM Watson IoT Platform Python Library"
 # is a tree of Python member names (modules, classes, etc.) that should be
 # documented. Higher indentation leads to smaller header size.
 generate:
-- docs/abstractClient.md:
-  - ibmiotf.AbstractClient++     # (+ to include members)
-- docs/httpAbstractClient.md:
-  - ibmiotf.HttpAbstractClient++
+- docs/abstractclient.md:
+  - ibmiotf.AbstractClient++
 - docs/message.md:
   - ibmiotf.Message++
 - docs/exceptions/connect.md:
@@ -27,20 +25,21 @@ generate:
   - ibmiotf.MissingMessageDecoderException
 - docs/exceptions/missingEncoder.md:
   - ibmiotf.MissingMessageEncoderException
-- docs/exceptions/api.md:
-  - ibmiotf.APIException
 
-- docs/device/parseConfigFile.md:
+- docs/device/parseenvvars.md:
+  - ibmiotf.device.ParseEnvVars
+- docs/device/parseconfigfile.md:
   - ibmiotf.device.ParseConfigFile
 - docs/device/client.md:
   - ibmiotf.device.Client++
-- docs/device/httpClient.md:
-  - ibmiotf.device.HttpClient++
 - docs/device/command.md:
   - ibmiotf.device.Command++
-#  - ibmiotf.device.ManagedClient++
-#  - ibmiotf.device.DeviceInfo++
-#  - ibmiotf.device.DeviceFirmware++
+- docs/device/managedclient.md:
+  - ibmiotf.device.ManagedClient++
+- docs/device/deviceinfo.md:
+  - ibmiotf.device.DeviceInfo++
+- docs/device/devicefirmware.md:
+  - ibmiotf.device.DeviceFirmware++
 
 - docs/app/client.md:
   - ibmiotf.application.Client++
@@ -52,8 +51,7 @@ generate:
 pages:
 - Home: index.md << ./README.md
 - ibmiotf:
-  - AbstractClient: docs/abstractClient.md
-  - HttpAbstractClient: docs/httpAbstractClient.md
+  - AbstractClient: docs/abstractclient.md
   - Message: docs/message.md
   - ConnectionException: docs/exceptions/connect.md
   - ConfigurationException: docs/exceptions/config.md
@@ -61,12 +59,14 @@ pages:
   - InvalidEventException: docs/exceptions/invalidEvent.md
   - MissingMessageDecoderException: docs/exceptions/missingDecoder.md
   - MissingMessageEncoderException: docs/exceptions/missingEncoder.md
-  - APIException: docs/exceptions/api.md
 - ibmiotf.device:
   - Client: docs/device/client.md
-  - HttpClient: docs/device/httpClient.md
-  - ParseConfigFile: docs/device/parseConfigFile.md
+  - ParseEnvVar: docs/device/parseenvvars.md
+  - ParseConfigFile: docs/device/parseconfigfile.md
   - Command: docs/device/command.md
+  - ManagedClient: docs/device/managedclient.md
+  - DeviceInfo: docs/device/deviceinfo.md
+  - DeviceFirmware: docs/device/devicefirmware.md
 - ibmiotf.application:
   - Client: docs/app/client.md
 

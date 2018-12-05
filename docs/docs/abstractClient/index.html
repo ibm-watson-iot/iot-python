@@ -18,8 +18,8 @@
   <script>
     // Current page data
     var mkdocs_page_name = "AbstractClient";
-    var mkdocs_page_input_path = "docs\\abstractClient.md";
-    var mkdocs_page_url = "/docs/abstractClient/";
+    var mkdocs_page_input_path = "docs\\abstractclient.md";
+    var mkdocs_page_url = "/docs/abstractclient/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -65,10 +65,6 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../httpAbstractClient/">HttpAbstractClient</a>
-                </li>
-                <li class="">
-                    
     <a class="" href="../message/">Message</a>
                 </li>
                 <li class="">
@@ -95,10 +91,6 @@
                     
     <a class="" href="../exceptions/missingEncoder/">MissingMessageEncoderException</a>
                 </li>
-                <li class="">
-                    
-    <a class="" href="../exceptions/api/">APIException</a>
-                </li>
     </ul>
 	    </li>
           
@@ -112,15 +104,27 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../device/httpClient/">HttpClient</a>
+    <a class="" href="../device/parseenvvars/">ParseEnvVar</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../device/parseConfigFile/">ParseConfigFile</a>
+    <a class="" href="../device/parseconfigfile/">ParseConfigFile</a>
                 </li>
                 <li class="">
                     
     <a class="" href="../device/command/">Command</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../device/managedclient/">ManagedClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../device/deviceinfo/">DeviceInfo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../device/devicefirmware/">DeviceFirmware</a>
                 </li>
     </ul>
 	    </li>
@@ -174,7 +178,7 @@
               
                 <h1 id="ibmiotf.AbstractClient">AbstractClient</h1>
 
-<pre><code class="python">AbstractClient(self, domain, organization, clientId, username, password, port=8883, logHandlers=None, cleanSession='true', transport='tcp')
+<pre><code class="python">AbstractClient(self, domain, organization, clientId, username, password, port=None, logHandlers=None, cleanSession=True, transport='tcp', caFile=None)
 </code></pre>
 
 <p>The underlying client object utilised for Platform connectivity over MQTT
@@ -209,13 +213,18 @@ in devices, gateways, and applications.</p>
 <li><strong>messageFormat (string)</strong>: The message format to retreive the encoder for</li>
 <li><strong>module (module)</strong>: The Python module to set as the encoder/decoder for <code>messageFormat</code></li>
 </ul>
-<h2 id="ibmiotf.AbstractClient.stats">stats</h2>
+<h2 id="ibmiotf.AbstractClient.getMessageEncoderModule">getMessageEncoderModule</h2>
 
-<pre><code class="python">AbstractClient.stats(self)
+<pre><code class="python">AbstractClient.getMessageEncoderModule(self, messageFormat)
 </code></pre>
 
-<p>I think we killed the use of this and this is dead code</p>
-<p>TODO: clean all this up .. should we really be tracking these stats within the client itself in the first place?</p>
+<p>Get the Python module that is currently defined as the encoder/decoder for a specified message format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>messageFormat (string)</strong>: The message format to retrieve the encoder for</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>Boolean</code>: The python module, or <code>None</code> if there is no codec defined for the <code>messageFormat</code></p>
 <h2 id="ibmiotf.AbstractClient.setKeepAliveInterval">setKeepAliveInterval</h2>
 
 <pre><code class="python">AbstractClient.setKeepAliveInterval(self, newKeepAliveInterval)
@@ -237,12 +246,6 @@ value used by the current active connection, as any changes to this value
 are only applied when a new connection to the Platfrom is established</p>
 <p><strong>Returns</strong></p>
 <p><code>int</code>: Number of seconds the keepalive interval is set to</p>
-<h2 id="ibmiotf.AbstractClient.disconnect">disconnect</h2>
-
-<pre><code class="python">AbstractClient.disconnect(self)
-</code></pre>
-
-<p>Disconnect the client from IBM Watson IoT Platform</p>
 <h2 id="ibmiotf.AbstractClient.connect">connect</h2>
 
 <pre><code class="python">AbstractClient.connect(self)
@@ -253,18 +256,12 @@ are only applied when a new connection to the Platfrom is established</p>
 <ul>
 <li><code>ConnectionException</code>: If there is a problem establishing the connection.</li>
 </ul>
-<h2 id="ibmiotf.AbstractClient.getMessageEncoderModule">getMessageEncoderModule</h2>
+<h2 id="ibmiotf.AbstractClient.disconnect">disconnect</h2>
 
-<pre><code class="python">AbstractClient.getMessageEncoderModule(self, messageFormat)
+<pre><code class="python">AbstractClient.disconnect(self)
 </code></pre>
 
-<p>Get the Python module that is currently defined as the encoder/decoder for a specified message format.</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>messageFormat (string)</strong>: The message format to retrieve the encoder for</li>
-</ul>
-<p><strong>Returns</strong></p>
-<p><code>Boolean</code>: The python module, or <code>None</code> if there is no codec defined for the <code>messageFormat</code></p>
+<p>Disconnect the client from IBM Watson IoT Platform</p>
               
             </div>
           </div>
@@ -272,7 +269,7 @@ are only applied when a new connection to the Platfrom is established</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../httpAbstractClient/" class="btn btn-neutral float-right" title="HttpAbstractClient">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../message/" class="btn btn-neutral float-right" title="Message">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../.." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -304,7 +301,7 @@ are only applied when a new connection to the Platfrom is established</p>
         <span><a href="../.." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../httpAbstractClient/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../message/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -18,8 +18,8 @@
   <script>
     // Current page data
     var mkdocs_page_name = "ParseConfigFile";
-    var mkdocs_page_input_path = "docs\\device\\parseConfigFile.md";
-    var mkdocs_page_url = "/docs/device/parseConfigFile/";
+    var mkdocs_page_input_path = "docs\\device\\parseconfigfile.md";
+    var mkdocs_page_url = "/docs/device/parseconfigfile/";
   </script>
   
   <script src="../../../js/jquery-2.1.1.min.js"></script>
@@ -58,11 +58,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../abstractClient/">AbstractClient</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../httpAbstractClient/">HttpAbstractClient</a>
+    <a class="" href="../../abstractclient/">AbstractClient</a>
                 </li>
                 <li class="">
                     
@@ -92,10 +88,6 @@
                     
     <a class="" href="../../exceptions/missingEncoder/">MissingMessageEncoderException</a>
                 </li>
-                <li class="">
-                    
-    <a class="" href="../../exceptions/api/">APIException</a>
-                </li>
     </ul>
 	    </li>
           
@@ -109,7 +101,7 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../httpClient/">HttpClient</a>
+    <a class="" href="../parseenvvars/">ParseEnvVar</a>
                 </li>
                 <li class=" current">
                     
@@ -121,6 +113,18 @@
                 <li class="">
                     
     <a class="" href="../command/">Command</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../managedclient/">ManagedClient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../deviceinfo/">DeviceInfo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../devicefirmware/">DeviceFirmware</a>
                 </li>
     </ul>
 	    </li>
@@ -177,10 +181,8 @@
 <pre><code class="python">ParseConfigFile(configFilePath)
 </code></pre>
 
-<p>Parse a configuration file into a Python dictionary suitable for passing to the
+<p>Parse a yaml configuration file into a Python dictionary suitable for passing to the
 device client constructor as the <code>options</code> parameter</p>
-<p>Note: Support for this is likely to be removed in favour of
-a yaml configuration configuration file as move towards the 1.0 release</p>
 <pre><code class="python">import ibmiotf.device
 
 try:
@@ -192,30 +194,29 @@ except ibmiotf.ConnectionException  as e:
 </code></pre>
 
 <p><strong>Example Configuration File</strong></p>
-<pre><code>[device]
-org=org1id
-type=raspberry-pi-3
-id=00ef08ac05
-auth-method=token
-auth-token=Ab$76s)asj8_s5
-clean-session=true/false
-domain=internetofthings.ibmcloud.com
-port=8883
+<p>device.yaml</p>
+<pre><code>identity:
+orgId: org1id
+typeId: raspberry-pi-3
+deviceId: 00ef08ac05
+auth:
+token: Ab$76s)asj8_s5
+options:
+domain: internetofthings.ibmcloud.com
+mqtt:
+    port: 8883
+    transport: tcp
+    cleanSession: true
+    caFile: /path/to/certificateAuthorityFile.pem
 </code></pre>
 
-<p><strong>Required Settings</strong></p>
+<p><strong>Advanced Options</strong></p>
 <ul>
-<li><code>org</code></li>
-<li><code>type</code></li>
-<li><code>id</code></li>
-<li><code>auth-method</code></li>
-<li><code>auth-token</code></li>
-</ul>
-<p><strong>Optional Settings</strong></p>
-<ul>
-<li><code>clean-session</code> Defaults to <code>false</code></li>
-<li><code>domain</code> Defaults to <code>internetofthings.ibmcloud.com</code></li>
-<li><code>port</code> Defaults to <code>8883</code></li>
+<li><code>options.domain</code> Defaults to <code>internetofthings.ibmcloud.com</code></li>
+<li><code>options.mqtt.port</code> Defaults to <code>8883</code></li>
+<li><code>options.mqtt.transport</code> Defaults to <code>tcp</code></li>
+<li><code>options.mqtt.caFile</code> Defaults to <code>messaging.pem</code> inside this module</li>
+<li><code>options.mqtt.cleanSession</code> Defaults to <code>false</code></li>
 </ul>
               
             </div>
@@ -227,7 +228,7 @@ port=8883
         <a href="../command/" class="btn btn-neutral float-right" title="Command">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../httpClient/" class="btn btn-neutral" title="HttpClient"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../parseenvvars/" class="btn btn-neutral" title="ParseEnvVar"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -253,7 +254,7 @@ port=8883
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../httpClient/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../parseenvvars/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
         <span style="margin-left: 15px"><a href="../command/" style="color: #fcfcfc">Next &raquo;</a></span>
