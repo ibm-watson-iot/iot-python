@@ -51,7 +51,7 @@ appCli.deviceEventCallback = myAppEventCallback
 ```python
 # Initialize the device client.
 try:
-	deviceCli = ibmiotf.device.Client(deviceOptions)
+	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
 	deviceCli.setMessageEncoderModule("custom", myCustomCodec)
 except Exception as e:
 	print(str(e))

@@ -57,7 +57,7 @@ try:
 		deviceOptions = ibmiotf.device.ParseConfigFile(args.cfg)
 	else:
 		deviceOptions = {"org": args.organization, "type": args.devicetype, "id": args.deviceid, "auth-method": authMethod, "auth-token": args.token}
-	deviceCli = ibmiotf.device.Client(deviceOptions)
+	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
 	deviceCli.commandCallback = commandProcessor
 except Exception as e:
 	print("Caught exception connecting device: %s" % str(e))

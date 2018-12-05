@@ -47,7 +47,7 @@ class TestLEC(testUtils.AbstractTest):
             }
         }
         
-        deviceClient = ibmiotf.device.Client(deviceOptions)
+        deviceClient = ibmiotf.device.DeviceClient(deviceOptions)
         deviceClient.connect()
         deviceClient.publishEvent(event="test1", msgFormat="json", data={"foo": "bar1"}, qos=1)
         deviceClient.publishEvent(event="test2", msgFormat="json", data={"foo": "bar2"}, qos=1)

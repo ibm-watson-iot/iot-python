@@ -45,7 +45,7 @@ class TestDevice(testUtils.AbstractTest):
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
         deviceInfoObj = ibmiotf.device.DeviceInfo()
         deviceInfoObj.fwVersion = 0.0
-        self.managedClient = ibmiotf.device.ManagedClient(self.options, deviceInfo=deviceInfoObj)
+        self.managedClient = ibmiotf.device.ManagedDeviceClient(self.options, deviceInfo=deviceInfoObj)
 
     @classmethod
     def teardown_class(self):
@@ -62,7 +62,7 @@ class TestDevice(testUtils.AbstractTest):
                     "deviceId": self.registeredDevice["deviceId"]
                 }
             }
-            ibmiotf.device.ManagedClient(options)
+            ibmiotf.device.ManagedDeviceClient(options)
         assert_equals("QuickStart does not support device management", e.exception.reason)
 
     def testManagedClientInstance(self):
@@ -185,14 +185,14 @@ class TestDevice(testUtils.AbstractTest):
                        {"name": "uri","value": "https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.2.1/iot_1.0-2_armhf.deb"}],
                        "devices": [{"typeId": self.registeredDevice["typeId"],"deviceId": self.registeredDevice["deviceId"]}]};
 
-        self.managedClient.__firmwareUpdate = device.DeviceFirmware('0.0','0.0','uri','verifier',device.ManagedClient.UPDATESTATE_IDLE,
-                                                      device.ManagedClient.UPDATESTATE_IDLE,'updatedDateTime')
+        self.managedClient.__firmwareUpdate = ibmiotf.device.DeviceFirmware('0.0','0.0','uri','verifier',ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE,
+                                                      ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE,'updatedDateTime')
 
         #Setup user defined firmware download call back
         self.managedClient.firmwereActionCallback = firmwareDownloadActionCB
         self.managedClient.connect()
-        self.managedClient.setState(device.ManagedClient.UPDATESTATE_IDLE)
-        self.managedClient.setUpdateStatus(device.ManagedClient.UPDATESTATE_IDLE)
+        self.managedClient.setState(ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE)
+        self.managedClient.setUpdateStatus(ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE)
 
         #Initialize device management request for firmware download
         initResult = self.apiClient.initiateDeviceManagementRequest(mgmtRequest)
@@ -209,16 +209,16 @@ class TestDevice(testUtils.AbstractTest):
         def updateHandler(client,info):
             try:
                 print("Setting ManagedClient.UPDATESTATE_IN_PROGRESS")
-                client.setUpdateStatus(device.ManagedClient.UPDATESTATE_IN_PROGRESS)
+                client.setUpdateStatus(ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IN_PROGRESS)
                 print("Setting ManagedClient.UPDATESTATE_SUCCESS")
-                threading.Timer(5,client.setUpdateStatus,[device.ManagedClient.UPDATESTATE_SUCCESS]).start()
+                threading.Timer(5,client.setUpdateStatus,[ibmiotf.device.ManagedDeviceClient.UPDATESTATE_SUCCESS]).start()
 
             except Exception :
                 print("Exception from updateHandler")
 
         def firmwareUpdateActionCB(action,devInfo):
             print("Device firmwareUpdateActionCB called")
-            self.managedClient.setUpdateStatus(device.ManagedClient.UPDATESTATE_IDLE)
+            self.managedClient.setUpdateStatus(ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE)
             print("Calling updateHandler Thread")
 
             uThread = threading.Thread(target=updateHandler,args=(self.managedClient,devInfo))
@@ -232,13 +232,13 @@ class TestDevice(testUtils.AbstractTest):
                        {"name": "uri","value": "https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.2.1/iot_1.0-2_armhf.deb"}],
                        "devices": [{"typeId": self.registeredDevice["typeId"],"deviceId": self.registeredDevice["deviceId"]}]};
 
-        self.managedClient.__firmwareUpdate = device.DeviceFirmware('0.0','0.0','uri','verifier',device.ManagedClient.UPDATESTATE_IDLE,
-                                                      device.ManagedClient.UPDATESTATE_IDLE,'updatedDateTime')
+        self.managedClient.__firmwareUpdate = ibmiotf.device.ManagedDeviceClient('0.0','0.0','uri','verifier',ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE,
+                                                      ibmiotf.device.ManagedDeviceClient.UPDATESTATE_IDLE,'updatedDateTime')
 
         #Setup user defined firmware download call back
         self.managedClient.firmwereActionCallback = firmwareUpdateActionCB
         self.managedClient.connect()
-        self.managedClient.setUpdateStatus(device.ManagedClient.UPDATESTATE_IDLE)
+        self.managedClient.setUpdateStatus(device.ManagedDeviceClient.UPDATESTATE_IDLE)
 
         #Initialize device management request for firmware download
         initResult = self.apiClient.initiateDeviceManagementRequest(mgmtRequest)

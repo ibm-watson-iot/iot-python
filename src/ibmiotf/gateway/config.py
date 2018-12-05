@@ -31,4 +31,4 @@ class GatewayClientConfig(DeviceClientConfig):
     
     @property
     def apiToken(self):
-        return self["auth"]["token"]
+        return self["auth"]["token"] if ("auth" in self) else None

@@ -51,6 +51,9 @@ class ManagedGatewayClient(ManagedDeviceClient):
         """
         Override the constructor
         """
+        if config['identity']['orgId'] == "quickstart":
+            raise ConfigurationException("QuickStart does not support device management")
+
         self._config = GatewayClientConfig(**config)
 
         AbstractClient.__init__(

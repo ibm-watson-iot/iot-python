@@ -121,7 +121,7 @@ if __name__ == "__main__":
 			options = ibmiotf.device.ParseConfigFile(configFilePath)
 		else:
 			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-		client = ibmiotf.device.Client(options)
+		client = ibmiotf.device.DeviceClient(options)
 		client.commandCallback = commandProcessor
 		client.connect()
 	except ibmiotf.ConfigurationException as e:

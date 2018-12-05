@@ -63,7 +63,7 @@ appCli.deviceEventCallback = myAppEventCallback
 # Initialize the device client.
 try:
 	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-	deviceCli = ibmiotf.device.Client(deviceOptions)
+	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
 except Exception as e:
 	print("Caught exception connecting device: %s" % str(e))
 	sys.exit()

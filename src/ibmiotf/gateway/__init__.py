@@ -10,8 +10,9 @@
 
 # Expose public API for this package
 from ibmiotf.gateway.client import GatewayClient
-from ibmiotf.gateway.messages import Command, Notification
 from ibmiotf.device.config import ParseConfigFile, ParseEnvVars
 from ibmiotf.device.deviceFirmware import DeviceFirmware
 from ibmiotf.device.deviceInfo import DeviceInfo
+from ibmiotf.gateway.managedClient import ManagedGatewayClient
+from ibmiotf.gateway.messages import Command, Notification
 

@@ -35,11 +35,11 @@ class TestGateway(testUtils.AbstractTest):
         if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
             self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
         
-        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.TYPE_ID, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         # Register a Gateway
         if self.GATEWAY_TYPE not in self.setupAppClient.api.registry.devicetypes:
-            self.setupAppClient.api.registry.devicetypes.create({"id": self.GATEWAY})
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.GATEWAY_TYPE})
 
         self.registeredGateway = self.setupAppClient.api.registry.devices.create({"typeId": self.GATEWAY_TYPE, "deviceId": self.GATEWAY_ID})
         
@@ -62,11 +62,11 @@ class TestGateway(testUtils.AbstractTest):
 
 
     def testManagedGatewayInstance(self):
-        managedGateway = ibmiotf.gateway.ManagedClient(self.options)
-        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedClient)
+        managedGateway = ibmiotf.gateway.ManagedGatewayClient(self.options)
+        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedGatewayClient)
 
     def testManagedgatewayQSException(self):
-        with assert_raises(Exception)as e:
+        with assert_raises(ConfigurationException)as e:
             options={
                 "identity": {
                     "orgId": "quickstart", 
@@ -74,22 +74,29 @@ class TestGateway(testUtils.AbstractTest):
                     "deviceId": self.registeredGateway["deviceId"]
                 },
             }
-            ibmiotf.gateway.managedClient(options)
+            ibmiotf.gateway.ManagedGatewayClient(options)
         assert_equals("QuickStart does not support device management", e.exception.reason)
 
     def testManagedGatewayConnectException(self):
-        badOptions = {"org": self.ORG_ID, "type": self.registeredGateway["typeId"], "id": self.registeredGateway["deviceId"], "auth-method":"token", "auth-token":"xxxxxxxxxxxxxxxxxx" }
+        badOptions = {
+            "identity": {
+                "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] 
+            },
+            "auth": {
+                "token": "xxxxxxxxxxxxxxxxxx"
+            }
+        }
         gatewayInfoObj = ibmiotf.gateway.DeviceInfo()
-        managedGateway = ibmiotf.gateway.ManagedClient(badOptions, deviceInfo=gatewayInfoObj)
+        managedGateway = ibmiotf.gateway.ManagedGatewayClient(badOptions, deviceInfo=gatewayInfoObj)
         with assert_raises(ConnectionException) as e:
             managedGateway.connect()
 
     @SkipTest
     def testManagedGatewayInstanceWithDeviceInfo(self):
         gatewayInfoObj = ibmiotf.gateway.DeviceInfo()
-        managedGateway = ibmiotf.gateway.ManagedClient(self.options, deviceInfo=gatewayInfoObj)
+        managedGateway = ibmiotf.gateway.ManagedGatewayClient(self.options, deviceInfo=gatewayInfoObj)
 
-        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedClient)
+        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedGatewayClient)
 
         #Connect managedGateway
         managedGateway.connect()
