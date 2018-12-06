@@ -26,10 +26,10 @@ class TestDevice(testUtils.AbstractTest):
 
     @classmethod
     def setup_class(self):
-        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
-            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+        if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
+            self.appClient.registry.devicetypes.create({"id": self.DEVICE_TYPE})
 
-        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
 
         self.options={
             "identity": {
@@ -50,7 +50,7 @@ class TestDevice(testUtils.AbstractTest):
     @classmethod
     def teardown_class(self):
         del self.managedClient
-        del self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
+        del self.appClient.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
 
 
     def testManagedClientQSException(self):
@@ -67,7 +67,7 @@ class TestDevice(testUtils.AbstractTest):
 
     def testManagedClientInstance(self):
         managedClient = ibmiotf.device.ManagedDeviceClient(self.options)
-        assert_is_instance(managedClient, ibmiotf.device.ManagedClient)
+        assert_is_instance(managedClient, ibmiotf.device.ManagedDeviceClient)
 
     @SkipTest
     def testManagedClientSetMethods(self):

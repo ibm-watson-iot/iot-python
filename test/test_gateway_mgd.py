@@ -5,9 +5,6 @@
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Lokesh Haralakatta  - Initial Contribution
 # *****************************************************************************
 
 import ibmiotf.gateway
@@ -32,16 +29,16 @@ class TestGateway(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         # Register a Device
-        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
-            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+        if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
+            self.appClient.registry.devicetypes.create({"id": self.DEVICE_TYPE})
         
-        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         # Register a Gateway
-        if self.GATEWAY_TYPE not in self.setupAppClient.api.registry.devicetypes:
-            self.setupAppClient.api.registry.devicetypes.create({"id": self.GATEWAY_TYPE})
+        if self.GATEWAY_TYPE not in self.appClient.registry.devicetypes:
+            self.appClient.registry.devicetypes.create({"id": self.GATEWAY_TYPE})
 
-        self.registeredGateway = self.setupAppClient.api.registry.devices.create({"typeId": self.GATEWAY_TYPE, "deviceId": self.GATEWAY_ID})
+        self.registeredGateway = self.appClient.registry.devices.create({"typeId": self.GATEWAY_TYPE, "deviceId": self.GATEWAY_ID})
         
         self.options={
             "identity": {
@@ -57,8 +54,8 @@ class TestGateway(testUtils.AbstractTest):
 
     @classmethod
     def teardown_class(self):
-        del self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
-        del self.setupAppClient.api.registry.devicetypes[self.GATEWAY_TYPE].devices[self.GATEWAY_ID]
+        del self.appClient.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
+        del self.appClient.registry.devicetypes[self.GATEWAY_TYPE].devices[self.GATEWAY_ID]
 
 
     def testManagedGatewayInstance(self):

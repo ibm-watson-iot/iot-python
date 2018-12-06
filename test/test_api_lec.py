@@ -54,7 +54,7 @@ class TestLEC(testUtils.AbstractTest):
         deviceClient.disconnect()
         
         # Check the LEC
-        lastEvent = self.lec.get(device, "test1")
+        lastEvent = self.appClient.lec.get(device, "test1")
         
         assert_equals(lastEvent.format, "json")
         assert_equals(lastEvent.deviceId, device.deviceId)
@@ -66,7 +66,7 @@ class TestLEC(testUtils.AbstractTest):
         assert_true("foo" in decodedPayload)
         assert_equals(decodedPayload["foo"], "bar1")
 
-        lastEvents = self.lec.getAll(device)
+        lastEvents = self.appClient.lec.getAll(device)
         
         assert_equals(len(lastEvents), 2)
         

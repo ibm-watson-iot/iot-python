@@ -33,10 +33,10 @@ class TestDevice(testUtils.AbstractTest):
     
     @classmethod
     def setup_class(self):
-        if self.DEVICE_TYPE not in self.setupAppClient.api.registry.devicetypes:
+        if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
             self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
 
-        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options = {
             "identity": {
@@ -60,7 +60,7 @@ class TestDevice(testUtils.AbstractTest):
     def teardown_class(self):
         del self.deviceClient
         del self.managedClient
-        self.setupAppClient.api.registry.devices.delete({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.appClient.registry.devices.delete({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
 
 
     def testDeviceClientInstance(self):

@@ -12,7 +12,7 @@ class TestRegistryUsage(testUtils.AbstractTest):
     # Service Status
     # =========================================================================
     def testDataTransfer(self):
-        usage = self.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today())
+        usage = self.appClient.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today())
         # {u'end': u'2018-07-01', u'average': 435696, u'start': u'2018-06-01', u'total': 13506585}
         
         assert_true("average" in usage)
@@ -33,7 +33,7 @@ class TestRegistryUsage(testUtils.AbstractTest):
     # Service Status
     # =========================================================================
     def testDetailedDataTransfer(self):
-        usage = self.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today(), True)
+        usage = self.appClient.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today(), True)
         # {u'end': u'2018-07-01', u'average': 435696, u'start': u'2018-06-01', u'total': 13506585}
         
         assert_true("average" in usage)

@@ -20,12 +20,12 @@ def deviceType(request, testUtil):
     # Chop off some characters if module name is too long
     typeId = typeId[:32]
     try:
-        deviceType = testUtil.registry.devicetypes[typeId]
+        deviceType = testUtil.appClient.registry.devicetypes[typeId]
         logger.debug("Device type %s already exists for test %s" % (typeId, request.function.__name__))
     except KeyError:
         logger.debug("Device type %s doesn't exist, creating now for test %s" % (typeId, request.function.__name__))
         try:
-            deviceType = testUtil.registry.devicetypes.create({"id": typeId})
+            deviceType = testUtil.appClient.registry.devicetypes.create({"id": typeId})
         except ApiException as ex:
             logging.exception("Unable to register device type for test %s. API response: %s" % (request.function.__name__, ex.message))
     
@@ -33,7 +33,7 @@ def deviceType(request, testUtil):
 
     # Cleanup fails because the device fixture cleanup is executed after the deviceType fixture
     # It's only possible to delete a device type if there are no devices associated with it
-    # testUtil.registry.devicetypes.delete(typeId)
+    # testUtil.appClient.registry.devicetypes.delete(typeId)
 
 @pytest.fixture
 def device(request, testUtil, deviceType, authToken):
@@ -45,20 +45,20 @@ def device(request, testUtil, deviceType, authToken):
     # Cleanup any old devices to ensure auth token will be correct for test
     if deviceId in deviceType.devices:
         logger.debug("Deleting device %s to start fresh for test %s" % (deviceUid, request.function.__name__))
-        testUtil.registry.devices.delete({"typeId": deviceType.id, "deviceId": deviceId})
+        testUtil.appClient.registry.devices.delete({"typeId": deviceType.id, "deviceId": deviceId})
 
     logger.debug("Creating device %s for test %s" % (deviceUid, request.function.__name__))
     try:
         deviceReq = DeviceCreateRequest(typeId=deviceType.id, deviceId=deviceId, authToken=authToken)
-        testUtil.registry.devices.create(deviceReq)
-        device = testUtil.registry.devices[deviceUid]
+        testUtil.appClient.registry.devices.create(deviceReq)
+        device = testUtil.appClient.registry.devices[deviceUid]
     except ApiException as ex:
         logging.exception("Unable to register device for test %s. API response: %s" % (request.function.__name__, ex.message))
 
     yield device
 
     # Cleanup device after test is finished
-    testUtil.registry.devices.delete({"typeId": deviceType.id, "deviceId": deviceId})
+    testUtil.appClient.registry.devices.delete({"typeId": deviceType.id, "deviceId": deviceId})
 
 @pytest.fixture
 def authToken():

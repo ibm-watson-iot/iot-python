@@ -49,8 +49,7 @@ setup(
         'ibmiotf.api.mgmt',
         'ibmiotf.api.status',
         'ibmiotf.api.usage',
-        'ibmiotf.api.lec',
-        'ibmiotf.codecs'
+        'ibmiotf.api.lec'
     ],
     package_data={'ibmiotf': ['*.pem']},
     scripts=[

@@ -14,7 +14,6 @@ import threading
 import paho.mqtt.client as paho
 import pytz
 from ibmiotf import AbstractClient, ConfigurationException, ConnectionException, MissingMessageEncoderException, InvalidEventException
-from ibmiotf.codecs import jsonCodec
 from ibmiotf.device.command import Command
 from ibmiotf.device.config import DeviceClientConfig
 
@@ -55,44 +54,9 @@ class DeviceClient(AbstractClient):
         # Initialize user supplied callback
         self.commandCallback = None
 
-        self.client.on_connect = self._onConnect
-
-        self.setMessageEncoderModule('json', jsonCodec)
-
-
-    def _onConnect(self, mqttc, userdata, flags, rc):
-        """
-        This is called after the client has received a CONNACK message 
-        from the broker in response to calling connect().
-        
-        See [paho.mqtt.python#on_connect](https://github.com/eclipse/paho.mqtt.python#on_connect) for more information
-        
-        # Parameters
-        mqttc (paho.mqtt.client.Client): The client instance for this callback
-        userdata: The private user data as set in `Client()` or `user_data_set()`
-        flags: response flags sent by the broker
-        rc (int): the connection result.
-        
-        The value of `rc` indicates success or not
-
-        - `0` Success
-        - `1` Refused - incorrect protocol version
-        - `2` Refused - invalid client identifier
-        - `3` Refused - server unavailable
-        - `4` Refused - bad user name or password
-        - `5` Refused - not authorised
-        """
-        
-        if rc == 0:
-            self.connectEvent.set()
-            self.logger.info("Connected successfully: %s" % (self.clientId))
-            if not self._config.isQuickstart():
-                self._subscribeToCommands()
-        elif rc == 5:
-            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
-        else:
-            self._logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
-
+        # Register startup subscription list (only for non-Quickstart)
+        if not self._config.isQuickstart():
+            self._subscriptions[self._COMMAND_TOPIC] = 1
 
     def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
         """
@@ -116,70 +80,13 @@ class DeviceClient(AbstractClient):
         topic = "iot-2/evt/{event}/fmt/{msg_format}".format(event=event, msg_format=msgFormat)
         return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
 
-    def _publishEvent(self, topic, event, msgFormat, data, qos=0, on_publish=None):
-        if not self.connectEvent.wait(timeout=10):
-            self.logger.warning("Unable to send event %s because device is not currently connected", event)
-            return False
-        else:
-            if self.logger.isEnabledFor(logging.DEBUG):
-                # The data object may not be serializable, e.g. if using a custom binary format
-                try: 
-                    dataString = json.dumps(data)
-                except:
-                    dataString = str(data)
-                self.logger.debug("Sending event %s with data %s" % (event, dataString))
-
-            if msgFormat in self._messageEncoderModules:
-                payload = self._messageEncoderModules[msgFormat].encode(data, datetime.now(pytz.timezone('UTC')))
-
-                result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
-                if result[0] == paho.MQTT_ERR_SUCCESS:
-                    # Because we are dealing with aync pub/sub model and callbacks it is possible that 
-                    # the _onPublish() callback for this mid is called before we obtain the lock to place
-                    # the mid into the _onPublishCallbacks list.
-                    #
-                    # _onPublish knows how to handle a scenario where the mid is not present (no nothing)
-                    # in this scenario we will need to invoke the callback directly here, because at the time
-                    # the callback was invoked the mid was not yet in the list.
-                    with self._messagesLock:
-                        if result[1] in self._onPublishCallbacks:
-                            # Paho callback beat this thread so call callback inline now
-                            del self._onPublishCallbacks[result[1]]
-                            if on_publish is not None:
-                                on_publish()
-                        else:
-                            # This thread beat paho callback so set up for call later
-                            self._onPublishCallbacks[result[1]] = on_publish
-                    return True
-                else:
-                    return False
-            else:
-                raise MissingMessageEncoderException(msgFormat)
-
-
-    def _subscribeToCommands(self):
-        """
-        Subscribe to commands sent to this device.
-        """
-        if self._config.isQuickstart():
-            self.logger.warning("QuickStart applications do not support commands")
-            return False
-
-        if not self.connectEvent.wait(timeout=10):
-            self.logger.warning("Unable to subscribe to commands because device is not currently connected")
-            return False
-        else:
-            self.client.subscribe(self._COMMAND_TOPIC, qos=1)
-            return True
-
-
     def _onCommand(self, client, userdata, pahoMessage):
         """
         Internal callback for device command messages, parses source device from topic string and
         passes the information on to the registered device command callback
         """
         try:
-            command = Command(pahoMessage, self._messageEncoderModules)
+            command = Command(pahoMessage, self._messageCodecs)
         except InvalidEventException as e:
             self.logger.critical(str(e))
         else:

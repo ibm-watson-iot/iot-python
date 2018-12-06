@@ -261,7 +261,7 @@ class YamlCodec(ibmiotf.MessageCodec):
 
 myConfig = ibmiotf.device.ParseConfigFile("device.yaml")
 client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
-client.setMessageEncoderModule("yaml", YamlCodec)
+client.setMessageCodec("yaml", YamlCodec)
 myData = { 'hello' : 'world', 'x' : 100}
 # Publish the same event, in both json and yaml formats:
 client.publishEvent("status", "json", myData)

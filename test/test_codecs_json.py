@@ -15,8 +15,7 @@ from nose import SkipTest
 import logging
 import testUtils
 
-from ibmiotf.codecs import jsonCodec
-from ibmiotf import InvalidEventException
+from ibmiotf import InvalidEventException, JsonCodec
 
 class DummyPahoMessage(object):
     def __init__(self, object):
@@ -39,14 +38,12 @@ class NonJsonDummyPahoMessage(object):
 class TestDevice(testUtils.AbstractTest):
     
     def testJsonObject(self):
-        codec = jsonCodec()
-        message = codec.decode(DummyPahoMessage({"foo": "bar"}))
+        message = JsonCodec.decode(DummyPahoMessage({"foo": "bar"}))
         assert_true(isinstance(message.data, dict))
         assert_equals(message.data["foo"], "bar")
         
     def testJsonString(self):
-        codec = jsonCodec()
-        message = codec.decode(DummyPahoMessage("bar"))
+        message = JsonCodec.decode(DummyPahoMessage("bar"))
         try:
             assert_true(isinstance(message.data, unicode))
         except NameError as e:
@@ -54,16 +51,13 @@ class TestDevice(testUtils.AbstractTest):
             assert_true(isinstance(message.data, str))
         
     def testJsonBoolean(self):
-        codec = jsonCodec()
-        message = codec.decode(DummyPahoMessage(False))
+        message = JsonCodec.decode(DummyPahoMessage(False))
         assert_true(isinstance(message.data, bool))
         
     def testJsonInt(self):
-        codec = jsonCodec()
-        message = codec.decode(DummyPahoMessage(1))
+        message = JsonCodec.decode(DummyPahoMessage(1))
         assert_true(isinstance(message.data, int))
     
     @raises(InvalidEventException)
     def testInvalidJson(self):
-        codec = jsonCodec()
-        message = codec.decode(NonJsonDummyPahoMessage('{sss,eee}'))
+        message = JsonCodec.decode(NonJsonDummyPahoMessage('{sss,eee}'))

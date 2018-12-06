@@ -6,8 +6,8 @@ from datetime import datetime
 from ibmiotf import ConfigurationException
 
 class ApiClient():
-    def __init__(self, options, logger=None):
-        self.__options = options
+    def __init__(self, config, logger=None):
+        self._config = config
 
         # Configure logging
         if logger is None:
@@ -16,59 +16,53 @@ class ApiClient():
 
         self.logger = logger
 
-        if self.__options.get('auth-key') is None:
+        if self._config.apiKey is None:
             raise ConfigurationException("Missing required property for API key based authentication: auth-key")
-        if self.__options.get('auth-token') is None:
+        if self._config.apiToken is None:
             raise ConfigurationException("Missing required property for API key based authentication: auth-token")
 
-        # Get the orgId from the apikey
-        self.__options['org'] = self.__options['auth-key'][2:8]
-
-        if "domain" not in self.__options:
-            # Default to the domain for the public cloud offering
-            self.__options['domain'] = "internetofthings.ibmcloud.com"
-
-        if "host" in self.__options.keys():
-            self.host = self.__options['host']
-        else:
-            self.host = self.__options['org'] + "." + self.__options['domain']
-            
-        self.credentials = (self.__options['auth-key'], self.__options['auth-token'])
-
         # To support development systems this can be overridden to False
-        self.verify = False
-        if not self.verify:
+        if not self._config.verifyCertificate:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     
     def get(self, url, parameters=None):
-        resp = requests.get("https://%s/%s" % (self.host, url), auth = self.credentials, params = parameters, verify=self.verify)
+        resp = requests.get(
+            "https://%s/%s" % (self._config.host, url), 
+            auth = self._config.credentials, 
+            params = parameters, 
+            verify=self._config.verify
+        )
         resp.encoding="utf-8"
         return resp
 
     def delete(self, url):
-        resp = requests.delete("https://%s/%s" % (self.host, url), auth = self.credentials, verify=self.verify)
+        resp = requests.delete(
+            "https://%s/%s" % (self._config.host, url), 
+            auth = self._config.credentials, 
+            verify = self._config.verify
+        )
         resp.encoding="utf-8"
         return resp
 
     def post(self, url, data):
         resp = requests.post(
-            "https://%s/%s" % (self.host, url), 
-            auth = self.credentials, 
+            "https://%s/%s" % (self._config.host, url), 
+            auth = self._config.credentials, 
             data = json.dumps(data, cls=DateTimeEncoder), 
             headers = {'content-type': 'application/json'}, 
-            verify=self.verify
+            verify = self._config.verify
         )
         resp.encoding="utf-8"
         return resp
 
     def put(self, url, data):
         resp = requests.put(
-            "https://%s/%s" % (self.host, url), 
-            auth = self.credentials, 
+            "https://%s/%s" % (self._config.host, url), 
+            auth = self._config.credentials, 
             data = json.dumps(data, cls=DateTimeEncoder), 
             headers = {'content-type': 'application/json'}, 
-            verify=self.verify
+            verify = self._config.verify
         )
         resp.encoding="utf-8"
         return resp

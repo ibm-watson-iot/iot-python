@@ -22,9 +22,52 @@ import pytz
 from datetime import datetime
 from encodings.base64_codec import base64_encode
 
+
 __version__ = "0.5.0"
 
-
+class MessageCodec(object):
+    @staticmethod
+    def encode(data=None, timestamp=None):
+        raise NotImplementedError()
+    
+    @staticmethod
+    def decode(message):
+        raise NotImplementedError()
+        
+class JsonCodec(MessageCodec):
+    """
+    This is the default encoder used by clients for all messages sent with format 
+    defined as "json".  This default can be changed by reconfiguring your client:
+      
+      deviceCli.setMessageCodec("json", myCustomEncoderModule)
+    """
+    
+    @staticmethod
+    def encode(data=None, timestamp=None):
+        """
+        Convert Python dictionary object into a UTF-8 encoded JSON string.  Timestamp information is
+        not passed into the encoded message.
+        """
+        return json.dumps(data)
+    
+    @staticmethod
+    def decode(message):
+        """
+        Convert a generic JSON message
+        
+        * The entire message is converted to JSON and treated as the message data
+        * The timestamp of the message is the time that the message is RECEIVED
+        """
+        try:
+            data = json.loads(message.payload.decode("utf-8"))
+        except ValueError as e:
+            raise InvalidEventException("Unable to parse JSON.  payload=\"%s\" error=%s" % (message.payload, str(e)))
+        
+        timestamp = datetime.now(pytz.timezone('UTC'))
+        
+        # TODO: Flatten JSON, covert into array of key/value pairs
+        return Message(data, timestamp)
+    
 class Message:
     """
     Represents an abstract message recieved over Mqtt.  All implementations of 
@@ -40,17 +83,6 @@ class Message:
     def __init__(self, data, timestamp=None):
         self.data = data
         self.timestamp = timestamp
-
-class MessageCodec(object):
-    @staticmethod
-    def encode(data=None, timestamp=None):
-        raise NotImplementedError()
-    
-    @staticmethod
-    def decode(message):
-        raise NotImplementedError()
-
-
 
 class AbstractClient(object):
     """
@@ -84,13 +116,15 @@ class AbstractClient(object):
 
         self.connectEvent = threading.Event()
 
-
         # If we are disconnected we lose all our active subscriptions.  Keep
         # track of all subscriptions so that we can internally restore all
         # subscriptions on reconnect
         # Also, create a lock for gating access to the subscription dictionary
+        # Finally, create an Event that allows us to track the first subscriptions being made
         self._subscriptions = {}
         self._subLock = threading.Lock()
+        self.subscriptionsAcknowledged = threading.Event()
+
 
         # Create a map to contain mids for onPublish() callback handling.
         # and a lock to gate access to the dictionary
@@ -171,37 +205,44 @@ class AbstractClient(object):
 
         # Attach MQTT callbacks
         self.client.on_log = self._onLog
+        self.client.on_connect = self._onConnect
         self.client.on_disconnect = self._onDisconnect
         self.client.on_publish = self._onPublish
+        self.client.on_subscribe = self._onSubscribe
+
+        # User configurable callback methods
+        self.subscriptionCallback = None
 
         # Initialize default message encoders and decoders.
-        self._messageEncoderModules = {}
+        self._messageCodecs = {}
+
+        self.setMessageCodec('json', JsonCodec)
 
 
-    def getMessageEncoderModule(self, messageFormat):
+    def getMessageCodec(self, messageFormat):
         """
-        Get the Python module that is currently defined as the encoder/decoder for a specified message format.
+        Get the Python class that is currently defined as the encoder/decoder for a specified message format.
         
         # Arguments
         messageFormat (string): The message format to retrieve the encoder for
         
         # Returns
-        Boolean: The python module, or `None` if there is no codec defined for the `messageFormat`
+        code (class): The python class, or `None` if there is no codec defined for the `messageFormat`
         """
-        if messageFormat not in self._messageEncoderModules:
+        if messageFormat not in self._messageCodecs:
             return None
-        return self._messageEncoderModules[messageFormat]
+        return self._messageCodecs[messageFormat]
 
 
-    def setMessageEncoderModule(self, messageFormat, module):
+    def setMessageCodec(self, messageFormat, codec):
         """
-        Set a Python module as the encoder/decoder for a specified message format.
+        Set a Python class as the encoder/decoder for a specified message format.
         
         # Arguments
         messageFormat (string): The message format to retreive the encoder for
-        module (module): The Python module to set as the encoder/decoder for `messageFormat`
+        codec (class): The Python class (subclass of `ibmiotf.MessageCodec` to set as the encoder/decoder for `messageFormat`
         """
-        self._messageEncoderModules[messageFormat] = module
+        self._messageCodecs[messageFormat] = codec
 
 
     def _logAndRaiseException(self, e):
@@ -265,6 +306,48 @@ class AbstractClient(object):
         self.logger.debug("%d %s" % (level, string))
 
 
+    def _onConnect(self, mqttc, userdata, flags, rc):
+        '''
+        Called when the broker responds to our connection request.
+
+        The value of rc determines success or not:
+            0: Connection successful
+            1: Connection refused - incorrect protocol version
+            2: Connection refused - invalid client identifier
+            3: Connection refused - server unavailable
+            4: Connection refused - bad username or password
+            5: Connection refused - not authorised
+            6-255: Currently unused.
+        '''
+        if rc == 0:
+            self.connectEvent.set()
+            self.logger.info("Connected successfully: %s" % (self.clientId))
+
+            # Restoring previous subscriptions
+            with self._subLock:
+                if len(self._subscriptions) > 0:
+                    for subscription in self._subscriptions:
+                        # We use the underlying mqttclient subscribe method rather than _subscribe because we are
+                        # claiming a lock on the subscriptions list and do not want anything else to modify it, 
+                        # which that method does
+                        (result, mid) = self.client.subscribe(subscription, qos=self._subscriptions[subscription])
+                        if result != paho.MQTT_ERR_SUCCESS:
+                            self._logAndRaiseException(ConnectionException("Unable to subscribe to %s" % subscription))
+                    self.logger.debug("Restored %s previous subscriptions" % len(self._subscriptions))
+        elif rc == 1:
+            self._logAndRaiseException(ConnectionException("Incorrect protocol version"))
+        elif rc == 2:
+            self._logAndRaiseException(ConnectionException("Invalid client identifier"))
+        elif rc == 3:
+            self._logAndRaiseException(ConnectionException("Server unavailable"))
+        elif rc == 4:
+            self._logAndRaiseException(ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))            )
+        elif rc == 5:
+            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+        else:
+            self._logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
+
+
     def _onDisconnect(self, mqttc, obj, rc):
         """
         Called when the client disconnects from IBM Watson IoT Platform.
@@ -287,6 +370,7 @@ class AbstractClient(object):
         else:
             self.logger.info("Disconnected from IBM Watson IoT Platform")
 
+
     def _onPublish(self, mqttc, obj, mid):
         """
         Called when a message from the client has been successfully sent to IBM Watson IoT Platform.
@@ -308,6 +392,68 @@ class AbstractClient(object):
                 # record the fact that paho callback has already come through so it can be called inline
                 # with the publish.
                 self._onPublishCallbacks[mid] = None
+
+
+    def _onSubscribe(self, mqttc, userdata, mid, grantedQoS):
+        self.subscriptionsAcknowledged.set()
+        self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
+        if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
+
+
+    def _subscribe(self, topic, qos=1):
+        if not self.connectEvent.wait(timeout=10):
+            self.logger.warning("Unable to subscribe to %s because client is in disconnected state" % (topic))
+            return 0
+        else:
+            (result, mid) = self.client.subscribe(topic, qos=qos)
+            if result == paho.MQTT_ERR_SUCCESS:
+                with self._subLock:
+                    self._subscriptions[topic] = qos
+                return mid
+            else:
+                return 0
+    
+    def _publishEvent(self, topic, event, msgFormat, data, qos=0, on_publish=None):
+        if not self.connectEvent.wait(timeout=10):
+            self.logger.warning("Unable to send event %s because client is is disconnected state", event)
+            return False
+        else:
+            if self.logger.isEnabledFor(logging.DEBUG):
+                # The data object may not be serializable, e.g. if using a custom binary format
+                try: 
+                    dataString = json.dumps(data)
+                except:
+                    dataString = str(data)
+                self.logger.debug("Sending event %s with data %s" % (event, dataString))
+
+            # Raise an exception if there is no codec for this msgFormat
+            if self.getMessageCodec(msgFormat) is None:
+                raise MissingMessageEncoderException(msgFormat)
+
+            payload = self.getMessageCodec(msgFormat).encode(data, datetime.now(pytz.timezone('UTC')))
+
+            result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
+            if result[0] == paho.MQTT_ERR_SUCCESS:
+                # Because we are dealing with aync pub/sub model and callbacks it is possible that 
+                # the _onPublish() callback for this mid is called before we obtain the lock to place
+                # the mid into the _onPublishCallbacks list.
+                #
+                # _onPublish knows how to handle a scenario where the mid is not present (no nothing)
+                # in this scenario we will need to invoke the callback directly here, because at the time
+                # the callback was invoked the mid was not yet in the list.
+                with self._messagesLock:
+                    if result[1] in self._onPublishCallbacks:
+                        # Paho callback beat this thread so call callback inline now
+                        del self._onPublishCallbacks[result[1]]
+                        if on_publish is not None:
+                            on_publish()
+                    else:
+                        # This thread beat paho callback so set up for call later
+                        self._onPublishCallbacks[result[1]] = on_publish
+                return True
+            else:
+                return False
+
 
     def setKeepAliveInterval(self, newKeepAliveInterval):
         """

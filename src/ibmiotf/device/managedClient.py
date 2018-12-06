@@ -88,7 +88,9 @@ class ManagedDeviceClient(DeviceClient):
         for message, callback in messages_callbacks:
             self.client.message_callback_add(message, callback)
 
-        self.client.on_subscribe = self.on_subscribe
+        # Initialize user supplied callback
+        self.client.on_subscribe = self._onSubscribe
+        self.client.on_disconnect = self._onDisconnect
 
         self.readyForDeviceMgmt = threading.Event()
 
@@ -113,37 +115,24 @@ class ManagedDeviceClient(DeviceClient):
 
         self.manageTimer = None
 
-    def setSerialNumber(self, serialNumber):
-        self._deviceInfo.serialNumber = serialNumber
-        return self.notifyFieldChange("deviceInfo.serialNumber", serialNumber)
+        # Register startup subscription list
+        self._subscriptions[self.DM_RESPONSE_TOPIC] = 1
+        self._subscriptions[self.DM_OBSERVE_TOPIC] = 1
+        self._subscriptions[self.DM_REBOOT_TOPIC] = 1
+        self._subscriptions[self.DM_FACTORY_REESET] = 1
+        self._subscriptions[self.DM_UPDATE_TOPIC] = 1
+        self._subscriptions[self.DM_FIRMWARE_UPDATE_TOPIC] = 1
+        self._subscriptions[self.DM_FIRMWARE_DOWNLOAD_TOPIC] = 1
+        self._subscriptions[self.DM_CANCEL_OBSERVE_TOPIC] = 1
+        self._subscriptions[self._COMMAND_TOPIC] = 1
+        self._subscriptions[self.DME_ACTION_TOPIC] = 1
 
-    def setManufacturer(self, manufacturer):
-        self._deviceInfo.serialNumber = manufacturer
-        return self.notifyFieldChange("deviceInfo.manufacturer", manufacturer)
+    def setProperty(self, name, value):
+        if name not in ["serialNumber", "manufacturer", "model", "deviceClass", "description", "fwVersion", "hwVersion", "descriptiveLocation"]:
+            raise Exception("Unsupported property name: %s" % name)
 
-    def setModel(self, model):
-        self._deviceInfo.serialNumber = model
-        return self.notifyFieldChange("deviceInfo.model", model)
-
-    def setdeviceClass(self, deviceClass):
-        self._deviceInfo.deviceClass = deviceClass
-        return self.notifyFieldChange("deviceInfo.deviceClass", deviceClass)
-
-    def setDescription(self, description):
-        self._deviceInfo.description = description
-        return self.notifyFieldChange("deviceInfo.description", description)
-
-    def setFwVersion(self, fwVersion):
-        self._deviceInfo.fwVersion = fwVersion
-        return self.notifyFieldChange("deviceInfo.fwVersion", fwVersion)
-
-    def setHwVersion(self, hwVersion):
-        self._deviceInfo.hwVersion = hwVersion
-        return self.notifyFieldChange("deviceInfo.hwVersion", hwVersion)
-
-    def setDescriptiveLocation(self, descriptiveLocation):
-        self._deviceInfo.descriptiveLocation = descriptiveLocation
-        return self.notifyFieldChange("deviceInfo.descriptiveLocation", descriptiveLocation)
+        self._deviceInfo[name] = value
+        return self.notifyFieldChange("deviceInfo.%s" % name, value)
 
     def notifyFieldChange(self, field, value):
         with self._deviceMgmtObservationsLock:
@@ -175,44 +164,11 @@ class ManagedDeviceClient(DeviceClient):
                 return resolvedEvent
             else:
                 return threading.Event().set()
-    '''
-    This is called after the client has received a CONNACK message from the broker in response to calling connect().
-    The parameter rc is an integer giving the return code:
-    0: Success
-    1: Refused - unacceptable protocol version
-    2: Refused - identifier rejected
-    3: Refused - server unavailable
-    4: Refused - bad user name or password
-    5: Refused - not authorised
-    '''
-    def on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
-            self.connectEvent.set()
-            self.logger.info("Connected successfully: %s, Port: %s" % (self.clientId,self.port))
-            if self._config['org'] != "quickstart":
-                self.client.subscribe(
-                    [
-                        (ManagedDeviceClient.DM_RESPONSE_TOPIC, 1),
-                        (ManagedDeviceClient.DM_OBSERVE_TOPIC, 1),
-                        (ManagedDeviceClient.DM_REBOOT_TOPIC, 1),
-                        (ManagedDeviceClient.DM_FACTORY_REESET, 1),
-                        (ManagedDeviceClient.DM_UPDATE_TOPIC, 1),
-                        (ManagedDeviceClient.DM_FIRMWARE_UPDATE_TOPIC, 1),
-                        (ManagedDeviceClient.DM_FIRMWARE_DOWNLOAD_TOPIC, 1),
-                        (ManagedDeviceClient.DM_CANCEL_OBSERVE_TOPIC, 1),
-                        (self._COMMAND_TOPIC, 1),
-                        (ManagedDeviceClient.DME_ACTION_TOPIC, 1)
-                    ]
-                )
-        elif rc == 5:
-            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
-        else:
-            self._logAndRaiseException(ConnectionException("Connection failed: RC= %s" % (rc)))
 
 
-    def on_subscribe(self, client, userdata, mid, granted_qos):
+    def _onSubscribe(self, mqttc, userdata, mid, granted_qos):
+        super(ManagedDeviceClient, self)._onSubscribe(mqttc, userdata, mid, granted_qos)
         # Once IoTF acknowledges the subscriptions we are able to process commands and responses from device management server
-        self.subscriptionsAcknowledged.set()
         self.manage()
 
 
