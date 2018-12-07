@@ -38,8 +38,7 @@ def deviceType(request, testUtil):
 @pytest.fixture
 def device(request, testUtil, deviceType, authToken):
     # Max length is 36, chop off some characters if test name is too long
-    deviceId = request.function.__name__
-    deviceId = deviceId[:32]
+    deviceId = str(uuid.uuid4())
     deviceUid = "d:%s:%s:%s" % (os.getenv("WIOTP_ORG_ID"), deviceType.id, deviceId)
 
     # Cleanup any old devices to ensure auth token will be correct for test
