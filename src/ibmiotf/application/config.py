@@ -66,8 +66,8 @@ class ApplicationClientConfig(defaultdict):
         if 'http' not in kwargs['options']:
             kwargs['options']['http'] = {}
 
-        if "verifyCertificate" not in kwargs['options']['http']:
-            kwargs['options']['http']['verifyCertificate'] = True
+        if "verify" not in kwargs['options']['http']:
+            kwargs['options']['http']['verify'] = True
 
         dict.__init__(self, **kwargs)
     
@@ -130,13 +130,8 @@ class ApplicationClientConfig(defaultdict):
         return self["options"]["mqtt"]["caFile"]
 
     @property
-    def verifyCertificate(self):
-        return self["options"]["http"]["verifyCertificate"]
-
-    @property
     def verify(self):
-        # Alias for self.verifyCertificate
-        return self.verifyCertificate
+        return self["options"]["http"]["verify"]
 
 
 def ParseEnvVars():
@@ -144,30 +139,31 @@ def ParseEnvVars():
     Parse environment variables into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
 
-    - `WIOTP_APP_ID`
-    - `WIOTP_API_KEY`
-    - `WIOTP_API_TOKEN`
-    - `WIOTP_DOMAIN` (optional)
-    - `WIOTP_MQTT_PORT` (optional)
-    - `WIOTP_MQTT_TRANSPORT` (optional)
-    - `WIOTP_MQTT_CAFILE` (optional)
-    - `WIOTP_MQTT_CLEANSESSION` (optional)
-    - `WIOTP_HTTP_VERIFYCERT` (optional)
+    - `WIOTP_IDENTITY_APPID`
+    - `WIOTP_AUTH_KEY`
+    - `WIOTP_AUTH_TOKEN`
+    - `WIOTP_OPTIONS_DOMAIN` (optional)
+    - `WIOTP_OPTIONS_MQTT_PORT` (optional)
+    - `WIOTP_OPTIONS_MQTT_TRANSPORT` (optional)
+    - `WIOTP_OPTIONS_MQTT_CAFILE` (optional)
+    - `WIOTP_OPTIONS_MQTT_CLEANSESSION` (optional)
+    - `WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION` (optional)
+    - `WIOTP_OPTIONS_HTTP_VERIFY` (optional)
     """
 
     # Auth
-    authKey   = os.getenv("WIOTP_API_KEY", None)
-    authToken = os.getenv("WIOTP_API_TOKEN", None)
+    authKey   = os.getenv("WIOTP_AUTH_KEY", None)
+    authToken = os.getenv("WIOTP_AUTH_TOKEN", None)
     # Identity
-    appId    = os.getenv("WIOTP_APP_ID", str(uuid.uuid4()))
+    appId    = os.getenv("WIOTP_IDENTITY_APPID", str(uuid.uuid4()))
     # Options
-    domain    = os.getenv("WIOTP_DOMAIN", None)
-    port      = os.getenv("WIOTP_MQTT_PORT", None)
-    transport = os.getenv("WIOTP_MQTT_TRANSPORT", None)
-    caFile    = os.getenv("WIOTP_MQTT_CAFILE", None)
-    sharedSubs   = os.getenv("WIOTP_MQTT_SHAREDSUBS", "False")
-    cleanSession = os.getenv("WIOTP_MQTT_CLEANSESSION", "False")
-    verifyCert = os.getenv("WIOTP_HTTP_VERIFYCERT", "True")
+    domain       = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
+    port         = os.getenv("WIOTP_OPTIONS_MQTT_PORT", None)
+    transport    = os.getenv("WIOTP_OPTIONS_MQTT_TRANSPORT", None)
+    caFile       = os.getenv("WIOTP_OPTIONS_MQTT_CAFILE", None)
+    sharedSubs   = os.getenv("WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION", "False")
+    cleanSession = os.getenv("WIOTP_OPTIONS_MQTT_CLEANSESSION", "False")
+    verifyCert   = os.getenv("WIOTP_OPTIONS_HTTP_VERIFY", "True")
     
     if port is not None:
         try:
@@ -189,7 +185,7 @@ def ParseEnvVars():
                 'cleanSession': cleanSession in ["True", "true", "1"]
             },
             "http": {
-                "verifyCertificate": verifyCert in ["True", "true", "1"]
+                "verify": verifyCert in ["True", "true", "1"]
             }
         }
     }
@@ -222,7 +218,7 @@ def ParseConfigFile(configFilePath):
         sharedSubscription: false
         caFile: /path/to/certificateAuthorityFile.pem
       http:
-        verifyCertificate: True    
+        verify: True    
     """
     
     try:

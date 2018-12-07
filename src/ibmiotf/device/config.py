@@ -110,43 +110,43 @@ def ParseEnvVars():
     Parse environment variables into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
 
-    - `WIOTP_ORG_ID`
-    - `WIOTP_TYPE_ID`
-    - `WIOTP_DEVICE_ID`
+    - `WIOTP_IDENTITY_ORGID`
+    - `WIOTP_IDENTITY_TYPEID`
+    - `WIOTP_IDENTITY_DEVICEID`
     - `WIOTP_AUTH_TOKEN`
     - `WIOTP_DOMAIN` (optional)
-    - `WIOTP_MQTT_PORT` (optional)
-    - `WIOTP_MQTT_TRANSPORT` (optional)
-    - `WIOTP_MQTT_CAFILE` (optional)
-    - `WIOTP_MQTT_CLEANSESSION` (optional)
+    - `WIOTP_OPTIONS_MQTT_PORT` (optional)
+    - `WIOTP_OPTIONS_MQTT_TRANSPORT` (optional)
+    - `WIOTP_OPTIONS_MQTT_CAFILE` (optional)
+    - `WIOTP_OPTIONS_MQTT_CLEANSESSION` (optional)
     """
 
     # Identify
-    orgId     = os.getenv("WIOTP_ORG_ID", None)
-    typeId    = os.getenv("WIOTP_TYPE_ID", None)
-    deviceId  = os.getenv("WIOTP_DEVICE_ID", None)
+    orgId     = os.getenv("WIOTP_IDENTITY_ORGID", None)
+    typeId    = os.getenv("WIOTP_IDENTITY_TYPEID", None)
+    deviceId  = os.getenv("WIOTP_IDENTITY_DEVICEID", None)
     # Auth
     authToken = os.getenv("WIOTP_AUTH_TOKEN", None)
     # Options
-    domain    = os.getenv("WIOTP_DOMAIN", None)
-    port      = os.getenv("WIOTP_MQTT_PORT", None)
-    transport = os.getenv("WIOTP_MQTT_TRANSPORT", None)
-    caFile    = os.getenv("WIOTP_MQTT_CAFILE", None)
-    cleanSession = os.getenv("WIOTP_MQTT_CLEANSESSION", "True")
+    domain       = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
+    port         = os.getenv("WIOTP_OPTIONS_MQTT_PORT", None)
+    transport    = os.getenv("WIOTP_OPTIONS_MQTT_TRANSPORT", None)
+    caFile       = os.getenv("WIOTP_OPTIONS_MQTT_CAFILE", None)
+    cleanSession = os.getenv("WIOTP_OPTIONS_MQTT_CLEANSESSION", "False")
     
     if orgId is None:
-        raise ConfigurationException("Missing WIOTP_ORG_ID environment variable")
+        raise ConfigurationException("Missing WIOTP_IDENTITY_ORGID environment variable")
     if typeId is None:
-        raise ConfigurationException("Missing WIOTP_TYPE_ID environment variable")
+        raise ConfigurationException("Missing WIOTP_IDENTITY_TYPEID environment variable")
     if deviceId is None:
-        raise ConfigurationException("Missing WIOTP_DEVICE_ID environment variable")
+        raise ConfigurationException("Missing WIOTP_IDENTITY_DEVICEID environment variable")
     if orgId is not "quickstart" and authToken is None:
         raise ConfigurationException("Missing WIOTP_AUTH_TOKEN environment variable")
     if port is not None:
         try:
             port = int(port)
         except ValueError as e:
-            raise ConfigurationException("Missing WIOTP_PORT must be a number")
+            raise ConfigurationException("WIOTP_OPTIONS_MQTT_PORT must be a number")
 
     cfg = {
         'identity': {
@@ -160,7 +160,7 @@ def ParseEnvVars():
                 'port': port,
                 'transport': transport,
                 'caFile': caFile,
-                'clean-session': cleanSession in ["True", "true", "1"]
+                'cleanSession': cleanSession in ["True", "true", "1"]
             }
         }
     }

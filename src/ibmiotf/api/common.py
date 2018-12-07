@@ -22,7 +22,7 @@ class ApiClient():
             raise ConfigurationException("Missing required property for API key based authentication: auth-token")
 
         # To support development systems this can be overridden to False
-        if not self._config.verifyCertificate:
+        if not self._config.verify:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     
