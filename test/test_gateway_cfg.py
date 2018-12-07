@@ -61,9 +61,9 @@ class TestDeviceCfg(testUtils.AbstractTest):
             ibmiotf.gateway.GatewayClient({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
                                    "auth-method": None, "auth-token": self.registeredDevice.authToken})
         assert_equal(e.exception.reason, 'Missing auth.token from configuration')
-
+    
     def testMissingConfigFile(self):
         deviceFile="InvalidFile.out"
         with assert_raises(ConfigurationException) as e:
             ibmiotf.device.ParseConfigFile(deviceFile)
-        assert_equal(e.exception.reason, "Error reading device configuration file 'InvalidFile.out' (No such file or directory)")
+        assert_equal(e.exception.reason, "Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')")

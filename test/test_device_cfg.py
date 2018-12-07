@@ -66,4 +66,4 @@ class TestDeviceCfg(testUtils.AbstractTest):
         deviceFile="InvalidFile.out"
         with assert_raises(ConfigurationException) as e:
             ibmiotf.device.ParseConfigFile(deviceFile)
-        assert_equal(e.exception.reason, "Error reading device configuration file 'InvalidFile.out' (No such file or directory)")
+        assert_equal(e.exception.reason, "Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')")

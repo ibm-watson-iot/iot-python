@@ -228,8 +228,9 @@ def ParseConfigFile(configFilePath):
     try:
         with open(configFilePath) as f:
             data = yaml.load(f)
-    except IOError as e:
-        reason = "Error reading device configuration file '%s' (%s)" % (configFilePath, e[1])
+    # In 3.3, IOError became an alias for OSError, and FileNotFoundError is a subclass of OSError
+    except (OSError, IOError) as e:
+        reason = "Error reading device configuration file '%s' (%s)" % (configFilePath, e)
         raise ConfigurationException(reason)
 
     return data
