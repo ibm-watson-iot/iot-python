@@ -51,7 +51,7 @@ class ApplicationClientConfig(defaultdict):
             kwargs['options']['domain'] = "internetofthings.ibmcloud.com"
         
         if "cleanSession" not in kwargs['options']['mqtt']:
-            kwargs['options']['mqtt']['cleanSession'] = True
+            kwargs['options']['mqtt']['cleanSession'] = False
 
         if "port" not in kwargs['options']['mqtt']:
             # None allows the underlying MQTT client to auto-select the port
@@ -166,7 +166,7 @@ def ParseEnvVars():
     transport = os.getenv("WIOTP_MQTT_TRANSPORT", None)
     caFile    = os.getenv("WIOTP_MQTT_CAFILE", None)
     sharedSubs   = os.getenv("WIOTP_MQTT_SHAREDSUBS", "False")
-    cleanSession = os.getenv("WIOTP_MQTT_CLEANSESSION", "True")
+    cleanSession = os.getenv("WIOTP_MQTT_CLEANSESSION", "False")
     verifyCert = os.getenv("WIOTP_HTTP_VERIFYCERT", "True")
     
     if port is not None:
