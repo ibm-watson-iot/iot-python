@@ -159,7 +159,7 @@ def ParseEnvVars():
     authKey   = os.getenv("WIOTP_API_KEY", None)
     authToken = os.getenv("WIOTP_API_TOKEN", None)
     # Identity
-    appId    = os.getenv("WIOTP_TYPE_ID", str(uuid.uuid4()))
+    appId    = os.getenv("WIOTP_APP_ID", str(uuid.uuid4()))
     # Options
     domain    = os.getenv("WIOTP_DOMAIN", None)
     port      = os.getenv("WIOTP_MQTT_PORT", None)
