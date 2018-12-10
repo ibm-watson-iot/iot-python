@@ -73,7 +73,7 @@ except Exception as e:
 # Connect and configuration the application
 # - subscribe to live data from the device we created, specifically to "greeting" events
 # - use the myAppEventCallback method to process events
-appCli.setMessageEncoderModule("custom", myCustomCodec)
+appCli.setMessageCodec("custom", myCustomCodec)
 appCli.connect()
 appCli.subscribeToDeviceEvents(deviceOptions['type'], deviceOptions['id'], "greeting")
 appCli.deviceEventCallback = myAppEventCallback
@@ -81,8 +81,8 @@ appCli.deviceEventCallback = myAppEventCallback
 	
 # Initialize the device client.
 try:
-	deviceCli = ibmiotf.device.Client(deviceOptions)
-	deviceCli.setMessageEncoderModule("custom", myCustomCodec)
+	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
+	deviceCli.setMessageCodec("custom", myCustomCodec)
 except Exception as e:
 	print(str(e))
 	sys.exit()

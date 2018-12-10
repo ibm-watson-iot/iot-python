@@ -10,7 +10,7 @@ class TestRegistryStatus(testUtils.AbstractTest):
     # Service Status
     # =========================================================================
     def testStatus(self):
-        status = self.status.serviceStatus()
+        status = self.appClient.status.serviceStatus()
         
         # {
         #   'us': {

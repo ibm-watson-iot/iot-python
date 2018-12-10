@@ -72,29 +72,32 @@ class TestDevice(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         try: 
-            deviceType = self.setupAppClient.api.registry.devicetypes[self.DEVICE_TYPE]
+            deviceType = self.appClient.registry.devicetypes[self.DEVICE_TYPE]
         except ApiException as e:
             if e.httpCode == 404:
-                deviceType = self.setupAppClient.api.registry.devicetypes.create(self.DEVICE_TYPE)
+                deviceType = self.appClient.registry.devicetypes.create(self.DEVICE_TYPE)
             else: 
                 raise e
         
-        self.registeredDevice = self.setupAppClient.api.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
         self.options={
-            "org": self.ORG_ID,
-            "type": self.registeredDevice.typeId,
-            "id": self.registeredDevice.deviceId,
-            "auth-method": "token",
-            "auth-token": self.registeredDevice.authToken
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": self.registeredDevice.typeId,
+                "deviceId": self.registeredDevice.deviceId
+            },
+            "auth": { 
+                "token": self.registeredDevice.authToken
+            }
         }
         
-        self.deviceClient = ibmiotf.device.Client(self.options)
+        self.deviceClient = ibmiotf.device.DeviceClient(self.options)
 
     @classmethod
     def teardown_class(self):
         del self.deviceClient
-        self.setupAppClient.api.registry.devices.delete({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
+        self.appClient.registry.devices.delete({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
     
     
     def testPublishEvent(self):
@@ -110,14 +113,14 @@ class TestDevice(testUtils.AbstractTest):
                 failed = False
             calledBack = True
 
-        self.setupAppClient.setMessageEncoderModule("custom", MyCodec)
-        self.setupAppClient.connect()
-        self.setupAppClient.subscribeToDeviceEvents(self.DEVICE_TYPE, self.DEVICE_ID, "greeting")
-        self.setupAppClient.deviceEventCallback = myAppEventCallback
+        self.appClient.setMessageCodec("custom", MyCodec)
+        self.appClient.connect()
+        self.appClient.subscribeToDeviceEvents(self.DEVICE_TYPE, self.DEVICE_ID, "greeting")
+        self.appClient.deviceEventCallback = myAppEventCallback
         
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         
-        self.deviceClient.setMessageEncoderModule("custom", MyCodec)
+        self.deviceClient.setMessageCodec("custom", MyCodec)
         self.deviceClient.connect()
         data = { 'hello' : 'world', 'x' : 100}
         self.deviceClient.publishEvent("greeting", "custom", data, qos=1)
@@ -131,4 +134,4 @@ class TestDevice(testUtils.AbstractTest):
         assert_false(failed)
         
         self.deviceClient.disconnect()
-        self.setupAppClient.disconnect()
+        self.appClient.disconnect()

@@ -1,148 +1,97 @@
+from ibmiotf.api.common import ApiException
 
-class MgmtRequest(defaultdict):
-    def getStatus(self, typeId=None, deviceId=None):
-        pass
-    
-class MgmtRequests(defaultdict):
-    
+class MgmtRequests():
+    # Device Management URLs
+    mgmtRequests                  = 'api/v0002/mgmt/requests'
+    mgmtSingleRequest             = 'api/v0002/mgmt/requests/%s'
+    mgmtRequestStatus             = 'api/v0002/mgmt/requests/%s/deviceStatus'
+    mgmtRequestSingleDeviceStatus = 'api/v0002/mgmt/requests/%s/deviceStatus/%s/%s'
+
+    def __init__(self, apiClient):
+        """
+        Device Management API
+        - Get all requests
+        - Initiate new request
+        - Delete request
+        - Get request
+        - Get request status
+        - Get request status for specific device
+        """
+        self._apiClient = apiClient
+
     def list(self):
-        pass
-    
-    def initiate(self, request):
-        pass
-    
-    def delete(self, requestId):
-        pass
-    
-    def get(self, requestId):
-        pass
-    
-    
-    def getAllDeviceManagementRequests(self):
         """
         Gets a list of device management requests, which can be in progress or recently completed.
         In case of failure it throws APIException
         """
-        mgmtRequests = ApiClient.mgmtRequests % (self.host)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieved all device management requests")
+        url = MgmtRequests.mgmtRequests
+        r = self._apiClient.get(url)
+        
+        if r.status_code == 200:
             return r.json()
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    def initiateDeviceManagementRequest(self, deviceManagementRequest):
+            raise ApiException(r)
+    
+    def initiate(self, request):
         """
         Initiates a device management request, such as reboot.
         In case of failure it throws APIException
         """
-        mgmtRequests = ApiClient.mgmtRequests % (self.host)
-        r = requests.post(mgmtRequests, auth=self.credentials, data=json.dumps(deviceManagementRequest), headers = {'content-type': 'application/json'}, verify=self.verify)
-
-        status = r.status_code
-        if status == 202:
-            self.logger.debug("The request has been accepted for processing")
+        url = MgmtRequests.mgmtRequests
+        r = self._apiClient.post(url, request)
+        
+        if r.status_code == 202:
             return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(500, "Devices don't support the requested operation", r.json())
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    def deleteDeviceManagementRequest(self, requestId):
+            raise ApiException(r)
+    
+    def delete(self, requestId):
         """
         Clears the status of a device management request.
         You can use this operation to clear the status for a completed request, or for an in-progress request which may never complete due to a problem.
         It accepts requestId (string) as parameters
         In case of failure it throws APIException
         """
-        mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
-        r = requests.delete(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-        if status == 204:
-            self.logger.debug("Request status cleared")
+        url = MgmtRequests.mgmtSingleRequest % (requestId)
+        r = self._apiClient.delete(url)
+        
+        if r.status_code == 204:
             return True
-        #403 and 404 error code needs to be added in Swagger documentation
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request Id not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    def getDeviceManagementRequest(self, requestId):
+            raise ApiException(r)
+    
+    def get(self, requestId):
         """
         Gets details of a device management request.
         It accepts requestId (string) as parameters
         In case of failure it throws APIException
         """
-        mgmtRequests = ApiClient.mgmtSingleRequest % (self.host, requestId)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieving single management request")
+        url = MgmtRequests.mgmtSingleRequest % (requestId)
+        r = self._apiClient.get(url)
+        
+        if r.status_code == 200:
             return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request Id not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    def getDeviceManagementRequestStatus(self, requestId):
+            raise ApiException(r)
+    
+    def getStatus(self, requestId, typeId=None, deviceId=None):
         """
         Get a list of device management request device statuses.
-        In case of failure it throws APIException
-        """
-        mgmtRequests = ApiClient.mgmtRequestStatus % (self.host, requestId)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieved all device management request statuses")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request status not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
-        else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
-    def getDeviceManagementRequestStatusByDevice(self, requestId, typeId, deviceId):
-        """
         Get an individual device mangaement request device status.
-        In case of failure it throws APIException
         """
-        mgmtRequests = ApiClient.mgmtRequestSingleDeviceStatus % (self.host, requestId, typeId, deviceId)
-        r = requests.get(mgmtRequests, auth=self.credentials, verify=self.verify)
-
-        status = r.status_code
-
-        if status == 200:
-            self.logger.debug("Retrieved device management request status of single device")
-            return r.json()
-        elif status == 403:
-            raise ibmiotf.APIException(403, "The authentication method is invalid or the api key used does not exist", None)
-        elif status == 404:
-            raise ibmiotf.APIException(404, "Request status not found", None)
-        elif status == 500:
-            raise ibmiotf.APIException(500, "Unexpected error", None)
+        if typeId is None or deviceId is None:
+            url = MgmtRequests.mgmtRequestStatus % (requestId)
+            r = self._apiClient.get(url)
+            
+            if r.status_code == 200:
+                return r.json()
+            else:
+                raise ApiException(r)
         else:
-            raise ibmiotf.APIException(None, "Unexpected error", None)
-
+            url = MgmtRequests.mgmtRequestSingleDeviceStatus % (requestId, typeId, deviceId)
+            r = self._apiClient.get(url)
+            
+            if r.status_code == 200:
+                return r.json()
+            else:
+                raise ApiException(r)

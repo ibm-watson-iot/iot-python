@@ -41,13 +41,15 @@ setup(
     package_dir={'': 'src'},
     packages=[
         'ibmiotf', 
+        'ibmiotf.device', 
+        'ibmiotf.gateway', 
+        'ibmiotf.application', 
         'ibmiotf.api',
         'ibmiotf.api.registry',
         'ibmiotf.api.mgmt',
         'ibmiotf.api.status',
         'ibmiotf.api.usage',
-        'ibmiotf.api.lec',
-        'ibmiotf.codecs'
+        'ibmiotf.api.lec'
     ],
     package_data={'ibmiotf': ['*.pem']},
     scripts=[
@@ -60,8 +62,9 @@ setup(
     install_requires=[
         "iso8601 >= 0.1.12",
         "pytz >= 2017.3",
+        "pyyaml >= 3.13",
         "paho-mqtt >= 1.3.1",
-        "requests >= 2.18.4",
+        "requests >= 2.19.1",
         "requests_toolbelt >= 0.8.0"
     ],
     classifiers=[

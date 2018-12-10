@@ -6,11 +6,11 @@ Sample code for a very basic appliation which publishes events and subscribes to
 Simply run to send an event to the platform:
 ```
 [me@localhost simpleDevice]$ python simpleDevice.py 
-2017-12-01 10:06:19,102   ibmiotf.device.Client      INFO    Connected successfully: d:quickstart:simpleDev:ab1fdbb3-73eb-49c9-80c9-1443740580fd
+2017-12-01 10:06:19,102   ibmiotf.device.DeviceClient      INFO    Connected successfully: d:quickstart:simpleDev:ab1fdbb3-73eb-49c9-80c9-1443740580fd
 Confirmed event 0 received by IoTF
 
-2017-12-01 10:06:20,146   ibmiotf.device.Client      INFO    Disconnected from the IBM Watson IoT Platform
-2017-12-01 10:06:20,147   ibmiotf.device.Client      INFO    Closed connection to the IBM Watson IoT Platform
+2017-12-01 10:06:20,146   ibmiotf.device.DeviceClient      INFO    Disconnected from the IBM Watson IoT Platform
+2017-12-01 10:06:20,147   ibmiotf.device.DeviceClient      INFO    Closed connection to the IBM Watson IoT Platform
 
 ```
 
@@ -32,11 +32,11 @@ clean-session=true
 
 ```
 [jon@localhost simpleDevice]$ python simpleDevice.py -c device.cfg 
-2017-12-01 10:23:36,796   ibmiotf.device.Client      INFO    Connected successfully: d:<org>:<type>:<deviceid>
+2017-12-01 10:23:36,796   ibmiotf.device.DeviceClient      INFO    Connected successfully: d:<org>:<type>:<deviceid>
 Confirmed event 0 received by IoTF
 
-2017-12-01 10:23:37,822   ibmiotf.device.Client      INFO    Disconnected from the IBM Watson IoT Platform
-2017-12-01 10:23:37,823   ibmiotf.device.Client      INFO    Closed connection to the IBM Watson IoT Platform
+2017-12-01 10:23:37,822   ibmiotf.device.DeviceClient      INFO    Disconnected from the IBM Watson IoT Platform
+2017-12-01 10:23:37,823   ibmiotf.device.DeviceClient      INFO    Closed connection to the IBM Watson IoT Platform
 
 ```
 Or to send 100 messages, 1 every two seconds:

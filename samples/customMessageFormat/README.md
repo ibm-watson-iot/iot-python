@@ -27,7 +27,7 @@ def decode(message):
 ```
 
 ## Registering the custom codec with the application client
-Using your custom message format encoder is simple.  the setMessageEncoderModule() method in both the Application and Device clients allows you to define a different module for each message format string.
+Using your custom message format encoder is simple.  the setMessageCodec() method in both the Application and Device clients allows you to define a different module for each message format string.
 
 ```python
 # Initialize the application client.
@@ -40,7 +40,7 @@ except Exception as e:
 # Connect and configuration the application
 # - subscribe to live data from the device we created, specifically to "greeting" events
 # - use the myAppEventCallback method to process events
-appCli.setMessageEncoderModule("custom", myCustomCodec)
+appCli.setMessageCodec("custom", myCustomCodec)
 appCli.connect()
 appCli.subscribeToDeviceEvents(deviceOptions['type'], deviceOptions['id'], "greeting")
 appCli.deviceEventCallback = myAppEventCallback
@@ -51,8 +51,8 @@ appCli.deviceEventCallback = myAppEventCallback
 ```python
 # Initialize the device client.
 try:
-	deviceCli = ibmiotf.device.Client(deviceOptions)
-	deviceCli.setMessageEncoderModule("custom", myCustomCodec)
+	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
+	deviceCli.setMessageCodec("custom", myCustomCodec)
 except Exception as e:
 	print(str(e))
 	sys.exit()

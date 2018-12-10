@@ -37,21 +37,24 @@ class TestLEC(testUtils.AbstractTest):
     
         # Connect the device and send an event
         deviceOptions={
-            "org": os.getenv("WIOTP_ORG_ID"),
-            "type": device.typeId,
-            "id": device.deviceId,
-            "auth-method": "token",
-            "auth-token": authToken
+            "identity": {
+                "orgId": os.getenv("WIOTP_ORG_ID"),
+                "typeId": device.typeId,
+                "deviceId": device.deviceId
+            },
+            "auth": {
+                "token": authToken
+            }
         }
         
-        deviceClient = ibmiotf.device.Client(deviceOptions)
+        deviceClient = ibmiotf.device.DeviceClient(deviceOptions)
         deviceClient.connect()
         deviceClient.publishEvent(event="test1", msgFormat="json", data={"foo": "bar1"}, qos=1)
         deviceClient.publishEvent(event="test2", msgFormat="json", data={"foo": "bar2"}, qos=1)
         deviceClient.disconnect()
         
         # Check the LEC
-        lastEvent = self.lec.get(device, "test1")
+        lastEvent = self.appClient.lec.get(device, "test1")
         
         assert_equals(lastEvent.format, "json")
         assert_equals(lastEvent.deviceId, device.deviceId)
@@ -63,7 +66,7 @@ class TestLEC(testUtils.AbstractTest):
         assert_true("foo" in decodedPayload)
         assert_equals(decodedPayload["foo"], "bar1")
 
-        lastEvents = self.lec.getAll(device)
+        lastEvents = self.appClient.lec.getAll(device)
         
         assert_equals(len(lastEvents), 2)
         

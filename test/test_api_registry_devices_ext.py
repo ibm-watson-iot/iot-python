@@ -58,14 +58,17 @@ class TestRegistryDevices(testUtils.AbstractTest):
         assert_true(device.deviceId in deviceType.devices)
                 
         options={
-            "org": self.ORG_ID,
-            "type": device.typeId,
-            "id": device.deviceId,
-            "auth-method": "token",
-            "auth-token": authToken
+            "identity": {
+                "orgId": self.ORG_ID,
+                "typeId": device.typeId,
+                "deviceId": device.deviceId
+            },
+            "auth": {
+                "token": authToken
+            }
         }
         
-        deviceClient = ibmiotf.device.Client(options)
+        deviceClient = ibmiotf.device.DeviceClient(options)
         deviceClient.connect()
         time.sleep(10)
         deviceClient.disconnect()
@@ -74,7 +77,8 @@ class TestRegistryDevices(testUtils.AbstractTest):
 
         connLogs= device.getConnectionLogs()
         
-        assert_equals(2, len(connLogs))
+        # There may be more than 2 entries due to previous connection attempts if we re-used a device ID.  But there should be at least two!
+        assert_true(len(connLogs) >= 2)
         for entry in connLogs:
             assert_true(isinstance(entry, LogEntry))
             assert_true(isinstance(entry.timestamp, datetime))

@@ -44,12 +44,7 @@ Uninstalling the module is simple.
 
 ## Documentation
 
-Documentation is generated using [pydoc-markdown](https://github.com/NiklasRosenstein/pydoc-markdown): http://ibm-watson-iot.github.io/iot-python/
-
-Please note the documentation is very much a work in progress at the moment, and is being addressed under [Issue #112](https://github.com/ibm-watson-iot/iot-python/issues/112).  Additional documentation for the library is available in Bluemix, but it's a little out of date in places:
-
--  [Application Developers](https://console.ng.bluemix.net/docs/services/IoT/applications/libraries/python.html)
--  [Device Developers](https://console.ng.bluemix.net/docs/services/IoT/devices/libraries/python.html)
+http://ibm-watson-iot.github.io/iot-python/
 
 
 ## Supported Features
@@ -67,6 +62,7 @@ Please note the documentation is very much a work in progress at the moment, and
 - **Event/Command publish**: Offers a pure HTTP client supporting messaging over HTTP in addition to the full features client that utilizes HTTP and MQTT technologies as appropriate 
 - **Data Format Support**: JSON, XML, & user-defined.
 - **Websockets**: Support device/gateway/application connectivity to Watson IoT Platform using WebSocket
+
 
 ## Unsupported Features
 - **Client side Certificate based authentication**: [Client side Certificate based authentication](https://console.ng.bluemix.net/docs/services/IoT/reference/security/RM_security.html)n
