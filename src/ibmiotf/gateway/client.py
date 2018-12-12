@@ -40,10 +40,14 @@ class GatewayClient(DeviceClient):
             clientId = self._config.clientId,
             username = self._config.username,
             password = self._config.password,
-            logHandlers = logHandlers,
-            cleanSession = self._config.cleanSession,
             port = self._config.port,
-            transport = self._config.transport
+            transport = self._config.transport,
+            cleanStart = self._config.cleanStart,
+            sessionExpiry = self._config.sessionExpiry,
+            keepAlive = self._config.keepAlive,
+            caFile = self._config.caFile,
+            logLevel = self._config.logLevel,
+            logHandlers = logHandlers
         )
 
         self.COMMAND_TOPIC = "iot-2/type/" + self._config.typeId + "/id/" + self._config.deviceId + "/cmd/+/fmt/+"

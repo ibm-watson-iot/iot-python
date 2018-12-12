@@ -1,8 +1,3 @@
-import uuid
-from ibmiotf import ConfigurationException
-
-
-
 # *****************************************************************************
 # Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
 #
@@ -15,6 +10,8 @@ from ibmiotf import ConfigurationException
 from collections import defaultdict
 import os
 import yaml
+import logging
+import uuid
 
 from ibmiotf import ConfigurationException
 
@@ -44,17 +41,16 @@ class ApplicationClientConfig(defaultdict):
         if 'options' not in kwargs:
             kwargs['options'] = {}
 
-        if 'mqtt' not in kwargs['options']:
-            kwargs['options']['mqtt'] = {}
-        
         if "domain" not in kwargs['options']:
             kwargs['options']['domain'] = "internetofthings.ibmcloud.com"
         
-        if "cleanSession" not in kwargs['options']['mqtt']:
-            kwargs['options']['mqtt']['cleanSession'] = False
+        if "logLevel" not in kwargs['options']:
+            kwargs['options']['logLevel'] = logging.INFO
 
+        if 'mqtt' not in kwargs['options']:
+            kwargs['options']['mqtt'] = {}
+        
         if "port" not in kwargs['options']['mqtt']:
-            # None allows the underlying MQTT client to auto-select the port
             kwargs['options']['mqtt']['port'] = None
         
         if "transport" not in kwargs['options']['mqtt']:
@@ -62,6 +58,18 @@ class ApplicationClientConfig(defaultdict):
 
         if "sharedSubscription" not in kwargs['options']['mqtt']:
             kwargs['options']['mqtt']['sharedSubscription'] = False
+
+        if "cleanStart" not in kwargs['options']['mqtt']:
+            kwargs['options']['mqtt']['cleanStart'] = False
+
+        if "sessionExpiry" not in kwargs['options']['mqtt']:
+            kwargs['options']['mqtt']['sessionExpiry'] = 3600
+
+        if "keepAlive" not in kwargs['options']['mqtt']:
+            kwargs['options']['mqtt']['keepAlive'] = 60
+
+        if "caFile" not in kwargs['options']['mqtt']:
+            kwargs['options']['mqtt']['caFile'] = None
 
         if 'http' not in kwargs['options']:
             kwargs['options']['http'] = {}
@@ -114,14 +122,24 @@ class ApplicationClientConfig(defaultdict):
         return self.orgId + "." + self.domain
 
     @property
+    def logLevel(self):
+        return self["options"]["logLevel"]
+
+    @property
     def port(self):
         return self["options"]["mqtt"]["port"]
     @property
     def transport(self):
         return self["options"]["mqtt"]["transport"]
     @property
-    def cleanSession(self):
-        return self["options"]["mqtt"]["cleanSession"]
+    def cleanStart(self):
+        return self["options"]["mqtt"]["cleanStart"]
+    @property
+    def sessionExpiry(self):
+        return self["options"]["mqtt"]["sessionExpiry"]
+    @property
+    def keepAlive(self):
+        return self["options"]["mqtt"]["keepAlive"]
     @property
     def sharedSubscription(self):
         return self["options"]["mqtt"]["sharedSubscription"]
@@ -143,10 +161,13 @@ def ParseEnvVars():
     - `WIOTP_AUTH_KEY`
     - `WIOTP_AUTH_TOKEN`
     - `WIOTP_OPTIONS_DOMAIN` (optional)
+    - `WIOTP_OPTIONS_LOGLEVEL` (optional)
     - `WIOTP_OPTIONS_MQTT_PORT` (optional)
     - `WIOTP_OPTIONS_MQTT_TRANSPORT` (optional)
     - `WIOTP_OPTIONS_MQTT_CAFILE` (optional)
-    - `WIOTP_OPTIONS_MQTT_CLEANSESSION` (optional)
+    - `WIOTP_OPTIONS_MQTT_CLEANSTART` (optional)
+    - `WIOTP_OPTIONS_MQTT_SESSIONEXPIRY` (optional)
+    - `WIOTP_OPTIONS_MQTT_KEEPALIVE` (optional)
     - `WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION` (optional)
     - `WIOTP_OPTIONS_HTTP_VERIFY` (optional)
     """
@@ -155,34 +176,56 @@ def ParseEnvVars():
     authKey   = os.getenv("WIOTP_AUTH_KEY", None)
     authToken = os.getenv("WIOTP_AUTH_TOKEN", None)
     # Identity
-    appId    = os.getenv("WIOTP_IDENTITY_APPID", str(uuid.uuid4()))
+    appId     = os.getenv("WIOTP_IDENTITY_APPID", str(uuid.uuid4()))
     # Options
-    domain       = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
-    port         = os.getenv("WIOTP_OPTIONS_MQTT_PORT", None)
-    transport    = os.getenv("WIOTP_OPTIONS_MQTT_TRANSPORT", None)
-    caFile       = os.getenv("WIOTP_OPTIONS_MQTT_CAFILE", None)
-    sharedSubs   = os.getenv("WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION", "False")
-    cleanSession = os.getenv("WIOTP_OPTIONS_MQTT_CLEANSESSION", "False")
-    verifyCert   = os.getenv("WIOTP_OPTIONS_HTTP_VERIFY", "True")
+    domain        = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
+    logLevel      = os.getenv("WIOTP_OPTIONS_LOGLEVEL", "info")
+    port          = os.getenv("WIOTP_OPTIONS_MQTT_PORT", None)
+    transport     = os.getenv("WIOTP_OPTIONS_MQTT_TRANSPORT", None)
+    caFile        = os.getenv("WIOTP_OPTIONS_MQTT_CAFILE", None)
+    cleanStart    = os.getenv("WIOTP_OPTIONS_MQTT_CLEANSTART", "True")
+    sessionExpiry = os.getenv("WIOTP_OPTIONS_MQTT_SESSIONEXPIRY", "3600")
+    keepAlive     = os.getenv("WIOTP_OPTIONS_MQTT_KEEPALIVE", "60")
+    sharedSubs    = os.getenv("WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION", "False")
+    verifyCert    = os.getenv("WIOTP_OPTIONS_HTTP_VERIFY", "True")
     
     if port is not None:
         try:
             port = int(port)
         except ValueError as e:
-            raise ConfigurationException("Missing WIOTP_PORT must be a number")
+            raise ConfigurationException("WIOTP_PORT must be a number")
 
+    try:
+        sessionExpiry = int(sessionExpiry)
+    except ValueError as e:
+        raise ConfigurationException("WIOTP_OPTIONS_MQTT_SESSIONEXPIRY must be a number")
+    
+    try:
+        keepAlive = int(keepAlive)
+    except ValueError as e:
+        raise ConfigurationException("WIOTP_OPTIONS_MQTT_KEEPAIVE must be a number")
+
+    if logLevel not in ["error", "warning", "info", "debug"]:
+        raise ConfigurationException("WIOTP_OPTIONS_LOGLEVEL must be one of error, warning, info, debug")  
+    else:
+        # Convert log levels from string to int (we need to upper case our strings from the config)
+        logLevel = logging.getLevelName(logLevel.upper())
+    
     cfg = {
         'identity': {
             'appId': appId
         },
         'options': {
             'domain': domain,
+            'logLevel': logLevel,
             'mqtt': {
                 'port': port,
                 'transport': transport,
-                'caFile': caFile,
+                'cleanStart': cleanStart in ["True", "true", "1"],
+                'sessionExpiry': sessionExpiry,
+                'keepAlive': keepAlive,
                 'sharedSubscription': sharedSubs in ["True", "true", "1"],
-                'cleanSession': cleanSession in ["True", "true", "1"]
+                'caFile': caFile
             },
             "http": {
                 "verify": verifyCert in ["True", "true", "1"]
@@ -211,22 +254,32 @@ def ParseConfigFile(configFilePath):
       token: Ab$76s)asj8_s5
     options:
       domain: internetofthings.ibmcloud.com
+      logLevel: error|warning|info|debug
       mqtt:
         port: 8883
         transport: tcp
-        cleanSession: true
+        cleanStart: false
+        sessionExpiry: 3600
+        keepAlive: 60
         sharedSubscription: false
         caFile: /path/to/certificateAuthorityFile.pem
       http:
-        verify: True    
+        verify: true    
     """
     
     try:
         with open(configFilePath) as f:
             data = yaml.load(f)
-    # In 3.3, IOError became an alias for OSError, and FileNotFoundError is a subclass of OSError
     except (OSError, IOError) as e:
+        # In 3.3, IOError became an alias for OSError, and FileNotFoundError is a subclass of OSError
         reason = "Error reading device configuration file '%s' (%s)" % (configFilePath, e)
         raise ConfigurationException(reason)
 
+    if "options" in data and "logLevel" in data["options"]:
+        if data['options']['logLevel'] not in ["error", "warning", "info", "debug"]:
+            raise ConfigurationException("Optional setting options.logLevel must be one of error, warning, info, debug")    
+        else:
+            # Convert log levels from string to int (we need to upper case our strings from the config)
+            data['options']['logLevel'] = logging.getLevelName(data['options']['logLevel'].upper())
+    
     return data

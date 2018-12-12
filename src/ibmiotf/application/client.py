@@ -53,7 +53,7 @@ class Client(AbstractClient):
             username = self._config.username,
             password = self._config.password,
             logHandlers = logHandlers,
-            cleanSession = self._config.cleanSession,
+            cleanStart = self._config.cleanStart,
             port = self._config.port,
             transport = self._config.transport
         )
