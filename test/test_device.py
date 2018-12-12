@@ -103,14 +103,6 @@ class TestDevice(testUtils.AbstractTest):
         deviceFWObj = ibmiotf.device.DeviceFirmware()
         assert_is_instance(deviceFWObj, ibmiotf.device.DeviceFirmware)
         print(deviceFWObj)
-
-
-    def testKeepAliveIntervalMethods(self):
-        assert_equals(self.deviceClient.getKeepAliveInterval(), 60)
-        self.deviceClient.setKeepAliveInterval(120)
-        self.deviceClient.connect()
-        assert_equals(self.deviceClient.getKeepAliveInterval(), 120)
-        self.deviceClient.disconnect()
         
     def testPublishEvent(self):
         def devPublishCallback():
