@@ -11,6 +11,7 @@ import base64
 import uuid
 import os
 import json
+import time
 
 import pytest
 from nose.tools import *
@@ -53,6 +54,9 @@ class TestLEC(testUtils.AbstractTest):
         deviceClient.publishEvent(event="test2", msgFormat="json", data={"foo": "bar2"}, qos=1)
         deviceClient.disconnect()
         
+        # Wait 30 seconds to increase likelihood that the message has been processed/cached
+        time.sleep(30)
+
         # Check the LEC
         lastEvent = self.appClient.lec.get(device, "test1")
         
