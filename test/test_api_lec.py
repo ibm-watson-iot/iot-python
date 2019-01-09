@@ -18,10 +18,11 @@ from nose.tools import *
 from nose import SkipTest
 
 import testUtils
-import ibmiotf.device
 from datetime import datetime
-from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
-from ibmiotf.api.common import ApiException
+
+from wiotp.sdk.device import DeviceClient
+from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
+from wiotp.sdk.exceptions import ApiException
 
 import logging
 logger = logging.getLogger()
@@ -39,7 +40,7 @@ class TestLEC(testUtils.AbstractTest):
         # Connect the device and send an event
         deviceOptions={
             "identity": {
-                "orgId": os.getenv("WIOTP_ORG_ID"),
+                "orgId": self.ORG_ID,
                 "typeId": device.typeId,
                 "deviceId": device.deviceId
             },
@@ -48,7 +49,7 @@ class TestLEC(testUtils.AbstractTest):
             }
         }
         
-        deviceClient = ibmiotf.device.DeviceClient(deviceOptions)
+        deviceClient = DeviceClient(deviceOptions)
         deviceClient.connect()
         deviceClient.publishEvent(event="test1", msgFormat="json", data={"foo": "bar1"}, qos=1)
         deviceClient.publishEvent(event="test2", msgFormat="json", data={"foo": "bar2"}, qos=1)

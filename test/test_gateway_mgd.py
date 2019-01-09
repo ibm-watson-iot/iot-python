@@ -7,10 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import ibmiotf.gateway
-import ibmiotf.application
+import wiotp.sdk
 import uuid
-from ibmiotf import *
 from nose.tools import *
 from nose import SkipTest
 import testUtils
@@ -59,11 +57,11 @@ class TestGateway(testUtils.AbstractTest):
 
 
     def testManagedGatewayInstance(self):
-        managedGateway = ibmiotf.gateway.ManagedGatewayClient(self.options)
-        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedGatewayClient)
+        managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(self.options)
+        assert_is_instance(managedGateway, wiotp.sdk.gateway.ManagedGatewayClient)
 
     def testManagedgatewayQSException(self):
-        with assert_raises(ConfigurationException)as e:
+        with assert_raises(wiotp.sdk.ConfigurationException)as e:
             options={
                 "identity": {
                     "orgId": "quickstart", 
@@ -71,7 +69,7 @@ class TestGateway(testUtils.AbstractTest):
                     "deviceId": self.registeredGateway["deviceId"]
                 },
             }
-            ibmiotf.gateway.ManagedGatewayClient(options)
+            wiotp.sdk.gateway.ManagedGatewayClient(options)
         assert_equals("QuickStart does not support device management", e.exception.reason)
 
     def testManagedGatewayConnectException(self):
@@ -83,17 +81,17 @@ class TestGateway(testUtils.AbstractTest):
                 "token": "xxxxxxxxxxxxxxxxxx"
             }
         }
-        gatewayInfoObj = ibmiotf.gateway.DeviceInfo()
-        managedGateway = ibmiotf.gateway.ManagedGatewayClient(badOptions, deviceInfo=gatewayInfoObj)
-        with assert_raises(ConnectionException) as e:
+        gatewayInfoObj = wiotp.sdk.gateway.DeviceInfo()
+        managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(badOptions, deviceInfo=gatewayInfoObj)
+        with assert_raises(wiotp.sdk.ConnectionException) as e:
             managedGateway.connect()
 
     @SkipTest
     def testManagedGatewayInstanceWithDeviceInfo(self):
-        gatewayInfoObj = ibmiotf.gateway.DeviceInfo()
-        managedGateway = ibmiotf.gateway.ManagedGatewayClient(self.options, deviceInfo=gatewayInfoObj)
+        gatewayInfoObj = wiotp.sdk.gateway.DeviceInfo()
+        managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(self.options, deviceInfo=gatewayInfoObj)
 
-        assert_is_instance(managedGateway, ibmiotf.gateway.ManagedGatewayClient)
+        assert_is_instance(managedGateway, wiotp.sdk.gateway.ManagedGatewayClient)
 
         #Connect managedGateway
         managedGateway.connect()

@@ -4,7 +4,7 @@ from nose import SkipTest
 
 from datetime import date, timedelta, datetime
 import testUtils
-from ibmiotf.api.usage import DayDataTransfer, DataTransferSummary
+from wiotp.sdk.api.usage import DayDataTransfer, DataTransferSummary
 
 class TestRegistryUsage(testUtils.AbstractTest):
     

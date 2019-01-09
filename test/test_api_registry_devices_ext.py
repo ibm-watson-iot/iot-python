@@ -6,9 +6,9 @@ from nose import SkipTest
 from pprint import pprint
 
 import testUtils
-import ibmiotf.device
-from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
-from ibmiotf.api.common import ApiException
+import wiotp.sdk.device
+from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
+from wiotp.sdk.exceptions import ApiException
 
 class TestRegistryDevices(testUtils.AbstractTest):
 
@@ -68,7 +68,7 @@ class TestRegistryDevices(testUtils.AbstractTest):
             }
         }
         
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         time.sleep(10)
         deviceClient.disconnect()

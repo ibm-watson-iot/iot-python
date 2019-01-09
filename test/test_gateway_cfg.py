@@ -9,20 +9,19 @@
 # *****************************************************************************
 
 from nose.tools import *
-import ibmiotf.gateway
-from ibmiotf import ConfigurationException
+import wiotp.sdk.gateway
 import testUtils
 
 class TestDeviceCfg(testUtils.AbstractTest):
 
     def testMissingOptions(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.GatewayClient({})
+        with assert_raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.gateway.GatewayClient({})
         assert_equal(e.exception.reason, 'Missing identity from configuration')
 
     def testMissingOrg(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.GatewayClient({
+        with assert_raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.gateway.GatewayClient({
                 "identity": {
                     "orgId": None, "typeId": "myType", "deviceId": "myId"
                 },
@@ -31,8 +30,8 @@ class TestDeviceCfg(testUtils.AbstractTest):
         assert_equal(e.exception.reason, 'Missing identity.orgId from configuration')
 
     def testMissingType(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.GatewayClient({
+        with assert_raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.gateway.GatewayClient({
                 "identity": {
                     "orgId": "myOrg", "typeId": None, "deviceId": "myId"
                 },
@@ -41,8 +40,8 @@ class TestDeviceCfg(testUtils.AbstractTest):
         assert_equal(e.exception.reason, 'Missing identity.typeId from configuration')
 
     def testMissingId(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.GatewayClient({
+        with assert_raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.gateway.GatewayClient({
                 "identity": {
                     "orgId": "myOrg", "typeId": "myType", "deviceId": None
                 },
@@ -51,19 +50,19 @@ class TestDeviceCfg(testUtils.AbstractTest):
         assert_equal(e.exception.reason, 'Missing identity.deviceId from configuration')
 
     def testMissingAuthToken(self):
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.gateway.GatewayClient({
+        with assert_raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.gateway.GatewayClient({
                 "identity": {
                     "orgId": "myOrg", "typeId": "myType", "deviceId": "myId"
                 },
                 "auth": { "token" : None }
             })
-            ibmiotf.gateway.GatewayClient({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
+            wiotp.sdk.gateway.GatewayClient({"org": self.ORG_ID, "type": self.registeredDevice.typeId, "id": self.registeredDevice.deviceId,
                                    "auth-method": None, "auth-token": self.registeredDevice.authToken})
         assert_equal(e.exception.reason, 'Missing auth.token from configuration')
     
     def testMissingConfigFile(self):
         deviceFile="InvalidFile.out"
-        with assert_raises(ConfigurationException) as e:
-            ibmiotf.device.ParseConfigFile(deviceFile)
+        with assert_raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.device.ParseConfigFile(deviceFile)
         assert_equal(e.exception.reason, "Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')")

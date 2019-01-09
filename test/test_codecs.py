@@ -5,25 +5,23 @@
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Lokesh Haralakatta  - Initial Contribution
 # *****************************************************************************
 
 import copy
 
-from ibmiotf import MessageCodec
-import ibmiotf.device
-import ibmiotf.application
+import wiotp.sdk
+
+import pytz
+from datetime import datetime
+import time
 import uuid
 import os
-from ibmiotf import *
 from nose.tools import *
 from nose import SkipTest
 import logging
 import testUtils
 
-class MyCodec(ibmiotf.MessageCodec):
+class MyCodec(wiotp.sdk.MessageCodec):
     @staticmethod
     def encode(data=None, timestamp=None):
         '''
@@ -59,7 +57,7 @@ class MyCodec(ibmiotf.MessageCodec):
         
         timestamp = datetime.now(pytz.timezone('UTC'))
         
-        return Message(data, timestamp)
+        return wiotp.sdk.Message(data, timestamp)
 
 class TestDevice(testUtils.AbstractTest):
     registeredDevice = None
@@ -71,13 +69,8 @@ class TestDevice(testUtils.AbstractTest):
     
     @classmethod
     def setup_class(self):
-        try: 
-            deviceType = self.appClient.registry.devicetypes[self.DEVICE_TYPE]
-        except ApiException as e:
-            if e.httpCode == 404:
-                deviceType = self.appClient.registry.devicetypes.create(self.DEVICE_TYPE)
-            else: 
-                raise e
+        if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
+            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
         
         self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
@@ -92,7 +85,7 @@ class TestDevice(testUtils.AbstractTest):
             }
         }
         
-        self.deviceClient = ibmiotf.device.DeviceClient(self.options)
+        self.deviceClient = wiotp.sdk.device.DeviceClient(self.options)
 
     @classmethod
     def teardown_class(self):

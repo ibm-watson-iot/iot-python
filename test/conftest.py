@@ -4,8 +4,8 @@ import uuid
 
 from testUtils import AbstractTest
 
-from ibmiotf.api.common import ApiException
-from ibmiotf.api.registry.devices import DeviceCreateRequest
+from wiotp.sdk.exceptions import ApiException
+from wiotp.sdk.api.registry.devices import DeviceCreateRequest
 
 import logging
 logger = logging.getLogger()
@@ -39,7 +39,7 @@ def deviceType(request, testUtil):
 def device(request, testUtil, deviceType, authToken):
     # Max length is 36, chop off some characters if test name is too long
     deviceId = str(uuid.uuid4())
-    deviceUid = "d:%s:%s:%s" % (os.getenv("WIOTP_ORG_ID"), deviceType.id, deviceId)
+    deviceUid = "d:%s:%s:%s" % (testUtil.ORG_ID, deviceType.id, deviceId)
 
     # Cleanup any old devices to ensure auth token will be correct for test
     if deviceId in deviceType.devices:

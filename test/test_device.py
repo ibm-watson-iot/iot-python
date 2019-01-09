@@ -12,12 +12,11 @@
 
 import copy
 
-import ibmiotf.device
-import ibmiotf.application
+import wiotp.sdk.device
+import wiotp.sdk.application
+from wiotp.sdk.exceptions import ApiException
 import uuid
 import os
-from ibmiotf import *
-from ibmiotf.api.common import ApiException
 from nose.tools import *
 from nose import SkipTest
 import logging
@@ -49,12 +48,12 @@ class TestDevice(testUtils.AbstractTest):
             }
         }
         
-        self.deviceClient = ibmiotf.device.DeviceClient(self.options)
+        self.deviceClient = wiotp.sdk.device.DeviceClient(self.options)
 
         #Create default DeviceInfo Instance and associate with ManagedClient Instance
-        deviceInfoObj = ibmiotf.device.DeviceInfo()
+        deviceInfoObj = wiotp.sdk.device.DeviceInfo()
         deviceInfoObj.fwVersion = 0.0
-        self.managedClient = ibmiotf.device.ManagedDeviceClient(self.options, deviceInfo=deviceInfoObj)    
+        self.managedClient = wiotp.sdk.device.ManagedDeviceClient(self.options, deviceInfo=deviceInfoObj)    
 
     @classmethod
     def teardown_class(self):
@@ -64,18 +63,18 @@ class TestDevice(testUtils.AbstractTest):
 
 
     def testDeviceClientInstance(self):
-        deviceCli = ibmiotf.device.DeviceClient({
+        deviceCli = wiotp.sdk.device.DeviceClient({
             "identity": {
                 "orgId": self.ORG_ID,  "typeId": self.registeredDevice.typeId,  "deviceId": self.registeredDevice.deviceId
             },
             "auth": { "token": self.registeredDevice.authToken }
         })
-        assert_is_instance(deviceCli , ibmiotf.device.DeviceClient)
+        assert_is_instance(deviceCli , wiotp.sdk.device.DeviceClient)
 
     
     @SkipTest
     def testNotAuthorizedConnect(self):
-        client = ibmiotf.device.DeviceClient({
+        client = wiotp.sdk.device.DeviceClient({
             "identity": {
                 "orgId": self.ORG_ID, "typeId": self.registeredDevice.typeId, "deviceId": self.registeredDevice.deviceId
             },
@@ -95,13 +94,13 @@ class TestDevice(testUtils.AbstractTest):
         assert_equals(e.exception, MissingMessageEncoderException)
     
     def testDeviceInfoInstance(self):
-        deviceInfoObj = ibmiotf.device.DeviceInfo()
-        assert_is_instance(deviceInfoObj, ibmiotf.device.DeviceInfo)
+        deviceInfoObj = wiotp.sdk.device.DeviceInfo()
+        assert_is_instance(deviceInfoObj, wiotp.sdk.device.DeviceInfo)
         print(deviceInfoObj)
 
     def testDeviceFirmwareInstance(self):
-        deviceFWObj = ibmiotf.device.DeviceFirmware()
-        assert_is_instance(deviceFWObj, ibmiotf.device.DeviceFirmware)
+        deviceFWObj = wiotp.sdk.device.DeviceFirmware()
+        assert_is_instance(deviceFWObj, wiotp.sdk.device.DeviceFirmware)
         print(deviceFWObj)
         
     def testPublishEvent(self):
@@ -120,7 +119,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 1883 } }
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -134,7 +133,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 80 } }
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -147,7 +146,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 80 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -160,7 +159,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 1883 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -172,7 +171,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 8883 } }
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -185,7 +184,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 8883 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -198,7 +197,7 @@ class TestDevice(testUtils.AbstractTest):
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 443 } }
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -211,7 +210,7 @@ class TestDevice(testUtils.AbstractTest):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 443 } }
         options["options"]["mqtt"]["transport"] = "websockets"
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
         deviceClient.disconnect()
@@ -220,7 +219,7 @@ class TestDevice(testUtils.AbstractTest):
     def testPublishEventPortInvalid(self):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 100 } }
-        deviceClient = ibmiotf.device.DeviceClient(options)
+        deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
         deviceClient.disconnect()
     

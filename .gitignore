@@ -12,6 +12,8 @@
 _build/*
 .python-version
 .vscode
-src/ibmiotf.egg-info/*
+src/wiotp_sdk.egg-info/*
 MANIFEST
 README.txt
+build/*
+dist/*

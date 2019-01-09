@@ -6,10 +6,10 @@ from nose import SkipTest
 from pprint import pprint
 
 import testUtils
-import ibmiotf.device
-from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
-from ibmiotf.api.registry.diag import DeviceLog, DeviceErrorCode
-from ibmiotf.api.common import ApiException, DateTimeEncoder
+import wiotp.sdk.device
+from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
+from wiotp.sdk.api.registry.diag import DeviceLog, DeviceErrorCode
+from wiotp.sdk.exceptions import ApiException
 
 class TestRegistryDevicesDiagEc(testUtils.AbstractTest):
 

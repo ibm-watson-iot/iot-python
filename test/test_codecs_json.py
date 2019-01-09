@@ -15,7 +15,7 @@ from nose import SkipTest
 import logging
 import testUtils
 
-from ibmiotf import InvalidEventException, JsonCodec
+from wiotp.sdk import InvalidEventException, JsonCodec
 
 class DummyPahoMessage(object):
     def __init__(self, object):

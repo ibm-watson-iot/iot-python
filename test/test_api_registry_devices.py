@@ -5,8 +5,8 @@ from nose import SkipTest
 from pprint import pprint
 
 import testUtils
-from ibmiotf.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
-from ibmiotf.api.common import ApiException
+from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
+from wiotp.sdk.exceptions import ApiException
 
 class TestRegistryDevices(testUtils.AbstractTest):
 

@@ -31,33 +31,34 @@ except:
     print('Unless you are packaging this module for distribution you can ignore this error')
 
     def read_md(f):
-        return "Python Client for IBM Watson IoT Platform"
+        return "Python SDK for IBM Watson IoT Platform"
 
 setup(
-    name='ibmiotf',
-    version="0.5.0",
+    name='wiotp-sdk',
+    version="0.9.0",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
     packages=[
-        'ibmiotf', 
-        'ibmiotf.device', 
-        'ibmiotf.gateway', 
-        'ibmiotf.application', 
-        'ibmiotf.api',
-        'ibmiotf.api.registry',
-        'ibmiotf.api.mgmt',
-        'ibmiotf.api.status',
-        'ibmiotf.api.usage',
-        'ibmiotf.api.lec'
+        'wiotp.sdk', 
+        'wiotp.sdk.device', 
+        'wiotp.sdk.gateway', 
+        'wiotp.sdk.application', 
+        'wiotp.sdk.api',
+        'wiotp.sdk.api.registry',
+        'wiotp.sdk.api.mgmt',
+        'wiotp.sdk.api.status',
+        'wiotp.sdk.api.usage',
+        'wiotp.sdk.api.lec'
     ],
-    package_data={'ibmiotf': ['*.pem']},
+    namespace_packages=['wiotp'],
+    package_data={'wiotp.sdk': ['*.pem']},
     scripts=[
         'bin/wiotp-cli'
     ],
     url='https://github.com/ibm-watson-iot/iot-python',
     license=open('LICENSE').read(),
-    description='Python Client for IBM Watson IoT Platform',
+    description='Python SDK for IBM Watson IoT Platform',
     long_description=read_md('README.md'),
     install_requires=[
         "iso8601 >= 0.1.12",
