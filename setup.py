@@ -62,11 +62,10 @@ setup(
     long_description=read_md('README.md'),
     install_requires=[
         "iso8601 >= 0.1.12",
-        "pytz >= 2017.3",
+        "pytz >= 2018.9",
         "pyyaml >= 3.13",
-        "paho-mqtt >= 1.3.1",
-        "requests >= 2.19.1",
-        "requests_toolbelt >= 0.8.0"
+        "paho-mqtt >= 1.4.0",
+        "requests >= 2.21.0"
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
