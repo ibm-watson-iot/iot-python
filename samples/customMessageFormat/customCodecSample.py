@@ -6,8 +6,6 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html 
 #
-# Contributors:
-#   David Parker - Initial Contribution
 # *****************************************************************************
 
 import getopt
@@ -16,23 +14,23 @@ import sys
 import pprint
 from uuid import getnode as get_mac
 
-import myCustomCodec
+from myCustomCodec import MyCodec
 
 try:
-	import ibmiotf.application
-	import ibmiotf.device
+	import wiotp.sdk.application
+	import wiotp.sdk.device
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
 	#
-	# If you have the module installed, just use "import ibmiotf.application" & "import ibmiotf.device"
+	# If you have the module installed, just use "import wiotp.sdk.application" & "import wiotp.sdk.device"
 	import os
 	import inspect
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../src")))
 	if cmd_subfolder not in sys.path:
 		sys.path.insert(0, cmd_subfolder)
-	import ibmiotf.application
-	import ibmiotf.device
+	import wiotp.sdk.application
+	import wiotp.sdk.device
 
 	
 def myAppEventCallback(event):
@@ -56,16 +54,16 @@ interval = 1
 for o, a in opts:
 	if o in ("-a", "--app"):
 		appConfigFilePath = a
-		appOptions = ibmiotf.application.ParseConfigFile(appConfigFilePath)
+		appOptions = wiotp.sdk.application.ParseConfigFile(appConfigFilePath)
 	elif o in ("-d", "--device"):
 		deviceConfigFilePath = a
-		deviceOptions = ibmiotf.device.ParseConfigFile(deviceConfigFilePath)
+		deviceOptions = wiotp.sdk.device.ParseConfigFile(deviceConfigFilePath)
 	else:
 		assert False, "unhandled option" + o
 		
 # Initialize the application client.
 try:
-	appCli = ibmiotf.application.Client(appOptions)
+	appCli = wiotp.sdk.application.Client(appOptions)
 except Exception as e:
 	print(str(e))
 	sys.exit()
@@ -73,7 +71,7 @@ except Exception as e:
 # Connect and configuration the application
 # - subscribe to live data from the device we created, specifically to "greeting" events
 # - use the myAppEventCallback method to process events
-appCli.setMessageCodec("custom", myCustomCodec)
+appCli.setMessageCodec("custom", MyCodec)
 appCli.connect()
 appCli.subscribeToDeviceEvents(deviceOptions['type'], deviceOptions['id'], "greeting")
 appCli.deviceEventCallback = myAppEventCallback
@@ -81,8 +79,8 @@ appCli.deviceEventCallback = myAppEventCallback
 	
 # Initialize the device client.
 try:
-	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
-	deviceCli.setMessageCodec("custom", myCustomCodec)
+	deviceCli = wiotp.sdk.device.DeviceClient(deviceOptions)
+	deviceCli.setMessageCodec("custom", MyCodec)
 except Exception as e:
 	print(str(e))
 	sys.exit()

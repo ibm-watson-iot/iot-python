@@ -6,8 +6,6 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html 
 #
-# Contributors:
-#   David Parker - Initial Contribution
 # *****************************************************************************
 
 import getopt
@@ -21,18 +19,18 @@ from uuid import getnode as get_mac
 
 
 try:
-	import ibmiotf.device
+	import wiotp.sdk.device
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
 	#
-	# If you have the module installed, just use "import ibmiotf"
+	# If you have the module installed, just use "import wiotp.sdk"
 	import os
 	import inspect
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../src")))
 	if cmd_subfolder not in sys.path:
 		sys.path.insert(0, cmd_subfolder)
-	import ibmiotf.device
+	import wiotp.sdk.device
 
 
 
@@ -118,21 +116,15 @@ if __name__ == "__main__":
 	client = None
 	try:
 		if configFilePath is not None:
-			options = ibmiotf.device.ParseConfigFile(configFilePath)
+			options = wiotp.sdk.device.ParseConfigFile(configFilePath)
 		else:
 			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
-		client = ibmiotf.device.DeviceClient(options)
+		client = wiotp.sdk.device.DeviceClient(options)
 		client.commandCallback = commandProcessor
 		client.connect()
-	except ibmiotf.ConfigurationException as e:
+	except Exception as e:
 		print(str(e))
-		sys.exit()
-	except ibmiotf.UnsupportedAuthenticationMethod as e:
-		print(str(e))
-		sys.exit()
-	except ibmiotf.ConnectionException as e:
-		print(str(e))
-		sys.exit()
+		sys.exit(1)
 	
 
 	print("(Press Ctrl+C to disconnect)")

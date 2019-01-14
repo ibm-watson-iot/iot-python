@@ -16,7 +16,7 @@ The following data points are supported:
 pi@raspberrypi ~ $ sudo apt-get update
 pi@raspberrypi ~ $ sudo apt-get install python-dev
 pi@raspberrypi ~ $ sudo apt-get install python-pip
-pi@raspberrypi ~ $ sudo pip install paho-mqtt
+pi@raspberrypi ~ $ sudo pip install wiotp-sdk
 pi@raspberrypi ~ $ sudo pip install psutil
 pi@raspberrypi ~ $ wget https://github.com/ibm-messaging/iot-python/archive/master.zip
 pi@raspberrypi ~ $ unzip master.zip
@@ -33,7 +33,7 @@ See: [Setting up Django and Python 2.7 on Red Hat Enterprise 6 the easy way](htt
 [root@localhost ~]# wget -qO- http://people.redhat.com/bkabrda/scl_python27.repo >> /etc/yum.repos.d/scl.repo
 [root@localhost ~]# yum install python27
 [root@localhost ~]# scl enable python27 bash
-[root@localhost ~]# pip install paho-mqtt
+[root@localhost ~]# pip install wiotp-sdk
 [root@localhost ~]# pip install psutil
 [root@localhost ~]# exit
 [me@localhost ~]$ wget https://github.com/ibm-messaging/iot-python/archive/master.zip
@@ -65,29 +65,30 @@ C:\Users\Me> python iotpsutil.py
 ## QuickStart Usage
 With no command line options the device code will connect to [QuickStart](http://quickstart.internetofthings.ibmcloud.com)
 ```
-[me@localhost ~]$ python iotpsutil.py
+python iotpsutil.py
 ```
 
 ## Registered Usage
 The device sample supports using either a device configuration file or command line arguments to connect to your [private organization](https://internetofthings.ibmcloud.com/dashboard/)
+
 ```
-[me@localhost ~]$ python iotpsutil.py -c device.cfg
+python iotpsutil.py -c device.yaml
 ```
 
 ```
-[me@localhost ~]$ python iotpsutil.py -o organization -t type -i id -T authToken
+python iotpsutil.py -o organizationIf -t typeIf -i deviceId -T authToken
 ```
 
 
 ## Support Application
-A sample application is provided that allows commands to be sent to the device when used in registered mode only.  This application requires a [configuration file](https://github.com/ibm-messaging/iot-python#using-a-configuration-file).
+A sample application is provided that allows commands to be sent to the device when used in registered mode only.
 
 The application provides two functions:
  * Adjust the publish rate of the psutil device sample 
  * Print a debug message to the console on the device
 
 ```
-[me@localhost ~]$ python psutilApp.py -c application.cfg
+python psutilApp.py -c application.yaml
 Command List:
  1. Change target device
 (Ctrl+C to disconnect)

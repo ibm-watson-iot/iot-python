@@ -1,5 +1,0 @@
-{
-	"temperatureSensor": {
-		"temperature": "$event.temp"
-	}
-}

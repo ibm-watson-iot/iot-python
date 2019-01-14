@@ -6,8 +6,6 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html 
 #
-# Contributors:
-#   David Parker - Initial Contribution
 # *****************************************************************************
 
 import getopt
@@ -15,18 +13,18 @@ import signal
 import sys
 
 try:
-	import ibmiotf.application
+	import wiotp.sdk.application
 except ImportError:
 	# This part is only required to run the sample from within the samples
 	# directory when the module itself is not installed.
 	#
-	# If you have the module installed, just use "import ibmiotf"
+	# If you have the module installed, just use "import wiotp.sdk"
 	import os
 	import inspect
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../src")))
 	if cmd_subfolder not in sys.path:
 		sys.path.insert(0, cmd_subfolder)
-	import ibmiotf.application
+	import wiotp.sdk.application
 
 	
 def interruptHandler(signal, frame):
@@ -140,16 +138,16 @@ if __name__ == "__main__":
 			assert False, "unhandled option" + o
 
 	client = None
-	options = ibmiotf.application.ParseConfigFile(configFilePath)
+	options = wiotp.sdk.application.ParseConfigFile(configFilePath)
 	
 	try:
-		client = ibmiotf.application.Client(options)
+		client = wiotp.sdk.application.Client(options)
 		client.deviceStatusCallback = myStatusCallback
 		client.connect()
 		client.subscribeToDeviceStatus()
 	except Exception as e:
 		print(str(e))
-		sys.exit()
+		sys.exit(1)
 
 	
 	while True:
