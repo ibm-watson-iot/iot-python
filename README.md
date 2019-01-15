@@ -21,7 +21,6 @@ Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and ope
 -  [iso8601](https://pypi.python.org/pypi/iso8601)
 -  [pytz](https://pypi.python.org/pypi/pytz)
 -  [requests](https://pypi.python.org/pypi/requests)
--  [requests_toolbelt](https://pypi.python.org/pypi/requests_toolbelt)
 
 
 ## Installation
@@ -29,7 +28,7 @@ Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and ope
 Install the latest version of the library with pip
 
 ```
-# pip install ibmiotf
+# pip install wiotp-sdk
 ```
 
 
@@ -38,7 +37,7 @@ Install the latest version of the library with pip
 Uninstalling the module is simple.
 
 ```
-# pip uninstall ibmiotf
+# pip uninstall wiotp-sdk
 ```
 
 
@@ -59,12 +58,9 @@ http://ibm-watson-iot.github.io/iot-python/
 - **Device Management Extensions**: Provides support for custom device management actions.
 - **Scalable Applications**: Supports load balancing of MQTT subscriptions over multiple application instances.
 - **Auto Reconnect**: All clients support automatic reconnect to the Platform in the event of a network interruption.
-- **Event/Command publish**: Offers a pure HTTP client supporting messaging over HTTP in addition to the full features client that utilizes HTTP and MQTT technologies as appropriate 
-- **Data Format Support**: JSON, XML, & user-defined.
 - **Websockets**: Support device/gateway/application connectivity to Watson IoT Platform using WebSocket
 
 
 ## Unsupported Features
 - **Client side Certificate based authentication**: [Client side Certificate based authentication](https://console.ng.bluemix.net/docs/services/IoT/reference/security/RM_security.html)n
-
 
