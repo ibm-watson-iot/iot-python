@@ -15,7 +15,7 @@ __version__ = "0.9.0"
 # Normally youd would just import the package you need as it's unlikely a single piece of code will run app and device implementations:
 # 
 #   import wiotp.sdk.application
-#   client = wiotp.sdk.application.Client()
+#   client = wiotp.sdk.application.ApplicationClient()
 # 
 
 from wiotp.sdk.client import AbstractClient

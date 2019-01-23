@@ -32,11 +32,11 @@ except ImportError:
 
 
 def myAppEventCallback(event):
-	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
+	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.typeId, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
 
 
 organization = "quickstart"
-deviceType = "helloWorldDevice"
+typeId = "helloWorldDevice"
 deviceId = str(uuid.uuid4())
 appId = deviceId + "_receiver"
 authMethod = None
@@ -46,7 +46,7 @@ authToken = None
 # Initialize the application client.
 try:
 	appOptions = {"org": organization, "id": appId, "auth-method": authMethod, "auth-token": authToken}
-	appCli = wiotp.sdk.application.Client(appOptions)
+	appCli = wiotp.sdk.application.ApplicationClient(appOptions)
 except Exception as e:
 	print(str(e))
 	sys.exit()
@@ -55,12 +55,12 @@ except Exception as e:
 # - subscribe to live data from the device we created, specifically to "greeting" events
 # - use the myAppEventCallback method to process events
 appCli.connect()
-appCli.subscribeToDeviceEvents(deviceType, deviceId, "greeting")
+appCli.subscribeToDeviceEvents(typeId, deviceId, "greeting")
 appCli.deviceEventCallback = myAppEventCallback
 
 # Initialize the device client.
 try:
-	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
+	deviceOptions = {"identity": {"orgId": organization, "typeId": typeId, "deviceId": deviceId }, "auth": {"token": authToken} }
 	deviceCli = wiotp.sdk.device.DeviceClient(deviceOptions)
 except Exception as e:
 	print("Caught exception connecting device: %s" % str(e))

@@ -24,7 +24,7 @@ import paho.mqtt.client as paho
 import requests
 
 
-class Client(AbstractClient):
+class ApplicationClient(AbstractClient):
     """
     Extends #wiotp.AbstractClient to implement an application client supporting 
     messaging over MQTT
@@ -86,14 +86,14 @@ class Client(AbstractClient):
             self.mgmt      = Mgmt(apiClient)
 
 
-    def subscribeToDeviceEvents(self, deviceType="+", deviceId="+", event="+", msgFormat="+", qos=0):
+    def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """
         Subscribe to device event messages
 
         # Parameters
-        deviceType (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
+        typeId (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
         deviceId (string): deviceId for the subscription, optional.  Defaults to all devices (MQTT `+` wildcard)
-        event (string): eventId for the subscription, optional.  Defaults to all events (MQTT `+` wildcard)
+        eventId (string): eventId for the subscription, optional.  Defaults to all events (MQTT `+` wildcard)
         msgFormat (string): msgFormat for the subscription, optional.  Defaults to all formats (MQTT `+` wildcard)
         qos (int): MQTT quality of service level to use (`0`, `1`, or `2`)
 
@@ -107,16 +107,16 @@ class Client(AbstractClient):
             self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
             return 0
 
-        topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
+        topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (typeId, deviceId, eventId, msgFormat)
         return self._subscribe(topic, qos)
 
 
-    def subscribeToDeviceStatus(self, deviceType="+", deviceId="+"):
+    def subscribeToDeviceStatus(self, typeId="+", deviceId="+"):
         """
         Subscribe to device status messages
 
         # Parameters
-        deviceType (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
+        typeId (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
         deviceId (string): deviceId for the subscription, optional.  Defaults to all devices (MQTT `+` wildcard)
 
         # Returns
@@ -129,18 +129,18 @@ class Client(AbstractClient):
             self.logger.warning("QuickStart applications do not support wildcard subscription to device status")
             return 0
         
-        topic = 'iot-2/type/%s/id/%s/mon' % (deviceType, deviceId)
+        topic = 'iot-2/type/%s/id/%s/mon' % (typeId, deviceId)
         return self._subscribe(topic, 0)
 
 
-    def subscribeToDeviceCommands(self, deviceType="+", deviceId="+", command="+", msgFormat="+"):
+    def subscribeToDeviceCommands(self, typeId="+", deviceId="+", commandId="+", msgFormat="+"):
         """
         Subscribe to device command messages
 
         # Parameters
-        deviceType (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
+        typeId (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
         deviceId (string): deviceId for the subscription, optional.  Defaults to all devices (MQTT `+` wildcard)
-        command (string): commandId for the subscription, optional.  Defaults to all commands (MQTT `+` wildcard)
+        commandId (string): commandId for the subscription, optional.  Defaults to all commands (MQTT `+` wildcard)
         msgFormat (string): msgFormat for the subscription, optional.  Defaults to all formats (MQTT `+` wildcard)
         qos (int): MQTT quality of service level to use (`0`, `1`, or `2`)
 
@@ -154,21 +154,21 @@ class Client(AbstractClient):
             self.logger.warning("QuickStart applications do not support commands")
             return 0
 
-        topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
+        topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (typeId, deviceId, commandId, msgFormat)
         return self._subscribe(topic, 0)
 
 
-    def publishEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
-        topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (deviceType, deviceId, event, msgFormat)
+    def publishEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
+        topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (typeId, deviceId, eventId, msgFormat)
         return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
 
 
-    def publishCommand(self, deviceType, deviceId, command, msgFormat, data=None, qos=0, on_publish=None):
+    def publishCommand(self, typeId, deviceId, command, msgFormat, data=None, qos=0, on_publish=None):
         """
         Publish a command to a device
 
         # Parameters
-        deviceType (string) : The type of the device this command is to be published to
+        typeId (string) : The type of the device this command is to be published to
         deviceId (string): The id of the device this command is to be published to
         command (string) : The name of the command
         msgFormat (string) : The format of the command payload
@@ -185,7 +185,7 @@ class Client(AbstractClient):
         if not self.connectEvent.wait(timeout=10):
             return False
         else:
-            topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (deviceType, deviceId, command, msgFormat)
+            topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (typeId, deviceId, command, msgFormat)
 
             # Raise an exception if there is no codec for this msgFormat
             if self.getMessageCodec(msgFormat) is None:
@@ -229,7 +229,7 @@ class Client(AbstractClient):
         """
         try:
             event = Event(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.deviceType, event.deviceId))
+            self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.typeId, event.deviceId))
             if self.deviceEventCallback: self.deviceEventCallback(event)
         except InvalidEventException as e:
             self.logger.critical(str(e))
@@ -242,7 +242,7 @@ class Client(AbstractClient):
         """
         try:
             command = Command(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.deviceType, command.deviceId))
+            self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.typeId, command.deviceId))
             if self.deviceCommandCallback: self.deviceCommandCallback(command)
         except InvalidEventException as e:
             self.logger.critical(str(e))

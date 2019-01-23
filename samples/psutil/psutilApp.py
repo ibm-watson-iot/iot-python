@@ -37,10 +37,10 @@ def usage():
 		"commandSender: Basic application connected to the IBM Internet of Things Cloud service." + "\n" +
 		"\n" +
 		"Options: " + "\n" +
-		"  -h, --help          Display help information" + "\n" + 
-		"  -c, --config        Load application configuration file (ignore -o, -i, -k, -t options)" + "\n" + 
-		"  -T, --devicetype    Restrict subscription to events from devices of the specified type" + "\n" + 
-		"  -I, --deviceid      Restrict subscription to events from devices of the specified id" + "\n"
+		"  -h, --help      Display help information" + "\n" + 
+		"  -c, --config    Load application configuration file (ignore -o, -i, -k, -t options)" + "\n" + 
+		"  -T, --typeId    Restrict subscription to events from devices of the specified type" + "\n" + 
+		"  -I, --deviceId  Restrict subscription to events from devices of the specified id" + "\n"
 	)
 
 
@@ -52,22 +52,22 @@ def myStatusCallback(status):
 		if status.device in connectedDevices:
 			del connectedDevices[status.device]
 	else:
-		connectedDevices[status.device] = {'type': status.deviceType, 'id': status.deviceId}
+		connectedDevices[status.device] = {'type': status.typeId, 'id': status.deviceId}
 
 
 def printOptions():
-	global deviceType, deviceId
+	global typeId, deviceId
 	print("Command List:")
 	print(" 1. Change target device")
-	if deviceType == None or deviceId == None:
+	if typeId == None or deviceId == None:
 		pass
 	else:
-		print(" 2. Set publish rate of %s:%s" % (deviceType, deviceId))
-		print(" 3. Send message to console of %s:%s" % (deviceType, deviceId))
+		print(" 2. Set publish rate of %s:%s" % (typeId, deviceId))
+		print(" 3. Send message to console of %s:%s" % (typeId, deviceId))
 	print("(Ctrl+C to disconnect)")
 
 def setTarget():
-	global deviceType, deviceId, connectedDevices
+	global typeId, deviceId, connectedDevices
 	deviceList = []
 	deviceList.append(None)
 	n = 0
@@ -86,49 +86,49 @@ def setTarget():
 		setTargetId()
 		print("")
 	else:
-		deviceType = deviceList[i]['type']
+		typeId = deviceList[i]['type']
 		deviceId = deviceList[i]['id']
 
 def setTargetType():
-	global deviceType
-	deviceType = input("Enter Device Type >")
+	global typeId
+	typeId = input("Enter Device Type >")
 
 def setTargetId():
 	global deviceId
 	deviceId = input("Enter Device Id >")
 
 def changePublishRate():
-	global client, deviceType, deviceId
+	global client, typeId, deviceId
 	interval = int(input("Enter Interval (seconds) >"))
 	print("")
-	client.publishCommand(deviceType, deviceId, "setInterval", {'interval': interval})
+	client.publishCommand(typeId, deviceId, "setInterval", {'interval': interval})
 
 def sendMessage():
-	global client, deviceType, deviceId
+	global client, typeId, deviceId
 	message = input("Enter message to be displayed >")
 	print("")
-	client.publishCommand(deviceType, deviceId, "print", "json", {'message': message})
+	client.publishCommand(typeId, deviceId, "print", "json", {'message': message})
 
 
 if __name__ == "__main__":
 	signal.signal(signal.SIGINT, interruptHandler)
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hc:T:I:", ["help", "config=", "devicetype=", "deviceid="])
+		opts, args = getopt.getopt(sys.argv[1:], "hc:T:I:", ["help", "config=", "typeId=", "deviceId="])
 	except getopt.GetoptError as err:
 		print(str(err))
 		usage()
 		sys.exit(2)
 
 	configFilePath = None
-	deviceType = None
+	typeId = None
 	deviceId = None
 	
 	for o, a in opts:
 		if o in ("-c", "--cfg"):
 			configFilePath = a
-		elif o in ("-T", "--devicetype"):
-			deviceType = a
+		elif o in ("-T", "--typeId"):
+			typeId = a
 		elif o in ("-I", "--deviceid"):
 			deviceId = a
 		elif o in ("-h", "--help"):
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 	options = wiotp.sdk.application.ParseConfigFile(configFilePath)
 	
 	try:
-		client = wiotp.sdk.application.Client(options)
+		client = wiotp.sdk.application.ApplicationClient(options)
 		client.deviceStatusCallback = myStatusCallback
 		client.connect()
 		client.subscribeToDeviceStatus()
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 	while True:
 		printOptions()
 		try:
-			option = int(input("%s:%s>" % (deviceType, deviceId)))
+			option = int(input("%s:%s>" % (typeId, deviceId)))
 			print("")
 			if option == 1:
 				setTarget()

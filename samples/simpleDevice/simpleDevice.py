@@ -38,8 +38,8 @@ parser = argparse.ArgumentParser()
 
 # Primary Options
 parser.add_argument('-o', '--organization', required=False, default="quickstart")
-parser.add_argument('-T', '--devicetype', required=False, default="simpleDev")
-parser.add_argument('-I', '--deviceid', required=False, default=str(uuid.uuid4()))
+parser.add_argument('-T', '--typeId', required=False, default="simpleDev")
+parser.add_argument('-I', '--deviceId', required=False, default=str(uuid.uuid4()))
 parser.add_argument('-t', '--token', required=False, default=None, help='authentication token')
 parser.add_argument('-c', '--cfg', required=False, default=None, help='configuration file')
 parser.add_argument('-E', '--event', required=False, default="event", help='type of event to send')
@@ -54,10 +54,10 @@ if args.token:
 
 try:
 	if args.cfg is not None:
-		deviceOptions = ibmiotf.device.ParseConfigFile(args.cfg)
+		deviceOptions = wiotp.sdk.device.parseConfigFile(args.cfg)
 	else:
-		deviceOptions = {"org": args.organization, "type": args.devicetype, "id": args.deviceid, "auth-method": authMethod, "auth-token": args.token}
-	deviceCli = ibmiotf.device.DeviceClient(deviceOptions)
+		deviceOptions = {"identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId}, "auth": { "token": args.token } } 
+	deviceCli = wiotp.sdk.device.DeviceClient(deviceOptions)
 	deviceCli.commandCallback = commandProcessor
 except Exception as e:
 	print("Caught exception connecting device: %s" % str(e))

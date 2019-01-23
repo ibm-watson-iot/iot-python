@@ -34,7 +34,7 @@ except ImportError:
 
 	
 def myAppEventCallback(event):
-	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.deviceType, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
+	print("Received live data from %s (%s) sent at %s: hello=%s x=%s" % (event.deviceId, event.typeId, event.timestamp.strftime("%H:%M:%S"), data['hello'], data['x']))
 
 
 try:
@@ -63,7 +63,7 @@ for o, a in opts:
 		
 # Initialize the application client.
 try:
-	appCli = wiotp.sdk.application.Client(appOptions)
+	appCli = wiotp.sdk.application.ApplicationClient(appOptions)
 except Exception as e:
 	print(str(e))
 	sys.exit()

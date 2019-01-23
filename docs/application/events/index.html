@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Working with Device Events - IBM Watson IoT Platform</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Working with Device Events";
+    var mkdocs_page_input_path = "application\\events.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> IBM Watson IoT Platform</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Application SDK</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../">Overview</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../commands/">Working with Device Commands</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Working with Device Events</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#working-with-device-events">Working with Device Events</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#publishing-device-events">Publishing Device Events</a></li>
+        
+            <li><a class="toctree-l4" href="#subscribing-to-device-events">Subscribing to Device Events</a></li>
+        
+            <li><a class="toctree-l4" href="#handling-device-events">Handling Device Events</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../status/">Working with Device Status</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Device SDK</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../device/">Overview</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../device/config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../device/managed/">Managed Devices</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Gateway SDK</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../gateway/">Overview</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../gateway/config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../gateway/managed/">Managed Gateways</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Common Topics</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../custommsg/">Custom Message Formats</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../exceptions/">Exceptions</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">IBM Watson IoT Platform</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Application SDK &raquo;</li>
+        
+      
+    
+    <li>Working with Device Events</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="working-with-device-events">Working with Device Events<a class="headerlink" href="#working-with-device-events" title="Permanent link"></a></h1>
+<h2 id="publishing-device-events">Publishing Device Events<a class="headerlink" href="#publishing-device-events" title="Permanent link"></a></h2>
+<p>Events are the mechanism by which devices publish data to the Watson IoT Platform. The device controls the content of the event and assigns a name for each event that it sends.  <strong>Depending on the permissions set in the API key that your application connects with</strong> your application will have the ability to publish events as if they originated from any registered device.</p>
+<p>As with devices, events can be published with any of the three quality of service (QoS) levels that are defined by the MQTT protocol. By default, events are published with a QoS level of 0.</p>
+<p><code>publishEvent()</code> takes up to 5 arguments:</p>
+<ul>
+<li><code>event</code> Name of this event</li>
+<li><code>msgFormat</code> Format of the data for this event</li>
+<li><code>data</code> Data for this event</li>
+<li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+<li><code>on_publish</code> A function that will be called when receipt of the publication is confirmed.</li>
+</ul>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.ParseConfigFile(&quot;app.yaml&quot;)
+client = wiotp.sdk.application.ApplicationClient(options)
+
+client.connect()
+myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+client.publishEvent(myDeviceType, myDeviceId, &quot;status&quot;, &quot;json&quot;, myData)
+</code></pre>
+
+<p><strong>Callback and QoS</strong></p>
+<p>The use of the optional <code>on_publish</code> function has different implications depending on the level of qos used to publish the event:</p>
+<ul>
+<li>qos 0: the client has asynchronously begun to send the event</li>
+<li>qos 1 and 2: the client has confirmation of delivery from the platform</li>
+</ul>
+<h2 id="subscribing-to-device-events">Subscribing to Device Events<a class="headerlink" href="#subscribing-to-device-events" title="Permanent link"></a></h2>
+<p><code>subscribeToDeviceEvents()</code> allows the application to recieve real-time device events as they are published.  With no parameters provided the method would subscribe the application to all events from all connected devices. In most use cases this is <strong>not</strong> what you want to do.  Use the optional <code>typeId</code>, <code>deviceId</code>, <code>eventId</code>, and <code>msgFormat</code> parameters to control the scope of the subscription. </p>
+<p>A single client can support multiple subscriptions. The following code samples show how you can use deviceType, deviceId, event, and msgFormat parameters to define the scope of a subscription:</p>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseConfigFile(&quot;app.yaml&quot;)
+client = wiotp.sdk.application.ApplicationClient(options)
+
+client.connect()
+
+# Subscribing to all events from all devices
+client.subscribeToDeviceEvents()
+
+# Subscribing to all events from all devices of a specific type
+client.subscribeToDeviceEvents(typeId=myDeviceType)
+
+# Subscribing to a specific event from all devices
+client.subscribeToDeviceEvents(eventId=myEvent)
+
+# Subscribing to a specific event from two or more different devices
+client.subscribeToDeviceEvents(typeId=myDeviceType, deviceId=myDeviceId, eventId=myEvent)
+client.subscribeToDeviceEvents(typeId=myOtherDeviceType, eventId=myEvent)
+
+# Subscribing to all events that are published in JSON format
+client.subscribeToDeviceEvents(msgFormat=&quot;json&quot;)
+</code></pre>
+
+<h2 id="handling-device-events">Handling Device Events<a class="headerlink" href="#handling-device-events" title="Permanent link"></a></h2>
+<p>To process the events that are received by your subscriptions, you need to register an event callback method. The messages are returned as an instance of the Event class:</p>
+<ul>
+<li><code>event.eventId</code>   Typically used to group specific events, for example "status", "warning" and "data".</li>
+<li><code>event.typeId</code> Identifies the device type. Typically, the deviceType is a grouping for devices that perform a specific task, for example "weatherballoon".</li>
+<li><code>event.deviceId</code> Represents the ID of the device. Typically, for a given device type, the deviceId is a unique identifier of that device, for example a serial number or MAC address.</li>
+<li><code>event.device</code> Uniquely identifies the device across all types of devices in the organization</li>
+<li><code>event.format</code> The format can be any string, for example JSON.</li>
+<li><code>event.data</code> The data for the message payload.</li>
+<li><code>event.timestamp</code> The date and time of the event</li>
+</ul>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseConfigFile(&quot;app.yaml&quot;)
+client = wiotp.sdk.application.ApplicationClient(options)
+
+def myEventCallback(event):
+    str = &quot;%s event '%s' received from device [%s]: %s&quot;
+    print(str % (event.format, event.eventId, event.device, json.dumps(event.data)))
+
+client.connect()
+client.deviceEventCallback = myEventCallback
+client.subscribeToDeviceEvents()
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../status/" class="btn btn-neutral float-right" title="Working with Device Status">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../commands/" class="btn btn-neutral" title="Working with Device Commands"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../commands/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../status/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>

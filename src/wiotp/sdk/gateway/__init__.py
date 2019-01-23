@@ -10,7 +10,7 @@
 
 # Expose public API for this package
 from wiotp.sdk.gateway.client import GatewayClient
-from wiotp.sdk.device.config import ParseConfigFile, ParseEnvVars
+from wiotp.sdk.device.config import parseConfigFile, parseEnvVars
 from wiotp.sdk.device.deviceFirmware import DeviceFirmware
 from wiotp.sdk.device.deviceInfo import DeviceInfo
 from wiotp.sdk.gateway.managedClient import ManagedGatewayClient

@@ -23,9 +23,9 @@ class Status:
         result = DEVICE_STATUS_RE.match(message.topic)
         if result:
             self.payload = json.loads(message.payload.decode("utf-8"))
-            self.deviceType = result.group(1)
+            self.typeId = result.group(1)
             self.deviceId = result.group(2)
-            self.device = self.deviceType + ":" + self.deviceId
+            self.device = self.typeId + ":" + self.deviceId
 
             '''
             Properties from the "Connect" status are common in "Disconnect" status too
@@ -75,11 +75,11 @@ class Event:
     def __init__(self, pahoMessage, messageEncoderModules):
         result = DEVICE_EVENT_RE.match(pahoMessage.topic)
         if result:
-            self.deviceType = result.group(1)
+            self.typeId = result.group(1)
             self.deviceId = result.group(2)
-            self.device = self.deviceType + ":" + self.deviceId
+            self.device = self.typeId + ":" + self.deviceId
 
-            self.event = result.group(3)
+            self.eventId = result.group(3)
             self.format = result.group(4)
 
             self.payload = pahoMessage.payload
@@ -98,11 +98,11 @@ class Command:
     def __init__(self, pahoMessage, messageEncoderModules):
         result = DEVICE_COMMAND_RE.match(pahoMessage.topic)
         if result:
-            self.deviceType = result.group(1)
+            self.typeId = result.group(1)
             self.deviceId = result.group(2)
-            self.device = self.deviceType + ":" + self.deviceId
+            self.device = self.typeId + ":" + self.deviceId
 
-            self.command = result.group(3)
+            self.commandId = result.group(3)
             self.format = result.group(4)
 
             self.payload = pahoMessage.payload

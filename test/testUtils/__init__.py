@@ -27,4 +27,4 @@ class AbstractTest(object):
         raise Exception("Unable to set ORG_ID from WIOTP_API_KEY")
     
     options = {'auth': { 'key': WIOTP_API_KEY, 'token': WIOTP_API_TOKEN}}
-    appClient = wiotp.sdk.application.Client(options)
+    appClient = wiotp.sdk.application.ApplicationClient(options)

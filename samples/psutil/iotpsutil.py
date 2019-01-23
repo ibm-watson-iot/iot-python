@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
 	verbose = False
 	organization = "quickstart"
-	deviceType = "sample-iotpsutil"
+	typeId = "sample-iotpsutil"
 	deviceId = str(hex(int(get_mac())))[2:]
 	deviceName = platform.node()
 	authMethod = None
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 		elif o in ("-o", "--organization"):
 			organization = a
 		elif o in ("-t", "--type"):
-			deviceType = a
+			typeId = a
 		elif o in ("-i", "--id"):
 			deviceId = a
 		elif o in ("-T", "--token"):
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 		if configFilePath is not None:
 			options = wiotp.sdk.device.ParseConfigFile(configFilePath)
 		else:
-			options = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
+			options = {"identity": {"orgId": organization, "typeId": typeId, "deviceId": deviceId}, "auth": { "token": authToken} }
 		client = wiotp.sdk.device.DeviceClient(options)
 		client.commandCallback = commandProcessor
 		client.connect()

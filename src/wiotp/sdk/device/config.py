@@ -130,7 +130,7 @@ class DeviceClientConfig(defaultdict):
         return self["options"]["mqtt"]["caFile"]
 
 
-def ParseEnvVars():
+def parseEnvVars():
     """
     Parse environment variables into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
@@ -139,8 +139,8 @@ def ParseEnvVars():
     - `WIOTP_IDENTITY_TYPEID`
     - `WIOTP_IDENTITY_DEVICEID`
     - `WIOTP_AUTH_TOKEN`
-    - `WIOTP_DOMAIN` (optional)
-    - `WIOTP_LOGLEVEL` (optional)
+    - `WIOTP_OPTIONS_DOMAIN` (optional)
+    - `WIOTP_OPTIONS_LOGLEVEL` (optional)
     - `WIOTP_OPTIONS_MQTT_PORT` (optional)
     - `WIOTP_OPTIONS_MQTT_TRANSPORT` (optional)
     - `WIOTP_OPTIONS_MQTT_CAFILE` (optional)
@@ -223,7 +223,7 @@ def ParseEnvVars():
     return cfg
 
 
-def ParseConfigFile(configFilePath):
+def parseConfigFile(configFilePath):
     """
     Parse a yaml configuration file into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter

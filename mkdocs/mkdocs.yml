@@ -6,13 +6,16 @@ nav:
   - 'Application SDK':
     - 'Overview': application/index.md
     - 'Configuration': application/config.md
+    - 'Working with Device Commands': application/commands.md
+    - 'Working with Device Events': application/events.md
+    - 'Working with Device Status': application/status.md
   - 'Device SDK':
     - 'Overview': device/index.md
     - 'Configuration': device/config.md
     - 'Managed Devices': device/managed.md
   - 'Gateway SDK':
-    - 'Gateway SDK Overview': gateway/index.md
-    - 'GatewayConfiguration': gateway/config.md
+    - 'Overview': gateway/index.md
+    - 'Configuration': gateway/config.md
     - 'Managed Gateways': gateway/managed.md
   - 'Common Topics':
     - 'Custom Message Formats': custommsg.md

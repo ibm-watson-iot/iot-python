@@ -152,7 +152,7 @@ class ApplicationClientConfig(defaultdict):
         return self["options"]["http"]["verify"]
 
 
-def ParseEnvVars():
+def parseEnvVars():
     """
     Parse environment variables into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter
@@ -240,7 +240,7 @@ def ParseEnvVars():
     return cfg
 
 
-def ParseConfigFile(configFilePath):
+def parseConfigFile(configFilePath):
     """
     Parse a yaml configuration file into a Python dictionary suitable for passing to the 
     device client constructor as the `options` parameter

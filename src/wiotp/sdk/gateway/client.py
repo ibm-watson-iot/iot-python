@@ -67,32 +67,32 @@ class GatewayClient(DeviceClient):
         self.client.on_connect = self._onConnect
         self.client.on_disconnect = self._onDisconnect
 
-    def publishDeviceEvent(self, deviceType, deviceId, event, msgFormat, data, qos=0, on_publish=None):
-        topic = 'iot-2/type/' + deviceType + '/id/' + deviceId +'/evt/'+event+'/fmt/' + msgFormat
-        return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
+    def publishDeviceEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
+        topic = 'iot-2/type/' + typeId + '/id/' + deviceId + '/evt/' + eventId + '/fmt/' + msgFormat
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
 
 
-    def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
-        topic = 'iot-2/type/' + self._config.typeId + '/id/' + self._config.deviceId +'/evt/' + event + '/fmt/' + msgFormat
-        return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
+    def publishEvent(self, eventId, msgFormat, data, qos=0, on_publish=None):
+        topic = 'iot-2/type/' + self._config.typeId + '/id/' + self._config.deviceId +'/evt/' + eventId + '/fmt/' + msgFormat
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
 
 
-    def subscribeToDeviceCommands(self, deviceType, deviceId, command='+', format='json', qos=1):
-        topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/cmd/' + command + '/fmt/' + format
+    def subscribeToDeviceCommands(self, typeId, deviceId, commandId='+', format='json', qos=1):
+        topic = 'iot-2/type/' + typeId + '/id/' + deviceId + '/cmd/' + commandId + '/fmt/' + format
         return self._subscribe(topic, qos=1)
 
 
-    def subscribeToCommands(self, command='+', format='json', qos=1):
-        deviceType = self._config.typeId
+    def subscribeToCommands(self, commandId='+', format='json', qos=1):
+        typeId = self._config.typeId
         deviceId = self._config.deviceId
-        topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/cmd/' + command + '/fmt/' + format
+        topic = 'iot-2/type/' + typeId + '/id/' + deviceId + '/cmd/' + commandId + '/fmt/' + format
         return self._subscribe(topic, qos=1)
 
 
     def subscribeToNotifications(self):
-        deviceType = self._config.typeId
+        typeId = self._config.typeId
         deviceId = self._config.deviceId
-        topic = 'iot-2/type/' + deviceType + '/id/' + deviceId + '/notify'
+        topic = 'iot-2/type/' + typeId + '/id/' + deviceId + '/notify'
 
         return self._subscribe(topic, qos=0)
 

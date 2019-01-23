@@ -85,7 +85,7 @@ if __name__ == "__main__":
 	client = None
 	options = wiotp.sdk.application.ParseConfigFile(args.config)
 	try:
-		client = wiotp.sdk.application.Client(options)
+		client = wiotp.sdk.application.ApplicationClient(options)
 		client.logger.setLevel(logging.DEBUG)
 		# Note that we do not need to call connect to make API calls
 		

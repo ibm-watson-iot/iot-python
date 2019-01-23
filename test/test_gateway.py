@@ -152,7 +152,7 @@ class TestGateway(testUtils.AbstractTest):
         gatewayClient.subscribeToCommands()
         gatewayClient.subscribeToNotifications()
 
-        appClient = wiotp.application.Client(self.appOptions)
+        appClient = wiotp.application.ApplicationClient(self.appOptions)
         appClient.connect()
 
         commandData={'rebootDelay' : 50}

@@ -67,8 +67,8 @@ def usage():
         "  -k, --key           API key" + "\n" + 
         "  -t, --token         Authentication token for the API key specified" + "\n" + 
         "  -c, --config        Load application configuration file (ignore -o, -i, -k, -t options)" + "\n" + 
-        "  -T, --devicetype    Restrict subscription to events from devices of the specified type" + "\n" + 
-        "  -I, --deviceid      Restrict subscription to events from devices of the specified id" + "\n" + 
+        "  -T, --typeId        Restrict subscription to events from devices of the specified type" + "\n" + 
+        "  -I, --deviceId      Restrict subscription to events from devices of the specified id" + "\n" + 
         "  -E, --event         Restrict subscription to a specific event"
     )
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, interruptHandler)
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:o:i:k:t:c:T:I:E:", ["help", "org=", "id=", "key=", "token=", "config=", "devicetype", "deviceid", "event"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:o:i:k:t:c:T:I:E:", ["help", "org=", "id=", "key=", "token=", "config=", "typeId", "deviceId", "event"])
     except getopt.GetoptError as err:
         print(str(err))
         usage()
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     authKey = None
     authToken = None
     configFilePath = None
-    deviceType = "+"
+    typeId = "+"
     deviceId = "+"
     event = "+"
     
@@ -105,8 +105,8 @@ if __name__ == "__main__":
             authToken = a
         elif o in ("-c", "--cfg"):
             configFilePath = a
-        elif o in ("-T", "--devicetype"):
-            deviceType = a
+        elif o in ("-T", "--typeId"):
+            typeId = a
         elif o in ("-I", "--deviceid"):
             deviceId = a
         elif o in ("-E", "--event"):
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     else:
         options = {"org": organization, "id": appId, "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
     try:
-        client = ibmiotf.application.Client(options)
+        client = ibmiotf.application.ApplicationClient(options)
         # If you want to see more detail about what's going on, set log level to DEBUG
         # import logging
         # client.logger.setLevel(logging.DEBUG)
@@ -145,8 +145,8 @@ if __name__ == "__main__":
     client.deviceStatusCallback = myStatusCallback
     client.subscriptionCallback = mySubscribeCallback
     
-    eventsMid = client.subscribeToDeviceEvents(deviceType, deviceId, event)
-    statusMid = client.subscribeToDeviceStatus(deviceType, deviceId)
+    eventsMid = client.subscribeToDeviceEvents(typeId, deviceId, event)
+    statusMid = client.subscribeToDeviceStatus(typeId, deviceId)
 
     print("=============================================================================")
     print(tableRowTemplate % ("Timestamp", "Device", "Event"))

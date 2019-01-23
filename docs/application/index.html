@@ -64,12 +64,32 @@
             
     <li class="toctree-l3"><a href="#application-sdk-overview">Application SDK Overview</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l4" href="#configuration">Configuration</a></li>
+        
+            <li><a class="toctree-l4" href="#connectivity">Connectivity</a></li>
+        
+        </ul>
+    
 
     </ul>
                 </li>
                 <li class="">
                     
     <a class="" href="config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="commands/">Working with Device Commands</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="events/">Working with Device Events</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="status/">Working with Device Status</a>
                 </li>
     </ul>
 	    </li>
@@ -99,11 +119,11 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../gateway/">Gateway SDK Overview</a>
+    <a class="" href="../gateway/">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../gateway/config/">GatewayConfiguration</a>
+    <a class="" href="../gateway/config/">Configuration</a>
                 </li>
                 <li class="">
                     
@@ -164,7 +184,42 @@
             <div class="section">
               
                 <h1 id="application-sdk-overview">Application SDK Overview<a class="headerlink" href="#application-sdk-overview" title="Permanent link"></a></h1>
-<p>Sorry, this documentation is still a work in progress.</p>
+<p>The <code>wiotp.sdk.application</code> package contains the following:</p>
+<p>The client implementations:</p>
+<ul>
+<li><code>wiotp.sdk.application.ApplicationClient</code></li>
+</ul>
+<p>Support classes for working with the data model:</p>
+<ul>
+<li><code>wiotp.sdk.application.Command</code></li>
+<li><code>wiotp.sdk.application.Event</code></li>
+<li><code>wiotp.sdk.application.Status</code></li>
+</ul>
+<p>Support methods for handling device configuration:</p>
+<ul>
+<li><code>wiotp.sdk.application.parseConfigFile</code></li>
+<li><code>wiotp.sdk.application.parseEnvVars</code></li>
+</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link"></a></h2>
+<p>Application configuration is passed to the client via the <code>config</code> parameter when you create the client instance.  See the <a href="config/">configure applications</a> section for full details of all available options, and the built-in support for YAML file and environment variable sourced configuration.</p>
+<pre><code class="python">myConfig = { 
+    &quot;auth&quot; {
+        &quot;key&quot;: &quot;a-org1id-y67si9et&quot;
+        &quot;token&quot;: &quot;Ab$76s)asj8_s5&quot;
+    }
+}
+client = wiotp.sdk.application.ApplicationClient(config=myConfig)
+</code></pre>
+
+<h2 id="connectivity">Connectivity<a class="headerlink" href="#connectivity" title="Permanent link"></a></h2>
+<p><code>connect()</code> &amp; <code>disconnect()</code> methods are used to manage the MQTT connection to IBM Watson IoT Platform that allows the application to 
+handle commands and device events.</p>
+<p>Applications have three flavours of real-time data to work with once they have established an MQTT connection, for more information on each of these subjects see the relavent section of the documentation:</p>
+<ul>
+<li><a href="events/">Working with Device Events</a></li>
+<li><a href="commands/">Working with Device Commands</a></li>
+<li><a href="status/">Working with Device Status Updates</a></li>
+</ul>
               
             </div>
           </div>

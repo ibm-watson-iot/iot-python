@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Configuration - IBM Watson IoT Platform</title>
+  <title>Working with Device Commands - IBM Watson IoT Platform</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Configuration";
-    var mkdocs_page_input_path = "application\\config.md";
+    var mkdocs_page_name = "Working with Device Commands";
+    var mkdocs_page_input_path = "application\\commands.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -61,19 +61,27 @@
                     
     <a class="" href="../">Overview</a>
                 </li>
+                <li class="">
+                    
+    <a class="" href="../config/">Configuration</a>
+                </li>
                 <li class=" current">
                     
-    <a class="current" href="./">Configuration</a>
+    <a class="current" href="./">Working with Device Commands</a>
     <ul class="subnav">
             
-    <li class="toctree-l3"><a href="#application-configuration">Application Configuration</a></li>
+    <li class="toctree-l3"><a href="#working-with-device-commands">Working with Device Commands</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#publishing-commands-to-devices">Publishing Commands to Devices</a></li>
+        
+            <li><a class="toctree-l4" href="#handling-commands">Handling Commands</a></li>
+        
+        </ul>
     
 
     </ul>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../commands/">Working with Device Commands</a>
                 </li>
                 <li class="">
                     
@@ -165,7 +173,7 @@
         
       
     
-    <li>Configuration</li>
+    <li>Working with Device Commands</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -175,8 +183,36 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="application-configuration">Application Configuration<a class="headerlink" href="#application-configuration" title="Permanent link"></a></h1>
-<p>Sorry, this documentation is still a work in progress.</p>
+                <h1 id="working-with-device-commands">Working with Device Commands<a class="headerlink" href="#working-with-device-commands" title="Permanent link"></a></h1>
+<h2 id="publishing-commands-to-devices">Publishing Commands to Devices<a class="headerlink" href="#publishing-commands-to-devices" title="Permanent link"></a></h2>
+<p>Applications can publish commands to connected devices.</p>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.ParseConfigFile(&quot;app.yaml&quot;)
+client = wiotp.sdk.application.ApplicationClient(options)
+
+client.connect()
+commandData={'rebootDelay' : 50}
+client.publishCommand(myDeviceType, myDeviceId, &quot;reboot&quot;, &quot;json&quot;, commandData)
+</code></pre>
+
+<h2 id="handling-commands">Handling Commands<a class="headerlink" href="#handling-commands" title="Permanent link"></a></h2>
+<p>An application can subscribe to commands sent to devices to monitor the command channel, the application must explicitly subscribe to any commands it wishes to monitor. </p>
+<p>To process specific commands, you need to register a command callback method.</p>
+<pre><code class="python">def myCommandCallback(cmd):
+    print(&quot;Command received: %s&quot; % cmd.data)
+
+client.commandCallback = myCommandCallback
+</code></pre>
+
+<p>The messages are returned as an instance of the <code>Command</code> class with the following attributes:</p>
+<ul>
+<li><code>commandId</code>: Identifies the command</li>
+<li><code>format</code>: Format that the command was encoded in, for example <code>json</code></li>
+<li><code>data</code>: Data for the payload converted to a Python dict by an impleentation of <code>MessageCodec</code></li>
+<li><code>timestamp</code>: Date and time that the event was recieved (as <code>datetime.datetime</code> object)</li>
+</ul>
+<p>If a command is recieved in an unknown format or if a device does not recognize the format, the device library raises <code>wiotp.sdk.MissingMessageDecoderException</code>.</p>
               
             </div>
           </div>
@@ -184,10 +220,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../commands/" class="btn btn-neutral float-right" title="Working with Device Commands">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../events/" class="btn btn-neutral float-right" title="Working with Device Events">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../" class="btn btn-neutral" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../config/" class="btn btn-neutral" title="Configuration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -213,10 +249,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../config/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../commands/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../events/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

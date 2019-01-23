@@ -9,6 +9,6 @@
 
 
 # Expose public API for this package
-from wiotp.sdk.application.client import Client
-from wiotp.sdk.application.config import ParseConfigFile
+from wiotp.sdk.application.client import ApplicationClient
+from wiotp.sdk.application.config import parseConfigFile, parseEnvVars
 from wiotp.sdk.application.messages import Command, Event, Status
