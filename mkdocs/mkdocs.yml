@@ -3,7 +3,20 @@
 site_name: IBM Watson IoT Platform
 nav:
   - 'Home': index.md
-  - 'ibmiotf.device': device.md
+  - 'Application SDK':
+    - 'Overview': application/index.md
+    - 'Configuration': application/config.md
+  - 'Device SDK':
+    - 'Overview': device/index.md
+    - 'Configuration': device/config.md
+    - 'Managed Devices': device/managed.md
+  - 'Gateway SDK':
+    - 'Gateway SDK Overview': gateway/index.md
+    - 'GatewayConfiguration': gateway/config.md
+    - 'Managed Gateways': gateway/managed.md
+  - 'Common Topics':
+    - 'Custom Message Formats': custommsg.md
+    - 'Exceptions': exceptions.md
 
 theme: readthedocs
 

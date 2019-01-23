@@ -13,7 +13,7 @@ class ConnectionException(Exception):
         return self.reason
 
 
-class ConfigurationException(ConnectionException):
+class ConfigurationException(Exception):
     """
     Specific Connection exception where the configuration is invalid
     
