@@ -7,23 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Working with Device Status - IBM Watson IoT Platform</title>
+  <link rel="shortcut icon" href="../../../img/favicon.ico">
+  <title>Device Status Updates - IBM Watson IoT Platform</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Working with Device Status";
-    var mkdocs_page_input_path = "application\\status.md";
+    var mkdocs_page_name = "Device Status Updates";
+    var mkdocs_page_input_path = "application\\mqtt\\status.md";
     var mkdocs_page_url = null;
   </script>
   
-  <script src="../../js/jquery-2.1.1.min.js" defer></script>
-  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="../../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -36,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="../.." class="icon icon-home"> IBM Watson IoT Platform</a>
+        <a href="../../.." class="icon icon-home"> IBM Watson IoT Platform</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -50,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="../..">Home</a>
+    <a class="" href="../../..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -59,23 +59,23 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../">Overview</a>
+    <a class="" href="../../">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../config/">Configuration</a>
+    <a class="" href="../../config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../commands/">Working with Device Commands</a>
+    <a class="" href="../commands/">Device Commands</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../events/">Working with Device Events</a>
+    <a class="" href="../events/">Device Events</a>
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">Working with Device Status</a>
+    <a class="current" href="./">Device Status Updates</a>
     <ul class="subnav">
             
     <li class="toctree-l3"><a href="#working-with-device-status">Working with Device Status</a></li>
@@ -91,6 +91,26 @@
 
     </ul>
                 </li>
+                <li class="">
+                    
+    <a class="" href="../../api/registry/">Device Registry</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../api/mgmt/">Device Management</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../api/lec/">Last Event Cache</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../api/status/">Service Status</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../api/usage/">Usage Reports</a>
+                </li>
     </ul>
 	    </li>
           
@@ -100,15 +120,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../device/">Overview</a>
+    <a class="" href="../../../device/">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../device/config/">Configuration</a>
+    <a class="" href="../../../device/config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../device/managed/">Managed Devices</a>
+    <a class="" href="../../../device/managed/">Managed Devices</a>
                 </li>
     </ul>
 	    </li>
@@ -119,15 +139,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../gateway/">Overview</a>
+    <a class="" href="../../../gateway/">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../gateway/config/">Configuration</a>
+    <a class="" href="../../../gateway/config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../gateway/managed/">Managed Gateways</a>
+    <a class="" href="../../../gateway/managed/">Managed Gateways</a>
                 </li>
     </ul>
 	    </li>
@@ -138,11 +158,11 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../custommsg/">Custom Message Formats</a>
+    <a class="" href="../../../custommsg/">Custom Message Formats</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../exceptions/">Exceptions</a>
+    <a class="" href="../../../exceptions/">Exceptions</a>
                 </li>
     </ul>
 	    </li>
@@ -157,7 +177,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../..">IBM Watson IoT Platform</a>
+        <a href="../../..">IBM Watson IoT Platform</a>
       </nav>
 
       
@@ -165,7 +185,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="../..">Docs</a> &raquo;</li>
+    <li><a href="../../..">Docs</a> &raquo;</li>
     
       
         
@@ -173,7 +193,7 @@
         
       
     
-    <li>Working with Device Status</li>
+    <li>Device Status Updates</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -248,10 +268,10 @@ client.subscribeToDeviceStstus()
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../device/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../api/registry/" class="btn btn-neutral float-right" title="Device Registry">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../events/" class="btn btn-neutral" title="Working with Device Events"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../events/" class="btn btn-neutral" title="Device Events"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -280,13 +300,13 @@ client.subscribeToDeviceStstus()
         <span><a href="../events/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../device/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../api/registry/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
-    <script>var base_url = '../..';</script>
-    <script src="../../js/theme.js" defer></script>
-      <script src="../../search/main.js" defer></script>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
 
 </body>
 </html>
