@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     client = None
     if configFilePath is not None:
-        options = ibmiotf.application.ParseConfigFile(configFilePath)
+        options = ibmiotf.application.parseConfigFile(configFilePath)
     else:
         options = {"org": organization, "id": appId, "auth-method": authMethod, "auth-key": authKey, "auth-token": authToken}
     try:

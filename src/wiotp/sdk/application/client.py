@@ -160,10 +160,10 @@ class ApplicationClient(AbstractClient):
 
     def publishEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
         topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (typeId, deviceId, eventId, msgFormat)
-        return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
 
 
-    def publishCommand(self, typeId, deviceId, command, msgFormat, data=None, qos=0, on_publish=None):
+    def publishCommand(self, typeId, deviceId, commandId, msgFormat, data=None, qos=0, on_publish=None):
         """
         Publish a command to a device
 
@@ -185,7 +185,7 @@ class ApplicationClient(AbstractClient):
         if not self.connectEvent.wait(timeout=10):
             return False
         else:
-            topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (typeId, deviceId, command, msgFormat)
+            topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (typeId, deviceId, commandId, msgFormat)
 
             # Raise an exception if there is no codec for this msgFormat
             if self.getMessageCodec(msgFormat) is None:
@@ -229,7 +229,7 @@ class ApplicationClient(AbstractClient):
         """
         try:
             event = Event(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received event '%s' from %s:%s" % (event.event, event.typeId, event.deviceId))
+            self.logger.debug("Received event '%s' from %s:%s" % (event.eventId, event.typeId, event.deviceId))
             if self.deviceEventCallback: self.deviceEventCallback(event)
         except InvalidEventException as e:
             self.logger.critical(str(e))
@@ -242,7 +242,7 @@ class ApplicationClient(AbstractClient):
         """
         try:
             command = Command(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received command '%s' from %s:%s" % (command.command, command.typeId, command.deviceId))
+            self.logger.debug("Received command '%s' from %s:%s" % (command.commandId, command.typeId, command.deviceId))
             if self.deviceCommandCallback: self.deviceCommandCallback(command)
         except InvalidEventException as e:
             self.logger.critical(str(e))

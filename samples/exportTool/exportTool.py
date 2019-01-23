@@ -83,7 +83,7 @@ if __name__ == "__main__":
 	args, unknown = parser.parse_known_args()
 
 	client = None
-	options = wiotp.sdk.application.ParseConfigFile(args.config)
+	options = wiotp.sdk.application.parseConfigFile(args.config)
 	try:
 		client = wiotp.sdk.application.ApplicationClient(options)
 		client.logger.setLevel(logging.DEBUG)

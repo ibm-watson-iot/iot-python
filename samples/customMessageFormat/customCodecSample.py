@@ -54,10 +54,10 @@ interval = 1
 for o, a in opts:
 	if o in ("-a", "--app"):
 		appConfigFilePath = a
-		appOptions = wiotp.sdk.application.ParseConfigFile(appConfigFilePath)
+		appOptions = wiotp.sdk.application.parseConfigFile(appConfigFilePath)
 	elif o in ("-d", "--device"):
 		deviceConfigFilePath = a
-		deviceOptions = wiotp.sdk.device.ParseConfigFile(deviceConfigFilePath)
+		deviceOptions = wiotp.sdk.device.parseConfigFile(deviceConfigFilePath)
 	else:
 		assert False, "unhandled option" + o
 		

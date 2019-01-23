@@ -6,9 +6,14 @@ nav:
   - 'Application SDK':
     - 'Overview': application/index.md
     - 'Configuration': application/config.md
-    - 'Working with Device Commands': application/commands.md
-    - 'Working with Device Events': application/events.md
-    - 'Working with Device Status': application/status.md
+    - 'Device Commands': application/mqtt/commands.md
+    - 'Device Events': application/mqtt/events.md
+    - 'Device Status Updates': application/mqtt/status.md
+    - 'Device Registry': application/api/registry.md
+    - 'Device Management': application/api/mgmt.md
+    - 'Last Event Cache': application/api/lec.md
+    - 'Service Status': application/api/status.md
+    - 'Usage Reports': application/api/usage.md
   - 'Device SDK':
     - 'Overview': device/index.md
     - 'Configuration': device/config.md

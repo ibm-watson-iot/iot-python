@@ -138,7 +138,7 @@ if __name__ == "__main__":
 			assert False, "unhandled option" + o
 
 	client = None
-	options = wiotp.sdk.application.ParseConfigFile(configFilePath)
+	options = wiotp.sdk.application.parseConfigFile(configFilePath)
 	
 	try:
 		client = wiotp.sdk.application.ApplicationClient(options)

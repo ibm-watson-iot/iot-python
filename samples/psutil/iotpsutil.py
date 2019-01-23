@@ -116,7 +116,7 @@ if __name__ == "__main__":
 	client = None
 	try:
 		if configFilePath is not None:
-			options = wiotp.sdk.device.ParseConfigFile(configFilePath)
+			options = wiotp.sdk.device.parseConfigFile(configFilePath)
 		else:
 			options = {"identity": {"orgId": organization, "typeId": typeId, "deviceId": deviceId}, "auth": { "token": authToken} }
 		client = wiotp.sdk.device.DeviceClient(options)

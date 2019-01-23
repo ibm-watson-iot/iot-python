@@ -40,6 +40,6 @@ handle commands and device events.
 
 Applications have three flavours of real-time data to work with once they have established an MQTT connection, for more information on each of these subjects see the relavent section of the documentation:
 
-- [Working with Device Events](events.md)
-- [Working with Device Commands](commands.md)
-- [Working with Device Status Updates](status.md)
+- [Device Events](mqtt/events.md)
+- [Device Commands](mqtt/commands.md)
+- [Device Status Updates](mqtt/status.md)

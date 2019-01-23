@@ -64,5 +64,5 @@ class TestDeviceCfg(testUtils.AbstractTest):
     def testMissingConfigFile(self):
         deviceFile="InvalidFile.out"
         with assert_raises(wiotp.sdk.ConfigurationException) as e:
-            wiotp.sdk.device.ParseConfigFile(deviceFile)
+            wiotp.sdk.device.parseConfigFile(deviceFile)
         assert_equal(e.exception.reason, "Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')")
