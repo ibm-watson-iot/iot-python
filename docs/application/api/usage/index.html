@@ -100,6 +100,16 @@
             
     <li class="toctree-l3"><a href="#usage-metering">Usage &amp; Metering</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l4" href="#viewing-summary-data">Viewing Summary Data</a></li>
+        
+            <li><a class="toctree-l4" href="#getting-detailed-breakdown-of-data-transfer">Getting Detailed Breakdown of Data Transfer</a></li>
+        
+            <li><a class="toctree-l4" href="#handling-datatransfersummary-and-daydatatransfer-data">Handling DataTransferSummary and DayDataTransfer data</a></li>
+        
+        </ul>
+    
 
     </ul>
                 </li>
@@ -196,8 +206,52 @@
             <div class="section">
               
                 <h1 id="usage-metering">Usage &amp; Metering<a class="headerlink" href="#usage-metering" title="Permanent link"></a></h1>
+<p>The <code>usage.dataTransfer(start, end, detail)</code> method allows you to retrieve data regarding the volume of data transfer to Watson IoT Platfrom in your organization.</p>
+<h2 id="viewing-summary-data">Viewing Summary Data<a class="headerlink" href="#viewing-summary-data" title="Permanent link"></a></h2>
+<p>By setting <code>detail=False</code> (or omitting the parameter entirely) the response will provide a month by month breakdown of your data transfer:</p>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+dataTransfer = appClient.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today())
+
+print(&quot;Time period = %s to %s&quot; % (dataTransfer.start.isoformat(), dataTransfer.end.isoformat()))
+print(&quot;- Average usage = %s&quot; % (dataTransfer.average))
+print(&quot;- Total usage = %s&quot; % (dataTransfer.total))
+</code></pre>
+
+<h2 id="getting-detailed-breakdown-of-data-transfer">Getting Detailed Breakdown of Data Transfer<a class="headerlink" href="#getting-detailed-breakdown-of-data-transfer" title="Permanent link"></a></h2>
+<p>In setting <code>detail=True</code> the response will additionally provide a day by day breakdown of data transfer.</p>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+dataTransfer = appClient.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today(), True)
+
+print(&quot;Time period = %s to %s&quot; % (dataTransfer.start.isoformat(), dataTransfer.end.isoformat()))
+print(&quot;- Average usage = %s bytes&quot; % (dataTransfer.average))
+print(&quot;- Total usage = %s bytes&quot; % (dataTransfer.total))
+
+for day in dataTransfer.days:
+    print(&quot; * Usage on %s = %s bytes&quot; % (day.date.isoformat(), day.total) )
+
+</code></pre>
+
+<h2 id="handling-datatransfersummary-and-daydatatransfer-data">Handling DataTransferSummary and DayDataTransfer data<a class="headerlink" href="#handling-datatransfersummary-and-daydatatransfer-data" title="Permanent link"></a></h2>
+<p>The <code>wiotp.sdk.api.usage.DataTransferSummary</code> and <code>wiotp.sdk.api.usage.DayDataTransfer</code> classes provide an easy way to work with the data that is returned by the usage API.  <code>wiotp.sdk.api.usage.DataTransferSummary</code> is the top level container and provides the following properties:</p>
 <ul>
-<li>dataTransfer</li>
+<li><code>start</code> The start date for the summary report (<code>datetime.date</code>)</li>
+<li><code>end</code> The end date for the summary report (<code>datetime.date</code>)</li>
+<li><code>average</code> The average usage across the summary period</li>
+<li><code>total</code> The total usage across the summary period</li>
+<li><code>days</code> If <code>detail=True</code> then this will be a list of <code>DayDataTransfer</code> objects</li>
+</ul>
+<p>The <code>wiotp.sdk.api.usage.DayDataTransfer</code> allows you to work with the day by day breakdown of data usage, exposing the following properties:</p>
+<ul>
+<li><code>date</code> The day that usage is being reported for (<code>datetime.date</code>)</li>
+<li><code>total</code> The total usage on this day</li>
 </ul>
               
             </div>

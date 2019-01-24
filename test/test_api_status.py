@@ -19,8 +19,8 @@ class TestRegistryStatus(testUtils.AbstractTest):
         #     'thirdParty': 'green'
         #   }
         # }
-        assert_true("us" in status)
-        assert_true("dashboard" in status["us"])
-        assert_true("messaging" in status["us"])
-        assert_true("thirdParty" in status["us"])
+        assert_equals("us", status.region)
+        assert_true(status.dashboard in ["green", "orange", "red"])
+        assert_true(status.messaging in ["green", "orange", "red"])
+        assert_true(status.thirdParty in ["green", "orange", "red"])
     

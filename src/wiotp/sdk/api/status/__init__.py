@@ -7,7 +7,30 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
+from collections import defaultdict
+
 from wiotp.sdk.exceptions import ApiException
+
+class ServiceStatus(defaultdict):
+    def __init__(self, **kwargs):
+        dict.__init__(self, **kwargs)
+    
+    @property
+    def region(self):
+        return next(iter(self))
+    
+    @property
+    def messaging(self):
+        return self[self.region]["messaging"]
+    
+    @property
+    def dashboard(self):
+        return self[self.region]["dashboard"]
+
+    @property
+    def thirdParty(self):
+        return self[self.region]["thirdParty"]
+    
 
 class Status():
 
@@ -24,6 +47,6 @@ class Status():
         r = self._apiClient.get('api/v0002/service-status')
 
         if r.status_code == 200:
-            return r.json()
+            return ServiceStatus(**r.json())
         else:
             raise ApiException(r)
