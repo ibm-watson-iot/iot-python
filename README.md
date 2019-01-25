@@ -43,7 +43,7 @@ Uninstalling the module is simple.
 
 ## Documentation
 
-http://ibm-watson-iot.github.io/iot-python/
+https://ibm-watson-iot.github.io/iot-python/
 
 
 ## Supported Features
