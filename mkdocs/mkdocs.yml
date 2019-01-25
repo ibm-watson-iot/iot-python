@@ -9,7 +9,9 @@ nav:
     - 'Device Commands': application/mqtt/commands.md
     - 'Device Events': application/mqtt/events.md
     - 'Device Status Updates': application/mqtt/status.md
-    - 'Device Registry': application/api/registry.md
+    - 'Registry - Types': application/api/registry/types.md
+    - 'Registry - Devices': application/api/registry/devices.md
+    - 'Registry - Diagnostics': application/api/registry/diag.md
     - 'Device Management': application/api/mgmt.md
     - 'Last Event Cache': application/api/lec.md
     - 'Service Status': application/api/status.md

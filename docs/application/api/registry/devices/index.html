@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../../../img/favicon.ico">
+  <title>Registry - Devices - IBM Watson IoT Platform</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Registry - Devices";
+    var mkdocs_page_input_path = "application\\api\\registry\\devices.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../../../.." class="icon icon-home"> IBM Watson IoT Platform</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Application SDK</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../../">Overview</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../mqtt/commands/">Device Commands</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../mqtt/events/">Device Events</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../mqtt/status/">Device Status Updates</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../types/">Registry - Types</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Registry - Devices</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#registry-devices">Registry - Devices</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#deviceuid">DeviceUid</a></li>
+        
+            <li><a class="toctree-l4" href="#get">Get</a></li>
+        
+            <li><a class="toctree-l4" href="#delete">Delete</a></li>
+        
+            <li><a class="toctree-l4" href="#list">List</a></li>
+        
+            <li><a class="toctree-l4" href="#create">Create</a></li>
+        
+            <li><a class="toctree-l4" href="#update">Update</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../diag/">Registry - Diagnostics</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../mgmt/">Device Management</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../lec/">Last Event Cache</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../status/">Service Status</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../usage/">Usage Reports</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Device SDK</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../../../device/">Overview</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../../device/config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../../device/managed/">Managed Devices</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Gateway SDK</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../../../gateway/">Overview</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../../gateway/config/">Configuration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../../gateway/managed/">Managed Gateways</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Common Topics</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../../../custommsg/">Custom Message Formats</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../../../exceptions/">Exceptions</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../..">IBM Watson IoT Platform</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Application SDK &raquo;</li>
+        
+      
+    
+    <li>Registry - Devices</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="registry-devices">Registry - Devices<a class="headerlink" href="#registry-devices" title="Permanent link"></a></h1>
+<h2 id="deviceuid">DeviceUid<a class="headerlink" href="#deviceuid" title="Permanent link"></a></h2>
+<p>Every device in your organization is uniquely identifiable by the combination of it's <code>typeId</code> and <code>deviceId</code>.  Two devices of different types can have the same <code>deviceId</code>.  It helps to think of <code>typeId</code> as a model number and <code>deviceId</code> as a serial number.  Two seperate types may independently have the same serial number pattern (e.g. simple sequential numbering), but because identity in WIoTP is a combination of <code>typeId</code> and <code>deviceId</code> this does not cause a clash.</p>
+<p>Globally, your organization ID is applied to the deviceUID creating a globally unique identifier for every device connected to Watson IoT Platform.</p>
+<ul>
+<li><strong>typeId</strong>: <code>myDeviceType</code></li>
+<li><strong>deviceId</strong>: <code>myDevice</code></li>
+<li><strong>deviceUid</strong>: <code>myDeviceType:myDevice</code></li>
+<li><strong>deviceGuid</strong>: <code>myOrg:myDeviceType:myDevice</code></li>
+</ul>
+<p>The <code>wiotp.sdk.registry.devices.DeviceUID</code> class provides a structure to encapsulate a device unique ID.  You can use it interchangeably throughout the SDK with a simple Python dictionary.  It's a code style choice.</p>
+<pre><code class="python">
+from pprint import pprint
+import wiotp.sdk.application
+import wiotp.sdk.api.registry.devices.DeviceUid as DeviceUid
+
+deviceIdAsClass = DeviceUid(typeId=&quot;myDeviceType&quot;, deviceId=&quot;myDevice&quot;)
+deviceIdAsDict = {&quot;typeId&quot;: &quot;myDeviceType&quot;, &quot;deviceId&quot;: &quot;myDevice&quot;}
+
+# All three output &quot;myDeviceType:myDevice&quot;
+print(deviceIdAsClass.typeId + &quot;:&quot; + deviceIdAsClass.deviceId)
+print(deviceIdAsClass)
+print(deviceIdAsDict[&quot;typeId&quot;] + &quot;:&quot; + deviceIdAsDict[&quot;deviceId&quot;])
+
+# Outputs {&quot;typeId&quot;: &quot;myDeviceType&quot;, &quot;deviceId&quot;: &quot;myDevice&quot;}
+pprint(deviceIdAsClass)
+
+# These two calls are identical, the same applies anywhere that a 
+# deviceUid is needed, it is your choice which style you prefer 
+# in your code.
+appClient.registry.devices.delete(deviceIdAsClass)
+appClient.registry.devices.delete(deviceIdAsDict)
+</code></pre>
+
+<h2 id="get">Get<a class="headerlink" href="#get" title="Permanent link"></a></h2>
+<h2 id="delete">Delete<a class="headerlink" href="#delete" title="Permanent link"></a></h2>
+<h2 id="list">List<a class="headerlink" href="#list" title="Permanent link"></a></h2>
+<h2 id="create">Create<a class="headerlink" href="#create" title="Permanent link"></a></h2>
+<p><code>wiotp.sdk.api.regsitry.devices.DeviceCreateRequest</code> exists to aid in the registration of new devices.  It's use is entirely optional, and you can use a standard python dictionary instead if you prefer.  To create an instance of this class provide the following named parameters:</p>
+<ul>
+<li><code>typeId</code> Required</li>
+<li><code>deviceId</code> Required</li>
+<li><code>authToken</code> Optional, if you do not specify a token on creation one will be generated automatically for you.  If you take a generated toekn, you must capture the token from the device registration response as it can not be retrieved later.</li>
+<li><code>deviceInfo</code> Optional.  A python dictionary, or a <code>DeviceInfo</code> instance</li>
+<li><code>location</code> Optional</li>
+<li><code>metadata</code> Optional dictionary containing freeform metadata</li>
+</ul>
+<pre><code class="python">import uuid
+import wiotp.sdk.application
+import wiotp.sdk.api.registry.devices.DeviceCreateRequest as DeviceCreateRequest
+import wiotp.sdk.api.registry.devices.DeviceInfo as DeviceInfo
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+# Device registration using the helper classes
+deviceToRegister1 = DeviceCreateRequest(
+    typeId=&quot;myDeviceType&quot;, 
+    deviceId=str(uuid.uuid4()), 
+    authToken=&quot;NotVerySecretPassw0rd&quot;,
+    deviceInfo=DeviceInfo(serialNumber=&quot;123&quot;, descriptiveLocation=&quot;Floor 3, Room 2&quot;)
+)
+
+appClient.registry.devices.create(deviceToRegister1)
+
+# Device registration using simple Python dictionaries
+deviceToRegister2 = {
+    &quot;typeId&quot;: &quot;myDeviceType&quot;, 
+    &quot;deviceId&quot;: str(uuid.uuid4()), 
+    &quot;authToken&quot;: &quot;NotVerySecretPassw0rd&quot;,
+    &quot;deviceInfo&quot;: {
+        &quot;serialNumber&quot;: &quot;123&quot;, 
+        &quot;descriptiveLocation&quot;: &quot;Floor 3, Room 2&quot;
+    }
+}
+
+appClient.registry.devices.create(deviceToRegister2)
+</code></pre>
+
+<p><code>registry.devices.create()</code> also allows you to pass a list of devices to perform bulk device registration.</p>
+<pre><code class="python">import uuid
+import wiotp.sdk.application
+import wiotp.sdk.api.registry.devices.DeviceCreateRequest as DeviceCreateRequest
+
+# Register 100 devices with random UUIDs as deviceIds
+devicesToRegister = []
+for i in range(100)
+    dReq = DeviceCreateRequest(typeId=&quot;myDeviceType&quot;, deviceId=str(uuid.uuid4())
+    devicesToRegister.append(dReq)
+
+registrationResult = appClient.registry.devices.create(devicesToRegister)
+
+</code></pre>
+
+<h2 id="update">Update<a class="headerlink" href="#update" title="Permanent link"></a></h2>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../diag/" class="btn btn-neutral float-right" title="Registry - Diagnostics">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../types/" class="btn btn-neutral" title="Registry - Types"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../types/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../diag/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../../../..';</script>
+    <script src="../../../../js/theme.js" defer></script>
+      <script src="../../../../search/main.js" defer></script>
+
+</body>
+</html>

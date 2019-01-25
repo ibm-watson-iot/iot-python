@@ -46,6 +46,12 @@ class DeviceUid(defaultdict):
     def deviceId(self):
         return self["deviceId"]
     
+    def __str__(self):
+        return self["typeId"] + ":" + self["deviceId"]
+    
+    def __repr__(self):
+        return json.dumps(self, sort_keys=True, indent=2)
+    
 class DeviceCreateRequest(defaultdict):
     def __init__(self, typeId, deviceId, authToken = None, deviceInfo = None, location = None, metadata=None):
         dict.__init__(

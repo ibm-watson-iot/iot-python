@@ -33,7 +33,14 @@ class DeviceType(object):
             return self._data["description"]
         else: 
             return None
-        
+
+    @property
+    def metadata(self):
+        if "metadata" in self._data:
+            return self._data["metadata"]
+        else: 
+            return None
+
     @property
     def classId(self):
         return self._data["classId"]

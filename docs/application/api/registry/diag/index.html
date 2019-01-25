@@ -7,23 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Overview - IBM Watson IoT Platform</title>
+  <link rel="shortcut icon" href="../../../../img/favicon.ico">
+  <title>Registry - Diagnostics - IBM Watson IoT Platform</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Overview";
-    var mkdocs_page_input_path = "gateway\\index.md";
+    var mkdocs_page_name = "Registry - Diagnostics";
+    var mkdocs_page_input_path = "application\\api\\registry\\diag.md";
     var mkdocs_page_url = null;
   </script>
   
-  <script src="../js/jquery-2.1.1.min.js" defer></script>
-  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="../../../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -36,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href=".." class="icon icon-home"> IBM Watson IoT Platform</a>
+        <a href="../../../.." class="icon icon-home"> IBM Watson IoT Platform</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -50,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="..">Home</a>
+    <a class="" href="../../../..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -59,51 +59,69 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../application/">Overview</a>
+    <a class="" href="../../../">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/config/">Configuration</a>
+    <a class="" href="../../../config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/mqtt/commands/">Device Commands</a>
+    <a class="" href="../../../mqtt/commands/">Device Commands</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/mqtt/events/">Device Events</a>
+    <a class="" href="../../../mqtt/events/">Device Events</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/mqtt/status/">Device Status Updates</a>
+    <a class="" href="../../../mqtt/status/">Device Status Updates</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/api/registry/types/">Registry - Types</a>
+    <a class="" href="../types/">Registry - Types</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/api/registry/devices/">Registry - Devices</a>
+    <a class="" href="../devices/">Registry - Devices</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Registry - Diagnostics</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#registry-diagnostics">Registry - Diagnostics</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#location-data">Location Data</a></li>
+        
+            <li><a class="toctree-l4" href="#connection-logs">Connection Logs</a></li>
+        
+            <li><a class="toctree-l4" href="#error-logs">Error Logs</a></li>
+        
+            <li><a class="toctree-l4" href="#error-codes">Error Codes</a></li>
+        
+        </ul>
+    
+
+    </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/api/registry/diag/">Registry - Diagnostics</a>
+    <a class="" href="../../mgmt/">Device Management</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/api/mgmt/">Device Management</a>
+    <a class="" href="../../lec/">Last Event Cache</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/api/lec/">Last Event Cache</a>
+    <a class="" href="../../status/">Service Status</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../application/api/status/">Service Status</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../application/api/usage/">Usage Reports</a>
+    <a class="" href="../../usage/">Usage Reports</a>
                 </li>
     </ul>
 	    </li>
@@ -114,15 +132,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../device/">Overview</a>
+    <a class="" href="../../../../device/">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../device/config/">Configuration</a>
+    <a class="" href="../../../../device/config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../device/managed/">Managed Devices</a>
+    <a class="" href="../../../../device/managed/">Managed Devices</a>
                 </li>
     </ul>
 	    </li>
@@ -131,23 +149,17 @@
 		
     <span class="caption-text">Gateway SDK</span>
     <ul class="subnav">
-                <li class=" current">
+                <li class="">
                     
-    <a class="current" href="./">Overview</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#gateway-sdk-overview">Gateway SDK Overview</a></li>
-    
-
-    </ul>
+    <a class="" href="../../../../gateway/">Overview</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="config/">Configuration</a>
+    <a class="" href="../../../../gateway/config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="managed/">Managed Gateways</a>
+    <a class="" href="../../../../gateway/managed/">Managed Gateways</a>
                 </li>
     </ul>
 	    </li>
@@ -158,11 +170,11 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../custommsg/">Custom Message Formats</a>
+    <a class="" href="../../../../custommsg/">Custom Message Formats</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../exceptions/">Exceptions</a>
+    <a class="" href="../../../../exceptions/">Exceptions</a>
                 </li>
     </ul>
 	    </li>
@@ -177,7 +189,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="..">IBM Watson IoT Platform</a>
+        <a href="../../../..">IBM Watson IoT Platform</a>
       </nav>
 
       
@@ -185,15 +197,15 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="..">Docs</a> &raquo;</li>
+    <li><a href="../../../..">Docs</a> &raquo;</li>
     
       
         
-          <li>Gateway SDK &raquo;</li>
+          <li>Application SDK &raquo;</li>
         
       
     
-    <li>Overview</li>
+    <li>Registry - Diagnostics</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -203,8 +215,17 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="gateway-sdk-overview">Gateway SDK Overview<a class="headerlink" href="#gateway-sdk-overview" title="Permanent link"></a></h1>
-<p>Sorry, this documentation is still a work in progress.</p>
+                <h1 id="registry-diagnostics">Registry - Diagnostics<a class="headerlink" href="#registry-diagnostics" title="Permanent link"></a></h1>
+<h2 id="location-data">Location Data<a class="headerlink" href="#location-data" title="Permanent link"></a></h2>
+<h2 id="connection-logs">Connection Logs<a class="headerlink" href="#connection-logs" title="Permanent link"></a></h2>
+<h2 id="error-logs">Error Logs<a class="headerlink" href="#error-logs" title="Permanent link"></a></h2>
+<h3 id="handling-logentry-data">Handling LogEntry data<a class="headerlink" href="#handling-logentry-data" title="Permanent link"></a></h3>
+<p><code>wiotp.sdk.api.registry.devices.LogEntry</code> provides two properties:</p>
+<ul>
+<li><code>message</code> The message content for the log entry</li>
+<li><code>timestamp</code> The time the log was created (<code>datetime.datetime</code>)</li>
+</ul>
+<h2 id="error-codes">Error Codes<a class="headerlink" href="#error-codes" title="Permanent link"></a></h2>
               
             </div>
           </div>
@@ -212,10 +233,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="config/" class="btn btn-neutral float-right" title="Configuration">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../mgmt/" class="btn btn-neutral float-right" title="Device Management">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../device/managed/" class="btn btn-neutral" title="Managed Devices"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../devices/" class="btn btn-neutral" title="Registry - Devices"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -241,16 +262,16 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../device/managed/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../devices/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="config/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../mgmt/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
-    <script>var base_url = '..';</script>
-    <script src="../js/theme.js" defer></script>
-      <script src="../search/main.js" defer></script>
+    <script>var base_url = '../../../..';</script>
+    <script src="../../../../js/theme.js" defer></script>
+      <script src="../../../../search/main.js" defer></script>
 
 </body>
 </html>
