@@ -11,8 +11,10 @@ from wiotp.sdk.api.common import ApiClient
 from wiotp.sdk.api.registry import Registry
 from wiotp.sdk.api.usage import Usage
 from wiotp.sdk.api.status import Status
+from wiotp.sdk.api.dsc import DSC
 from wiotp.sdk.api.lec import LEC
 from wiotp.sdk.api.mgmt import Mgmt
+from wiotp.sdk.api.services import ServiceBindings
 
 #This method returns the organization
 #def getOrganizationDetails(self):

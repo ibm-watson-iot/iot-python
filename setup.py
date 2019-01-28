@@ -45,11 +45,13 @@ setup(
         'wiotp.sdk.gateway', 
         'wiotp.sdk.application', 
         'wiotp.sdk.api',
+        'wiotp.sdk.api.dsc',
         'wiotp.sdk.api.registry',
         'wiotp.sdk.api.mgmt',
         'wiotp.sdk.api.status',
         'wiotp.sdk.api.usage',
-        'wiotp.sdk.api.lec'
+        'wiotp.sdk.api.lec',
+        'wiotp.sdk.api.services'
     ],
     namespace_packages=['wiotp'],
     package_data={'wiotp.sdk': ['*.pem']},
