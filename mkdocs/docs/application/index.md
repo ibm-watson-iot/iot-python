@@ -1,4 +1,4 @@
-# Application SDK Overview
+# Application SDK
 
 The `wiotp.sdk.application` package contains the following:
 

@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Application SDK - IBM Watson IoT Platform</title>
+  <title>Basic Concepts - IBM Watson IoT Platform</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Application SDK";
-    var mkdocs_page_input_path = "application\\index.md";
+    var mkdocs_page_name = "Basic Concepts";
+    var mkdocs_page_input_path = "concepts.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -57,9 +57,21 @@
 		
     <span class="caption-text">Common Topics</span>
     <ul class="subnav">
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="../concepts/">Basic Concepts</a>
+    <a class="current" href="./">Basic Concepts</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#basic-concepts">Basic Concepts</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#thing-classes">Thing Classes</a></li>
+        
+        </ul>
+    
+
+    </ul>
                 </li>
                 <li class="">
                     
@@ -80,67 +92,53 @@
 		
     <span class="caption-text">Application Development</span>
     <ul class="subnav">
-                <li class=" current">
+                <li class="">
                     
-    <a class="current" href="./">Application SDK</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#application-sdk">Application SDK</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#configuration">Configuration</a></li>
-        
-            <li><a class="toctree-l4" href="#connectivity">Connectivity</a></li>
-        
-        </ul>
-    
-
-    </ul>
+    <a class="" href="../application/">Application SDK</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="config/">Configuration</a>
+    <a class="" href="../application/config/">Configuration</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="mqtt/commands/">Device Commands</a>
+    <a class="" href="../application/mqtt/commands/">Device Commands</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="mqtt/events/">Device Events</a>
+    <a class="" href="../application/mqtt/events/">Device Events</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="mqtt/status/">Device Status Updates</a>
+    <a class="" href="../application/mqtt/status/">Device Status Updates</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/registry/types/">Registry - Types</a>
+    <a class="" href="../application/api/registry/types/">Registry - Types</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/registry/devices/">Registry - Devices</a>
+    <a class="" href="../application/api/registry/devices/">Registry - Devices</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/registry/diag/">Registry - Diagnostics</a>
+    <a class="" href="../application/api/registry/diag/">Registry - Diagnostics</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/mgmt/">Device Management</a>
+    <a class="" href="../application/api/mgmt/">Device Management</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/lec/">Last Event Cache</a>
+    <a class="" href="../application/api/lec/">Last Event Cache</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/status/">Service Status</a>
+    <a class="" href="../application/api/status/">Service Status</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="api/usage/">Usage Reports</a>
+    <a class="" href="../application/api/usage/">Usage Reports</a>
                 </li>
     </ul>
 	    </li>
@@ -205,11 +203,11 @@
     
       
         
-          <li>Application Development &raquo;</li>
+          <li>Common Topics &raquo;</li>
         
       
     
-    <li>Application SDK</li>
+    <li>Basic Concepts</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -219,43 +217,57 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="application-sdk">Application SDK<a class="headerlink" href="#application-sdk" title="Permanent link"></a></h1>
-<p>The <code>wiotp.sdk.application</code> package contains the following:</p>
-<p>The client implementations:</p>
+                <h1 id="basic-concepts">Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permanent link"></a></h1>
+<h2 id="thing-classes">Thing Classes<a class="headerlink" href="#thing-classes" title="Permanent link"></a></h2>
+<p>The Internet is made up of "things", the most important concept to get to terms with when working with Watson IoT Platform is the idea of applications, devices, &amp; gateways as three distinct classes of "thing" in your Internet of Things solution.  </p>
+<p>Getting your <strong>physical device model</strong> right is essential to building a solution that will allow you to take advantage of all the advanced capabilities of Watson IoT.</p>
+<h3 id="applications">Applications<a class="headerlink" href="#applications" title="Permanent link"></a></h3>
+<p>Applications are the most powerful class of thing in Watson IoT Platform.</p>
 <ul>
-<li><code>wiotp.sdk.application.ApplicationClient</code></li>
+<li>Send <strong>events</strong> on behalf of devices</li>
+<li>Send <strong>commands</strong> to devices</li>
+<li>Recieve <strong>commands</strong> sent to devices</li>
+<li>Work with the IBM Watson IoT Platform APIs</li>
 </ul>
-<p>Support classes for working with the data model:</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Applications are able to function as a gateway into the service, but should only be used as such when you view the gateway as an abstract entity in your solution rather than something physical to be managed on-site.  If you assoicate the central point of contact with the platform as a specific piece of hardware it should be implemented as a gateway.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Applications capabilities vary wildly depending on the permissions granted to the application by the API key that it uses to connect.  It is important to align the role granted to the API key used by the application to the capabilities of the application.</p>
+</div>
+<h3 id="devices">Devices<a class="headerlink" href="#devices" title="Permanent link"></a></h3>
+<p>Devices are things that send data into the service (directly, or indirectly), and respond to commands directed at them.</p>
 <ul>
-<li><code>wiotp.sdk.application.Command</code></li>
-<li><code>wiotp.sdk.application.Event</code></li>
-<li><code>wiotp.sdk.application.Status</code></li>
+<li>Send <strong>events</strong></li>
+<li>Recieve <strong>commands</strong></li>
 </ul>
-<p>Support methods for handling device configuration:</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Devices in Watson IoT Platform are intended to mirror the physical deployment of hardware that will generate IoT data, regardless of whether it directly connects to the internet.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you deploy 6 pieces of hardware each with seperate firmware, software, etc avoid the temptation to think that tracking these as individual devices has no value.  Merging them into an "abstract device" representing all 6 when you register your physical device model in Watson IoT will make it more difficult to use advanced features of the platform as you explore Watson IoT Platform's advanced capabilities for device and data management.</p>
+</div>
+<h3 id="gateways">Gateways<a class="headerlink" href="#gateways" title="Permanent link"></a></h3>
+<p>Gateways are things that send data into the service, respond to commands, are able to send data from other devices, and relay commands to other devices.</p>
 <ul>
-<li><code>wiotp.sdk.application.parseConfigFile</code></li>
-<li><code>wiotp.sdk.application.parseEnvVars</code></li>
+<li>Send <strong>events</strong></li>
+<li>Recieve <strong>commands</strong></li>
+<li>Send <strong>events</strong> on behalf of other devices</li>
+<li>Recieve <strong>commands</strong> sent to other devices</li>
 </ul>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link"></a></h2>
-<p>Application configuration is passed to the client via the <code>config</code> parameter when you create the client instance.  See the <a href="config/">configure applications</a> section for full details of all available options, and the built-in support for YAML file and environment variable sourced configuration.</p>
-<pre><code class="python">myConfig = { 
-    &quot;auth&quot; {
-        &quot;key&quot;: &quot;a-org1id-y67si9et&quot;
-        &quot;token&quot;: &quot;Ab$76s)asj8_s5&quot;
-    }
-}
-client = wiotp.sdk.application.ApplicationClient(config=myConfig)
-</code></pre>
-
-<h2 id="connectivity">Connectivity<a class="headerlink" href="#connectivity" title="Permanent link"></a></h2>
-<p><code>connect()</code> &amp; <code>disconnect()</code> methods are used to manage the MQTT connection to IBM Watson IoT Platform that allows the application to 
-handle commands and device events.</p>
-<p>Applications have three flavours of real-time data to work with once they have established an MQTT connection, for more information on each of these subjects see the relavent section of the documentation:</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use gateways when you are developing a solution where multiple physical devices exist that will not each directly communicate with Watson IoT Platform, but instead will report to a local device, which serves as a central contact point to the service.  </p>
 <ul>
-<li><a href="mqtt/events/">Device Events</a></li>
-<li><a href="mqtt/commands/">Device Commands</a></li>
-<li><a href="mqtt/status/">Device Status Updates</a></li>
+<li>Each physical device should be registered to the platform as a device, even though it will not connect directly.</li>
+<li>The central point of contact is your gateway.</li>
+<li>The gateway should send multiple events on behalf of the local devices, rather than claiming ownership of the data by submitted the events as if the data came from the gateway itself.</li>
 </ul>
+</div>
               
             </div>
           </div>
@@ -263,10 +275,10 @@ handle commands and device events.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="config/" class="btn btn-neutral float-right" title="Configuration">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../mqtt/" class="btn btn-neutral float-right" title="MQTT Primer">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../exceptions/" class="btn btn-neutral" title="Exceptions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href=".." class="btn btn-neutral" title="Python SDK"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -292,10 +304,10 @@ handle commands and device events.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../exceptions/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="config/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../mqtt/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

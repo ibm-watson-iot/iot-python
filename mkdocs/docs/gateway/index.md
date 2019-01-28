@@ -1,3 +1,3 @@
-# Gateway SDK Overview
+# Gateway SDK
 
 Sorry, this documentation is still a work in progress.

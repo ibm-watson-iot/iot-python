@@ -2,9 +2,14 @@
 
 site_name: IBM Watson IoT Platform
 nav:
-  - 'Home': index.md
-  - 'Application SDK':
-    - 'Overview': application/index.md
+  - 'Python SDK': index.md
+  - 'Common Topics':
+    - 'Basic Concepts': concepts.md
+    - 'MQTT Primer': mqtt.md
+    - 'Custom Message Formats': custommsg.md
+    - 'Exceptions': exceptions.md
+  - 'Application Development':
+    - 'Application SDK': application/index.md
     - 'Configuration': application/config.md
     - 'Device Commands': application/mqtt/commands.md
     - 'Device Events': application/mqtt/events.md
@@ -16,20 +21,34 @@ nav:
     - 'Last Event Cache': application/api/lec.md
     - 'Service Status': application/api/status.md
     - 'Usage Reports': application/api/usage.md
-  - 'Device SDK':
-    - 'Overview': device/index.md
+  - 'Device Development':
+    - 'Device SDK': device/index.md
     - 'Configuration': device/config.md
     - 'Managed Devices': device/managed.md
-  - 'Gateway SDK':
-    - 'Overview': gateway/index.md
+  - 'Gateway Development':
+    - 'Gateway SDK': gateway/index.md
     - 'Configuration': gateway/config.md
     - 'Managed Gateways': gateway/managed.md
-  - 'Common Topics':
-    - 'Custom Message Formats': custommsg.md
-    - 'Exceptions': exceptions.md
 
 theme: readthedocs
 
 markdown_extensions:
   - toc:
       permalink: 
+  - admonition
+  # Add this to support expandable sections
+  #- pymdownx.details
+
+# https://squidfunk.github.io/mkdocs-material/extensions/admonition/
+# Note
+# Abstract
+# Info
+# Tip
+# Success
+# Question
+# Warning
+# Failure
+# Danger
+# Bug
+# Example
+# Quote

@@ -1,4 +1,4 @@
-# Device SDK Overview
+# Device SDK
 
 The `wiotp.sdk.device` package contains the following:
 

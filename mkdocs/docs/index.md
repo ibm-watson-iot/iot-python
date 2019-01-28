@@ -1,4 +1,4 @@
-# Python for IBM Watson IoT Platform
+# Python SDK
 
 [![Build Status](https://travis-ci.org/ibm-watson-iot/iot-python.svg?branch=master)](https://travis-ci.org/ibm-watson-iot/iot-python)
 [![GitHub issues](https://img.shields.io/github/issues/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/issues)
@@ -12,17 +12,20 @@ Python module for interacting with the [IBM Watson IoT Platform](https://interne
 -  [Python 3.7](https://www.python.org/downloads/release/python-370/)
 -  [Python 2.7](https://www.python.org/downloads/release/python-2715/)
 
-Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
+!!! note
+    Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
 
 Documentation for this SDK can be broken down into 4 distinct areas:
 
 
+- Common Topics
+    - [Basic Concepts](concepts.md)
+    - [MQTT Primer](mqtt.md)
+    - [Custom Message Formats](custommsg.md)
+    - [Exceptions](exceptions.md)
 - [Application Development](application/index.md)
 - [Device Development](device/index.md)
 - [Gateway Development](gateway/index.md)
-- Common Topics
-    - [Custom Message Formats](custommsg.md)
-    - [Exceptions](exceptions.md)
 
 Additional documentation for the library is available in IBM Cloud, but it's a "little" out of date in places:
 
