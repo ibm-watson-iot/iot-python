@@ -100,28 +100,6 @@
                     
     <a class="" href="../../mqtt/status/">Device Status Updates</a>
                 </li>
-                <li class=" current">
-                    
-    <a class="current" href="./">Data Store Connectors</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#data-store-connectors">Data Store Connectors</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#service-bindings">Service Bindings</a></li>
-        
-            <li><a class="toctree-l4" href="#connectors">Connectors</a></li>
-        
-            <li><a class="toctree-l4" href="#destinations">Destinations</a></li>
-        
-            <li><a class="toctree-l4" href="#forwarding-rules">Forwarding Rules</a></li>
-        
-        </ul>
-    
-
-    </ul>
-                </li>
                 <li class="">
                     
     <a class="" href="../registry/types/">Registry - Types</a>
@@ -137,6 +115,30 @@
                 <li class="">
                     
     <a class="" href="../mgmt/">Device Management</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../bindings/">Service Bindings</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Data Store Connectors</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#data-store-connectors">Data Store Connectors</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#connectors">Connectors</a></li>
+        
+            <li><a class="toctree-l4" href="#destinations">Destinations</a></li>
+        
+            <li><a class="toctree-l4" href="#forwarding-rules">Forwarding Rules</a></li>
+        
+        </ul>
+    
+
+    </ul>
                 </li>
                 <li class="">
                     
@@ -228,14 +230,10 @@
             <div class="section">
               
                 <h1 id="data-store-connectors">Data Store Connectors<a class="headerlink" href="#data-store-connectors" title="Permanent link"></a></h1>
-<ul>
-<li>You can have multiple connectors (up to 10, depending on your service plan) of mixed types (cloudant/eventstreams). This means 6 combined, not 6 of each.</li>
-<li>Each connector can have multiple destinations and forwarding rules defined (up to 100 of each, depending on your service plan) </li>
-<li>Each forwarding rule can only route to a single destination, but multiple rules can reference the same destination</li>
-</ul>
+<p>Data store connectors can only be configured after you have set up one or more <a href="../bindings/">service bindings</a>:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Don't use this yet, there is a bug in the DSC API paging code, that this client library exposed which would result in an infinite loop in your code if you use the <code>dsc</code>, or <code>dsc[connectorId].rules</code> iterators</p>
+<p>Don't use the dsc package yet, there is a bug in the DSC API paging code, that this client library exposed which would result in an infinite loop in your code if you use the <code>dsc</code>, or <code>dsc[connectorId].rules</code> iterators</p>
 </div>
 <pre><code class="python">import wiotp.sdk.application
 
@@ -267,67 +265,11 @@ rule2 = createdConnector.rules.createStateRule(
 )
 </code></pre>
 
-<h2 id="service-bindings">Service Bindings<a class="headerlink" href="#service-bindings" title="Permanent link"></a></h2>
-<p>Service bindings can be established with Cloudant and EventStreams:</p>
-<pre><code class="python">import wiotp.sdk.application
-
-options = wiotp.sdk.application.parseEnvVars()
-appClient = wiotp.sdk.application.ApplicationClient(options)
-
-serviceBinding = {
-    &quot;name&quot;: &quot;test-cloudant&quot;, 
-    &quot;description&quot;: &quot;Test Cloudant instance&quot;,
-    &quot;type&quot;: &quot;cloudant&quot;, 
-    &quot;credentials&quot;: {
-        &quot;host&quot;: &quot;hostname&quot;,
-        &quot;port&quot;: 443,
-        &quot;username&quot;: &quot;username&quot;,
-        &quot;password&quot;: &quot;password
-    }
-}
-
-cloudantService = appClient.serviceBindings.create(serviceBinding)
-
-serviceBinding = {
-    &quot;name&quot;: &quot;test-eventstreams&quot;, 
-    &quot;description&quot;: &quot;Test EventStreams instance&quot;,
-    &quot;type&quot;: &quot;eventstreams&quot;, 
-    &quot;credentials&quot;: {
-        &quot;api_key&quot;: &quot;myapikey&quot;,
-        &quot;user&quot;: &quot;myusername,
-        &quot;password&quot;: &quot;mypassword&quot;,
-        &quot;kafka_admin_url&quot;: &quot;myurl&quot;,
-        &quot;kafka_brokers_sasl&quot;: [ &quot;broker1&quot;, &quot;broker2&quot;, &quot;broker3&quot;, &quot;broker4&quot;, &quot;broker5&quot; ]
-    }
-}
-
-eventstreamsService = appClient.serviceBindings.create(serviceBinding)
-</code></pre>
-
-<p>Finding service bindings</p>
-<pre><code class="python">import wiotp.sdk.application
-
-options = wiotp.sdk.application.parseEnvVars()
-appClient = wiotp.sdk.application.ApplicationClient(options)
-
-# Iterate through all service bindings
-for s in appClient.serviceBindings:
-    print(s.name)
-    print(&quot; - &quot; + s.description)
-    print(&quot; - &quot; + s.type)
-    print()
-
-print()
-
-# Iterate through service bindings of type &quot;cloudant&quot;
-for s in appClient.serviceBindings.find(typeFilter=&quot;cloudant&quot;):
-    print(s.name)
-    print(&quot; - &quot; + s.description)
-    print(&quot; - &quot; + s.type)
-    print()
-</code></pre>
-
 <h2 id="connectors">Connectors<a class="headerlink" href="#connectors" title="Permanent link"></a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can have multiple connectors (up to 10, depending on your service plan) of mixed types (Cloudant or EventStreams). This means 10 combined, not 10 of each.</p>
+</div>
 <pre><code class="python">import wiotp.sdk.application
 
 options = wiotp.sdk.application.parseEnvVars()
@@ -345,6 +287,16 @@ print(&quot; - Enabled: &quot; + connector.enabled)
 </code></pre>
 
 <h2 id="destinations">Destinations<a class="headerlink" href="#destinations" title="Permanent link"></a></h2>
+<p>Each connector can have multiple destinations defined (up to 100 depending on your service plan) </p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Destinations are immutable.  If you want to change where you send events to:</p>
+<ul>
+<li>Create a new destination</li>
+<li>Update the forwarding rule to reference the new destination</li>
+<li>Delete the old destination</li>
+</ul>
+</div>
 <pre><code class="python">import wiotp.sdk.application
 
 options = wiotp.sdk.application.parseEnvVars()
@@ -358,16 +310,12 @@ destination1 = connector.destinations.create(name=destinationName, bucketInterva
 
 </code></pre>
 
+<h2 id="forwarding-rules">Forwarding Rules<a class="headerlink" href="#forwarding-rules" title="Permanent link"></a></h2>
+<p>Forwarding rules configure what kind of data and the scope of the data that is sent to a destination.  Each connector can have multiple forwarding rules defined (up to 100 depending on your service plan) </p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Destinations are immutable.  If you want to change where you send events to:</p>
-<ul>
-<li>Create a new destination</li>
-<li>Update the forwarding rule to reference the new destination</li>
-<li>Delete the old destination</li>
-</ul>
+<p>Each forwarding rule can only route to a single destination, but multiple rules can reference the same destination</p>
 </div>
-<h2 id="forwarding-rules">Forwarding Rules<a class="headerlink" href="#forwarding-rules" title="Permanent link"></a></h2>
 <pre><code class="python">import wiotp.sdk.application
 
 options = wiotp.sdk.application.parseEnvVars()
@@ -396,11 +344,6 @@ rule2 = createdConnector.rules.createStateRule(
     logicalInterfaceId=&quot;*&quot;
 )
 </code></pre>
-
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Two different rules can forward to the same destination, but if you want to forward the same content to two different destinations you would create two forwarding rules with the same configuration, each referencing a different destination.</p>
-</div>
               
             </div>
           </div>
@@ -408,10 +351,10 @@ rule2 = createdConnector.rules.createStateRule(
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../registry/types/" class="btn btn-neutral float-right" title="Registry - Types">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../lec/" class="btn btn-neutral float-right" title="Last Event Cache">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../../mqtt/status/" class="btn btn-neutral" title="Device Status Updates"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../bindings/" class="btn btn-neutral" title="Service Bindings"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -437,10 +380,10 @@ rule2 = createdConnector.rules.createStateRule(
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../../mqtt/status/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../bindings/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../registry/types/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../lec/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

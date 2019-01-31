@@ -1,11 +1,11 @@
 # Data Store Connectors
 
-- You can have multiple connectors (up to 10, depending on your service plan) of mixed types (cloudant/eventstreams). This means 6 combined, not 6 of each.
-- Each connector can have multiple destinations and forwarding rules defined (up to 100 of each, depending on your service plan) 
-- Each forwarding rule can only route to a single destination, but multiple rules can reference the same destination
+Data store connectors can only be configured after you have set up one or more [service bindings](bindings.md):
+
 
 !!! warning
-    Don't use this yet, there is a bug in the DSC API paging code, that this client library exposed which would result in an infinite loop in your code if you use the `dsc`, or `dsc[connectorId].rules` iterators
+    Don't use the dsc package yet, there is a bug in the DSC API paging code, that this client library exposed which would result in an infinite loop in your code if you use the `dsc`, or `dsc[connectorId].rules` iterators
+
 
 ```python
 import wiotp.sdk.application
@@ -39,73 +39,10 @@ rule2 = createdConnector.rules.createStateRule(
 ```
 
 
-## Service Bindings
-
-Service bindings can be established with Cloudant and EventStreams:
-
-```python
-import wiotp.sdk.application
-
-options = wiotp.sdk.application.parseEnvVars()
-appClient = wiotp.sdk.application.ApplicationClient(options)
-
-serviceBinding = {
-    "name": "test-cloudant", 
-    "description": "Test Cloudant instance",
-    "type": "cloudant", 
-    "credentials": {
-        "host": "hostname",
-        "port": 443,
-        "username": "username",
-        "password": "password
-    }
-}
-
-cloudantService = appClient.serviceBindings.create(serviceBinding)
-
-serviceBinding = {
-    "name": "test-eventstreams", 
-    "description": "Test EventStreams instance",
-    "type": "eventstreams", 
-    "credentials": {
-        "api_key": "myapikey",
-        "user": "myusername,
-        "password": "mypassword",
-        "kafka_admin_url": "myurl",
-        "kafka_brokers_sasl": [ "broker1", "broker2", "broker3", "broker4", "broker5" ]
-    }
-}
-
-eventstreamsService = appClient.serviceBindings.create(serviceBinding)
-```
-
-Finding service bindings
-
-```python
-import wiotp.sdk.application
-
-options = wiotp.sdk.application.parseEnvVars()
-appClient = wiotp.sdk.application.ApplicationClient(options)
-
-# Iterate through all service bindings
-for s in appClient.serviceBindings:
-    print(s.name)
-    print(" - " + s.description)
-    print(" - " + s.type)
-    print()
-
-print()
-
-# Iterate through service bindings of type "cloudant"
-for s in appClient.serviceBindings.find(typeFilter="cloudant"):
-    print(s.name)
-    print(" - " + s.description)
-    print(" - " + s.type)
-    print()
-```
-
-
 ## Connectors
+
+!!! tip
+    You can have multiple connectors (up to 10, depending on your service plan) of mixed types (Cloudant or EventStreams). This means 10 combined, not 10 of each.
 
 ```python
 import wiotp.sdk.application
@@ -127,6 +64,16 @@ print(" - Enabled: " + connector.enabled)
 
 ## Destinations
 
+Each connector can have multiple destinations defined (up to 100 depending on your service plan) 
+
+!!! tip
+    Destinations are immutable.  If you want to change where you send events to:
+    
+    - Create a new destination
+    - Update the forwarding rule to reference the new destination
+    - Delete the old destination
+
+
 ```python
 import wiotp.sdk.application
 
@@ -141,15 +88,14 @@ destination1 = connector.destinations.create(name=destinationName, bucketInterva
 
 ```
 
-!!! tip
-    Destinations are immutable.  If you want to change where you send events to:
-    
-    - Create a new destination
-    - Update the forwarding rule to reference the new destination
-    - Delete the old destination
-
 
 ## Forwarding Rules
+
+Forwarding rules configure what kind of data and the scope of the data that is sent to a destination.  Each connector can have multiple forwarding rules defined (up to 100 depending on your service plan) 
+
+!!! tip
+    Each forwarding rule can only route to a single destination, but multiple rules can reference the same destination
+
 
 ```python
 import wiotp.sdk.application
@@ -180,8 +126,3 @@ rule2 = createdConnector.rules.createStateRule(
     logicalInterfaceId="*"
 )
 ```
-
-!!! tip
-    Two different rules can forward to the same destination, but if you want to forward the same content to two different destinations you would create two forwarding rules with the same configuration, each referencing a different destination.
-
-
