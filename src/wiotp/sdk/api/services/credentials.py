@@ -44,26 +44,23 @@ class CloudantServiceBindingCredentials(ServiceBindingCredentials):
 
 class EventStreamsServiceBindingCredentials(ServiceBindingCredentials):
     def __init__(self, **kwargs):
-        if not set(['host', 'port', 'username', 'password']).issubset(kwargs):
-            raise Exception("host, port, username, & password are required parameters for a Cloudant Service Binding: %s" % (json.dumps(kwargs, sort_keys=True)))
+        if not set(['api_key', 'kafka_admin_url', 'kafka_brokers_sasl', 'user', 'password']).issubset(kwargs):
+            raise Exception("api_key, kafka_admin_url, host, port, username, & password are required parameters for a Cloudant Service Binding: %s" % (json.dumps(kwargs, sort_keys=True)))
         
-        if ['url' not in kwargs]:
-            kwargs['url'] = "https://%s:%s@%s:%s" % (kwargs['username'], kwargs['password'], kwargs['host'], kwargs['port'])
-
         ServiceBindingCredentials.__init__(self, **kwargs)
 
     @property
-    def url(self):
-        return self["url"]
+    def api_key(self):
+        return self["api_key"]
     @property
-    def host(self):
-        return self["host"]
+    def kafka_admin_url(self):
+        return self["kafka_admin_url"]
     @property
-    def port(self):
-        return self["port"]
+    def kafka_brokers_sasl(self):
+        return self["kafka_brokers_sasl"]
     @property
-    def username(self):
-        return self["username"]
+    def user(self):
+        return self["user"]
     @property
     def password(self):
         return self["password"]

@@ -20,6 +20,17 @@ class AbstractTest(object):
     CLOUDANT_USERNAME=os.getenv("CLOUDANT_USERNAME")
     CLOUDANT_PASSWORD=os.getenv("CLOUDANT_PASSWORD")
 
+
+    EVENTSTREAMS_API_KEY=os.getenv("EVENTSTREAMS_API_KEY")
+    EVENTSTREAMS_ADMIN_URL=os.getenv("EVENTSTREAMS_ADMIN_URL")
+    EVENTSTREAMS_BROKER1=os.getenv("EVENTSTREAMS_BROKER1")
+    EVENTSTREAMS_BROKER2=os.getenv("EVENTSTREAMS_BROKER2")
+    EVENTSTREAMS_BROKER3=os.getenv("EVENTSTREAMS_BROKER3")
+    EVENTSTREAMS_BROKER4=os.getenv("EVENTSTREAMS_BROKER4")
+    EVENTSTREAMS_BROKER5=os.getenv("EVENTSTREAMS_BROKER5")
+    EVENTSTREAMS_USER=os.getenv("EVENTSTREAMS_USER")
+    EVENTSTREAMS_PASSWORD=os.getenv("EVENTSTREAMS_PASSWORD")
+
     try:
         ORG_ID = WIOTP_API_KEY.split("-")[1]
     except:
@@ -43,3 +54,4 @@ class AbstractTest(object):
 
     options = {'auth': { 'key': WIOTP_API_KEY, 'token': WIOTP_API_TOKEN}}
     appClient = wiotp.sdk.application.ApplicationClient(options)
+

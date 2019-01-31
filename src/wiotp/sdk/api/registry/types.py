@@ -10,10 +10,9 @@ class IterableDeviceTypeList(IterableList):
         super(IterableDeviceTypeList, self).__init__(apiClient, DeviceType, 'api/v0002/device/types')
               
       
-class DeviceType(object):
-    def __init__(self, apiClient, data):
+class DeviceType(defaultdict):
+    def __init__(self, apiClient, **kwargs):
         self._apiClient = apiClient
-        self._data = data
         
         #{"classId": "Device", "createdDateTime": "2016-01-23T16:34:46+00:00", "description": 
         #"Extended color light", "deviceInfo": {"description": "Extended color light", "manufacturer": "Philips", "model": "LCT003"}, 
@@ -21,38 +20,40 @@ class DeviceType(object):
         #"api/v0002/device/types/LCT003/mappings", "physicalInterface": "api/v0002/device/types/LCT003/physicalinterface"}, 
         #"updatedDateTime": "2017-02-27T10:27:04.221Z"}
         
-        self.devices = Devices(apiClient, data["id"])
-        
+        self.devices = Devices(apiClient, kwargs["id"])
+
+        dict.__init__(self, **kwargs)
+
     @property
     def id(self):
-        return self._data["id"]
+        return self["id"]
             
     @property
     def description(self):
-        if "description" in self._data:
-            return self._data["description"]
+        if "description" in self:
+            return self["description"]
         else: 
             return None
 
     @property
     def metadata(self):
-        if "metadata" in self._data:
-            return self._data["metadata"]
+        if "metadata" in self:
+            return self["metadata"]
         else: 
             return None
 
     @property
     def classId(self):
-        return self._data["classId"]
+        return self["classId"]
     
     def __str__(self):
-        return json.dumps(self._data, sort_keys=True)
+        return json.dumps(self, sort_keys=True)
     
     def __repr__(self):
-        return json.dumps(self._data, sort_keys=True, indent=2)
+        return json.dumps(self, sort_keys=True, indent=2)
     
     def json(self):
-        return self._data
+        return self
     
 
 class DeviceTypes(defaultdict):
@@ -83,7 +84,7 @@ class DeviceTypes(defaultdict):
 
         r = self._apiClient.get(url)
         if r.status_code == 200:
-            return DeviceType(self._apiClient, r.json())
+            return DeviceType(apiClient=self._apiClient, **r.json())
         elif r.status_code == 404:
             self.__missing__(key)
         else:
@@ -125,7 +126,7 @@ class DeviceTypes(defaultdict):
         r = self._apiClient.post('api/v0002/device/types', deviceType)
 
         if r.status_code == 201:
-            return DeviceType(self._apiClient, r.json())
+            return DeviceType(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
     
@@ -136,7 +137,7 @@ class DeviceTypes(defaultdict):
         
         r = self._apiClient.put(devicetypeUrl, data)
         if r.status_code == 200:
-            return DeviceType(self._apiClient, r.json())
+            return DeviceType(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
         

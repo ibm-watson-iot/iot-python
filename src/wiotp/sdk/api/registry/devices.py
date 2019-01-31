@@ -168,17 +168,18 @@ class DeviceInfo(defaultdict):
         return self["descriptiveLocation"]
 
     
-class Device(object):
-    def __init__(self, apiClient, data):
+class Device(defaultdict):
+    def __init__(self, apiClient, **kwargs):
         self._apiClient = apiClient
-        self._data = data
         
-        if not set(['clientId', 'deviceId', 'typeId']).issubset(data):
-            raise Exception("Data passed to Device is not correct: %s" % (json.dumps(data, sort_keys=True)))
+        if not set(['clientId', 'deviceId', 'typeId']).issubset(kwargs):
+            raise Exception("Data passed to Device is not correct: %s" % (json.dumps(kwargs, sort_keys=True)))
         
-        self.diagLogs = DeviceLogs(self._apiClient, data['typeId'], data['deviceId'])
-        self.diagErrorCodes = DeviceErrorCodes(self._apiClient, data['typeId'], data['deviceId'])
+        self.diagLogs = DeviceLogs(self._apiClient, kwargs['typeId'], kwargs['deviceId'])
+        self.diagErrorCodes = DeviceErrorCodes(self._apiClient, kwargs['typeId'], kwargs['deviceId'])
         
+        dict.__init__(self, **kwargs)
+
         #{u'clientId': u'xxxxxxxxx',
         # u'deviceId': u'xxxxxxx',
         # u'deviceInfo': {u'description': u'None (xxxxxxxx)',
@@ -202,34 +203,34 @@ class Device(object):
     
     @property
     def clientId(self):
-        return self._data["clientId"]
+        return self["clientId"]
          
     @property
     def deviceId(self):
-        return self._data["deviceId"]
+        return self["deviceId"]
     
     @property
     def metadata(self):
-        return self._data["metadata"]
+        return self["metadata"]
     
     @property
     def deviceInfo(self):
         # Unpack the deviceInfo dictionary into keyword arguments so that we 
         # can return a DeviceIngo object instead of a plain dictionary
-        return DeviceInfo(**self._data["deviceInfo"])
+        return DeviceInfo(**self["deviceInfo"])
     
     @property
     def typeId(self):
-        return self._data["typeId"]
+        return self["typeId"]
     
     def __str__(self):
-        return json.dumps(self._data, sort_keys=True)
+        return json.dumps(self, sort_keys=True)
     
     def __repr__(self):
-        return json.dumps(self._data, sort_keys=True, indent=2)
+        return json.dumps(self, sort_keys=True, indent=2)
     
     def json(self):
-        return self._data
+        return self
         
     # Extended properties
     
@@ -353,7 +354,7 @@ class Devices(defaultdict):
 
         r = self._apiClient.get(deviceUrl)
         if r.status_code == 200:
-            return Device(self._apiClient, r.json())
+            return Device(apiClient=self._apiClient, **r.json())
         elif r.status_code == 404:
             self.__missing__(key)
         else:
@@ -441,7 +442,7 @@ class Devices(defaultdict):
         
         r = self._apiClient.put(deviceUrl, data)
         if r.status_code == 200:
-            return Device(self._apiClient, r.json())
+            return Device(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
 

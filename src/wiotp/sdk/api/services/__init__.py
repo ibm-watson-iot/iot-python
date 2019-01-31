@@ -13,6 +13,7 @@ from datetime import datetime
 
 from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.services.credentials import CloudantServiceBindingCredentials, EventStreamsServiceBindingCredentials
+from wiotp.sdk.api.common import IterableList
 from collections import defaultdict
 
 
@@ -38,11 +39,11 @@ class EventStreamsServiceBindingCreateRequest(ServiceBindingCreateRequest):
         if not set(['name', 'credentials', 'description']).issubset(kwargs):
             raise Exception("name, credentials, & description are required parameters for creating a Cloudant Service Binding: %s" % (json.dumps(kwargs, sort_keys=True)))
         
-        # Convert credentials to CloudantServiceBindingCredentials for validation 
-        if not isinstance(kwargs['credentials'], CloudantServiceBindingCredentials):
-            kwargs['credentials'] = CloudantServiceBindingCredentials(**kwargs["credentials"])
+        # Convert credentials to EventStreamsServiceBindingCredentials for validation 
+        if not isinstance(kwargs['credentials'], EventStreamsServiceBindingCredentials):
+            kwargs['credentials'] = EventStreamsServiceBindingCredentials(**kwargs["credentials"])
         
-        kwargs['type'] = "cloudant"
+        kwargs['type'] = "eventstreams"
         
         ServiceBindingCreateRequest.__init__(self, **kwargs)
 
@@ -109,15 +110,84 @@ class ServiceBinding(defaultdict):
     def json(self):
         return json.dumps(self, sort_keys=True, indent=2)
 
+
+class IterableServiceBindingsList(IterableList):
+    def __init__(self, apiClient, filters=None):
+        # This API does not support sorting
+        super(IterableServiceBindingsList, self).__init__(apiClient, ServiceBinding, 'api/v0002/s2s/services', sort=None, filters=filters, passApiClient=False)
+
+
 class ServiceBindings(object):
 
-    allServicesUrl = "https://%s/api/v0002/s2s/services"
-    oneServiceUrl = "https://%s/api/v0002/s2s/services/%s"
-    
     def __init__(self, apiClient):
         self._apiClient = apiClient
 
-    def list(self, nameFilter=None, typeFilter=None, bindingModeFilter=None, boundFilter=None):
+    def __contains__(self, key):
+        """
+        Does a service binding exist?
+        """
+        url = "api/v0002/s2s/services/%s" % (key)
+
+        r = self._apiClient.get(url)
+        if r.status_code == 200:
+            return True
+        if r.status_code == 404:
+            return False
+        else:
+            raise ApiException(r)
+    
+    def __getitem__(self, key):
+        """
+        Retrieve the service with the specified id.
+        Parameters:
+            - serviceId (String), Service Id which is a UUID
+        Throws APIException on failure.
+
+        """
+
+        url = "api/v0002/s2s/services/%s" % (key)
+
+        r = self._apiClient.get(url)
+        if r.status_code == 200:
+            return ServiceBinding(**r.json())
+        if r.status_code == 404:
+            self.__missing__(key)
+        else:
+            raise ApiException(r)
+
+    def __setitem__(self, key, value):
+        """
+        Register a new device - not currently supported via this interface, use: `registry.devices.create()`
+        """
+        raise Exception("Unable to register or update a service binding via this interface at the moment.")
+    
+    def __delitem__(self, key):
+        """
+        Delete a connector
+        """
+        url = "api/v0002/s2s/services/%s" % (key)
+
+        r = self._apiClient.delete(url)
+        if r.status_code == 404:
+            self.__missing__(key)
+        elif r.status_code != 204:
+            raise ApiException(r)
+        
+    def __missing__(self, key):
+        """
+        Device does not exist
+        """
+        raise KeyError("Service Binding %s does not exist" % (key))
+
+    def __iter__(self, *args, **kwargs):
+        """
+        Iterate through all Service Bindings
+        """
+        return IterableServiceBindingsList(self._apiClient)
+
+
+
+    def find(self, nameFilter=None, typeFilter=None, bindingModeFilter=None, boundFilter=None):
         """
         Gets the list of services that the Watson IoT Platform can connect to. 
         The list can include a mixture of services that are either bound or unbound.
@@ -132,8 +202,6 @@ class ServiceBindings(object):
         Throws APIException on failure.
         """
         
-        url = "api/v0002/s2s/services"
-        
         queryParms = {}
         if nameFilter:
             queryParms["name"] = nameFilter
@@ -144,35 +212,7 @@ class ServiceBindings(object):
         if boundFilter:
             queryParms["bound"] = boundFilter
         
-
-        r = self._apiClient.get(url, parameters=queryParms)
-        if r.status_code == 200:
-            responseList = []
-            for entry in r.json()["results"]:
-                responseList.append(ServiceBinding(**entry))
-            return responseList
-        else:
-            raise ApiException(r)
-
-    
-    def get(self, serviceId):
-        """
-        Retrieve the service with the specified id.
-        Parameters:
-            - serviceId (String), Service Id which is a UUID
-        Throws APIException on failure.
-
-        """
-
-        url = "api/v0002/s2s/services/%s" % (serviceId)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return ServiceBinding(**r.json())
-        if r.status_code == 404:
-            return None
-        else:
-            raise ApiException(r)
+        return IterableServiceBindingsList(self._apiClient, filters=queryParms)
 
             
     def create(self, serviceBinding):
@@ -191,8 +231,7 @@ class ServiceBindings(object):
             if serviceBinding["type"] == "cloudant":
                 serviceBinding = CloudantServiceBindingCreateRequest(**serviceBinding)
             elif serviceBinding["type"] == "eventstreams":
-                pass
-                # serviceBinding = CloudantServiceBindingCreateRequest(**serviceBinding)
+                serviceBinding = EventStreamsServiceBindingCreateRequest(**serviceBinding)
             else:
                 raise Exception("Unsupported service binding type")
 
@@ -231,21 +270,3 @@ class ServiceBindings(object):
         else:
             raise ApiException(r)
         
-    
-    def delete(self, serviceId):
-        """
-        Deletes service with service id
-        Parameters:
-            - serviceId (string) - Service id of the service
-        Throws APIException on failure
-        """
-
-        url = "api/v0002/s2s/services/%s" % (serviceId)
-
-        r = self._apiClient.delete(url)
-        if r.status_code == 204:
-            return True
-        else:
-            raise ApiException(r)
-        
-    

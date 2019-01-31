@@ -7,7 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-#from wiotp.sdk.api.dsc.connectors import Connectors
+from wiotp.sdk.api.dsc.connectors import Connectors as DSC
 
 """
 General overview of how DSC stuff ties together:
@@ -18,9 +18,3 @@ General overview of how DSC stuff ties together:
 - 2b. Set up one or more forwarding rules, each to one or more destinations (e.g. route certain events to a database in Cloudant `historianconnectors/%s/forwardingrules`)
 
 """
-class DSC():
-
-    def __init__(self, apiClient):
-        self._apiClient = apiClient
-        
-        #self.connectors = Connectors(self._apiClient)
