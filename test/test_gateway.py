@@ -1,22 +1,18 @@
 # *****************************************************************************
-# Copyright (c) 2016 IBM Corporation and other Contributors.
+# Copyright (c) 2016-2019 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Lokesh Haralakatta  - Initial Contribution
 # *****************************************************************************
 
-import wiotp.sdk.gateway
-import wiotp.sdk.application
 import uuid
 import time
-from nose.tools import *
-from nose import SkipTest
+import pytest
 import testUtils
+import wiotp.sdk.gateway
+import wiotp.sdk.application
 
 class TestGateway(testUtils.AbstractTest):
     registeredDevice = None
@@ -67,7 +63,7 @@ class TestGateway(testUtils.AbstractTest):
             "identity": { "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] }, 
             "auth": { "token": self.registeredGateway["authToken"] }
         })
-        assert_is_instance(gatewayCli , wiotp.sdk.gateway.GatewayClient)
+        assert isinstance(gatewayCli , wiotp.sdk.gateway.GatewayClient)
 
 
     def testNotAuthorizedConnect(self):
@@ -78,7 +74,7 @@ class TestGateway(testUtils.AbstractTest):
             "identity": { "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] }, 
             "auth": { "token": "MGxxxxxxxxxxxxx" }
         })
-        with assert_raises(wiotp.sdk.ConnectionException) as e:
+        with pytest.raises(wiotp.sdk.ConnectionException) as e:
             client.connect()
 
     def testMissingMessageEncoder(self):
@@ -88,7 +84,7 @@ class TestGateway(testUtils.AbstractTest):
         gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
         gatewayClient.connect()
 
-        with assert_raises(wiotp.sdk.MissingMessageEncoderException) as e:
+        with pytest.raises(wiotp.sdk.MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
             gatewayClient.publishDeviceEvent(self.registeredGateway["typeId"],self.registeredGateway["deviceId"],"missingMsgEncode", "jason", myData)
 
@@ -99,7 +95,7 @@ class TestGateway(testUtils.AbstractTest):
         gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
         gatewayClient.connect()
 
-        with assert_raises(wiotp.sdk.MissingMessageEncoderException) as e:
+        with pytest.raises(wiotp.sdk.MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
             gatewayClient.publishEvent("missingMsgEncode", "jason", myData)
 
@@ -114,72 +110,17 @@ class TestGateway(testUtils.AbstractTest):
             print("Publish Event done!!!")
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert_true(gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, on_publish=publishCallback))
-        assert_true(gatewayClient.publishEvent("testGatewayPublishEventJson", "json", myData, on_publish=publishCallback))
+        assert gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, on_publish=publishCallback) == True
+        assert gatewayClient.publishEvent("testGatewayPublishEventJson", "json", myData, on_publish=publishCallback) == True
 
-        assert_true(gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID))
-        assert_true(gatewayClient.subscribeToCommands())
-        assert_true(gatewayClient.subscribeToNotifications())
+        # mid = 0 means there was a problem with the subscription
+        assert gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID) != 0
+        assert gatewayClient.subscribeToCommands() != 0
+        assert gatewayClient.subscribeToNotifications() != 0
 
         gatewayClient.disconnect()
 
     def testDeviceInfoInstance(self):
         deviceInfoObj = wiotp.sdk.gateway.DeviceInfo()
-        assert_is_instance(deviceInfoObj, wiotp.sdk.gateway.DeviceInfo)
+        assert isinstance(deviceInfoObj, wiotp.sdk.gateway.DeviceInfo)
         print(deviceInfoObj)
-    
-    @SkipTest
-    def testPublishCommandByApplication(self):
-        def deviceCmdCallback(cmd):
-            assert_true(cmd.data['rebootDelay'] == 50)
-
-        def gatewayCmdCallback(cmd):
-            assert_true(cmd.data['rebootDelay'] == 50)
-
-        def notificationCallback(cmd):
-            assert_true(cmd.data['rebootDelay'] == 50)
-
-        def appCmdPublishCallback():
-            print("Application Publish Command done!!!")
-
-        gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
-        
-        gatewayClient.commandCallback = gatewayCmdCallback
-        gatewayClient.deviceCommandCallback = deviceCmdCallback
-        gatewayClient.notificationCallback = notificationCallback
-        gatewayClient.connect()
-        gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID)
-        gatewayClient.subscribeToCommands()
-        gatewayClient.subscribeToNotifications()
-
-        appClient = wiotp.application.ApplicationClient(self.appOptions)
-        appClient.connect()
-
-        commandData={'rebootDelay' : 50}
-        
-        assert_true(appClient.publishCommand(self.registeredGateway["typeId"], self.registeredGateway["deviceId"], "reboot", "json", commandData, on_publish=appCmdPublishCallback))
-        time.sleep(2)
-        
-        assert_true(appClient.publishCommand(self.DEVICE_TYPE, self.DEVICE_ID, "reboot", "json", commandData, on_publish=appCmdPublishCallback))
-        time.sleep(2)
-
-        appClient.disconnect()
-        gatewayClient.disconnect()
-
-    @SkipTest
-    # This can be enabled once platform update 102 is released and fixes a bug in the gateway device registration
-    def testGatewayApiClientSupport(self):
-        gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
-        assert_is_instance(gatewayClient.api, wiotp.api.ApiClient)
-
-        #Add new device
-        newDeviceId = str(uuid.uuid4())
-        addResult = gatewayClient.api.registerDevice(self.DEVICE_TYPE, newDeviceId)
-        
-        assert_equal(addResult['typeId'], self.DEVICE_TYPE)
-        assert_equal(addResult['deviceId'], newDeviceId)
-        
-        time.sleep(5)
-        
-        #Remove the added device
-        gatewayClient.api.deleteDevice(self.DEVICE_TYPE, newDeviceId)

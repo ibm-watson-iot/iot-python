@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -41,10 +41,10 @@ class ApplicationClientConfig(defaultdict):
         if 'options' not in kwargs:
             kwargs['options'] = {}
 
-        if "domain" not in kwargs['options']:
+        if "domain" not in kwargs['options'] or kwargs['options']['domain'] is None:
             kwargs['options']['domain'] = "internetofthings.ibmcloud.com"
         
-        if "logLevel" not in kwargs['options']:
+        if "logLevel" not in kwargs['options'] or kwargs['options']['logLevel'] is None:
             kwargs['options']['logLevel'] = logging.INFO
 
         if 'mqtt' not in kwargs['options']:
@@ -53,7 +53,7 @@ class ApplicationClientConfig(defaultdict):
         if "port" not in kwargs['options']['mqtt']:
             kwargs['options']['mqtt']['port'] = None
         
-        if "transport" not in kwargs['options']['mqtt']:
+        if "transport" not in kwargs['options']['mqtt']  or kwargs['options']['mqtt']['transport'] is None:
             kwargs['options']['mqtt']['transport'] = 'tcp'
 
         if "sharedSubscription" not in kwargs['options']['mqtt']:
@@ -74,7 +74,7 @@ class ApplicationClientConfig(defaultdict):
         if 'http' not in kwargs['options']:
             kwargs['options']['http'] = {}
 
-        if "verify" not in kwargs['options']['http']:
+        if "verify" not in kwargs['options']['http'] or kwargs['options']['http']['verify'] is None:
             kwargs['options']['http']['verify'] = True
 
         dict.__init__(self, **kwargs)
@@ -175,6 +175,12 @@ def parseEnvVars():
     # Auth
     authKey   = os.getenv("WIOTP_AUTH_KEY", None)
     authToken = os.getenv("WIOTP_AUTH_TOKEN", None)
+
+    # Also support WIOTP_API_KEY / WIOTP_API_TOKEN usage
+    if authKey is None and authToken is None:
+        authKey   = os.getenv("WIOTP_API_KEY", None)
+        authToken = os.getenv("WIOTP_API_TOKEN", None)
+
     # Identity
     appId     = os.getenv("WIOTP_IDENTITY_APPID", str(uuid.uuid4()))
     # Options

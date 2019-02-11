@@ -1,7 +1,14 @@
-import uuid
-from nose.tools import *
-from nose import SkipTest
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
 
+import uuid
+import pytest
 import testUtils
 
 class TestRegistryDevicetypes(testUtils.AbstractTest):
@@ -22,16 +29,16 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
         
     def testGetDeviceType(self, deviceType):
         retrievedDeviceType = self.appClient.registry.devicetypes[deviceType.id]
-        assert_equals(retrievedDeviceType.id, deviceType.id)
-        assert_equals(retrievedDeviceType.classId, "Device")
+        assert retrievedDeviceType.id == deviceType.id
+        assert retrievedDeviceType.classId == "Device"
     
-    @raises(Exception)
     def testGetDeviceTypeThatDoesntExist(self):
-        self.appClient.registry.devicetypes["doesntexist"]
+        with pytest.raises(Exception):
+            self.appClient.registry.devicetypes["doesntexist"]
 
-    @raises(Exception)
     def testUnsupportedCreateUpdate(self):
-        self.appClient.registry.devicetypes["d:hldtxx:vm:iot-test-06"] = {"foo", "bar"}
+        with pytest.raises(Exception):
+            self.appClient.registry.devicetypes["d:hldtxx:vm:iot-test-06"] = {"foo", "bar"}
         
     def testListDeviceTypes(self, deviceType):
         count = 0
@@ -46,15 +53,15 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
         
         myDeviceTypeRetrieved = self.appClient.registry.devicetypes[typeId]
         
-        assert_equals(myDeviceTypeRetrieved.id, typeId)
-        assert_equals(myDeviceTypeRetrieved.description, "This is a test")
+        assert myDeviceTypeRetrieved.id == typeId
+        assert myDeviceTypeRetrieved.description == "This is a test"
         
         del self.appClient.registry.devicetypes[typeId]
         
     def testUpdateDeviceType(self, deviceType):
         self.appClient.registry.devicetypes.update(deviceType.id, description="This is still a test")
         updatedDeviceType = self.appClient.registry.devicetypes[deviceType.id]
-        assert_equals(updatedDeviceType.description, "This is still a test")
+        assert updatedDeviceType.description == "This is still a test"
             
     # =========================================================================
     # Device under DeviceType tests

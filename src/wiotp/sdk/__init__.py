@@ -19,7 +19,7 @@ __version__ = "0.9.0"
 # 
 
 from wiotp.sdk.client import AbstractClient
-from wiotp.sdk.messages import Message, MessageCodec, JsonCodec
+from wiotp.sdk.messages import Message, MessageCodec, JsonCodec, RawCodec, Utf8Codec
 from wiotp.sdk.exceptions import ConnectionException, ConfigurationException, UnsupportedAuthenticationMethod
 from wiotp.sdk.exceptions import InvalidEventException, MissingMessageDecoderException, MissingMessageEncoderException
 

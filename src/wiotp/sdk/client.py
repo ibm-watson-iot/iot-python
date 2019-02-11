@@ -22,7 +22,7 @@ import pytz
 from datetime import datetime
 
 from wiotp.sdk.exceptions import MissingMessageEncoderException, ConnectionException
-from wiotp.sdk.messages import JsonCodec
+from wiotp.sdk.messages import JsonCodec, RawCodec, Utf8Codec
 
 class AbstractClient(object):
     """
@@ -94,16 +94,11 @@ class AbstractClient(object):
                 # Add the supplied log handler
                 self.logger.addHandler(logHandlers)
         else:
-            # Generate a default rotating file log handler and stream handler
-            logFileName = '%s.log' % (clientId.replace(":", "_"))
+            # Generate a default stream handler
             fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
-            rfh = RotatingFileHandler(logFileName, mode='a', maxBytes=1024000 , backupCount=0, encoding=None, delay=True)
-            rfh.setFormatter(fhFormatter)
-
             ch = logging.StreamHandler()
             ch.setFormatter(fhFormatter)
 
-            self.logger.addHandler(rfh)
             self.logger.addHandler(ch)
 
         self.client = paho.Client(self.clientId, transport=transport, clean_session=(not cleanStart))
@@ -161,6 +156,8 @@ class AbstractClient(object):
         self._messageCodecs = {}
 
         self.setMessageCodec('json', JsonCodec)
+        self.setMessageCodec('raw', RawCodec)
+        self.setMessageCodec('utf8', Utf8Codec)
 
 
     def getMessageCodec(self, messageFormat):

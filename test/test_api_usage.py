@@ -1,6 +1,11 @@
-import uuid
-from nose.tools import *
-from nose import SkipTest
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
 
 from datetime import date, timedelta, datetime
 import testUtils
@@ -15,19 +20,19 @@ class TestRegistryUsage(testUtils.AbstractTest):
         usage = self.appClient.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today())
         # {u'end': u'2018-07-01', u'average': 435696, u'start': u'2018-06-01', u'total': 13506585}
         
-        assert_true("average" in usage)
-        assert_true("end" in usage)
-        assert_true("start" in usage)
-        assert_true("total" in usage)
+        assert "average" in usage
+        assert "end" in usage
+        assert "start" in usage
+        assert "total" in usage
         
-        assert_true(isinstance(usage.average, int))
-        assert_equals(usage.average, usage["average"])
+        assert isinstance(usage.average, int)
+        assert usage.average == usage["average"]
         
-        assert_true(isinstance(usage.total, int))
-        assert_equals(usage.total, usage["total"])
+        assert isinstance(usage.total, int)
+        assert usage.total == usage["total"]
         
-        assert_true(isinstance(usage.start, date))
-        assert_true(isinstance(usage.end, date))
+        assert isinstance(usage.start, date)
+        assert isinstance(usage.end, date)
 
     # =========================================================================
     # Service Status
@@ -36,25 +41,25 @@ class TestRegistryUsage(testUtils.AbstractTest):
         usage = self.appClient.usage.dataTransfer(datetime.today() - timedelta(days=10), datetime.today(), True)
         # {u'end': u'2018-07-01', u'average': 435696, u'start': u'2018-06-01', u'total': 13506585}
         
-        assert_true("average" in usage)
-        assert_true("end" in usage)
-        assert_true("start" in usage)
-        assert_true("total" in usage)
+        assert "average" in usage
+        assert "end" in usage
+        assert "start" in usage
+        assert "total" in usage
         
-        assert_true(isinstance(usage, DataTransferSummary))
+        assert isinstance(usage, DataTransferSummary)
         
-        assert_true(isinstance(usage.average, int))
-        assert_equals(usage.average, usage["average"])
+        assert isinstance(usage.average, int)
+        assert usage.average == usage["average"]
         
-        assert_true(isinstance(usage.total, int))
-        assert_equals(usage.total, usage["total"])
+        assert isinstance(usage.total, int)
+        assert usage.total == usage["total"]
         
-        assert_true(isinstance(usage.start, date))
-        assert_true(isinstance(usage.end, date))
+        assert isinstance(usage.start, date)
+        assert isinstance(usage.end, date)
         
         # Going back 10 days means we should have 11 data points in the collection
-        assert_equals(len(usage.days), 11) 
+        assert len(usage.days) == 11
         
         for day in usage.days:
-            assert_true(isinstance(day, DayDataTransfer))
-            assert_true(isinstance(day.date, date))
+            assert isinstance(day, DayDataTransfer)
+            assert isinstance(day.date, date)

@@ -1,6 +1,11 @@
-import uuid
-from nose.tools import *
-from nose import SkipTest
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
 
 import testUtils
 
@@ -12,15 +17,8 @@ class TestRegistryStatus(testUtils.AbstractTest):
     def testStatus(self):
         status = self.appClient.status.serviceStatus()
         
-        # {
-        #   'us': {
-        #     'dashboard': 'green',
-        #     'messaging': 'green',
-        #     'thirdParty': 'green'
-        #   }
-        # }
-        assert_equals("us", status.region)
-        assert_true(status.dashboard in ["green", "orange", "red"])
-        assert_true(status.messaging in ["green", "orange", "red"])
-        assert_true(status.thirdParty in ["green", "orange", "red"])
+        assert status.region == "us"
+        assert status.dashboard in ["green", "orange", "red"]
+        assert status.messaging in ["green", "orange", "red"]
+        assert status.thirdParty in ["green", "orange", "red"]
     

@@ -224,13 +224,13 @@ class Device(defaultdict):
         return self["typeId"]
     
     def __str__(self):
-        return json.dumps(self, sort_keys=True)
+        return "[%s] %s" % (self.clientId, self.deviceInfo.description or "<No description>")
     
     def __repr__(self):
         return json.dumps(self, sort_keys=True, indent=2)
     
     def json(self):
-        return self
+        return dict(self)
         
     # Extended properties
     

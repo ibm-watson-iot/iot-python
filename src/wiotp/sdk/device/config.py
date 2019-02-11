@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -50,19 +50,19 @@ class DeviceClientConfig(defaultdict):
         if 'options' not in kwargs:
             kwargs['options'] = {}
 
-        if "domain" not in kwargs['options']:
+        if "domain" not in kwargs['options'] or kwargs['options']['domain'] is None:
             kwargs['options']['domain'] = "internetofthings.ibmcloud.com"
         
-        if "logLevel" not in kwargs['options']:
+        if "logLevel" not in kwargs['options'] or kwargs['options']['logLevel'] is None:
             kwargs['options']['logLevel'] = logging.INFO
-
+        
         if 'mqtt' not in kwargs['options']:
             kwargs['options']['mqtt'] = {}
         
         if "port" not in kwargs['options']['mqtt']:
             kwargs['options']['mqtt']['port'] = None
         
-        if "transport" not in kwargs['options']['mqtt']:
+        if "transport" not in kwargs['options']['mqtt']  or kwargs['options']['mqtt']['transport'] is None:
             kwargs['options']['mqtt']['transport'] = 'tcp'
 
         if "cleanStart" not in kwargs['options']['mqtt']:

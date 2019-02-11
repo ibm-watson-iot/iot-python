@@ -1,5 +1,7 @@
 # mkdocs build -d ../docs
 
+# https://console.bluemix.net/docs/services/IoT/getting-started.html#getting-started-with-iotp
+
 site_name: IBM Watson IoT Platform
 nav:
   - 'Python SDK': index.md

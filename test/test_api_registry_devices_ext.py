@@ -1,11 +1,17 @@
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+
 import uuid
 import time
 from datetime import datetime
-from nose.tools import *
-from nose import SkipTest
-from pprint import pprint
-
 import testUtils
+
 import wiotp.sdk.device
 from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
 from wiotp.sdk.exceptions import ApiException
@@ -14,48 +20,48 @@ class TestRegistryDevices(testUtils.AbstractTest):
 
 
     def testDeviceLocationGetAndUpdate(self, deviceType, device):   
-        assert_true(device.deviceId in deviceType.devices)
+        assert device.deviceId in deviceType.devices
 
         locationBefore = device.getLocation()
-        assert_equals(None, locationBefore)
+        assert locationBefore is None
            
         device.setLocation({"latitude": 50, "longitude": 60})
         locationAfter = device.getLocation()        
         
-        assert_not_equal(None, locationAfter.updatedDateTime)
-        assert_not_equal(None, locationAfter.measuredDateTime)
+        assert locationAfter.updatedDateTime is not None
+        assert locationAfter.measuredDateTime is not None
         
-        assert_true(isinstance(locationAfter.updatedDateTime, datetime))
-        assert_true(isinstance(locationAfter.measuredDateTime, datetime))
+        assert isinstance(locationAfter.updatedDateTime, datetime)
+        assert isinstance(locationAfter.measuredDateTime, datetime)
         
-        assert_equals(50, locationAfter.latitude)
-        assert_equals(60, locationAfter.longitude)
+        assert locationAfter.latitude == 50
+        assert locationAfter.longitude == 60
 
         device.setLocation(DeviceLocation(latitude=80, longitude=75))
         locationAfter = device.getLocation()        
-        assert_equals(80, locationAfter.latitude)
-        assert_equals(75, locationAfter.longitude)
+        assert locationAfter.latitude == 80
+        assert locationAfter.longitude == 75
 
     def testDeviceLocationInvalid(self, deviceType, device):
-        assert_true(device.deviceId in deviceType.devices)
+        assert device.deviceId in deviceType.devices
 
         locationBefore = device.getLocation()
-        assert_equals(None, locationBefore)
+        assert locationBefore is None
            
         try:
             device.setLocation(DeviceLocation(latitude=100, longitude=120))
         except ApiException as e:
-            assert_equals("CUDRS0007E", e.id)
-            assert_true(len(e.violations) == 1)
+            assert e.id == "CUDRS0007E"
+            assert len(e.violations) == 1
 
     
     def testDeviceMgmt(self, deviceType, device):
-        assert_true(device.deviceId in deviceType.devices)
+        assert device.deviceId in deviceType.devices
         mgmtInfo = device.getMgmt()
-        assert_equals(None, mgmtInfo)
+        assert mgmtInfo is None
 
     def testDeviceConnectionLogs(self, deviceType, device, authToken):
-        assert_true(device.deviceId in deviceType.devices)
+        assert device.deviceId in deviceType.devices
                 
         options={
             "identity": {
@@ -78,8 +84,8 @@ class TestRegistryDevices(testUtils.AbstractTest):
         connLogs= device.getConnectionLogs()
         
         # There may be more than 2 entries due to previous connection attempts if we re-used a device ID.  But there should be at least two!
-        assert_true(len(connLogs) >= 2)
+        assert len(connLogs) >= 2
         for entry in connLogs:
-            assert_true(isinstance(entry, LogEntry))
-            assert_true(isinstance(entry.timestamp, datetime))
+            assert isinstance(entry, LogEntry)
+            assert isinstance(entry.timestamp, datetime)
         

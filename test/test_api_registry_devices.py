@@ -1,9 +1,15 @@
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+
 import uuid
 from datetime import datetime
-from nose.tools import *
-from nose import SkipTest
-from pprint import pprint
-
+import pytest
 import testUtils
 from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
 from wiotp.sdk.exceptions import ApiException
@@ -20,25 +26,25 @@ class TestRegistryDevices(testUtils.AbstractTest):
         devicesToRegister = [device1Id, device2Id]
         self.appClient.registry.devices.create(devicesToRegister)
         
-        assert_true(device1Id.deviceId in deviceType.devices)
-        assert_true(device2Id.deviceId in deviceType.devices)
+        assert device1Id.deviceId in deviceType.devices
+        assert device2Id.deviceId in deviceType.devices
     
         self.appClient.registry.devices.delete(devicesToRegister)
-        assert_false(device1Id.deviceId in deviceType.devices)
-        assert_false(device2Id.deviceId in deviceType.devices)
+        assert device1Id.deviceId not in deviceType.devices
+        assert device2Id.deviceId not in deviceType.devices
 
     def testBulkDeleteThatDoesntExist(self, deviceType):
         device1Id = DeviceUid(typeId=deviceType.id, deviceId=str(uuid.uuid4()))
         device2Id = DeviceUid(typeId=deviceType.id, deviceId=str(uuid.uuid4()))
         
-        assert_false(device1Id.deviceId in deviceType.devices)
-        assert_false(device2Id.deviceId in deviceType.devices)
+        assert device1Id.deviceId not in deviceType.devices
+        assert device2Id.deviceId not in deviceType.devices
         
         devicesToDelete = [device1Id, device2Id]
         self.appClient.registry.devices.delete(devicesToDelete)
         
-        assert_false(device1Id.deviceId in deviceType.devices)
-        assert_false(device2Id.deviceId in deviceType.devices)
+        assert device1Id.deviceId not in deviceType.devices
+        assert device2Id.deviceId not in deviceType.devices
             
     # =========================================================================
     # Device tests
@@ -52,9 +58,9 @@ class TestRegistryDevices(testUtils.AbstractTest):
     def testGetDevice(self, device):
         # Get a device, and cache the response in a local object
         retrievedDevice = self.appClient.registry.devices[device.clientId]
-        assert_equals(retrievedDevice.clientId, device.clientId)
-        assert_equals(retrievedDevice.typeId, device.typeId)
-        assert_equals(retrievedDevice.deviceId, device.deviceId)
+        assert retrievedDevice.clientId == device.clientId
+        assert retrievedDevice.typeId == device.typeId
+        assert retrievedDevice.deviceId == device.deviceId
         
     
     def testCreateAndUpdate1Device(self, deviceType):
@@ -67,57 +73,57 @@ class TestRegistryDevices(testUtils.AbstractTest):
         
         self.appClient.registry.devices.create(deviceUid)
              
-        assert_true(deviceUid.deviceId in deviceType.devices)
+        assert deviceUid.deviceId in deviceType.devices
         
         deviceAfterCreate = deviceType.devices[deviceUid.deviceId]
-        assert_equals("123", deviceAfterCreate.deviceInfo.serialNumber)
-        assert_equals("Floor 3, Room 2", deviceAfterCreate.deviceInfo.descriptiveLocation)
+        assert deviceAfterCreate.deviceInfo.serialNumber == "123"
+        assert deviceAfterCreate.deviceInfo.descriptiveLocation == "Floor 3, Room 2"
         
         self.appClient.registry.devices.update(deviceUid, metadata={"foo": "bar"})
         
         deviceAfterUpdate = deviceType.devices[deviceUid.deviceId]
-        assert_true("foo" in deviceAfterUpdate.metadata)
-        assert_equals("bar", deviceAfterUpdate.metadata["foo"])
+        assert "foo" in deviceAfterUpdate.metadata
+        assert deviceAfterUpdate.metadata["foo"] == "bar"
         
-        assert_equals(None, deviceAfterUpdate.deviceInfo.description)
-        assert_equals(None, deviceAfterUpdate.deviceInfo.model)
+        assert deviceAfterUpdate.deviceInfo.description is None
+        assert deviceAfterUpdate.deviceInfo.model is None
         
         # Update description only
         self.appClient.registry.devices.update(deviceUid, deviceInfo={"description": "hello"})
-        assert_equals("hello", deviceType.devices[deviceUid.deviceId].deviceInfo.description)
+        assert deviceType.devices[deviceUid.deviceId].deviceInfo.description == "hello"
         
         # Update model, verify that description wasn't wiped
         self.appClient.registry.devices.update(deviceUid, deviceInfo=DeviceInfo(model="foobar"))
 
         deviceAfter3rdUpdate = deviceType.devices[deviceUid.deviceId]
-        assert_true("foo" in deviceAfter3rdUpdate.metadata)
-        assert_equals("bar", deviceAfter3rdUpdate.metadata["foo"])
-        assert_equals("hello", deviceAfter3rdUpdate.deviceInfo.description)
-        assert_equals("foobar", deviceAfter3rdUpdate.deviceInfo.model)
-        assert_equals("Floor 3, Room 2", deviceAfter3rdUpdate.deviceInfo.descriptiveLocation)
+        assert "foo" in deviceAfter3rdUpdate.metadata
+        assert deviceAfter3rdUpdate.metadata["foo"] == "bar"
+        assert deviceAfter3rdUpdate.deviceInfo.description == "hello"
+        assert deviceAfter3rdUpdate.deviceInfo.model == "foobar"
+        assert deviceAfter3rdUpdate.deviceInfo.descriptiveLocation == "Floor 3, Room 2"
 
         # Cleanup
         self.appClient.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
-        assert_false(deviceUid.deviceId in deviceType.devices)
+        assert deviceUid.deviceId not in deviceType.devices
     
-    @raises(KeyError)
     def testGetDeviceThatDoesntExist(self):
-        self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
+        with pytest.raises(KeyError):
+            self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
 
-    @raises(KeyError)
     def testDeleteDeviceThatDoesntExist(self):
-        del self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
+        with pytest.raises(KeyError):
+            del self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
         
-    @raises(Exception)
     def testUnsupportedCreateUpdate(self):
-        self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"] = {"foo", "bar"}
+        with pytest.raises(Exception):
+            self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"] = {"foo", "bar"}
 
     def testUpdateDeviceThatDoesntExistUsingDictInsteadOfDeviceUidObject(self):
         id = str(uuid.uuid4())
         try:
             self.appClient.registry.devices.update({"typeId": "test", "deviceId": id}, metadata={"foo": "bar"})
         except ApiException as e:
-            assert_equals(404, e.response.status_code) 
+            assert e.response.status_code == 404
             
     def testListDevices(self):
         count = 0

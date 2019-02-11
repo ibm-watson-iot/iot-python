@@ -1,26 +1,19 @@
 # *****************************************************************************
-# Copyright (c) 2016 IBM Corporation and other Contributors.
+# Copyright (c) 2016-2019 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Lokesh Haralakatta  - Initial Contribution
 # *****************************************************************************
 
 import copy
-
+import uuid
+import testUtils
+import pytest
 import wiotp.sdk.device
 import wiotp.sdk.application
-from wiotp.sdk.exceptions import ApiException
-import uuid
-import os
-from nose.tools import *
-from nose import SkipTest
-import logging
-import testUtils
+from wiotp.sdk.exceptions import ApiException, ConnectionException, MissingMessageEncoderException
 
 class TestDevice(testUtils.AbstractTest):
     registeredDevice = None
@@ -33,7 +26,7 @@ class TestDevice(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
-            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+            self.appClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
 
         self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
@@ -69,10 +62,9 @@ class TestDevice(testUtils.AbstractTest):
             },
             "auth": { "token": self.registeredDevice.authToken }
         })
-        assert_is_instance(deviceCli , wiotp.sdk.device.DeviceClient)
+        assert isinstance(deviceCli, wiotp.sdk.device.DeviceClient)
 
     
-    @SkipTest
     def testNotAuthorizedConnect(self):
         client = wiotp.sdk.device.DeviceClient({
             "identity": {
@@ -80,27 +72,24 @@ class TestDevice(testUtils.AbstractTest):
             },
             "auth": { "token": "MGhUixxxxxxxxxxxx" }
         })
-        with assert_raises(ConnectionException) as e:
+        with pytest.raises(ConnectionException) as e:
             client.connect()
-        assert_equals(e.exception, ConnectionException)
-        assert_equals(e.exception.msg,'Not authorized')
+            assert e.value.msg =='Not authorized'
 
-    @SkipTest
     def testMissingMessageEncoder(self):
-        with assert_raises(MissingMessageEncoderException)as e:
+        with pytest.raises(MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
             self.deviceClient.connect()
             self.deviceClient.publishEvent("missingMsgEncode", "jason", myData)
-        assert_equals(e.exception, MissingMessageEncoderException)
     
     def testDeviceInfoInstance(self):
         deviceInfoObj = wiotp.sdk.device.DeviceInfo()
-        assert_is_instance(deviceInfoObj, wiotp.sdk.device.DeviceInfo)
+        assert isinstance(deviceInfoObj, wiotp.sdk.device.DeviceInfo)
         print(deviceInfoObj)
 
     def testDeviceFirmwareInstance(self):
         deviceFWObj = wiotp.sdk.device.DeviceFirmware()
-        assert_is_instance(deviceFWObj, wiotp.sdk.device.DeviceFirmware)
+        assert isinstance(deviceFWObj, wiotp.sdk.device.DeviceFirmware)
         print(deviceFWObj)
         
     def testPublishEvent(self):
@@ -109,7 +98,7 @@ class TestDevice(testUtils.AbstractTest):
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
         self.deviceClient.connect()
-        assert_true(self.deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert self.deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         self.deviceClient.disconnect()
     
     def testPublishEventPort1883(self):
@@ -121,11 +110,10 @@ class TestDevice(testUtils.AbstractTest):
         options["options"] = {"mqtt": { "port": 1883 } }
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
-    @SkipTest
-    # Currently, port 80 only works with websockets, not tcp :/
+    @pytest.mark.skip(reason="Currently, port 80 only works with websockets, not tcp :/")
     def testPublishEventPort80(self):
         def devPublishCallback():
             print("Device Publish Event done!!!")
@@ -135,7 +123,7 @@ class TestDevice(testUtils.AbstractTest):
         options["options"] = {"mqtt": { "port": 80 } }
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
     def testPublishEventPort80ws(self):
@@ -148,7 +136,7 @@ class TestDevice(testUtils.AbstractTest):
         options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
     def testPublishEventPort1883ws(self):
@@ -161,7 +149,7 @@ class TestDevice(testUtils.AbstractTest):
         options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
     def testPublishEventPort8883(self):
@@ -173,7 +161,7 @@ class TestDevice(testUtils.AbstractTest):
         options["options"] = {"mqtt": { "port": 8883 } }
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
     
     def testPublishEventPort8883ws(self):
@@ -186,7 +174,7 @@ class TestDevice(testUtils.AbstractTest):
         options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
 
@@ -199,7 +187,7 @@ class TestDevice(testUtils.AbstractTest):
         options["options"] = {"mqtt": { "port": 443 } }
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
     def testPublishEventPort443ws(self):
@@ -212,14 +200,16 @@ class TestDevice(testUtils.AbstractTest):
         options["options"]["mqtt"]["transport"] = "websockets"
         deviceClient = wiotp.sdk.device.DeviceClient(options)
         deviceClient.connect()
-        assert_true(deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2))
+        assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData,on_publish=devPublishCallback,qos=2) == True
         deviceClient.disconnect()
 
-    @raises(Exception)
     def testPublishEventPortInvalid(self):
         options = copy.deepcopy(self.options)
         options["options"] = {"mqtt": { "port": 100 } }
-        deviceClient = wiotp.sdk.device.DeviceClient(options)
-        deviceClient.connect()
-        deviceClient.disconnect()
+        with pytest.raises(Exception) as e:
+            deviceClient = wiotp.sdk.device.DeviceClient(options)
+
+            assert str(e.value) == "Unsupported value for port override: 100.  Supported values are 1883 & 8883."
+            deviceClient.connect()
+            deviceClient.disconnect()
     

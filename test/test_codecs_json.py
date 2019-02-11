@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2019 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -10,10 +10,8 @@
 
 import json
 import os
-from nose.tools import *
-from nose import SkipTest
-import logging
 import testUtils
+import pytest
 
 from wiotp.sdk import InvalidEventException, JsonCodec
 
@@ -39,25 +37,25 @@ class TestDevice(testUtils.AbstractTest):
     
     def testJsonObject(self):
         message = JsonCodec.decode(DummyPahoMessage({"foo": "bar"}))
-        assert_true(isinstance(message.data, dict))
-        assert_equals(message.data["foo"], "bar")
+        assert isinstance(message.data, dict)
+        assert message.data["foo"] == "bar"
         
     def testJsonString(self):
         message = JsonCodec.decode(DummyPahoMessage("bar"))
         try:
-            assert_true(isinstance(message.data, unicode))
+            assert isinstance(message.data, unicode)
         except NameError as e:
             # Python 3
-            assert_true(isinstance(message.data, str))
+            assert isinstance(message.data, str)
         
     def testJsonBoolean(self):
         message = JsonCodec.decode(DummyPahoMessage(False))
-        assert_true(isinstance(message.data, bool))
+        assert isinstance(message.data, bool)
         
     def testJsonInt(self):
         message = JsonCodec.decode(DummyPahoMessage(1))
-        assert_true(isinstance(message.data, int))
+        assert isinstance(message.data, int)
     
-    @raises(InvalidEventException)
     def testInvalidJson(self):
-        message = JsonCodec.decode(NonJsonDummyPahoMessage('{sss,eee}'))
+        with pytest.raises(InvalidEventException):
+            message = JsonCodec.decode(NonJsonDummyPahoMessage('{sss,eee}'))

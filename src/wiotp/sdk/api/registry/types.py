@@ -1,8 +1,17 @@
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+
 import json
 from collections import defaultdict
 
 from wiotp.sdk.api.common import IterableList
-from wiotp.sdk.api.registry.devices import Devices
+from wiotp.sdk.api.registry.devices import Devices, DeviceInfo
 from wiotp.sdk.exceptions import ApiException
 
 class IterableDeviceTypeList(IterableList):
@@ -43,17 +52,26 @@ class DeviceType(defaultdict):
             return None
 
     @property
+    def deviceInfo(self):
+        # Unpack the deviceInfo dictionary into keyword arguments so that we 
+        # can return a DeviceIngo object instead of a plain dictionary
+        if "deviceInfo" in self:
+            return DeviceInfo(**self["deviceInfo"])
+        else:
+            return DeviceInfo()
+    
+    @property
     def classId(self):
         return self["classId"]
     
     def __str__(self):
-        return json.dumps(self, sort_keys=True)
+        return "[%s] %s" % (self.id, self.deviceInfo.description or self.description or "<No description>")
     
     def __repr__(self):
         return json.dumps(self, sort_keys=True, indent=2)
     
     def json(self):
-        return self
+        return dict(self)
     
 
 class DeviceTypes(defaultdict):

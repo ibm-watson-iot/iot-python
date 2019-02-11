@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ibm-watson-iot/iot-python.svg?branch=master)](https://travis-ci.org/ibm-watson-iot/iot-python)
 [![GitHub issues](https://img.shields.io/github/issues/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/issues)
 [![GitHub](https://img.shields.io/github/license/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/ibmiotf.svg)](https://pypi.org/project/ibmiotf/)
+[![PyPI](https://img.shields.io/pypi/v/wiotp-sdk.svg)](https://pypi.org/project/wiotp-sdk/)
 
 
 
@@ -25,7 +25,7 @@ Note: Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and ope
 
 ## Installation
 
-Install the latest version of the library with pip
+Install the [latest version](https://pypi.org/project/wiotp-sdk/) of the library with pip
 
 ```
 # pip install wiotp-sdk
@@ -39,6 +39,10 @@ Uninstalling the module is simple.
 ```
 # pip uninstall wiotp-sdk
 ```
+
+## Legacy ibmiotf Module
+
+Version `0.4.0` of the old [ibmiotf](https://pypi.python.org/pypi/ibmiotf) pre-release is still available, if you do not wish to upgrade to the new version, we have no plans to remove this from pypi at this time, however it will not be getting any updates.
 
 
 ## Documentation

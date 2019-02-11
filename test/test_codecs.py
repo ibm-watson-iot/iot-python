@@ -15,10 +15,6 @@ import pytz
 from datetime import datetime
 import time
 import uuid
-import os
-from nose.tools import *
-from nose import SkipTest
-import logging
 import testUtils
 
 class MyCodec(wiotp.sdk.MessageCodec):
@@ -70,7 +66,7 @@ class TestDevice(testUtils.AbstractTest):
     @classmethod
     def setup_class(self):
         if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
-            self.setupAppClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
+            self.appClient.api.registry.devicetypes.create({"id": self.DEVICE_TYPE})
         
         self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
         
@@ -123,8 +119,8 @@ class TestDevice(testUtils.AbstractTest):
             x += 1
             time.sleep(1)
         
-        assert_true(calledBack)
-        assert_false(failed)
+        assert calledBack == True
+        assert failed == False
         
         self.deviceClient.disconnect()
         self.appClient.disconnect()

@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2016 IBM Corporation and other Contributors.
+# Copyright (c) 2016-2019 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -7,11 +7,10 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import wiotp.sdk
 import uuid
-from nose.tools import *
-from nose import SkipTest
+import pytest
 import testUtils
+import wiotp.sdk
 
 class TestGateway(testUtils.AbstractTest):
     registeredDevice = None
@@ -58,10 +57,10 @@ class TestGateway(testUtils.AbstractTest):
 
     def testManagedGatewayInstance(self):
         managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(self.options)
-        assert_is_instance(managedGateway, wiotp.sdk.gateway.ManagedGatewayClient)
+        assert isinstance(managedGateway, wiotp.sdk.gateway.ManagedGatewayClient)
 
     def testManagedgatewayQSException(self):
-        with assert_raises(wiotp.sdk.ConfigurationException)as e:
+        with pytest.raises(wiotp.sdk.ConfigurationException)as e:
             options={
                 "identity": {
                     "orgId": "quickstart", 
@@ -70,7 +69,7 @@ class TestGateway(testUtils.AbstractTest):
                 },
             }
             wiotp.sdk.gateway.ManagedGatewayClient(options)
-        assert_equals("QuickStart does not support device management", e.exception.reason)
+        assert "QuickStart does not support device management" == e.value.reason
 
     def testManagedGatewayConnectException(self):
         badOptions = {
@@ -83,38 +82,6 @@ class TestGateway(testUtils.AbstractTest):
         }
         gatewayInfoObj = wiotp.sdk.gateway.DeviceInfo()
         managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(badOptions, deviceInfo=gatewayInfoObj)
-        with assert_raises(wiotp.sdk.ConnectionException) as e:
+        with pytest.raises(wiotp.sdk.ConnectionException) as e:
             managedGateway.connect()
 
-    @SkipTest
-    def testManagedGatewayInstanceWithDeviceInfo(self):
-        gatewayInfoObj = wiotp.sdk.gateway.DeviceInfo()
-        managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(self.options, deviceInfo=gatewayInfoObj)
-
-        assert_is_instance(managedGateway, wiotp.sdk.gateway.ManagedGatewayClient)
-
-        #Connect managedGateway
-        managedGateway.connect()
-
-        #Define device properties to be notified whenever reset
-        managedGateway._deviceMgmtObservations = ["deviceInfo.manufacturer", "deviceInfo.descriptiveLocation",
-                                                  "deviceInfo.fwVersion", "deviceInfo.model", "deviceInfo.description",
-                                                  "deviceInfo.deviceClass", "deviceInfo.hwVersion", "deviceInfo.serialNumber"]
-
-        #Reset managedgateway properties
-        managedGateway.setErrorCode(1)
-        managedGateway.setLocation(longitude=100, latitude=78, accuracy=100,elevation=45)
-        managedGateway.setSerialNumber('iot-pgateway-12345')
-        managedGateway.setManufacturer("IBM India Pvt Ltd")
-        managedGateway.setModel("2016")
-        managedGateway.setdeviceClass("Smart Gateway")
-        managedGateway.setDescription("Sample Smart IoT Gateway")
-        managedGateway.setFwVersion("1.0")
-        managedGateway.setHwVersion("2.0")
-        managedGateway.setDescriptiveLocation("ISL Lab Bangalore")
-
-        managedGateway.clearErrorCodes()
-
-        #Disconnect ManagedGateway
-        managedGateway.unmanage()
-        managedGateway.disconnect()

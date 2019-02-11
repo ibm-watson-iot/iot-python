@@ -8,7 +8,11 @@
 # *****************************************************************************
 
 import wiotp.sdk.application
+import pytest
 import os
+import sys
+
+py27onlytest = pytest.mark.skipif(sys.version_info > (3,0), reason="Doesn't support running in multiple envs in parallel due to limits on # of service bindings allowed")
 
 class AbstractTest(object):
 
@@ -52,6 +56,8 @@ class AbstractTest(object):
     if CLOUDANT_PASSWORD is None:
         raise Exception("CLOUDANT_PASSWORD environment variable is not set")
 
-    options = {'auth': { 'key': WIOTP_API_KEY, 'token': WIOTP_API_TOKEN}}
+    options = wiotp.sdk.application.parseEnvVars()
+    # import pprint
+    # pprint.pprint(options)
     appClient = wiotp.sdk.application.ApplicationClient(options)
 

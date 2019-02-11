@@ -1,26 +1,31 @@
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+# 
 import uuid
 from datetime import datetime
-from nose.tools import *
-from nose import SkipTest
-
 import testUtils
 import time
-
+import pytest
 from wiotp.sdk.api.services import CloudantServiceBindingCredentials, CloudantServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
-# Blocked waiting for https://github.ibm.com/wiotp/tracker/issues/1829
-
+@testUtils.py27onlytest
 class TestDscCloudant(testUtils.AbstractTest):
     
     # =========================================================================
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        for c in self.appClient.dsc.connectors:
+        for c in self.appClient.dsc:
             if c.name == "test-connector-cloudant":
                 print("Deleting old test connector instance: %s" % (c))
-                del self.appClient.dsc.connectors[c.id]
+                del self.appClient.dsc[c.id]
 
         for s in self.appClient.serviceBindings:
             if s.name == "test-cloudant":
@@ -43,20 +48,20 @@ class TestDscCloudant(testUtils.AbstractTest):
 
         createdService = self.appClient.serviceBindings.create(serviceBinding)
 
-        assert_equals(createdService.name, "test-cloudant")
-        assert_equals(createdService.bindingMode, "manual")
-        assert_equals(createdService.bindingType, "cloudant")
-        assert_equals(createdService.description, "Test Cloudant instance")
-        assert_true(isinstance(createdService.created, datetime))
-        assert_true(isinstance(createdService.updated, datetime))
+        assert createdService.name == "test-cloudant"
+        assert createdService.bindingMode == "manual"
+        assert createdService.bindingType == "cloudant"
+        assert createdService.description == "Test Cloudant instance"
+        assert isinstance(createdService.created, datetime)
+        assert isinstance(createdService.updated, datetime)
 
         # Can we search for it
         count = 0
         for s in self.appClient.serviceBindings.find(nameFilter="test-cloudant"):
-            assert_equals("test-cloudant", s.name)
-            assert_equals(createdService.id, s.id)
+            assert s.name == "test-cloudant"
+            assert createdService.id == s.id
             count += 1
-        assert_equals(1, count)
+        assert count == 1
 
         del self.appClient.serviceBindings[createdService.id]
 
@@ -74,14 +79,14 @@ class TestDscCloudant(testUtils.AbstractTest):
 
         createdService = self.appClient.serviceBindings.create(serviceBinding)
 
-        assert_equals(createdService.name, "test-cloudant")
-        assert_equals(createdService.bindingMode, "manual")
-        assert_equals(createdService.bindingType, "cloudant")
-        assert_equals(createdService.description, "Test Cloudant instance")
-        assert_true(isinstance(createdService.created, datetime))
-        assert_true(isinstance(createdService.updated, datetime))
+        assert createdService.name == "test-cloudant"
+        assert createdService.bindingMode == "manual"
+        assert createdService.bindingType == "cloudant"
+        assert createdService.description == "Test Cloudant instance"
+        assert isinstance(createdService.created, datetime)
+        assert isinstance(createdService.updated, datetime)
 
-        createdConnector = self.appClient.dsc.connectors.create(
+        createdConnector = self.appClient.dsc.create(
             name="test-connector-cloudant", 
             serviceId=createdService.id, 
             timezone="UTC", 
@@ -89,17 +94,17 @@ class TestDscCloudant(testUtils.AbstractTest):
             enabled=True
         )
 
-        assert_true(isinstance(createdConnector.created, datetime))
-        assert_equals("A test connector", createdConnector.description)
-        assert_equals(createdService.id, createdConnector.serviceId)
-        assert_equals("cloudant", createdConnector.connectorType)
-        assert_true(isinstance(createdConnector.updated, datetime))
-        assert_equals("test-connector-cloudant", createdConnector.name)
-        assert_equals(False, createdConnector.adminDisabled)
-        assert_equals(True, createdConnector.enabled)
-        assert_equals(self.WIOTP_API_KEY, createdConnector.updatedBy)
-        assert_equals(self.WIOTP_API_KEY, createdConnector.createdBy)
-        assert_equals("UTC", createdConnector.timezone)
+        assert isinstance(createdConnector.created, datetime)
+        assert "A test connector" == createdConnector.description
+        assert createdService.id == createdConnector.serviceId
+        assert "cloudant" == createdConnector.connectorType
+        assert isinstance(createdConnector.updated, datetime)
+        assert "test-connector-cloudant" == createdConnector.name
+        assert False == createdConnector.adminDisabled
+        assert True == createdConnector.enabled
+        assert self.WIOTP_API_KEY == createdConnector.updatedBy
+        assert self.WIOTP_API_KEY == createdConnector.createdBy
+        assert "UTC" == createdConnector.timezone
 
 
         # Create a destination under the connector
@@ -111,15 +116,14 @@ class TestDscCloudant(testUtils.AbstractTest):
         count = 0
         for d in createdConnector.destinations:
             count += 1
-            assert_true(d.bucketInterval is not None)
-            assert_true(d.partitions is None)
-        assert_equals(4, count)
+            assert d.bucketInterval is not None
+            assert d.partitions is None
+        assert count == 4
 
-        try:
+        with pytest.raises(ApiException) as e:
             del self.appClient.serviceBindings[createdService.id]
-        except ApiException as exception:
             # You should not be able to delete this binding as there is a connector associated with it
-            assert_equals("CUDSS0021E", exception.id)
+            assert e.value.id == "CUDSS0021E"
 
         # Create Forwarding Rules
         
@@ -131,15 +135,14 @@ class TestDscCloudant(testUtils.AbstractTest):
             typeId="*",
             eventId="*"
         )
-        assert_equals(destination1.name, rule1.destinationName)
-        assert_equals("*", rule1.typeId)
-        assert_equals("*", rule1.eventId)
+        assert destination1.name == rule1.destinationName
+        assert "*" == rule1.typeId
+        assert "*" == rule1.eventId
 
-        try:
+        with pytest.raises(ApiException) as e:
             del createdConnector.destinations[destination1.name]
-        except ApiException as exception:
             # You should not be able to delete this destination as there is a rule associated with it
-            assert_equals("CUDDSC0104E", exception.id)
+            assert "CUDDSC0104E" == e.value.id
 
 
         
@@ -149,9 +152,9 @@ class TestDscCloudant(testUtils.AbstractTest):
             if count > 10:
                 print("Count > 10")
                 break
-            assert_equals("*", r.typeId)
-            assert_equals("event", r.ruleType)
-        assert_equals(1, count)
+            assert "*" == r.typeId
+            assert "event" == r.ruleType
+        assert count == 1
         
 
         del createdConnector.rules[rule1.id]
@@ -165,9 +168,9 @@ class TestDscCloudant(testUtils.AbstractTest):
         count = 0
         for d in createdConnector.destinations:
             count += 1
-        assert_equals(0, count)
+        assert count == 0
 
 
         # Deleting the connector will delete all the destinations and forwarding rules too
-        del self.appClient.dsc.connectors[createdConnector.id]
+        del self.appClient.dsc[createdConnector.id]
         del self.appClient.serviceBindings[createdService.id]

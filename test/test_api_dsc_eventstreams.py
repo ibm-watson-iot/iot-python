@@ -1,26 +1,32 @@
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+
 import uuid
 from datetime import datetime
-from nose.tools import *
-from nose import SkipTest
-
+import pytest
 import testUtils
 import time
 
 from wiotp.sdk.api.services import EventStreamsServiceBindingCredentials, EventStreamsServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
-# Blocked waiting for https://github.ibm.com/wiotp/tracker/issues/1829
-
+@testUtils.py27onlytest
 class TestDscEventStreams(testUtils.AbstractTest):
     
     # =========================================================================
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        for c in self.appClient.dsc.connectors:
+        for c in self.appClient.dsc:
             if c.name == "test-connector-eventstreams":
                 print("Deleting old test connector instance: %s" % (c))
-                del self.appClient.dsc.connectors[c.id]
+                del self.appClient.dsc[c.id]
 
         for s in self.appClient.serviceBindings:
             if s.name == "test-eventstreams":
@@ -50,12 +56,12 @@ class TestDscEventStreams(testUtils.AbstractTest):
 
         createdService = self.appClient.serviceBindings.create(serviceBinding)
 
-        assert_equals(createdService.name, "test-eventstreams")
-        assert_equals(createdService.bindingMode, "manual")
-        assert_equals(createdService.bindingType, "eventstreams")
-        assert_equals(createdService.description, "Test EventStreams instance")
-        assert_true(isinstance(createdService.created, datetime))
-        assert_true(isinstance(createdService.updated, datetime))
+        assert createdService.name == "test-eventstreams"
+        assert createdService.bindingMode == "manual"
+        assert createdService.bindingType == "eventstreams"
+        assert createdService.description == "Test EventStreams instance"
+        assert isinstance(createdService.created, datetime)
+        assert isinstance(createdService.updated, datetime)
 
         time.sleep(10)
         del self.appClient.serviceBindings[createdService.id]
@@ -82,14 +88,14 @@ class TestDscEventStreams(testUtils.AbstractTest):
 
         createdService = self.appClient.serviceBindings.create(serviceBinding)
 
-        assert_equals(createdService.name, "test-eventstreams")
-        assert_equals(createdService.bindingMode, "manual")
-        assert_equals(createdService.bindingType, "eventstreams")
-        assert_equals(createdService.description, "Test EventStreams instance")
-        assert_true(isinstance(createdService.created, datetime))
-        assert_true(isinstance(createdService.updated, datetime))
+        assert createdService.name, "test-eventstreams"
+        assert createdService.bindingMode, "manual"
+        assert createdService.bindingType, "eventstreams"
+        assert createdService.description, "Test EventStreams instance"
+        assert isinstance(createdService.created, datetime)
+        assert isinstance(createdService.updated, datetime)
 
-        createdConnector = self.appClient.dsc.connectors.create(
+        createdConnector = self.appClient.dsc.create(
             name="test-connector-eventstreams", 
             serviceId=createdService.id, 
             timezone="UTC", 
@@ -97,24 +103,23 @@ class TestDscEventStreams(testUtils.AbstractTest):
             enabled=True
         )
 
-        assert_true(isinstance(createdConnector.created, datetime))
-        assert_equals("A test connector", createdConnector.description)
-        assert_equals(createdService.id, createdConnector.serviceId)
-        assert_equals("eventstreams", createdConnector.connectorType)
-        assert_true(isinstance(createdConnector.updated, datetime))
-        assert_equals("test-connector-eventstreams", createdConnector.name)
-        assert_equals(False, createdConnector.adminDisabled)
-        assert_equals(True, createdConnector.enabled)
-        assert_equals(self.WIOTP_API_KEY, createdConnector.updatedBy)
-        assert_equals(self.WIOTP_API_KEY, createdConnector.createdBy)
-        assert_equals("UTC", createdConnector.timezone)
+        assert isinstance(createdConnector.created, datetime)
+        assert "A test connector" == createdConnector.description
+        assert createdService.id == createdConnector.serviceId
+        assert "eventstreams" == createdConnector.connectorType
+        assert isinstance(createdConnector.updated, datetime)
+        assert "test-connector-eventstreams" == createdConnector.name
+        assert False == createdConnector.adminDisabled
+        assert True == createdConnector.enabled
+        assert self.WIOTP_API_KEY == createdConnector.updatedBy
+        assert self.WIOTP_API_KEY == createdConnector.createdBy
+        assert "UTC" == createdConnector.timezone
 
-        try:
+        with pytest.raises(ApiException) as e:
             del self.appClient.serviceBindings[createdService.id]
-        except ApiException as exception:
             # You should not be able to delete this binding as there is a connector associated with it
-            assert_equals("CUDSS0021E", exception.id)
+            assert "CUDSS0021E" == e.value.id
         
-        del self.appClient.dsc.connectors[createdConnector.id]
+        del self.appClient.dsc[createdConnector.id]
         del self.appClient.serviceBindings[createdService.id]
     
