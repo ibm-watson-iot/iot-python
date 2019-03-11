@@ -9,6 +9,7 @@
 
 from wiotp.sdk.api.registry.devices import Devices 
 from wiotp.sdk.api.registry.types import DeviceTypes 
+from wiotp.sdk.api.registry.clientConnectivityStatus import ClientConnectivityStatus
 
 class Registry():
 
@@ -17,4 +18,5 @@ class Registry():
         
         self.devices = Devices(self._apiClient)
         self.devicetypes = DeviceTypes(self._apiClient)
+        self.clientConnectivityStatus = ClientConnectivityStatus(self._apiClient)
     
