@@ -20,31 +20,39 @@ from collections import defaultdict
 class ServiceBindingCreateRequest(defaultdict):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
-    
+
+
 class CloudantServiceBindingCreateRequest(ServiceBindingCreateRequest):
     def __init__(self, **kwargs):
-        if not set(['name', 'credentials', 'description']).issubset(kwargs):
-            raise Exception("name, credentials, & description are required parameters for creating a Cloudant Service Binding: %s" % (json.dumps(kwargs, sort_keys=True)))
-        
-        # Convert credentials to CloudantServiceBindingCredentials for validation 
-        if not isinstance(kwargs['credentials'], CloudantServiceBindingCredentials):
-            kwargs['credentials'] = CloudantServiceBindingCredentials(**kwargs["credentials"])
-        
-        kwargs['type'] = "cloudant"
-        
+        if not set(["name", "credentials", "description"]).issubset(kwargs):
+            raise Exception(
+                "name, credentials, & description are required parameters for creating a Cloudant Service Binding: %s"
+                % (json.dumps(kwargs, sort_keys=True))
+            )
+
+        # Convert credentials to CloudantServiceBindingCredentials for validation
+        if not isinstance(kwargs["credentials"], CloudantServiceBindingCredentials):
+            kwargs["credentials"] = CloudantServiceBindingCredentials(**kwargs["credentials"])
+
+        kwargs["type"] = "cloudant"
+
         ServiceBindingCreateRequest.__init__(self, **kwargs)
+
 
 class EventStreamsServiceBindingCreateRequest(ServiceBindingCreateRequest):
     def __init__(self, **kwargs):
-        if not set(['name', 'credentials', 'description']).issubset(kwargs):
-            raise Exception("name, credentials, & description are required parameters for creating a Cloudant Service Binding: %s" % (json.dumps(kwargs, sort_keys=True)))
-        
-        # Convert credentials to EventStreamsServiceBindingCredentials for validation 
-        if not isinstance(kwargs['credentials'], EventStreamsServiceBindingCredentials):
-            kwargs['credentials'] = EventStreamsServiceBindingCredentials(**kwargs["credentials"])
-        
-        kwargs['type'] = "eventstreams"
-        
+        if not set(["name", "credentials", "description"]).issubset(kwargs):
+            raise Exception(
+                "name, credentials, & description are required parameters for creating a Cloudant Service Binding: %s"
+                % (json.dumps(kwargs, sort_keys=True))
+            )
+
+        # Convert credentials to EventStreamsServiceBindingCredentials for validation
+        if not isinstance(kwargs["credentials"], EventStreamsServiceBindingCredentials):
+            kwargs["credentials"] = EventStreamsServiceBindingCredentials(**kwargs["credentials"])
+
+        kwargs["type"] = "eventstreams"
+
         ServiceBindingCreateRequest.__init__(self, **kwargs)
 
 
@@ -61,42 +69,52 @@ class ServiceBinding(defaultdict):
                u'updated': u'2019-01-28T15:10:22.011+0000',
                u'updatedBy': u'a-hldtxx-tp3lq5g00b'}
     """
+
     def __init__(self, **kwargs):
-        if 'created' in kwargs and not isinstance(kwargs['created'], datetime):
-            kwargs['created'] = iso8601.parse_date(kwargs['created']) 
-            
-        if 'updated' in kwargs and not isinstance(kwargs['updated'], datetime):
-            kwargs['updated'] = iso8601.parse_date(kwargs['updated'])
+        if "created" in kwargs and not isinstance(kwargs["created"], datetime):
+            kwargs["created"] = iso8601.parse_date(kwargs["created"])
+
+        if "updated" in kwargs and not isinstance(kwargs["updated"], datetime):
+            kwargs["updated"] = iso8601.parse_date(kwargs["updated"])
 
         dict.__init__(self, **kwargs)
 
     @property
     def bindingMode(self):
         return self["bindingMode"]
+
     @property
     def bound(self):
         return self["bound"]
+
     @property
     def created(self):
         return self["created"]
+
     @property
     def createdBy(self):
         return self["createdBy"]
+
     @property
     def description(self):
         return self["description"]
+
     @property
     def id(self):
         return self["id"]
+
     @property
     def name(self):
         return self["name"]
+
     @property
     def bindingType(self):
         return self["type"]
+
     @property
     def updated(self):
         return self["updated"]
+
     @property
     def updatedBy(self):
         return self["updatedBy"]
@@ -106,7 +124,7 @@ class ServiceBinding(defaultdict):
 
     def __repr__(self):
         return json.dumps(self, sort_keys=True, indent=2)
-    
+
     def json(self):
         return json.dumps(self, sort_keys=True, indent=2)
 
@@ -114,11 +132,12 @@ class ServiceBinding(defaultdict):
 class IterableServiceBindingsList(IterableList):
     def __init__(self, apiClient, filters=None):
         # This API does not support sorting
-        super(IterableServiceBindingsList, self).__init__(apiClient, ServiceBinding, 'api/v0002/s2s/services', sort=None, filters=filters, passApiClient=False)
+        super(IterableServiceBindingsList, self).__init__(
+            apiClient, ServiceBinding, "api/v0002/s2s/services", sort=None, filters=filters, passApiClient=False
+        )
 
 
 class ServiceBindings(object):
-
     def __init__(self, apiClient):
         self._apiClient = apiClient
 
@@ -135,7 +154,7 @@ class ServiceBindings(object):
             return False
         else:
             raise ApiException(r)
-    
+
     def __getitem__(self, key):
         """
         Retrieve the service with the specified id.
@@ -160,7 +179,7 @@ class ServiceBindings(object):
         Register a new device - not currently supported via this interface, use: `registry.devices.create()`
         """
         raise Exception("Unable to register or update a service binding via this interface at the moment.")
-    
+
     def __delitem__(self, key):
         """
         Delete a connector
@@ -172,7 +191,7 @@ class ServiceBindings(object):
             self.__missing__(key)
         elif r.status_code != 204:
             raise ApiException(r)
-        
+
     def __missing__(self, key):
         """
         Device does not exist
@@ -184,8 +203,6 @@ class ServiceBindings(object):
         Iterate through all Service Bindings
         """
         return IterableServiceBindingsList(self._apiClient)
-
-
 
     def find(self, nameFilter=None, typeFilter=None, bindingModeFilter=None, boundFilter=None):
         """
@@ -201,7 +218,7 @@ class ServiceBindings(object):
         
         Throws APIException on failure.
         """
-        
+
         queryParms = {}
         if nameFilter:
             queryParms["name"] = nameFilter
@@ -211,10 +228,9 @@ class ServiceBindings(object):
             queryParms["bindingMode"] = bindingModeFilter
         if boundFilter:
             queryParms["bound"] = boundFilter
-        
+
         return IterableServiceBindingsList(self._apiClient, filters=queryParms)
 
-            
     def create(self, serviceBinding):
         """
         Create a new external service. 
@@ -243,7 +259,6 @@ class ServiceBindings(object):
         else:
             raise ApiException(r)
 
-            
     def update(self, serviceId, serviceName, credentials, description):
         """
         Updates the service with the specified id.
@@ -260,13 +275,12 @@ class ServiceBindings(object):
         url = "api/v0002/s2s/services/%s" % (serviceId)
 
         serviceBody = {}
-        serviceBody['name'] = serviceName
-        serviceBody['description'] = description
-        serviceBody['credentials'] = credentials
+        serviceBody["name"] = serviceName
+        serviceBody["description"] = description
+        serviceBody["credentials"] = credentials
 
         r = self._apiClient.put(url, data=serviceBody)
         if r.status_code == 200:
             return ServiceBinding(**r.json())
         else:
             raise ApiException(r)
-        

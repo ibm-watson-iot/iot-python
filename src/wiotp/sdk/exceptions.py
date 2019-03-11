@@ -7,6 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
+
 class ConnectionException(Exception):
     """
     Generic Connection exception
@@ -14,6 +15,7 @@ class ConnectionException(Exception):
     # Attributes
     reason (string): The reason why the connection exception occured
     """
+
     def __init__(self, reason):
         self.reason = reason
 
@@ -28,6 +30,7 @@ class ConfigurationException(Exception):
     # Attributes
     reason (string): The reason why the configuration is invalid
     """
+
     def __init__(self, reason):
         self.reason = reason
 
@@ -42,6 +45,7 @@ class UnsupportedAuthenticationMethod(ConnectionException):
     # Attributes
     method (string): The authentication method that is unsupported
     """
+
     def __init__(self, method):
         self.method = method
 
@@ -56,6 +60,7 @@ class InvalidEventException(Exception):
     # Attributes
     reason (string): The reason why the event could not be constructed
     """
+
     def __init__(self, reason):
         self.reason = reason
 
@@ -70,6 +75,7 @@ class MissingMessageDecoderException(Exception):
     # Attributes
     format (string): The message format for which no encoder could be found
     """
+
     def __init__(self, format):
         self.format = format
 
@@ -84,6 +90,7 @@ class MissingMessageEncoderException(Exception):
     # Attributes
     format (string): The message format for which no encoder could be found
     """
+
     def __init__(self, format):
         self.format = format
 
@@ -98,9 +105,10 @@ class ApiException(Exception):
     # Attributes
     response (requests.Response): See: http://docs.python-requests.org/en/master/api/#requests.Response
     """
+
     def __init__(self, response):
         self.response = response
-        
+
         # {
         #   "violations":[
         #     {
@@ -111,7 +119,7 @@ class ApiException(Exception):
         #   "message":"CUDRS0007E: The request was not valid. Review the constraint violations provided.",
         #   "exception":{"id":"CUDRS0007E","properties":[]}
         # }
-        
+
         try:
             self.body = self.response.json()
             self.message = self.body.get("message", None)
@@ -120,10 +128,10 @@ class ApiException(Exception):
             self.body = None
             self.message = None
             self.exception = None
-        
+
     @property
     def id(self):
-        if self.exception is not None:  
+        if self.exception is not None:
             return self.exception.get("id", None)
 
     @property
@@ -136,13 +144,17 @@ class ApiException(Exception):
             for violation in violations:
                 returnArray.append(violation.get("message", None))
             return returnArray
-        
 
     def __str__(self):
         if self.message:
-            return self.message 
+            return self.message
         else:
-            return "Unexpected return code from API: %s (%s) - %s\n%s" % (self.response.status_code, self.response.reason, self.response.url, self.response.text)
-    
+            return "Unexpected return code from API: %s (%s) - %s\n%s" % (
+                self.response.status_code,
+                self.response.reason,
+                self.response.url,
+                self.response.text,
+            )
+
     def __repr__(self):
         return self.response.__repr__()

@@ -7,11 +7,13 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import json 
+import json
+
 
 class DeviceFirmware(object):
-    def __init__(self, version=None, name=None, url=None, verifier=None,
-                 state=None, updateStatus=None, updatedDateTime=None):
+    def __init__(
+        self, version=None, name=None, url=None, verifier=None, state=None, updateStatus=None, updatedDateTime=None
+    ):
         self.version = version
         self.name = name
         self.url = url
@@ -22,4 +24,3 @@ class DeviceFirmware(object):
 
     def __str__(self):
         return json.dumps(self.__dict__, sort_keys=True)
-

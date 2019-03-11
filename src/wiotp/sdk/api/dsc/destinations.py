@@ -15,6 +15,7 @@ from wiotp.sdk.api.common import IterableList
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/historian-connector.html
 
+
 class Destination(defaultdict):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
@@ -22,27 +23,29 @@ class Destination(defaultdict):
     @property
     def name(self):
         # Unlike most other resources name == the UUID, there is no seperate id property
-        return(self["name"])
+        return self["name"]
+
     @property
     def destinationType(self):
-        return(self["type"])
+        return self["type"]
+
     @property
     def configuration(self):
-        return(self["configuration"])
+        return self["configuration"]
 
     # EventStreams only configuration
     @property
     def partitions(self):
         if self["type"] == "eventstreams":
-            return(self["configuration"]["partitions"])
+            return self["configuration"]["partitions"]
         else:
             return None
-    
+
     # Cloudant only configuration
     @property
     def bucketInterval(self):
         if self["type"] == "cloudant":
-            return(self["configuration"]["bucketInterval"])
+            return self["configuration"]["bucketInterval"]
         else:
             return None
 
@@ -51,11 +54,17 @@ class IterableDestinationList(IterableList):
     def __init__(self, apiClient, connectorId, filters=None):
         self.connectorId = connectorId
         # This API does not support sorting
-        super(IterableDestinationList, self).__init__(apiClient, Destination, 'api/v0002/historianconnectors/%s/destinations' % (connectorId), sort=None, filters=filters, passApiClient=False)
+        super(IterableDestinationList, self).__init__(
+            apiClient,
+            Destination,
+            "api/v0002/historianconnectors/%s/destinations" % (connectorId),
+            sort=None,
+            filters=filters,
+            passApiClient=False,
+        )
 
 
 class Destinations(defaultdict):
-
     def __init__(self, apiClient, connectorId, connectorType):
         self._apiClient = apiClient
         self.connectorId = connectorId
@@ -71,7 +80,7 @@ class Destinations(defaultdict):
             return False
         else:
             raise ApiException(r)
-    
+
     def __getitem__(self, key):
         url = "api/v0002/historianconnectors/%s/destinations/%s" % (self.connectorId, key)
 
@@ -85,7 +94,7 @@ class Destinations(defaultdict):
 
     def __setitem__(self, key, value):
         raise Exception("Unable to register or update a destination via this interface at the moment.")
-    
+
     def __delitem__(self, key):
         url = "api/v0002/historianconnectors/%s/destinations/%s" % (self.connectorId, key)
 
@@ -96,7 +105,7 @@ class Destinations(defaultdict):
             # Unlike most DELETE requests, this API is expected to return 200 with a message body containing the message:
             # "Successfully deleted Cloudant configuration, the Cloudant database must be manually deleted"
             raise ApiException(r)
-        
+
     def __missing__(self, key):
         raise KeyError("Destination %s does not exist" % (key))
 
@@ -110,10 +119,9 @@ class Destinations(defaultdict):
         queryParms = {}
         if nameFilter:
             queryParms["name"] = nameFilter
-        
+
         return IterableDestinationList(self._apiClient, self.connectorId, filters=queryParms)
-            
-            
+
     def create(self, name, **kwargs):
         if self.connectorType == "cloudant":
             if ["bucketInterval"] != kwargs.keys():
@@ -122,11 +130,7 @@ class Destinations(defaultdict):
             if ["partitions"] != kwargs.keys():
                 raise Exception("You must specify partitions parameter on create for an EventStreams destination")
 
-        destination = {
-            "name" : name,
-            "type" : self.connectorType,
-            "configuration" : kwargs
-        }
+        destination = {"name": name, "type": self.connectorType, "configuration": kwargs}
 
         url = "api/v0002/historianconnectors/%s/destinations" % (self.connectorId)
 

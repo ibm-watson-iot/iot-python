@@ -16,8 +16,8 @@ from wiotp.sdk.api.lec import LEC
 from wiotp.sdk.api.mgmt import Mgmt
 from wiotp.sdk.api.services import ServiceBindings
 
-#This method returns the organization
-#def getOrganizationDetails(self):
+# This method returns the organization
+# def getOrganizationDetails(self):
 #    """
 #    Get details about an organization
 #    It does not need any parameter to be passed

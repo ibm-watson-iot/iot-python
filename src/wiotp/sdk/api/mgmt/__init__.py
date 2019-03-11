@@ -10,11 +10,10 @@
 from wiotp.sdk.api.mgmt.extensions import MgmtExtensions
 from wiotp.sdk.api.mgmt.requests import MgmtRequests
 
-class Mgmt():
 
+class Mgmt:
     def __init__(self, apiClient):
         self._apiClient = apiClient
-    
+
         self.requests = MgmtRequests(self._apiClient)
         self.extensions = MgmtExtensions(self._apiClient)
-    
