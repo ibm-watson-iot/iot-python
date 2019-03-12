@@ -17,61 +17,79 @@ from wiotp.sdk.api.common import IterableList
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/historian-connector.html
 
+
 class Connector(defaultdict):
     def __init__(self, apiClient, **kwargs):
         self._apiClient = apiClient
 
-        self.destinations = Destinations(apiClient=self._apiClient, connectorId=kwargs["id"], connectorType=kwargs["type"])
+        self.destinations = Destinations(
+            apiClient=self._apiClient, connectorId=kwargs["id"], connectorType=kwargs["type"]
+        )
         self.rules = ForwardingRules(apiClient=self._apiClient, connectorId=kwargs["id"])
         dict.__init__(self, **kwargs)
 
     @property
     def created(self):
-        return(iso8601.parse_date(self["created"]))
+        return iso8601.parse_date(self["created"])
+
     @property
     def description(self):
-        return(self["description"])
+        return self["description"]
+
     @property
     def serviceId(self):
-        return(self["serviceId"])
+        return self["serviceId"]
+
     @property
     def connectorType(self):
-        return(self["type"])
+        return self["type"]
+
     @property
     def updated(self):
-        return(iso8601.parse_date(self["updated"]))
+        return iso8601.parse_date(self["updated"])
+
     @property
     def name(self):
-        return(self["name"])
+        return self["name"]
+
     @property
     def adminDisabled(self):
-        return(self["adminDisabled"])
+        return self["adminDisabled"]
+
     @property
     def enabled(self):
-        return(self["enabled"])
+        return self["enabled"]
+
     @property
     def updatedBy(self):
-        return(self["updatedBy"])
+        return self["updatedBy"]
+
     @property
     def createdBy(self):
-        return(self["createdBy"])
+        return self["createdBy"]
+
     @property
     def id(self):
-        return(self["id"])
+        return self["id"]
+
     @property
     def timezone(self):
-        return(self["timezone"])
+        return self["timezone"]
+
 
 class IterableConnectorList(IterableList):
     def __init__(self, apiClient, filters=None):
         # This API does not support sorting
-        super(IterableConnectorList, self).__init__(apiClient, Connector, 'api/v0002/historianconnectors', sort=None, filters=filters, passApiClient=True)
+        super(IterableConnectorList, self).__init__(
+            apiClient, Connector, "api/v0002/historianconnectors", sort=None, filters=filters, passApiClient=True
+        )
+
 
 class Connectors(defaultdict):
 
     allHistorianConnectorsUrl = "api/v0002/historianconnectors"
     oneHistorianConnectorUrl = "api/v0002/historianconnectors/%s"
-    
+
     def __init__(self, apiClient):
         self._apiClient = apiClient
 
@@ -88,7 +106,7 @@ class Connectors(defaultdict):
             return False
         else:
             raise ApiException(r)
-    
+
     def __getitem__(self, key):
         """
         Retrieve the connector with the specified id.
@@ -97,7 +115,7 @@ class Connectors(defaultdict):
         Throws APIException on failure.
 
         """
-        
+
         url = "api/v0002/historianconnectors/%s" % (key)
 
         r = self._apiClient.get(url)
@@ -113,7 +131,7 @@ class Connectors(defaultdict):
         Register a new device - not currently supported via this interface, use: `registry.devices.create()`
         """
         raise Exception("Unable to register or update a connector via this interface at the moment.")
-    
+
     def __delitem__(self, key):
         """
         Delete a connector
@@ -125,7 +143,7 @@ class Connectors(defaultdict):
             self.__missing__(key)
         elif r.status_code != 204:
             raise ApiException(r)
-        
+
     def __missing__(self, key):
         """
         Device does not exist
@@ -153,7 +171,7 @@ class Connectors(defaultdict):
         
         Throws APIException on failure.
         """
-        
+
         queryParms = {}
         if nameFilter:
             queryParms["name"] = nameFilter
@@ -163,10 +181,9 @@ class Connectors(defaultdict):
             queryParms["enabled"] = enabledFilter
         if serviceId:
             queryParms["serviceId"] = serviceId
-        
+
         return IterableConnectorList(self._apiClient, filters=queryParms)
-            
-            
+
     def create(self, name, serviceId, timezone, description, enabled):
         """
         Create a connector for the organization in the Watson IoT Platform. 
@@ -181,11 +198,11 @@ class Connectors(defaultdict):
         """
 
         connector = {
-            "name" : name,
-            "description" : description,
-            "serviceId" : serviceId,
-            "timezone" : timezone,
-            "enabled" : enabled
+            "name": name,
+            "description": description,
+            "serviceId": serviceId,
+            "timezone": timezone,
+            "enabled": enabled,
         }
 
         url = "api/v0002/historianconnectors"
@@ -196,7 +213,6 @@ class Connectors(defaultdict):
         else:
             raise ApiException(r)
 
-            
     def update(self, connectorId, name, description, timezone, enabled):
         """
         Updates the connector with the specified uuid.
@@ -214,14 +230,13 @@ class Connectors(defaultdict):
         url = "api/v0002/historianconnectors/%s" % (connectorId)
 
         connectorBody = {}
-        connectorBody['name'] = name
-        connectorBody['description'] = description
-        connectorBody['timezone'] = timezone
-        connectorBody['enabled'] = enabled
+        connectorBody["name"] = name
+        connectorBody["description"] = description
+        connectorBody["timezone"] = timezone
+        connectorBody["enabled"] = enabled
 
         r = self._apiClient.put(url, data=connectorBody)
         if r.status_code == 200:
             return Connector(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
-    

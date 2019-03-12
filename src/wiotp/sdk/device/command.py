@@ -11,6 +11,7 @@ import re
 from datetime import datetime
 from wiotp.sdk import InvalidEventException, MissingMessageEncoderException, MissingMessageDecoderException
 
+
 class Command:
     """
     Represents a command sent to a device.
@@ -30,7 +31,7 @@ class Command:
     InvalidEventException: If the command was recieved on a topic that does 
         not match the regular expression `iot-2/cmd/(.+)/fmt/(.+)`
     """
-    
+
     _TOPIC_REGEX = re.compile("iot-2/cmd/(.+)/fmt/(.+)")
 
     def __init__(self, pahoMessage, messageEncoderModules):

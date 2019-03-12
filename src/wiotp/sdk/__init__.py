@@ -13,10 +13,10 @@ __version__ = "0.9.0"
 # Expose the public API for the entire SDK
 #
 # Normally youd would just import the package you need as it's unlikely a single piece of code will run app and device implementations:
-# 
+#
 #   import wiotp.sdk.application
 #   client = wiotp.sdk.application.ApplicationClient()
-# 
+#
 
 from wiotp.sdk.client import AbstractClient
 from wiotp.sdk.messages import Message, MessageCodec, JsonCodec, RawCodec, Utf8Codec
@@ -27,7 +27,3 @@ import wiotp.sdk.application
 import wiotp.sdk.api
 import wiotp.sdk.device
 import wiotp.sdk.gateway
-
-
-
-

@@ -18,8 +18,8 @@ import time
 from datetime import datetime, date, timedelta
 
 # grab the api key and token from env vars
-WIOTP_API_KEY=os.getenv("WIOTP_API_KEY")
-WIOTP_API_TOKEN=os.getenv("WIOTP_API_TOKEN")
+WIOTP_API_KEY = os.getenv("WIOTP_API_KEY")
+WIOTP_API_TOKEN = os.getenv("WIOTP_API_TOKEN")
 
 # alternatively supply an api key and token
 # WIOTP_API_KEY=("WIOTP_API_KEY")
@@ -29,7 +29,7 @@ try:
     ORG_ID = WIOTP_API_KEY.split("-")[1]
 except:
     ORG_ID = None
-    
+
 if WIOTP_API_KEY is None:
     raise Exception("WIOTP_API_KEY environment variable is not set")
 if WIOTP_API_TOKEN is None:
@@ -47,9 +47,9 @@ options = wiotp.sdk.application.parseEnvVars()
 appClient = wiotp.sdk.application.ApplicationClient(options)
 
 
-'''
+"""
 Call device connectivity status APIs
-'''
+"""
 # gets client connection status for all clients, 25 at a time
 response = appClient.registry.clientConnectivityStatus.getClientConnectionStates()
 print("All clients connection status response: %s" % (response))
@@ -62,16 +62,18 @@ print("All connected clients connection status response: %s" % (response))
 # returns 404 if clientid in question is not found
 response = appClient.registry.clientConnectivityStatus.getClientConnectionState("fakeId")
 print("Specified client's connection status response: %s" % (response))
-        
-#checks for clients that have connected in the last two days
+
+# checks for clients that have connected in the last two days
 iso8601DateTwoDaysAgo = datetime.now() - timedelta(days=2)
-response = appClient.registry.clientConnectivityStatus.getRecentClientConnectionStates(iso8601DateTwoDaysAgo.isoformat())
+response = appClient.registry.clientConnectivityStatus.getRecentClientConnectionStates(
+    iso8601DateTwoDaysAgo.isoformat()
+)
 print("All recent clients connection status response: %s" % (response))
 
-'''
+"""
 When persistent monitoring is required, subscribing to the status monitoring topic is recommended.
 Uncomment this and replace typeId and deviceId for a specific device or leave blank to subscribe to all.
-'''
+"""
 appClient.connect()
 appClient.subscribeToDeviceStatus("typeId", "deviceId")
 

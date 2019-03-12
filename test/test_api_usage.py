@@ -8,9 +8,11 @@
 # *****************************************************************************
 
 from datetime import date, timedelta, datetime
+import pytest
 import testUtils
 from wiotp.sdk.api.usage import DayDataTransfer, DataTransferSummary
 
+@pytest.mark.skip(reason="There is a defect in the API currently")
 class TestRegistryUsage(testUtils.AbstractTest):
     
     # =========================================================================

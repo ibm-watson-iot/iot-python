@@ -10,5 +10,7 @@ matrix:
     - python: "3.7"
       dist: xenial    # required for Python 3.7 (travis-ci/travis-ci#9069)
       sudo: required  # required for Python 3.7 (travis-ci/travis-ci#9069)
-install: pip install tox-travis
+install: pip install tox-travis coveralls
 script: tox
+after_success:
+    - coveralls

@@ -24,6 +24,7 @@ from datetime import datetime
 from wiotp.sdk.exceptions import MissingMessageEncoderException, ConnectionException
 from wiotp.sdk.messages import JsonCodec, RawCodec, Utf8Codec
 
+
 class AbstractClient(object):
     """
     The underlying client object utilised for Platform connectivity over MQTT 
@@ -47,9 +48,24 @@ class AbstractClient(object):
     client (paho.mqtt.client.Client): Built-in Paho MQTT client handling connectivity for the client.
     logger (logging.logger): Client logger.
     """
-    def __init__(self, domain, organization, clientId, username, password, 
-            port=None, transport="tcp", cleanStart=False, sessionExpiry=3600, keepAlive=60, caFile=None, logLevel=logging.INFO, logHandlers=None):
-        
+
+    def __init__(
+        self,
+        domain,
+        organization,
+        clientId,
+        username,
+        password,
+        port=None,
+        transport="tcp",
+        cleanStart=False,
+        sessionExpiry=3600,
+        keepAlive=60,
+        caFile=None,
+        logLevel=logging.INFO,
+        logHandlers=None,
+    ):
+
         self.organization = organization
         self.username = username
         self.password = password
@@ -70,7 +86,6 @@ class AbstractClient(object):
         self._subLock = threading.Lock()
         self.subscriptionsAcknowledged = threading.Event()
 
-
         # Create a map to contain mids for onPublish() callback handling.
         # and a lock to gate access to the dictionary
         self._onPublishCallbacks = {}
@@ -79,7 +94,7 @@ class AbstractClient(object):
         self.clientId = clientId
 
         # Configure logging
-        self.logger = logging.getLogger(self.__module__+"."+self.__class__.__name__)
+        self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
         self.logger.setLevel(logLevel)
 
         # Remove any existing log handlers we may have picked up from getLogger()
@@ -95,17 +110,17 @@ class AbstractClient(object):
                 self.logger.addHandler(logHandlers)
         else:
             # Generate a default stream handler
-            fhFormatter = logging.Formatter('%(asctime)-25s %(name)-25s ' + ' %(levelname)-7s %(message)s')
+            fhFormatter = logging.Formatter("%(asctime)-25s %(name)-25s " + " %(levelname)-7s %(message)s")
             ch = logging.StreamHandler()
             ch.setFormatter(fhFormatter)
 
             self.logger.addHandler(ch)
 
         self.client = paho.Client(self.clientId, transport=transport, clean_session=(not cleanStart))
-        
-        # Normal usage puts the client in an auto-detect mode, where it will try to use 
+
+        # Normal usage puts the client in an auto-detect mode, where it will try to use
         # TLS, and fall back to unencrypted mode ONLY if TLS 1.2 is unavailable.
-        # However, we now support explicit override of this by allowing the client to be 
+        # However, we now support explicit override of this by allowing the client to be
         # configured to use a specific port.
         #
         # If there is no specific port set in the configuration then we will auto-negotiate TLS if possible
@@ -114,11 +129,14 @@ class AbstractClient(object):
         if self.port in [80, 1883]:
             # Note: We don't seem to support port 80 fallback (anymore?)
             self.tlsVersion = None
-            self.logger.warning("Unable to encrypt messages because client configuration has overridden port selection to an insecure port (%s)" % self.port)
+            self.logger.warning(
+                "Unable to encrypt messages because client configuration has overridden port selection to an insecure port (%s)"
+                % self.port
+            )
         elif self.port in [443, 8883]:
             self.tlsVersion = ssl.PROTOCOL_TLSv1_2
-            # We allow an exception to raise here if running in an environment where 
-            # TLS 1.2 is unavailable because the configuration explicitly requested 
+            # We allow an exception to raise here if running in an environment where
+            # TLS 1.2 is unavailable because the configuration explicitly requested
             # to use encrypted connection
         elif self.port is None:
             try:
@@ -127,10 +145,12 @@ class AbstractClient(object):
             except:
                 self.tlsVersion = None
                 self.port = 1883
-                self.logger.warning("Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)")
+                self.logger.warning(
+                    "Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)"
+                )
         else:
             raise Exception("Unsupported value for port override: %s.  Supported values are 1883 & 8883." % self.port)
-            
+
         # Configure authentication
         if self.username is not None:
             # In environments where either ssl is not available, or TLSv1.2 is not available we will fallback to MQTT over TCP
@@ -139,7 +159,13 @@ class AbstractClient(object):
                 if caFile is None:
                     caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
 
-                self.client.tls_set(ca_certs=caFile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
+                self.client.tls_set(
+                    ca_certs=caFile,
+                    certfile=None,
+                    keyfile=None,
+                    cert_reqs=ssl.CERT_REQUIRED,
+                    tls_version=ssl.PROTOCOL_TLSv1_2,
+                )
             self.client.username_pw_set(self.username, self.password)
 
         # Attach MQTT callbacks
@@ -155,10 +181,9 @@ class AbstractClient(object):
         # Initialize default message encoders and decoders.
         self._messageCodecs = {}
 
-        self.setMessageCodec('json', JsonCodec)
-        self.setMessageCodec('raw', RawCodec)
-        self.setMessageCodec('utf8', Utf8Codec)
-
+        self.setMessageCodec("json", JsonCodec)
+        self.setMessageCodec("raw", RawCodec)
+        self.setMessageCodec("utf8", Utf8Codec)
 
     def getMessageCodec(self, messageFormat):
         """
@@ -174,7 +199,6 @@ class AbstractClient(object):
             return None
         return self._messageCodecs[messageFormat]
 
-
     def setMessageCodec(self, messageFormat, codec):
         """
         Set a Python class as the encoder/decoder for a specified message format.
@@ -184,7 +208,6 @@ class AbstractClient(object):
         codec (class): The Python class (subclass of `wiotp.common.MessageCodec` to set as the encoder/decoder for `messageFormat`
         """
         self._messageCodecs[messageFormat] = codec
-
 
     def _logAndRaiseException(self, e):
         """
@@ -196,7 +219,6 @@ class AbstractClient(object):
         self.logger.critical(str(e))
         raise e
 
-
     def connect(self):
         """
         Connect the client to IBM Watson IoT Platform using the underlying Paho MQTT client
@@ -204,31 +226,38 @@ class AbstractClient(object):
         # Raises
         ConnectionException: If there is a problem establishing the connection.
         """
-        self.logger.debug("Connecting... (address = %s, port = %s, clientId = %s, username = %s)" % (self.address, self.port, self.clientId, self.username))
+        self.logger.debug(
+            "Connecting... (address = %s, port = %s, clientId = %s, username = %s)"
+            % (self.address, self.port, self.clientId, self.username)
+        )
         try:
             self.connectEvent.clear()
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
             self.client.loop_start()
             if not self.connectEvent.wait(timeout=30):
                 self.client.loop_stop()
-                self._logAndRaiseException(ConnectionException("Operation timed out connecting to IBM Watson IoT Platform: %s" % (self.address)))
+                self._logAndRaiseException(
+                    ConnectionException(
+                        "Operation timed out connecting to IBM Watson IoT Platform: %s" % (self.address)
+                    )
+                )
 
         except socket.error as serr:
             self.client.loop_stop()
-            self._logAndRaiseException(ConnectionException("Failed to connect to IBM Watson IoT Platform: %s - %s" % (self.address, str(serr))))
-
+            self._logAndRaiseException(
+                ConnectionException("Failed to connect to IBM Watson IoT Platform: %s - %s" % (self.address, str(serr)))
+            )
 
     def disconnect(self):
         """
         Disconnect the client from IBM Watson IoT Platform
         """
-        #self.logger.info("Closing connection to the IBM Watson IoT Platform")
+        # self.logger.info("Closing connection to the IBM Watson IoT Platform")
         self.client.disconnect()
         # If we don't call loop_stop() it appears we end up with a zombie thread which continues to process
         # network traffic, preventing any subsequent attempt to reconnect using connect()
         self.client.loop_stop()
         self.logger.info("Closed connection to the IBM Watson IoT Platform")
-
 
     def _onLog(self, mqttc, obj, level, string):
         """
@@ -246,9 +275,8 @@ class AbstractClient(object):
         """
         self.logger.debug("%d %s" % (level, string))
 
-
     def _onConnect(self, mqttc, userdata, flags, rc):
-        '''
+        """
         Called when the broker responds to our connection request.
 
         The value of rc determines success or not:
@@ -259,7 +287,7 @@ class AbstractClient(object):
             4: Connection refused - bad username or password
             5: Connection refused - not authorised
             6-255: Currently unused.
-        '''
+        """
         if rc == 0:
             self.connectEvent.set()
             self.logger.info("Connected successfully: %s" % (self.clientId))
@@ -269,7 +297,7 @@ class AbstractClient(object):
                 if len(self._subscriptions) > 0:
                     for subscription in self._subscriptions:
                         # We use the underlying mqttclient subscribe method rather than _subscribe because we are
-                        # claiming a lock on the subscriptions list and do not want anything else to modify it, 
+                        # claiming a lock on the subscriptions list and do not want anything else to modify it,
                         # which that method does
                         (result, mid) = self.client.subscribe(subscription, qos=self._subscriptions[subscription])
                         if result != paho.MQTT_ERR_SUCCESS:
@@ -282,12 +310,15 @@ class AbstractClient(object):
         elif rc == 3:
             self._logAndRaiseException(ConnectionException("Server unavailable"))
         elif rc == 4:
-            self._logAndRaiseException(ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))            )
+            self._logAndRaiseException(
+                ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))
+            )
         elif rc == 5:
-            self._logAndRaiseException(ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password)))
+            self._logAndRaiseException(
+                ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password))
+            )
         else:
             self._logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
-
 
     def _onDisconnect(self, mqttc, obj, rc):
         """
@@ -311,7 +342,6 @@ class AbstractClient(object):
         else:
             self.logger.info("Disconnected from IBM Watson IoT Platform")
 
-
     def _onPublish(self, mqttc, obj, mid):
         """
         Called when a message from the client has been successfully sent to IBM Watson IoT Platform.
@@ -334,12 +364,11 @@ class AbstractClient(object):
                 # with the publish.
                 self._onPublishCallbacks[mid] = None
 
-
     def _onSubscribe(self, mqttc, userdata, mid, grantedQoS):
         self.subscriptionsAcknowledged.set()
         self.logger.debug("Subscribe callback: mid: %s qos: %s" % (mid, grantedQoS))
-        if self.subscriptionCallback: self.subscriptionCallback(mid, grantedQoS)
-
+        if self.subscriptionCallback:
+            self.subscriptionCallback(mid, grantedQoS)
 
     def _subscribe(self, topic, qos=1):
         if not self.connectEvent.wait(timeout=10):
@@ -353,7 +382,7 @@ class AbstractClient(object):
                 return mid
             else:
                 return 0
-    
+
     def _publishEvent(self, topic, event, msgFormat, data, qos=0, on_publish=None):
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because client is is disconnected state", event)
@@ -361,7 +390,7 @@ class AbstractClient(object):
         else:
             if self.logger.isEnabledFor(logging.DEBUG):
                 # The data object may not be serializable, e.g. if using a custom binary format
-                try: 
+                try:
                     dataString = json.dumps(data)
                 except:
                     dataString = str(data)
@@ -371,11 +400,11 @@ class AbstractClient(object):
             if self.getMessageCodec(msgFormat) is None:
                 raise MissingMessageEncoderException(msgFormat)
 
-            payload = self.getMessageCodec(msgFormat).encode(data, datetime.now(pytz.timezone('UTC')))
+            payload = self.getMessageCodec(msgFormat).encode(data, datetime.now(pytz.timezone("UTC")))
 
             result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
             if result[0] == paho.MQTT_ERR_SUCCESS:
-                # Because we are dealing with aync pub/sub model and callbacks it is possible that 
+                # Because we are dealing with aync pub/sub model and callbacks it is possible that
                 # the _onPublish() callback for this mid is called before we obtain the lock to place
                 # the mid into the _onPublishCallbacks list.
                 #
@@ -394,4 +423,3 @@ class AbstractClient(object):
                 return True
             else:
                 return False
-

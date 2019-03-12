@@ -16,35 +16,35 @@ from wiotp.sdk.exceptions import ApiException
 
 class DeviceErrorCode(defaultdict):
     def __init__(self, **kwargs):
-        if not set(['errorCode', 'timestamp']).issubset(kwargs):
+        if not set(["errorCode", "timestamp"]).issubset(kwargs):
             raise Exception("Data passed to DeviceErrorCode is not correct: %s" % (",".join(sorted(kwargs.keys()))))
-        
-        if isinstance(kwargs['timestamp'], datetime):
+
+        if isinstance(kwargs["timestamp"], datetime):
             # Remove the microsecond, as WIoTP API's don't handle ISO8601 with microsecond
-            kwargs['timestamp'] = kwargs['timestamp'].replace(microsecond=0)
+            kwargs["timestamp"] = kwargs["timestamp"].replace(microsecond=0)
         else:
-            kwargs['timestamp'] = iso8601.parse_date(kwargs['timestamp']) 
-        
+            kwargs["timestamp"] = iso8601.parse_date(kwargs["timestamp"])
+
         dict.__init__(self, **kwargs)
-    
+
     @property
     def errorCode(self):
         return self["errorCode"]
+
     @property
     def timestamp(self):
         return self["timestamp"]
-    
-    
+
+
 class DeviceErrorCodes(MutableSequence):
     def __init__(self, apiClient, typeId, deviceId):
         self._apiClient = apiClient
         self.typeId = typeId
         self.deviceId = deviceId
-    
-    
+
     def __len__(self):
         # Get all, convert list to iterator
-        logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/errorCodes' % (self.typeId, self.deviceId)
+        logsUrl = "api/v0002/device/types/%s/devices/%s/diag/errorCodes" % (self.typeId, self.deviceId)
 
         r = self._apiClient.get(logsUrl)
         if r.status_code == 200:
@@ -65,7 +65,7 @@ class DeviceErrorCodes(MutableSequence):
         """
         Get a log entry
         """
-        ecUrl = 'api/v0002/device/types/%s/devices/%s/diag/errorCodes' % (self.typeId, self.deviceId)
+        ecUrl = "api/v0002/device/types/%s/devices/%s/diag/errorCodes" % (self.typeId, self.deviceId)
 
         r = self._apiClient.get(ecUrl)
         if r.status_code == 200:
@@ -75,20 +75,19 @@ class DeviceErrorCodes(MutableSequence):
         else:
             raise ApiException(r)
 
-    def append(self, item = None, **kwargs):
+    def append(self, item=None, **kwargs):
         # Get all, convert list to iterator
-        ecUrl = 'api/v0002/device/types/%s/devices/%s/diag/errorCodes' % (self.typeId, self.deviceId)
+        ecUrl = "api/v0002/device/types/%s/devices/%s/diag/errorCodes" % (self.typeId, self.deviceId)
 
         if item is None:
             item = DeviceErrorCode(**kwargs)
-        
+
         r = self._apiClient.post(ecUrl, item)
         if r.status_code == 201:
             return True
         else:
             raise ApiException(r)
-    
-    
+
     def __missing__(self, index):
         """
         Log does not exist
@@ -97,65 +96,70 @@ class DeviceErrorCodes(MutableSequence):
 
     def clear(self):
         # Get all, convert list to iterator
-        ecUrl = 'api/v0002/device/types/%s/devices/%s/diag/errorCodes' % (self.typeId, self.deviceId)
+        ecUrl = "api/v0002/device/types/%s/devices/%s/diag/errorCodes" % (self.typeId, self.deviceId)
 
         r = self._apiClient.delete(ecUrl)
         if r.status_code == 204:
             return True
         else:
             raise ApiException(r)
-        
-        
+
+
 class DeviceLog(defaultdict):
     def __init__(self, **kwargs):
-        if not set(['message', 'severity', 'data', 'timestamp']).issubset(kwargs):
+        if not set(["message", "severity", "data", "timestamp"]).issubset(kwargs):
             raise Exception("Data passed to DeviceLog is not correct: %s" % (",".join(sorted(kwargs.keys()))))
-        
-        if isinstance(kwargs['timestamp'], datetime):
+
+        if isinstance(kwargs["timestamp"], datetime):
             # Remove the microsecond, as WIoTP API's don't handle ISO8601 with microsecond
-            kwargs['timestamp'] = kwargs['timestamp'].replace(microsecond=0)
+            kwargs["timestamp"] = kwargs["timestamp"].replace(microsecond=0)
         else:
-            kwargs['timestamp'] = iso8601.parse_date(kwargs['timestamp']) 
+            kwargs["timestamp"] = iso8601.parse_date(kwargs["timestamp"])
 
         dict.__init__(self, **kwargs)
-    
+
     @property
     def message(self):
         return self["message"]
+
     @property
     def severity(self):
         return self["severity"]
+
     @property
     def data(self):
         return self["data"]
+
     @property
     def timestamp(self):
         return self["timestamp"]
-    
+
     # Following properties are not used when creating a new DeviceLog, but are present when reading one that has been persisted
     @property
     def id(self):
         return self.get("id", None)
+
     @property
     def typeId(self):
         return self.get("typeId", None)
+
     @property
     def deviceId(self):
         return self.get("deviceId", None)
 
-    
+
 class DeviceLogs(defaultdict):
     def __init__(self, apiClient, typeId, deviceId):
         self._apiClient = apiClient
         self.typeId = typeId
         self.deviceId = deviceId
-    
+
     def __contains__(self, key):
         """
         Does a log exist?
         """
-        logUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs/%s' % (self.typeId, self.deviceId, key)
-        
+        logUrl = "api/v0002/device/types/%s/devices/%s/diag/logs/%s" % (self.typeId, self.deviceId, key)
+
         r = self._apiClient.get(logUrl)
         if r.status_code == 200:
             return True
@@ -163,7 +167,7 @@ class DeviceLogs(defaultdict):
             return False
         else:
             raise ApiException(r)
-    
+
     def __getitem__(self, key):
         """
         Get a log entry
@@ -171,8 +175,8 @@ class DeviceLogs(defaultdict):
         if isinstance(key, int):
             # Special case -- allow this to be used as a dict or a list
             # Get all, convert list to iterator
-            logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs' % (self.typeId, self.deviceId)
-    
+            logsUrl = "api/v0002/device/types/%s/devices/%s/diag/logs" % (self.typeId, self.deviceId)
+
             r = self._apiClient.get(logsUrl)
             if r.status_code == 200:
                 if key > len(r.json()):
@@ -181,7 +185,7 @@ class DeviceLogs(defaultdict):
             else:
                 raise ApiException(r)
         else:
-            logUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs/%s' % (self.typeId, self.deviceId, key)
+            logUrl = "api/v0002/device/types/%s/devices/%s/diag/logs/%s" % (self.typeId, self.deviceId, key)
 
             r = self._apiClient.get(logUrl)
             if r.status_code == 200:
@@ -190,21 +194,21 @@ class DeviceLogs(defaultdict):
                 self.__missing__(key)
             else:
                 raise ApiException(r)
-    
+
     def __setitem__(self, key, value):
         """
         Logs are immutable
         """
         raise Exception("Log entries are immutable")
-    
+
     def __delitem__(self, key):
         """
         Delete a log
         """
         if isinstance(key, int):
             # Special case -- allow this to be used as a dict or a list
-            logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs' % (self.typeId, self.deviceId)
-    
+            logsUrl = "api/v0002/device/types/%s/devices/%s/diag/logs" % (self.typeId, self.deviceId)
+
             r = self._apiClient.get(logsUrl)
             if r.status_code == 200:
                 if key > len(r.json()):
@@ -212,9 +216,9 @@ class DeviceLogs(defaultdict):
                 key = r.json()[key]["id"]
             else:
                 raise ApiException(r)
-        
-        logUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs/%s' % (self.typeId, self.deviceId, key)
-    
+
+        logUrl = "api/v0002/device/types/%s/devices/%s/diag/logs/%s" % (self.typeId, self.deviceId, key)
+
         r = self._apiClient.delete(logUrl)
         if r.status_code == 404:
             self.__missing__(key)
@@ -231,9 +235,9 @@ class DeviceLogs(defaultdict):
         """
         Iterate through all devices
         """
-        
+
         # Get all, convert list to iterator
-        logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs' % (self.typeId, self.deviceId)
+        logsUrl = "api/v0002/device/types/%s/devices/%s/diag/logs" % (self.typeId, self.deviceId)
 
         r = self._apiClient.get(logsUrl)
         if r.status_code == 200:
@@ -243,21 +247,21 @@ class DeviceLogs(defaultdict):
             return iter(logArray)
         else:
             raise ApiException(r)
-    
+
     def __len__(self):
         # Get all, convert list to iterator
-        logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs' % (self.typeId, self.deviceId)
+        logsUrl = "api/v0002/device/types/%s/devices/%s/diag/logs" % (self.typeId, self.deviceId)
 
         r = self._apiClient.get(logsUrl)
         if r.status_code == 200:
             return len(r.json())
         else:
             raise ApiException(r)
-        
-    def append(self, item = None, **kwargs):
+
+    def append(self, item=None, **kwargs):
         # Get all, convert list to iterator
-        logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs' % (self.typeId, self.deviceId)
-        
+        logsUrl = "api/v0002/device/types/%s/devices/%s/diag/logs" % (self.typeId, self.deviceId)
+
         if item is None:
             item = DeviceLog(**kwargs)
         r = self._apiClient.post(logsUrl, item)
@@ -265,15 +269,13 @@ class DeviceLogs(defaultdict):
             return True
         else:
             raise ApiException(r)
-    
+
     def clear(self):
         # Get all, convert list to iterator
-        logsUrl = 'api/v0002/device/types/%s/devices/%s/diag/logs' % (self.typeId, self.deviceId)
+        logsUrl = "api/v0002/device/types/%s/devices/%s/diag/logs" % (self.typeId, self.deviceId)
 
         r = self._apiClient.delete(logsUrl)
         if r.status_code == 204:
             return True
         else:
             raise ApiException(r)
-        
-        

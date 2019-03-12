@@ -47,15 +47,15 @@ class ApplicationClient(AbstractClient):
         # Call parent constructor
         AbstractClient.__init__(
             self,
-            domain = self._config.domain,
-            organization = self._config.orgId,
-            clientId = self._config.clientId,
-            username = self._config.username,
-            password = self._config.password,
-            logHandlers = logHandlers,
-            cleanStart = self._config.cleanStart,
-            port = self._config.port,
-            transport = self._config.transport
+            domain=self._config.domain,
+            organization=self._config.orgId,
+            clientId=self._config.clientId,
+            username=self._config.username,
+            password=self._config.password,
+            logHandlers=logHandlers,
+            cleanStart=self._config.cleanStart,
+            port=self._config.port,
+            transport=self._config.transport,
         )
 
         # Add handlers for events and status
@@ -79,14 +79,13 @@ class ApplicationClient(AbstractClient):
         # Create an api client if not connected in QuickStart mode
         if not self._config.isQuickstart():
             apiClient = ApiClient(self._config, self.logger)
-            self.registry  = Registry(apiClient)
-            self.status    = Status(apiClient)
-            self.usage     = Usage(apiClient)
-            self.dsc       = DSC(apiClient)
-            self.lec       = LEC(apiClient)
-            self.mgmt      = Mgmt(apiClient)
+            self.registry = Registry(apiClient)
+            self.status = Status(apiClient)
+            self.usage = Usage(apiClient)
+            self.dsc = DSC(apiClient)
+            self.lec = LEC(apiClient)
+            self.mgmt = Mgmt(apiClient)
             self.serviceBindings = ServiceBindings(apiClient)
-
 
     def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """
@@ -106,12 +105,13 @@ class ApplicationClient(AbstractClient):
             If the subscription fails then the return value will be `0`
         """
         if self._config.isQuickstart() and deviceId == "+":
-            self.logger.warning("QuickStart applications do not support wildcard subscription to events from all devices")
+            self.logger.warning(
+                "QuickStart applications do not support wildcard subscription to events from all devices"
+            )
             return 0
 
-        topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (typeId, deviceId, eventId, msgFormat)
+        topic = "iot-2/type/%s/id/%s/evt/%s/fmt/%s" % (typeId, deviceId, eventId, msgFormat)
         return self._subscribe(topic, qos)
-
 
     def subscribeToDeviceStatus(self, typeId="+", deviceId="+"):
         """
@@ -130,10 +130,9 @@ class ApplicationClient(AbstractClient):
         if self._config.isQuickstart() and deviceId == "+":
             self.logger.warning("QuickStart applications do not support wildcard subscription to device status")
             return 0
-        
-        topic = 'iot-2/type/%s/id/%s/mon' % (typeId, deviceId)
-        return self._subscribe(topic, 0)
 
+        topic = "iot-2/type/%s/id/%s/mon" % (typeId, deviceId)
+        return self._subscribe(topic, 0)
 
     def subscribeToDeviceCommands(self, typeId="+", deviceId="+", commandId="+", msgFormat="+"):
         """
@@ -156,14 +155,12 @@ class ApplicationClient(AbstractClient):
             self.logger.warning("QuickStart applications do not support commands")
             return 0
 
-        topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (typeId, deviceId, commandId, msgFormat)
+        topic = "iot-2/type/%s/id/%s/cmd/%s/fmt/%s" % (typeId, deviceId, commandId, msgFormat)
         return self._subscribe(topic, 0)
 
-
     def publishEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
-        topic = 'iot-2/type/%s/id/%s/evt/%s/fmt/%s' % (typeId, deviceId, eventId, msgFormat)
+        topic = "iot-2/type/%s/id/%s/evt/%s/fmt/%s" % (typeId, deviceId, eventId, msgFormat)
         return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
-
 
     def publishCommand(self, typeId, deviceId, commandId, msgFormat, data=None, qos=0, on_publish=None):
         """
@@ -187,7 +184,7 @@ class ApplicationClient(AbstractClient):
         if not self.connectEvent.wait(timeout=10):
             return False
         else:
-            topic = 'iot-2/type/%s/id/%s/cmd/%s/fmt/%s' % (typeId, deviceId, commandId, msgFormat)
+            topic = "iot-2/type/%s/id/%s/cmd/%s/fmt/%s" % (typeId, deviceId, commandId, msgFormat)
 
             # Raise an exception if there is no codec for this msgFormat
             if self.getMessageCodec(msgFormat) is None:
@@ -196,7 +193,7 @@ class ApplicationClient(AbstractClient):
             payload = self.getMessageCodec(msgFormat).encode(data, datetime.now())
             result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
             if result[0] == paho.MQTT_ERR_SUCCESS:
-                # Because we are dealing with aync pub/sub model and callbacks it is possible that 
+                # Because we are dealing with aync pub/sub model and callbacks it is possible that
                 # the _onPublish() callback for this mid is called before we obtain the lock to place
                 # the mid into the _onPublishCallbacks list.
                 #
@@ -221,8 +218,9 @@ class ApplicationClient(AbstractClient):
         Internal callback for messages that have not been handled by any of the specific internal callbacks, these
         messages are not passed on to any user provided callback
         """
-        self.logger.warning("Received messaging on unsupported topic '%s' on topic '%s'" % (message.payload, message.topic))
-
+        self.logger.warning(
+            "Received messaging on unsupported topic '%s' on topic '%s'" % (message.payload, message.topic)
+        )
 
     def _onDeviceEvent(self, client, userdata, pahoMessage):
         """
@@ -232,10 +230,10 @@ class ApplicationClient(AbstractClient):
         try:
             event = Event(pahoMessage, self._messageCodecs)
             self.logger.debug("Received event '%s' from %s:%s" % (event.eventId, event.typeId, event.deviceId))
-            if self.deviceEventCallback: self.deviceEventCallback(event)
+            if self.deviceEventCallback:
+                self.deviceEventCallback(event)
         except InvalidEventException as e:
             self.logger.critical(str(e))
-
 
     def _onDeviceCommand(self, client, userdata, pahoMessage):
         """
@@ -244,11 +242,13 @@ class ApplicationClient(AbstractClient):
         """
         try:
             command = Command(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received command '%s' from %s:%s" % (command.commandId, command.typeId, command.deviceId))
-            if self.deviceCommandCallback: self.deviceCommandCallback(command)
+            self.logger.debug(
+                "Received command '%s' from %s:%s" % (command.commandId, command.typeId, command.deviceId)
+            )
+            if self.deviceCommandCallback:
+                self.deviceCommandCallback(command)
         except InvalidEventException as e:
             self.logger.critical(str(e))
-
 
     def _onDeviceStatus(self, client, userdata, pahoMessage):
         """
@@ -258,10 +258,10 @@ class ApplicationClient(AbstractClient):
         try:
             status = Status(pahoMessage)
             self.logger.debug("Received %s action from %s" % (status.action, status.clientId))
-            if self.deviceStatusCallback: self.deviceStatusCallback(status)
+            if self.deviceStatusCallback:
+                self.deviceStatusCallback(status)
         except InvalidEventException as e:
             self.logger.critical(str(e))
-
 
     def _onAppStatus(self, client, userdata, pahoMessage):
         """
@@ -271,6 +271,7 @@ class ApplicationClient(AbstractClient):
         try:
             status = Status(pahoMessage)
             self.logger.debug("Received %s action from %s" % (status.action, status.clientId))
-            if self.appStatusCallback: self.appStatusCallback(status)
+            if self.appStatusCallback:
+                self.appStatusCallback(status)
         except InvalidEventException as e:
             self.logger.critical(str(e))

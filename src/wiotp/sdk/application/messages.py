@@ -27,7 +27,7 @@ class Status:
             self.deviceId = result.group(2)
             self.device = self.typeId + ":" + self.deviceId
 
-            '''
+            """
             Properties from the "Connect" status are common in "Disconnect" status too
             {
             u'ClientAddr': u'195.212.29.68',
@@ -39,18 +39,20 @@ class Status:
             u'ConnectTime': u'2014-07-07T06:37:56.493-04:00',
             u'Port': 1883
             }
-            '''
+            """
 
-            self.clientAddr = self.payload['ClientAddr'] if ('ClientAddr' in self.payload) else None
-            self.protocol = self.payload['Protocol'] if ('Protocol' in self.payload) else None
-            self.clientId = self.payload['ClientID'] if ('ClientID' in self.payload) else None
-            self.user = self.payload['User'] if ('User' in self.payload) else None
-            self.time = iso8601.parse_date(self.payload['Time']) if ('Time' in self.payload) else None
-            self.action = self.payload['Action'] if ('Action' in self.payload) else None
-            self.connectTime = iso8601.parse_date(self.payload['ConnectTime']) if ('ConnectTime' in self.payload) else None
-            self.port = self.payload['Port'] if ('Port' in self.payload) else None
+            self.clientAddr = self.payload["ClientAddr"] if ("ClientAddr" in self.payload) else None
+            self.protocol = self.payload["Protocol"] if ("Protocol" in self.payload) else None
+            self.clientId = self.payload["ClientID"] if ("ClientID" in self.payload) else None
+            self.user = self.payload["User"] if ("User" in self.payload) else None
+            self.time = iso8601.parse_date(self.payload["Time"]) if ("Time" in self.payload) else None
+            self.action = self.payload["Action"] if ("Action" in self.payload) else None
+            self.connectTime = (
+                iso8601.parse_date(self.payload["ConnectTime"]) if ("ConnectTime" in self.payload) else None
+            )
+            self.port = self.payload["Port"] if ("Port" in self.payload) else None
 
-            '''
+            """
             Additional "Disconnect" status properties
             {
             u'WriteMsg': 0,
@@ -59,17 +61,18 @@ class Status:
             u'ReadBytes': 136507,
             u'WriteBytes': 32,
             }
-            '''
-            self.writeMsg = self.payload['WriteMsg'] if ('WriteMsg' in self.payload) else None
-            self.readMsg = self.payload['ReadMsg'] if ('ReadMsg' in self.payload) else None
-            self.reason = self.payload['Reason'] if ('Reason' in self.payload) else None
-            self.readBytes = self.payload['ReadBytes'] if ('ReadBytes' in self.payload) else None
-            self.writeBytes = self.payload['WriteBytes'] if ('WriteBytes' in self.payload) else None
-            self.closeCode = self.payload['CloseCode'] if ('CloseCode' in self.payload) else None
+            """
+            self.writeMsg = self.payload["WriteMsg"] if ("WriteMsg" in self.payload) else None
+            self.readMsg = self.payload["ReadMsg"] if ("ReadMsg" in self.payload) else None
+            self.reason = self.payload["Reason"] if ("Reason" in self.payload) else None
+            self.readBytes = self.payload["ReadBytes"] if ("ReadBytes" in self.payload) else None
+            self.writeBytes = self.payload["WriteBytes"] if ("WriteBytes" in self.payload) else None
+            self.closeCode = self.payload["CloseCode"] if ("CloseCode" in self.payload) else None
             self.retained = message.retain
 
         else:
             raise InvalidEventException("Received device status on invalid topic: %s" % (message.topic))
+
 
 class Event:
     def __init__(self, pahoMessage, messageEncoderModules):
@@ -115,4 +118,3 @@ class Command:
                 raise MissingMessageDecoderException(self.format)
         else:
             raise InvalidEventException("Received device event on invalid topic: %s" % (pahoMessage.topic))
-

@@ -13,7 +13,13 @@ import logging
 import threading
 import paho.mqtt.client as paho
 import pytz
-from wiotp.sdk import AbstractClient, ConfigurationException, ConnectionException, MissingMessageEncoderException, InvalidEventException
+from wiotp.sdk import (
+    AbstractClient,
+    ConfigurationException,
+    ConnectionException,
+    MissingMessageEncoderException,
+    InvalidEventException,
+)
 from wiotp.sdk.device.command import Command
 from wiotp.sdk.device.config import DeviceClientConfig
 
@@ -28,7 +34,7 @@ class DeviceClient(AbstractClient):
     logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
         which will result in a default log handler being created.
     """
-    
+
     _COMMAND_TOPIC = "iot-2/cmd/+/fmt/+"
 
     def __init__(self, config, logHandlers=None):
@@ -36,19 +42,19 @@ class DeviceClient(AbstractClient):
 
         AbstractClient.__init__(
             self,
-            domain = self._config.domain,
-            organization = self._config.orgId,
-            clientId = self._config.clientId,
-            username = self._config.username,
-            password = self._config.password,
-            port = self._config.port,
-            transport = self._config.transport,
-            cleanStart = self._config.cleanStart,
-            sessionExpiry = self._config.sessionExpiry,
-            keepAlive = self._config.keepAlive,
-            caFile = self._config.caFile,
-            logLevel = self._config.logLevel,
-            logHandlers = logHandlers
+            domain=self._config.domain,
+            organization=self._config.orgId,
+            clientId=self._config.clientId,
+            username=self._config.username,
+            password=self._config.password,
+            port=self._config.port,
+            transport=self._config.transport,
+            cleanStart=self._config.cleanStart,
+            sessionExpiry=self._config.sessionExpiry,
+            keepAlive=self._config.keepAlive,
+            caFile=self._config.caFile,
+            logLevel=self._config.logLevel,
+            logHandlers=logHandlers,
         )
 
         # Add handler for commands if not connected to QuickStart

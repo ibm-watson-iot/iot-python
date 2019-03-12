@@ -14,21 +14,22 @@ import yaml
 from wiotp.sdk import ConfigurationException
 from wiotp.sdk.device.config import DeviceClientConfig
 
+
 class GatewayClientConfig(DeviceClientConfig):
     def __init__(self, **kwargs):
         DeviceClientConfig.__init__(self, **kwargs)
-    
+
     @property
     def clientId(self):
         """
         We need to override the clientId method as a gateway's clientId is prefixed with "g"
         """
-        return "g:%s:%s:%s" % (self["identity"]["orgId"], self["identity"]["typeId"], self["identity"]["deviceId"]) 
+        return "g:%s:%s:%s" % (self["identity"]["orgId"], self["identity"]["typeId"], self["identity"]["deviceId"])
 
     @property
     def apiKey(self):
-        return "g/%s/%s/%s" % (self["identity"]["orgId"], self["identity"]["typeId"], self["identity"]["deviceId"]) 
-    
+        return "g/%s/%s/%s" % (self["identity"]["orgId"], self["identity"]["typeId"], self["identity"]["deviceId"])
+
     @property
     def apiToken(self):
         return self["auth"]["token"] if ("auth" in self) else None
