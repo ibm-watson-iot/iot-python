@@ -12,7 +12,7 @@ import pytest
 import testUtils
 from wiotp.sdk.api.usage import DayDataTransfer, DataTransferSummary
 
-@pytest.mark.skip(reason="There is a defect in the API currently")
+@pytest.mark.skip(reason="See: https://github.ibm.com/wiotp/tracker/issues/1914")
 class TestRegistryUsage(testUtils.AbstractTest):
     
     # =========================================================================
