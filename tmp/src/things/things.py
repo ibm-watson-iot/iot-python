@@ -1,3 +1,4 @@
+    # flake8: noqa  # This entire file is improperly indented
     # Information management URLs
 
     # Draft Device type URLs
@@ -37,30 +38,30 @@
 
     # Device state
     deviceStateUrl = "https://%s/api/v0002/device/types/%s/devices/%s/state/%s"
-    
+
     # Thing Types URLs
     thingTypesUrl   = "https://%s/api/v0002/thing/types"
     thingTypeUrl    = "https://%s/api/v0002/thing/types/%s"
-    
+
     # Thing URLs
     thingsUrl   = "https://%s/api/v0002/thing/types/%s/things"
     thingUrl    = "https://%s/api/v0002/thing/types/%s/things/%s"
-    
+
     # Draft Thing type URLs
     draftThingTypesUrl  = 'https://%s/api/v0002/draft/thing/types'
     draftThingTypeUrl   = 'https://%s/api/v0002/draft/thing/types/%s'
-    
+
     # Thing types logical interface URLs
     allThingTypeLogicalInterfacesUrl = "https://%s/api/v0002%s/thing/types/%s/logicalinterfaces"
     oneThingTypeLogicalInterfaceUrl = "https://%s/api/v0002/draft/thing/types/%s/logicalinterfaces/%s"
-    
+
     # Thing Mappings
     allThingTypeMappingsUrl = "https://%s/api/v0002%s/thing/types/%s/mappings"
     oneThingTypeMappingUrl = "https://%s/api/v0002%s/thing/types/%s/mappings/%s"
-    
+
     # Thing state
     thingStateUrl = "https://%s/api/v0002/thing/types/%s/things/%s/state/%s"
-    
+
     """
     Thing API methods
      - register a new thing
@@ -69,7 +70,7 @@
      - remove thing
      - update thing
     """
-    
+
     def registerThing(self, thingTypeId, thingId, name = None, description = None, aggregatedObjects = None, metadata=None):
         """
         Registers a new thing.
@@ -98,7 +99,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
+
     def getThing(self, thingTypeId, thingId):
         """
         Gets thing details.
@@ -205,9 +206,9 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
-    
-    
+
+
+
     """
     Thing Types API methods
      - Add thing type
@@ -216,7 +217,7 @@
      - update thing type
      - remove thing type
     """
-    
+
     def addDraftThingType(self, thingTypeId, name = None, description = None, schemaId = None, metadata = None):
         """
         Creates a thing type.
@@ -243,7 +244,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
+
     def updateDraftThingType(self, thingTypeId, name, description, schemaId, metadata = None):
         """
         Updates a thing type.
@@ -269,7 +270,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-    
+
     def getDraftThingTypes(self, parameters = None):
         """
         Retrieves all existing draft thing types.
@@ -291,7 +292,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-    
+
     def getDraftThingType(self, thingTypeId, parameters = None):
         """
         Retrieves all existing draft thing types.
@@ -317,7 +318,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-            
+
     def deleteDraftThingType(self, thingTypeId):
         """
         Deletes a Thing type.
@@ -343,7 +344,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
+
     def getActiveThingTypes(self, parameters = None):
         """
         Retrieves all existing active thing types.
@@ -367,7 +368,7 @@
             raise ibmiotf.APIException(500, "Unexpected error", None)
         else:
             raise ibmiotf.APIException(None, "Unexpected error", None)
-        
+
     def getActiveThingType(self, thingTypeId, parameters = None):
         """
         Retrieves all existing Active thing types.
@@ -931,7 +932,7 @@
     def addRuleToLogicalInterface(self, logicalInterfaceId, name, condition, description=None, alias=None):
         """
         Adds a rule to a logical interface.
-        Parameters: 
+        Parameters:
           - logicalInterfaceId (string)
           - name (string)
           - condition (string)
@@ -954,7 +955,7 @@
     def updateRuleOnLogicalInterface(self, logicalInterfaceId, ruleId, name, condition, description=None):
         """
         Updates a rule on a logical interface..
-        Parameters: 
+        Parameters:
           - logicalInterfaceId (string),
           - ruleId (string)
           - name (string)
@@ -978,7 +979,7 @@
     def deleteRuleOnLogicalInterface(self, logicalInterfaceId, ruleId):
         """
         Deletes a rule from a logical interface
-        Parameters: 
+        Parameters:
           - logicalInterfaceId (string),
           - ruleId (string)
         Returns: response (object)
@@ -1363,13 +1364,13 @@
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error getting state for a logical interface from a device type", resp)
         return resp.json()
-    
+
     """
     ===========================================================================
     Information Management Things APIs
     ===========================================================================
     """
-    
+
     def validateThingTypeConfiguration(self, thingTypeId):
         """
         Validate the thing type configuration.
@@ -1420,7 +1421,7 @@
         else:
             raise ibmiotf.APIException(resp.status_code, "Deactivation for thing type configuration failed", resp)
         return resp.json()
-    
+
     def getThingStateForLogicalInterface(self, thingTypeId, thingId, logicalInterfaceId):
         """
         Gets the state for a logical interface for a thing.
@@ -1463,7 +1464,7 @@
     Information Management Things type APIs
     ===========================================================================
     """
-    
+
     def getLogicalInterfacesOnThingType(self, thingTypeId, draft=False):
         """
         Get all logical interfaces for a thing type.
@@ -1522,7 +1523,7 @@
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error removing logical interface from a thing type", resp)
         return resp
-    
+
     def getMappingsOnThingType(self, thingTypeId, draft=False):
         """
         Get all the mappings for a thing type.
@@ -1646,5 +1647,5 @@
         else:
             raise ibmiotf.APIException(resp.status_code, "HTTP error updating thing type mappings for logical interface", resp)
         return resp.json()
-        
-        
+
+

@@ -28,7 +28,7 @@ class DeviceClientConfig(defaultdict):
             raise ConfigurationException("Missing identity.deviceId from configuration")
 
         # Authentication is not supported for quickstart
-        if kwargs["identity"]["orgId"] is "quickstart":
+        if kwargs["identity"]["orgId"] == "quickstart":
             if "auth" in kwargs:
                 raise ConfigurationException("Quickstart service does not support device authentication")
         else:
@@ -143,7 +143,7 @@ class DeviceClientConfig(defaultdict):
 
 def parseEnvVars():
     """
-    Parse environment variables into a Python dictionary suitable for passing to the 
+    Parse environment variables into a Python dictionary suitable for passing to the
     device client constructor as the `options` parameter
 
     - `WIOTP_IDENTITY_ORGID`
@@ -183,7 +183,7 @@ def parseEnvVars():
         raise ConfigurationException("Missing WIOTP_IDENTITY_TYPEID environment variable")
     if deviceId is None:
         raise ConfigurationException("Missing WIOTP_IDENTITY_DEVICEID environment variable")
-    if orgId is not "quickstart" and authToken is None:
+    if orgId != "quickstart" and authToken is None:
         raise ConfigurationException("Missing WIOTP_AUTH_TOKEN environment variable")
     if port is not None:
         try:
@@ -232,11 +232,11 @@ def parseEnvVars():
 
 def parseConfigFile(configFilePath):
     """
-    Parse a yaml configuration file into a Python dictionary suitable for passing to the 
+    Parse a yaml configuration file into a Python dictionary suitable for passing to the
     device client constructor as the `options` parameter
-    
+
     # Example Configuration File
-    
+
     identity:
       orgId: org1id
       typeId: raspberry-pi-3
@@ -253,7 +253,7 @@ def parseConfigFile(configFilePath):
         sessionExpiry: 3600
         keepAlive: 60
         caFile: /path/to/certificateAuthorityFile.pem
-    
+
     """
 
     try:
