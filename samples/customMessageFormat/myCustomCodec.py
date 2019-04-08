@@ -22,13 +22,14 @@ except ImportError:
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
     from wiotp.sdk import Message
-    
-def MyCodec(wiotp.sdk.MessageCodec):
+
+
+class MyCodec(MessageCodec):
     '''
     Dedicated encoder for supporting a very specific dataset, serialises a dictionary object
-    of the following format: 
+    of the following format:
         {
-            'hello' : 'world', 
+            'hello' : 'world',
             'x' : 10
         }
 
@@ -43,18 +44,18 @@ def MyCodec(wiotp.sdk.MessageCodec):
     @staticmethod
     def decode(message):
         '''
-        The decoder understands the comma-seperated format produced by the encoder and 
+        The decoder understands the comma-seperated format produced by the encoder and
         allocates the two values to the correct keys:
             data['hello'] = 'world'
             data['x'] = 10
-          
+
         '''
         (hello, x) = message.payload.split(",")
-        
+
         data = {}
         data['hello'] = hello
         data['x'] = x
-        
+
         timestamp = datetime.now(pytz.timezone('UTC'))
-        
+
         return Message(data, timestamp)

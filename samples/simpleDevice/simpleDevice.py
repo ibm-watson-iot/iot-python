@@ -58,6 +58,7 @@ if args.token:
 # Initialize the device client.
 
 try:
+    import wiotp
     if args.cfg is not None:
         deviceOptions = wiotp.sdk.device.parseConfigFile(args.cfg)
     else:
