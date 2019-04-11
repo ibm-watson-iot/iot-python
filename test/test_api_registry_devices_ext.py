@@ -51,7 +51,7 @@ class TestRegistryDevices(testUtils.AbstractTest):
         try:
             device.setLocation(DeviceLocation(latitude=100, longitude=120))
         except ApiException as e:
-            assert e.id == "CUDRS0007E"
+            assert e.id == "CUDHT0300I"
             assert len(e.violations) == 1
 
     
