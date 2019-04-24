@@ -137,7 +137,7 @@ class IterableList(object):
         if r.status_code == 200:
             return r.json()
         else:
-            raise Exception("HTTP %s %s" % (r.status_code, r.text))
+            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
 
 
 class DateTimeEncoder(json.JSONEncoder):
