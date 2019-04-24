@@ -15,6 +15,7 @@ from wiotp.sdk.api.dsc import DSC
 from wiotp.sdk.api.lec import LEC
 from wiotp.sdk.api.mgmt import Mgmt
 from wiotp.sdk.api.services import ServiceBindings
+from wiotp.sdk.api.actionmanager import ActionManager
 
 # This method returns the organization
 # def getOrganizationDetails(self):
