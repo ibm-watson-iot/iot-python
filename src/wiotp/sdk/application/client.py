@@ -17,7 +17,7 @@ from datetime import datetime
 from wiotp.sdk import ConnectionException, MissingMessageEncoderException, AbstractClient, InvalidEventException
 from wiotp.sdk.application.messages import Status, Command, Event
 from wiotp.sdk.application.config import ApplicationClientConfig
-from wiotp.sdk.api import ApiClient, Registry, Usage, Status, DSC, LEC, Mgmt, ServiceBindings, ActionManager
+from wiotp.sdk.api import ApiClient, Registry, Usage, Status, DSC, LEC, Mgmt, ServiceBindings, ActionManager, StateManagement
 
 import paho.mqtt.client as paho
 
@@ -87,6 +87,8 @@ class ApplicationClient(AbstractClient):
             self.mgmt = Mgmt(apiClient)
             self.serviceBindings = ServiceBindings(apiClient)
             self.actionManager = ActionManager(apiClient)
+            self.statemanagement = StateManagement(apiClient)
+
 
     def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """

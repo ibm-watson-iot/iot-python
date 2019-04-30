@@ -10,20 +10,20 @@
 from collections import defaultdict
 import iso8601
 
-from wiotp.sdk.api.actionmanager.triggers import Triggers
+from wiotp.sdk.api.Schemamanager.triggers import Triggers
 from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
 
-# See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/action-mgr-beta.html
+# See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/Schema-mgr-beta.html
 
 
-class Action(defaultdict):
+class Schema(defaultdict):
     def __init__(self, apiClient, **kwargs):
         self._apiClient = apiClient
 
         self.triggers=Triggers(
              apiClient=self._apiClient, 
-             actionId=kwargs["id"]
+             SchemaId=kwargs["id"]
         ) 
         dict.__init__(self, **kwargs)
 
@@ -41,7 +41,7 @@ class Action(defaultdict):
         return self["description"]
 
     @property
-    def actionType(self):
+    def SchemaType(self):
         return self["type"]
 
     @property
@@ -70,27 +70,27 @@ class Action(defaultdict):
     def updatedBy(self):
         return self["updatedBy"]
 
-class IterableActionList(IterableList):
+class IterableSchemaList(IterableList):
     def __init__(self, apiClient, filters=None):
         # This API does not support sorting
-        super(IterableActionList, self).__init__(
-            apiClient, Action, "api/v0002/actions", sort=None, filters=filters, passApiClient=True
+        super(IterableSchemaList, self).__init__(
+            apiClient, Schema, "api/v0002/Schemas", sort=None, filters=filters, passApiClient=True
         )
 
 
-class Actions(defaultdict):
+class Schemas(defaultdict):
 
-    allActionsUrl = "api/v0002/actions"
-    oneActionUrl = "api/v0002/actions/%s"
+    allSchemasUrl = "api/v0002/Schemas"
+    oneSchemaUrl = "api/v0002/Schemas/%s"
 
     def __init__(self, apiClient):
         self._apiClient = apiClient
         
     def __contains__(self, key):
         """
-        Does an action exist?
+        Does an Schema exist?
         """
-        url = Actions.oneActionUrl % (key)
+        url = Schemas.oneSchemaUrl % (key)
 
         r = self._apiClient.get(url)
         if r.status_code == 200:
@@ -102,18 +102,18 @@ class Actions(defaultdict):
 
     def __getitem__(self, key):
         """
-        Retrieve the action with the specified id.
+        Retrieve the Schema with the specified id.
         Parameters:
-            - ActionId (String), Action Id which is a UUID
+            - SchemaId (String), Schema Id which is a UUID
         Throws APIException on failure.
 
         """
 
-        url = Actions.oneActionUrl % (key)
+        url = Schemas.oneSchemaUrl % (key)
 
         r = self._apiClient.get(url)
         if r.status_code == 200:
-            return Action(apiClient=self._apiClient, **r.json())
+            return Schema(apiClient=self._apiClient, **r.json())
         if r.status_code == 404:
             self.__missing__(key)
         else:
@@ -121,15 +121,15 @@ class Actions(defaultdict):
 
     def __setitem__(self, key, value):
         """
-        Register a new action - not currently supported via this interface, use: `actionmanager.actions.create()`
+        Register a new Schema - not currently supported via this interface, use: `Schemamanager.Schemas.create()`
         """
-        raise Exception("Unable to register or update a action via this interface at the moment.")
+        raise Exception("Unable to register or update a Schema via this interface at the moment.")
 
     def __delitem__(self, key):
         """
-        Delete an action
+        Delete an Schema
         """
-        url = Actions.oneActionUrl % (key)
+        url = Schemas.oneSchemaUrl % (key)
 
         r = self._apiClient.delete(url)
         if r.status_code == 404:
@@ -139,19 +139,19 @@ class Actions(defaultdict):
 
     def __missing__(self, key):
         """
-        Action does not exist
+        Schema does not exist
         """
-        raise KeyError("Action %s does not exist" % (key))
+        raise KeyError("Schema %s does not exist" % (key))
 
     def __iter__(self, *args, **kwargs):
         """
-        Iterate through all Actions
+        Iterate through all Schemas
         """
-        return IterableActionList(self._apiClient)
+        return IterableSchemaList(self._apiClient)
 
     def find(self, nameFilter=None, typeFilter=None, enabledFilter=None, triggerLIId=None, triggerRuleId=None, triggerTypeId=None, triggerInstanceId=None):
         """
-        Gets the list of Actions, they are used to call specific business logic when data in Watson IoT Platform changes.
+        Gets the list of Schemas, they are used to call specific business logic when data in Watson IoT Platform changes.
         
         Parameters:
         
@@ -184,22 +184,22 @@ class Actions(defaultdict):
         if triggerInstanceId:
             queryParms["triggerInstanceId"] = triggerInstanceId
 
-        return IterableActionList(self._apiClient, filters=queryParms)
+        return IterableSchemaList(self._apiClient, filters=queryParms)
 
     def create(self, name, type, description, configuration, enabled):
         """
-        Create an action for the organization in the Watson IoT Platform. 
-        The action must reference the target service that the Watson IoT Platform will store the IoT data in.
+        Create an Schema for the organization in the Watson IoT Platform. 
+        The Schema must reference the target service that the Watson IoT Platform will store the IoT data in.
         Parameters:
             - name (string) - Name of the service
             - type - must be webhook
             - description (string) - description of the service
-            - configuration - specifies the JSON action configuration required
+            - configuration - specifies the JSON Schema configuration required
             - enabled (boolean) - enabled
         Throws APIException on failure
         """
 
-        action = {
+        Schema = {
             "name": name,
             "type": type,
             "description": description,
@@ -207,36 +207,36 @@ class Actions(defaultdict):
             "enabled": enabled,
         }
 
-        r = self._apiClient.post(Actions.allActionsUrl, data=action)
+        r = self._apiClient.post(Schemas.allSchemasUrl, data=Schema)
         if r.status_code == 201:
-            return Action(apiClient=self._apiClient, **r.json())
+            return Schema(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
 
-    def update(self, actionId, name, description, configuration, enabled):
+    def update(self, SchemaId, name, description, configuration, enabled):
         """
-        Updates the action with the specified actionId.
+        Updates the Schema with the specified SchemaId.
         if description is empty, the existing description will be removed.
         Parameters:
-            - actionId (String), Action Id which is a UUID
-            - name (string) - Name of the action
-            - description (string) - description of the action
-            - configuration (json object) - Describes the action configuration.
+            - SchemaId (String), Schema Id which is a UUID
+            - name (string) - Name of the Schema
+            - description (string) - description of the Schema
+            - configuration (json object) - Describes the Schema configuration.
             - enabled (boolean) - enabled
         Throws APIException on failure.
 
         """
 
-        url = Actions.oneActionUrl % (actionId)
+        url = Schemas.oneSchemaUrl % (SchemaId)
 
-        actionBody = {}
-        actionBody["name"] = name
-        actionBody["description"] = description
-        actionBody["configuration"] = configuration
-        actionBody["enabled"] = enabled
+        SchemaBody = {}
+        SchemaBody["name"] = name
+        SchemaBody["description"] = description
+        SchemaBody["configuration"] = configuration
+        SchemaBody["enabled"] = enabled
 
-        r = self._apiClient.put(url, data=actionBody)
+        r = self._apiClient.put(url, data=SchemaBody)
         if r.status_code == 200:
-            return Action(apiClient=self._apiClient, **r.json())
+            return Schema(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)

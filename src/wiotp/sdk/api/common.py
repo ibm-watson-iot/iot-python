@@ -11,6 +11,9 @@ import requests
 import logging
 import json
 from datetime import datetime
+from collections import defaultdict
+from wiotp.sdk.exceptions import ApiException
+
 
 from wiotp.sdk.exceptions import ConfigurationException
 
@@ -129,8 +132,8 @@ class IterableList(object):
 
     def _makeApiCall(self, parameters=None):
         """
-        Retrieve bulk devices
-        It accepts accepts a list of parameters
+        Retrieve bulk objects
+        It accepts a list of parameters
         In case of failure it throws Exception
         """
         r = self._apiClient.get(self._url, parameters)
@@ -139,6 +142,127 @@ class IterableList(object):
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
 
+class RestApiDict(defaultdict):
+    def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
+        self._apiClient = apiClient
+        self._castToClass = castToClass
+        self._listToCast = listToCast
+        self._baseUrl = url
+        self._singleItemUrl = url + "/%s"
+        self._sort = sort
+        self._filters = filters
+        self._passApiClient = passApiClient
+        
+    def __contains__(self, key):
+        """
+        Does an Item exist?
+        """
+        url = self._singleItemUrl % (key)
+
+        r = self._apiClient.get(url)
+        if r.status_code == 200:
+            return True
+        if r.status_code == 404:
+            return False
+        else:
+            raise ApiException(r)
+
+    def __getitem__(self, key):
+        """
+        Retrieve the Item with the specified id.
+        Parameters:
+            - key (String), Identity field to access item
+        Throws APIException on failure.
+
+        """
+
+        url = self._singleItemUrl % (key)
+
+        r = self._apiClient.get(url)
+        if r.status_code == 200:
+            return self._castToClass(apiClient=self._apiClient, **r.json())
+        if r.status_code == 404:
+            self.__missing__(key)
+        else:
+            raise ApiException(r)
+
+    def __setitem__(self, key, value):
+        """
+        Register a new Item - not currently supported via this interface
+        """
+        raise Exception("Unable to register or update a Item via this interface at the moment.")
+
+    def __delitem__(self, key):
+        """
+        Delete an Item
+        """
+        url = self._singleItemUrl % (key)
+
+        r = self._apiClient.delete(url)
+        if r.status_code == 404:
+            self.__missing__(key)
+        elif r.status_code != 204:
+            raise ApiException(r)
+
+    def __missing__(self, key):
+        """
+        Item does not exist
+        """
+        raise KeyError("Item %s does not exist" % (key))
+
+    def __iter__(self, *args, **kwargs):
+        """
+        Iterate through all Schemas
+        """
+        return self._listToCast(self._apiClient)
+
+    def find(self, query_params={}):
+        """
+        Gets the list of Schemas, they are used to call specific business logic when data in Watson IoT Platform changes.
+        
+        Parameters:
+        
+            - queryParams(dict) - Filter the results by the key-value pairs in the dictionary
+        
+        Throws APIException on failure.
+        """
+        return self._listToCast(self._apiClient, filters=query_params)
+
+    def create(self, item):
+        """
+        Create an Item for the organization in the Watson IoT Platform. 
+        Parameters:
+            - name (string) - Name of the service
+            - type - must be webhook
+            - description (string) - description of the service
+            - configuration - specifies the JSON Schema configuration required
+            - enabled (boolean) - enabled
+        Throws APIException on failure
+        """
+        r = self._apiClient.post(self._baseUrl, data=item)
+        if r.status_code == 201:
+            return self._castToClass(apiClient=self._apiClient, **r.json())
+        else:
+            raise ApiException(r)
+
+    def update(self, key, item):
+        """
+        Updates the Item with the specified key.
+        Parameters:
+            - key (String), Identity field to access item
+            - item, item object to store.
+        Throws APIException on failure.
+
+        """
+        url = self._singleItemUrl % (key)
+
+        r = self._apiClient.put(url, data=item)
+        if r.status_code == 200:
+            return self._castToClass(apiClient=self._apiClient, **r.json())
+        else:
+            raise ApiException(r)
+    
+    
 
 class DateTimeEncoder(json.JSONEncoder):
     """

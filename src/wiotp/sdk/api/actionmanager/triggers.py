@@ -57,7 +57,7 @@ class Trigger(defaultdict):
 
 class IterableTriggerList(IterableList):
     def __init__(self, apiClient, actionId, filters=None):
-        self.actionId = actionId
+        self.actionid = actionId
         # This API does not support sorting
         super(IterableTriggerList, self).__init__(
             apiClient,
@@ -74,12 +74,12 @@ class Triggers(defaultdict):
     allTriggersUrl = "api/v0002/actions/%s/triggers"
     oneTriggerUrl = "api/v0002/actions/%s/triggers/%s"
 
-    def __init__(self, apiClient, actionId, triggerType):
+    def __init__(self, apiClient, actionId):
         self._apiClient = apiClient
-        self.actionId = actionId
+        self._actionId = actionId
 
     def __contains__(self, key):
-        url = self.oneTriggerUrl % (self.actionId, key)
+        url = self.oneTriggerUrl % (self._actionId, key)
 
         r = Triggers._apiClient.get(url)
         if r.status_code == 200:
@@ -90,7 +90,7 @@ class Triggers(defaultdict):
             raise ApiException(r)
 
     def __getitem__(self, key):
-        url = Triggers.oneTriggerUrl % (self.actionId, key)
+        url = Triggers.oneTriggerUrl % (self._actionId, key)
 
         r = self._apiClient.get(url)
         if r.status_code == 200:
@@ -104,7 +104,7 @@ class Triggers(defaultdict):
         raise Exception("Unable to register or update a trigger via this interface at the moment.")
 
     def __delitem__(self, key):
-        url = Triggers.oneTriggerUrl % (self.actionId, key)
+        url = Triggers.oneTriggerUrl % (self._actionId, key)
 
         r = self._apiClient.delete(url)
         if r.status_code == 404:
@@ -121,14 +121,14 @@ class Triggers(defaultdict):
         """
         Iterate through all Triggers
         """
-        return IterableTriggerList(self._apiClient, self.actionId)
+        return IterableTriggerList(self._apiClient, self._actionid)
 
     def find(self, nameFilter=None):
         queryParms = {}
         if nameFilter:
             queryParms["name"] = nameFilter
 
-        return IterableTriggerList(self._apiClient, self.actionId, filters=queryParms)
+        return IterableTriggerList(self._apiClient, self._actionId, filters=queryParms)
 
     def create(self, name, type, description, configuration, variable_mappings, enabled):
         trigger = {
@@ -136,11 +136,11 @@ class Triggers(defaultdict):
             "type": type,
             "description": description,
             "configuration": configuration,
-            "vafriableMappings": variable_mappings,
+            "variableMappings": variable_mappings,
             "enabled": enabled,
         }
         
-        url = Triggers.allTriggersUrl % (self.actionId)
+        url = Triggers.allTriggersUrl % (self._actionId)
 
         r = self._apiClient.post(url, data=trigger)
         if r.status_code == 201:
