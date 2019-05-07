@@ -139,15 +139,19 @@ class AbstractClient(object):
             # TLS 1.2 is unavailable because the configuration explicitly requested
             # to use encrypted connection
         elif self.port is None:
-            try:
-                self.tlsVersion = ssl.PROTOCOL_TLSv1_2
-                self.port = 8883
-            except:
+            if self.organization == "quickstart":
                 self.tlsVersion = None
                 self.port = 1883
-                self.logger.warning(
-                    "Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)"
-                )
+            else:
+                try:
+                    self.tlsVersion = ssl.PROTOCOL_TLSv1_2
+                    self.port = 8883
+                except:
+                    self.tlsVersion = None
+                    self.port = 1883
+                    self.logger.warning(
+                        "Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)"
+                    )
         else:
             raise Exception("Unsupported value for port override: %s.  Supported values are 1883 & 8883." % self.port)
 
@@ -232,6 +236,7 @@ class AbstractClient(object):
         )
         try:
             self.connectEvent.clear()
+            self.logger.debug("Connecting with clientId %s to host %s on port %s with keepAlive set to %s" % (self.clientId, self.address, self.port, self.keepAlive))
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
             self.client.loop_start()
             if not self.connectEvent.wait(timeout=30):
