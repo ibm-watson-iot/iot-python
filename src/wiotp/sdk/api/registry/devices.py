@@ -243,7 +243,10 @@ class Device(defaultdict):
 
     @property
     def metadata(self):
-        return self["metadata"]
+        if "metadata" in self:
+            return self["metadata"]
+        else:
+            return None
 
     @property
     def deviceInfo(self):
