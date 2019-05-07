@@ -5,9 +5,8 @@ FROM python:3.7-alpine3.9
 RUN apk add gcc linux-headers libc-dev
 
 # Begin the install proper
-RUN pip install wiotp-sdk psutil
-
+RUN pip install wiotp-sdk==0.9.1 psutil
 ADD src/ /opt/ibm/iotpsutil/
-RUN ls /opt/ibm/iotpsutil && chmod +x /opt/ibm/iotpsutil/*.py
+RUN chmod +x /opt/ibm/iotpsutil/*.py
 
 ENTRYPOINT ["python", "/opt/ibm/iotpsutil/iotpsutil.py"]
