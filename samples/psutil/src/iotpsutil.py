@@ -42,34 +42,6 @@ def interruptHandler(signal, frame):
     sys.exit(0)
 
 
-def usage():
-    print(
-        "IOT-PSUTIL: Publish basic system utilization statistics to IBM Watson IoT Platform."
-        + "\n"
-        + "\n"
-        + "Datapoints sent:"
-        + "\n"
-        + "  name          The name of this device.  Defaults to hostname ('%s')" % platform.node()
-        + "\n"
-        + "  cpu           Current CPU utilization (%)"
-        + "\n"
-        + "  mem           Current memory utilization (%)"
-        + "\n"
-        + "  network.up    Current outbound network utilization across all network interfaces (KB/s)"
-        + "\n"
-        + "  network.down  Current inbound network utilization across all network interfaces (KB/s)"
-        + "\n"
-        + "\n"
-        + "Options: "
-        + "\n"
-        + "  -h, --help       Display help information"
-        + "\n"
-        + "  -n, --name       Override the default device name"
-        + "\n"
-        + "  -v, --verbose    Be more verbose"
-    )
-
-
 def commandProcessor(cmd):
     global interval
     print("Command received: %s" % cmd.data)
