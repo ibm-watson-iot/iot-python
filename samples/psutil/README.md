@@ -25,7 +25,7 @@ The following data points are collected:
 The easiest way to test out the sample is via the [wiotp/psutil](https://cloud.docker.com/u/wiotp/repository/docker/wiotp/psutil) Docker image provided and the `--quickstart` command line option.
 
 ```
-$ docker run -d --name psutil wiotp/iotpsutil --quickstart
+$ docker run -d --name psutil wiotp/psutil --quickstart
 psutil
 $ docker logs -tf psutil
 2019-05-07T11:09:19.672513500Z 2019-05-07 11:09:19,671   wiotp.sdk.device.client.DeviceClient  INFO    Connected successfully: d:quickstart:sample-iotpsutil:242ac110002
@@ -38,7 +38,7 @@ $ export WIOTP_IDENTITY_ORGID=myorgid
 $ export WIOTP_IDENTITY_TYPEID=mytypeid
 $ export WIOTP_IDENTITY_DEVICEID=mydeviceid
 $ export WIOTP_AUTH_TOKEN=myauthtoken
-$ docker run -d -e WIOTP_IDENTITY_ORGID -e WIOTP_IDENTITY_ORGID -e WIOTP_AUTH_TOKEN --name psutil wiotp/iotpsutil
+$ docker run -d -e WIOTP_IDENTITY_ORGID -e WIOTP_IDENTITY_ORGID -e WIOTP_AUTH_TOKEN --name psutil wiotp/psutil
 psutil
 $ docker logs -tf psutil
 2019-05-07T11:09:19.672513500Z 2019-05-07 11:09:19,671   wiotp.sdk.device.client.DeviceClient  INFO    Connected successfully: d:myorgid:mytypeid:mydeviceid
