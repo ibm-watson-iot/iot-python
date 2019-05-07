@@ -5,8 +5,8 @@
 if [ -n "$BUILD_DOCKER_IMAGES" ]; then
     echo "Building docker images"
 
-    IMAGE_NAME=wiotp/iotpsutil
-    IMAGE_SRC=samples/iotpsutil
+    IMAGE_NAME=wiotp/psutil
+    IMAGE_SRC=samples/psutil
 
     docker build -t ${IMAGE_NAME}:$TRAVIS_BRANCH ${IMAGE_SRC}
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
