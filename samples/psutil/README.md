@@ -48,7 +48,7 @@ $ docker logs -tf psutil
 ## Installation
 Installation across all OS's is pretty much the same:
 
-- Install any necessary system packages missing from the host (In order to [install psutil on Windows]((https://github.com/giampaolo/psutil/blob/master/INSTALL.rst#windows)) you'll need Visual Studio installed)
+- Install any necessary system packages missing from the host (in order to [install psutil on Windows](https://github.com/giampaolo/psutil/blob/master/INSTALL.rst#windows) you'll need Visual Studio installed)
 - Install the `wiotp-sdk` and `psutil` python modules using `pip`
 - [Download](https://github.com/ibm-watson-iot/iot-python/archive/master.zip) the sample code from GitHub
 - Run the sample
