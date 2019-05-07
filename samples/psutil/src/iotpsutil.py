@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # *****************************************************************************
 # Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
 #
@@ -7,7 +9,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import getopt
+import argparse
 import time
 import sys
 import psutil
@@ -28,7 +30,7 @@ except ImportError:
     import inspect
 
     cmd_subfolder = os.path.realpath(
-        os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "../../src"))
+        os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "../../../src"))
     )
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
@@ -53,9 +55,9 @@ def usage():
         + "\n"
         + "  mem           Current memory utilization (%)"
         + "\n"
-        + "  network_up    Current outbound network utilization across all network interfaces (KB/s)"
+        + "  network.up    Current outbound network utilization across all network interfaces (KB/s)"
         + "\n"
-        + "  network_down  Current inbound network utilization across all network interfaces (KB/s)"
+        + "  network.down  Current inbound network utilization across all network interfaces (KB/s)"
         + "\n"
         + "\n"
         + "Options: "
@@ -86,58 +88,35 @@ def commandProcessor(cmd):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, interruptHandler)
 
-    try:
-        opts, args = getopt.getopt(
-            sys.argv[1:], "hn:vo:t:i:T:c:", ["help", "name=", "verbose", "type=", "id=", "token=", "config="]
-        )
-    except getopt.GetoptError as err:
-        print(str(err))
-        usage()
-        sys.exit(2)
-
-    verbose = False
-    organization = "quickstart"
-    typeId = "sample-iotpsutil"
-    deviceId = str(hex(int(get_mac())))[2:]
-    deviceName = platform.node()
-    authMethod = None
-    authToken = None
-    configFilePath = None
-
     # Seconds to sleep between readings
     interval = 1
 
-    for o, a in opts:
-        if o in ("-v", "--verbose"):
-            verbose = True
-        elif o in ("-n", "--name"):
-            deviceName = a
-        elif o in ("-o", "--organization"):
-            organization = a
-        elif o in ("-t", "--type"):
-            typeId = a
-        elif o in ("-i", "--id"):
-            deviceId = a
-        elif o in ("-T", "--token"):
-            authMethod = "token"
-            authToken = a
-        elif o in ("-c", "--cfg"):
-            configFilePath = a
-        elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        else:
-            assert False, "unhandled option" + o
+    # Initialize the properties we need
+    parser = argparse.ArgumentParser(
+        description="IBM Watson IoT Platform PSUtil device client.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/psutil",
+        epilog="If neither the quickstart or cfg parameter is provided the device will attempt to parse the configuration from environment variables."
+    )
+    parser.add_argument("-n", "--name", required=False, default=platform.node(), help="Defaults to platform.node() if not set")
+    parser.add_argument("-q", "--quickstart", required=False, action="store_true", help="Connect device to quickstart?")
+    parser.add_argument("-c", "--cfg", required=False, default=None, help="Location of device configuration file (ignored if quickstart mode is enabled)")
+    parser.add_argument("-v", "--verbose", required=False, action="store_true", help="Enable verbose log messages?")
+    args, unknown = parser.parse_known_args()
 
     client = None
     try:
-        if configFilePath is not None:
-            options = wiotp.sdk.device.parseConfigFile(configFilePath)
-        else:
+        if args.quickstart:
             options = {
-                "identity": {"orgId": organization, "typeId": typeId, "deviceId": deviceId},
-                "auth": {"token": authToken},
+                "identity": { 
+                    "orgId": "quickstart",
+                    "typeId": "sample-iotpsutil", 
+                    "deviceId": str(hex(int(get_mac())))[2:]
+                }
             }
+        elif args.cfg is not None:
+            options = wiotp.sdk.device.parseConfigFile(args.cfg)
+        else:
+            options = wiotp.sdk.device.parseEnvVars()
+        
         client = wiotp.sdk.device.DeviceClient(options)
         client.commandCallback = commandProcessor
         client.connect()
@@ -161,7 +140,7 @@ if __name__ == "__main__":
         ioDuration = ioAfter_ts - ioBefore_ts
 
         data = {
-            "name": deviceName,
+            "name": args.name,
             "cpu": psutil.cpu_percent(percpu=False),
             "mem": psutil.virtual_memory().percent,
             "network": {
@@ -169,7 +148,7 @@ if __name__ == "__main__":
                 "down": round((ioAfter.bytes_recv - ioBefore.bytes_recv) / (ioDuration * 1024), 2),
             },
         }
-        if verbose:
+        if args.verbose:
             print("Datapoint = " + json.dumps(data))
 
         client.publishEvent("psutil", "json", data)

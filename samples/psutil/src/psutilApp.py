@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # *****************************************************************************
 # Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
 #

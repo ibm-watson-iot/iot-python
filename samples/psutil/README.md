@@ -1,6 +1,6 @@
-# Python PSUtil IoT Adapter
+# IBM Watson IoT Platform PSUtil Device Client
 
-Sample code for sending system utilization data to the IBM Internet of Things
+Device code for sending system utilization data to IBM Watson IoT Platform
 
 The following data points are supported:
  * CPU utilization (%)
@@ -9,64 +9,38 @@ The following data points are supported:
  * Inbound network utilization across all network interfaces (KB/s)
 
 
+## Event Format
+
+- `name` obtained using `platform.node()` from the [Python standard library](https://docs.python.org/3/library/platform.html), can be overriden using `-n` parameter
+- `cpu` obtained from `psutil.cpu_percent()`
+- `mem` obtained from `psutil.virtual_memory().percent`
+- `network.up` calculated using `psutil.net_io_counters()`
+- `network.down` calculated using `psutil.net_io_counters()`
+
+
 ## Setup
 
-### Raspbian (Raspberry Pi)
+Installation across all OS's is pretty much the same:
+
+- Install any necessary system packages missing from the host (In order to [install psutil on Windows]((https://github.com/giampaolo/psutil/blob/master/INSTALL.rst#windows)) you'll need Visual Studio installed)
+- Install the `wiotp-sdk` and `psutil` python modules using `pip`
+- [Download](https://github.com/ibm-watson-iot/iot-python/archive/master.zip) the sample code from GitHub
+- Run the sample
+
+The example below shows the setup process on **Raspbian** (Raspberry Pi).
+
 ```
 pi@raspberrypi ~ $ sudo apt-get update
-pi@raspberrypi ~ $ sudo apt-get install python-dev
-pi@raspberrypi ~ $ sudo apt-get install python-pip
-pi@raspberrypi ~ $ sudo pip install wiotp-sdk
-pi@raspberrypi ~ $ sudo pip install psutil
-pi@raspberrypi ~ $ wget https://github.com/ibm-messaging/iot-python/archive/master.zip
+pi@raspberrypi ~ $ sudo apt-get install python-dev python-pip
+pi@raspberrypi ~ $ sudo pip install wiotp-sdk psutil
+pi@raspberrypi ~ $ wget https://github.com/ibm-watson-iot/iot-python/archive/master.zip
 pi@raspberrypi ~ $ unzip master.zip
-pi@raspberrypi ~ $ cd iot-python-master/samples/psutil
-pi@raspberrypi ~ $ python iotpsutil.py
+pi@raspberrypi ~ $ cd iot-python-master/samples/psutil/src
+pi@raspberrypi ~ $ python iotpsutil.py --quickstart
 (Press Ctrl+C to disconnect)
 
 ```
 
-### CentOS / RHEL 6
-See: [Setting up Django and Python 2.7 on Red Hat Enterprise 6 the easy way](http://developerblog.redhat.com/2013/02/14/setting-up-django-and-python-2-7-on-red-hat-enterprise-6-the-easy-way/)
-```
-[me@localhost ~]$ sudo su -
-[root@localhost ~]# wget -qO- http://people.redhat.com/bkabrda/scl_python27.repo >> /etc/yum.repos.d/scl.repo
-[root@localhost ~]# yum install python27
-[root@localhost ~]# scl enable python27 bash
-[root@localhost ~]# pip install wiotp-sdk
-[root@localhost ~]# pip install psutil
-[root@localhost ~]# exit
-[me@localhost ~]$ wget https://github.com/ibm-messaging/iot-python/archive/master.zip
-[me@localhost ~]$ unzip master.zip
-[me@localhost ~]$ cd iot-python-master/samples/psutil
-[me@localhost ~]$ scl enable python27 bash
-[me@localhost ~]$ python iotpsutil.py
-(Press Ctrl+C to disconnect)
-
-```
-
-### Microsoft Windows
-[Install Python 2.7](https://www.python.org/download/releases/2.7)
-
-[Install pip-Win](https://sites.google.com/site/pydatalog/python/pip-for-windows) and use this to install the paho-mqtt Python package.
-
-Download and install [psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads) using the appropriate Windows installer:
- * [psutil-2.1.0.win32-py2.7.exe](https://pypi.python.org/packages/2.7/p/psutil/psutil-2.1.0.win32-py2.7.exe#md5=cfe1b146fc38176e4e63290fa15029a1)
- * [psutil-2.1.0.win-amd64-py2.7.exe](https://pypi.python.org/packages/2.7/p/psutil/psutil-2.1.0.win-amd64-py2.7.exe#md5=db0ee08adb7f00386ee419dcf414d451)
-
-Download and extract [master.zip](https://github.com/ibm-messaging/iot-python/archive/master.zip) from GitHub
-
-```
-C:\Users\Me> python iotpsutil.py
-(Press Ctrl+C to disconnect)
-
-```
-
-## QuickStart Usage
-With no command line options the device code will connect to [QuickStart](http://quickstart.internetofthings.ibmcloud.com)
-```
-python iotpsutil.py
-```
 
 ## Registered Usage
 The device sample supports using either a device configuration file or command line arguments to connect to your [private organization](https://internetofthings.ibmcloud.com/dashboard/)
