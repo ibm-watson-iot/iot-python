@@ -94,11 +94,19 @@ if __name__ == "__main__":
     # Initialize the properties we need
     parser = argparse.ArgumentParser(
         description="IBM Watson IoT Platform PSUtil device client.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/psutil",
-        epilog="If neither the quickstart or cfg parameter is provided the device will attempt to parse the configuration from environment variables."
+        epilog="If neither the quickstart or cfg parameter is provided the device will attempt to parse the configuration from environment variables.",
     )
-    parser.add_argument("-n", "--name", required=False, default=platform.node(), help="Defaults to platform.node() if not set")
+    parser.add_argument(
+        "-n", "--name", required=False, default=platform.node(), help="Defaults to platform.node() if not set"
+    )
     parser.add_argument("-q", "--quickstart", required=False, action="store_true", help="Connect device to quickstart?")
-    parser.add_argument("-c", "--cfg", required=False, default=None, help="Location of device configuration file (ignored if quickstart mode is enabled)")
+    parser.add_argument(
+        "-c",
+        "--cfg",
+        required=False,
+        default=None,
+        help="Location of device configuration file (ignored if quickstart mode is enabled)",
+    )
     parser.add_argument("-v", "--verbose", required=False, action="store_true", help="Enable verbose log messages?")
     args, unknown = parser.parse_known_args()
 
@@ -106,17 +114,17 @@ if __name__ == "__main__":
     try:
         if args.quickstart:
             options = {
-                "identity": { 
+                "identity": {
                     "orgId": "quickstart",
-                    "typeId": "sample-iotpsutil", 
-                    "deviceId": str(hex(int(get_mac())))[2:]
+                    "typeId": "sample-iotpsutil",
+                    "deviceId": str(hex(int(get_mac())))[2:],
                 }
             }
         elif args.cfg is not None:
             options = wiotp.sdk.device.parseConfigFile(args.cfg)
         else:
             options = wiotp.sdk.device.parseEnvVars()
-        
+
         client = wiotp.sdk.device.DeviceClient(options)
         client.commandCallback = commandProcessor
         client.connect()

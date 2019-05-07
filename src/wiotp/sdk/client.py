@@ -236,7 +236,10 @@ class AbstractClient(object):
         )
         try:
             self.connectEvent.clear()
-            self.logger.debug("Connecting with clientId %s to host %s on port %s with keepAlive set to %s" % (self.clientId, self.address, self.port, self.keepAlive))
+            self.logger.debug(
+                "Connecting with clientId %s to host %s on port %s with keepAlive set to %s"
+                % (self.clientId, self.address, self.port, self.keepAlive)
+            )
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
             self.client.loop_start()
             if not self.connectEvent.wait(timeout=30):
