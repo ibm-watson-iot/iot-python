@@ -12,9 +12,9 @@ import iso8601
 
 from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
+from wiotp.sdk.api.common import  RestApiDict
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/action-mgr-beta.html
-
 
 class Trigger(defaultdict):
     def __init__(self, **kwargs):
@@ -57,9 +57,8 @@ class Trigger(defaultdict):
 
 class IterableTriggerList(IterableList):
     def __init__(self, apiClient, actionId, filters=None):
-        self.actionid = actionId
         # This API does not support sorting
-        super(IterableTriggerList, self).__init__(
+        super(IterableTriggerList, actionId, self).__init__(
             apiClient,
             Trigger,
             "api/v0002/actions/%s/triggers" % (actionId),
@@ -69,66 +68,12 @@ class IterableTriggerList(IterableList):
         )
 
 
-class Triggers(defaultdict):
-    
-    allTriggersUrl = "api/v0002/actions/%s/triggers"
-    oneTriggerUrl = "api/v0002/actions/%s/triggers/%s"
+class Triggers(RestApiDict):
 
     def __init__(self, apiClient, actionId):
-        self._apiClient = apiClient
-        self._actionId = actionId
-
-    def __contains__(self, key):
-        url = self.oneTriggerUrl % (self._actionId, key)
-
-        r = Triggers._apiClient.get(url)
-        if r.status_code == 200:
-            return True
-        if r.status_code == 404:
-            return False
-        else:
-            raise ApiException(r)
-
-    def __getitem__(self, key):
-        url = Triggers.oneTriggerUrl % (self._actionId, key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return Trigger(**r.json())
-        if r.status_code == 404:
-            self.__missing__(key)
-        else:
-            raise ApiException(r)
-
-    def __setitem__(self, key, value):
-        raise Exception("Unable to register or update a trigger via this interface at the moment.")
-
-    def __delitem__(self, key):
-        url = Triggers.oneTriggerUrl % (self._actionId, key)
-
-        r = self._apiClient.delete(url)
-        if r.status_code == 404:
-            self.__missing__(key)
-        elif r.status_code != 200:
-            # Unlike most DELETE requests, this API is expected to return 200 with a message body containing the message:
-            # "Successfully deleted Cloudant configuration, the Cloudant database must be manually deleted"
-            raise ApiException(r)
-
-    def __missing__(self, key):
-        raise KeyError("Trigger %s does not exist" % (key))
-
-    def __iter__(self, *args, **kwargs):
-        """
-        Iterate through all Triggers
-        """
-        return IterableTriggerList(self._apiClient, self._actionid)
-
-    def find(self, nameFilter=None):
-        queryParms = {}
-        if nameFilter:
-            queryParms["name"] = nameFilter
-
-        return IterableTriggerList(self._apiClient, self._actionId, filters=queryParms)
+        super(Triggers, self).__init__(
+            apiClient, Trigger, IterableTriggerList(apiClient, actionId), "api/v0002/actions/%s/triggers" % actionId
+        )
 
     def create(self, name, type, description, configuration, variable_mappings, enabled):
         trigger = {
@@ -140,10 +85,4 @@ class Triggers(defaultdict):
             "enabled": enabled,
         }
         
-        url = Triggers.allTriggersUrl % (self._actionId)
-
-        r = self._apiClient.post(url, data=trigger)
-        if r.status_code == 201:
-            return Trigger(**r.json())
-        else:
-            raise ApiException(r)
+        return super(Triggers, self).create(trigger)

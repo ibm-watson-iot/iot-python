@@ -1,0 +1,189 @@
+# *****************************************************************************
+# Copyright (c) 2019 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+# 
+import uuid
+from datetime import datetime
+import testUtils
+import time
+import pytest
+from wiotp.sdk.exceptions import ApiException
+import string
+import json
+
+class TestLogicalInterfaces(testUtils.AbstractTest):
+    
+    testSchemaName = "python-api-test-li-schema"
+    
+    testLISchema =  {
+        "$schema" : "http://json-schema.org/draft-04/schema#",
+        "type" : "object",
+        "title" : "Environment Sensor Schema",
+        "properties" : {
+            "temperature" : {
+                "description" : "temperature in degrees Celsius",
+                "type" : "number",
+                "minimum" : -237.15,
+                "default" : 0.0
+            },
+            "humidity" : {
+                "description" : "relative humidity (%)",
+                "type" : "number",
+                "minimum" : 0.0,
+                "default" : 0.0
+            },
+            "publishTimestamp" : {
+                "description" : "publishTimestamp",
+                "type" : "number",
+                "minimum" : 0.0,
+                "default" : 0.0
+            }
+        },
+        "required" : ["temperature", "humidity", "publishTimestamp"]
+    } 
+    
+    testLogicalInterfaceName = "python-api-test-logicalInterface"
+    updatedLogicalInterfaceName = "python-api-test-logicalInterface-updated"
+        
+    # =========================================================================
+    # Set up services
+    # =========================================================================
+    def testCleanup(self):
+        for li in self.appClient.statemanagement.draftLogicalInterfaces:
+            if li.name in (TestLogicalInterfaces.testLogicalInterfaceName, TestLogicalInterfaces.updatedLogicalInterfaceName):
+                # print("Deleting old test schema instance: %s" % (a))
+                del self.appClient.statemanagement.draftLogicalInterfaces[li.id]
+            
+        for s in self.appClient.statemanagement.draftSchemas:
+            if s.name == TestLogicalInterfaces.testSchemaName:
+                del self.appClient.statemanagement.draftSchemas[s.id]      
+        
+    def checkLI (self, logicalInterface, name, description, schemaId):
+        assert logicalInterface.name == name
+        assert logicalInterface.description == description
+        assert logicalInterface.schemaId == schemaId
+        
+
+        assert isinstance(logicalInterface.created, datetime)
+        assert isinstance(logicalInterface.createdBy, str)
+        assert isinstance(logicalInterface.updated, datetime)        
+        assert isinstance(logicalInterface.updatedBy, str)            
+        
+    def doesSchemaNameExist (self, name):
+        for a in self.appClient.statemanagement.draftSchemas.find({"name": name}):
+            if (a.name == name):
+                return True
+        return False
+    
+    def doesLINameExist (self, name):
+        for li in self.appClient.statemanagement.draftLogicalInterfaces.find({"name": name}):
+            if (li.name == name):
+                return True
+        return False
+    
+    def createSchema(self, name, schemaFileName, schemaContents, description):
+        jsonSchemaContents = json.dumps(schemaContents)
+        createdSchema = self.appClient.statemanagement.draftSchemas.create(
+            name, schemaFileName, jsonSchemaContents, description)        
+        return createdSchema
+    
+    def createAndCheckLI(self, name, description, schemaId):
+        createdLI = self.appClient.statemanagement.draftLogicalInterfaces.create(
+            {"name": name, "description": description, "schemaId": schemaId})
+        self.checkLI(createdLI, name, description, schemaId)
+
+        # now actively refetch the LI to check it is stored
+        fetchedLI = self.appClient.statemanagement.draftLogicalInterfaces.__getitem__(createdLI.id)
+        assert createdLI == fetchedLI
+        
+        return createdLI
+
+    def testLogicalInterfaceCRUD(self):
+        test_schema_name = TestLogicalInterfaces.testSchemaName
+        assert self.doesSchemaNameExist(test_schema_name)==False
+        testLIName = TestLogicalInterfaces.testLogicalInterfaceName
+        assert self.doesLINameExist(testLIName)==False
+        
+        # Create a schema
+        createdSchema = self.createSchema(
+            test_schema_name, 
+            "liSchema.json", 
+            TestLogicalInterfaces.testLISchema, 
+            "Test schema description",
+            )
+
+        # Create a Logical Interface
+        createdLI = self.createAndCheckLI(
+            testLIName, 
+            "Test Logical Interface description",
+            createdSchema.id)
+                
+       # Can we search for it
+        assert self.doesLINameExist(testLIName)==True
+
+        # Update the LI
+        updated_li_name = TestLogicalInterfaces.updatedLogicalInterfaceName
+        updatedLI = self.appClient.statemanagement.draftLogicalInterfaces.update(
+            createdLI.id, {'id': createdLI.id, 'name': updated_li_name, 'description': "Test LI updated description", "schemaId": createdSchema.id})
+        self.checkLI(updatedLI, updated_li_name, "Test LI updated description", createdSchema.id)
+
+        # Delete the LI
+        del self.appClient.statemanagement.draftLogicalInterfaces[createdLI.id]
+        # It should be gone
+        assert self.doesLINameExist(testLIName)==False
+
+        # Delete the schema
+        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        # It should be gone
+        assert self.doesSchemaNameExist(test_schema_name)==False
+    
+    def testLogicalInterfaceActivation(self):
+        test_schema_name = TestLogicalInterfaces.testSchemaName
+        assert self.doesSchemaNameExist(test_schema_name)==False
+        testLIName = TestLogicalInterfaces.testLogicalInterfaceName
+        assert self.doesLINameExist(testLIName)==False
+        
+        # Create a schema
+        createdSchema = self.createSchema(
+            test_schema_name, 
+            "liSchema.json", 
+            TestLogicalInterfaces.testLISchema, 
+            "Test schema description",
+            )
+
+        # Create a Logical Interface
+        createdLI = self.createAndCheckLI(
+            testLIName, 
+            "Test Logical Interface description",
+            createdSchema.id)
+                
+       # Can we search for it
+        assert self.doesLINameExist(testLIName)==True
+
+        # Validate and Activate the LI
+        createdLI.validate()
+        print ("LI Differences: %s " % createdLI.validate())
+        
+        # Activating the Li should fail as it is not yet associated with a Device or Thong Type.
+        try:
+            createdLI.activate()
+            # Hmm, the activate should raise an exception
+            assert False;
+        except:
+            assert True; # The expected exception was raised 
+        
+        # Delete the LI
+        del self.appClient.statemanagement.draftLogicalInterfaces[createdLI.id]
+        # It should be gone
+        assert self.doesLINameExist(testLIName)==False
+
+        # Delete the schema
+        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        # It should be gone
+        assert self.doesSchemaNameExist(test_schema_name)==False    
+        

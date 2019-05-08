@@ -14,96 +14,141 @@ import time
 import pytest
 from wiotp.sdk.exceptions import ApiException
 import string
+import json
 
 class TestSchemas(testUtils.AbstractTest):
     
-    testSchemaName = "test-schemas"
+    testSchemaName = "python-api-test-schema"
+    updatedTestSchemaName = "python-api-test-schema-updated"
     
+    testEventSchema =  {
+        '$schema' : 'http://json-schema.org/draft-04/schema#',
+        'type' : 'object',
+        'title' : 'Sensor Event Schema',
+        'properties' : {
+            'temperature' : {
+                'description' : 'temperature in degrees Celsius',
+                'type' : 'number',
+                'minimum' : -237.15,
+                'default' : 0.0
+            },
+            'humidity' : {
+                'description' : 'relative humidty (%)',
+                'type' : 'number',
+                'minimum' : 0.0,
+                'default' : 0.0
+            },
+            'publishTimestamp' : {
+                'description' : 'publishTimestamp',
+                'type' : 'number',
+                'minimum' : 0.0,
+                'default' : 0.0
+            }
+        },
+        'required' : ['temperature', 'humidity', 'publishTimestamp']
+    } 
+        
     # =========================================================================
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        for a in self.appClient.statemanagement.schemas:
+        # print("Cleaning up  old test schema instances")
+        for a in self.appClient.statemanagement.draftSchemas:
             if a.name == TestSchemas.testSchemaName:
-                print("Deleting old test schema instance: %s" % (a))
-                del self.appClient.statemanagement.schemas[a.id]
+                # print("Deleting old test schema instance: %s" % (a))
+                del self.appClient.statemanagement.draftSchemas[a.id]
+            # TBD debug else:
+                #  print("Found a non matching test schema instance: %s" % (a))
 
 
-    def checkSchema (self, schema, name, type, description, configuration, enabled):
+    def checkSchema (self, schema, name, schemaFileName, schemaContents, description):
         assert schema.name == name
-        assert schema.schemaType == type
         assert schema.description == description
-        # the config could also include additional elements when created, so just check the given configuration elements
-        for configElement in configuration:
-            assert schema.configuration[configElement] is not None
-        assert schema.enabled == enabled
+        assert schema.schemaType == "json-schema"
+        assert schema.schemaFileName == schemaFileName
+        assert schema.contentType == "application/json"
+        assert schema.content == schemaContents
+        assert schema.version == "draft"
+
         assert isinstance(schema.created, datetime)
         assert isinstance(schema.createdBy, str)
         assert isinstance(schema.updated, datetime)        
         assert isinstance(schema.updatedBy, str)            
         
-    def doesSchemaNameExist (self, name):
-        for a in self.appClient.statemanagement.schemas.find({"nameFilter","name"}):
-            return True
+    def doesDraftSchemaNameExist (self, name):
+        for a in self.appClient.statemanagement.draftSchemas.find({"name": name}):
+            if (a.name == name):
+                return True
         return False
 
+    def doesActiveSchemaNameExist (self, name):
+        for a in self.appClient.statemanagement.activeSchemas.find({"name": name}):
+            if (a.name == name):
+                return True
+        return False
 
-    def createAndCheckSchema(self, name, type, description, configuration, enabled):
+    def createAndCheckSchema(self, name, schemaFileName, schemaContents, description):
 
-        createdSchema = self.appClient.statemanagement.schemas.create(
-            name, type, description, configuration, enabled)
-        self.checkSchema(createdSchema, name, type, description, configuration, enabled)
+        jsonSchemaContents = json.dumps(schemaContents)
+        createdSchema = self.appClient.statemanagement.draftSchemas.create(
+            name, schemaFileName, jsonSchemaContents, description)
+        self.checkSchema(createdSchema, name, schemaFileName, schemaContents, description)
 
         # now actively refetch the schema to check it is stored
-        fetchedSchema = self.appClient.statemanagement.schemas.__getitem__(createdSchema.id)
+        fetchedSchema = self.appClient.statemanagement.draftSchemas.__getitem__(createdSchema.id)
         assert createdSchema == fetchedSchema
         
         return createdSchema
 
     def testCreateDeleteSchema1(self):
         test_schema_name = TestSchemas.testSchemaName
-        assert self.doesSchemaNameExist(test_schema_name)==False
+        assert self.doesDraftSchemaNameExist(test_schema_name)==False
+        assert self.doesActiveSchemaNameExist(test_schema_name)==False
 
-        # Create an schema
+        # Create a schema
         createdSchema = self.createAndCheckSchema(
             test_schema_name, 
-            "webhook", 
-            "Test schema description", 
-            {"targetUrl": "https://my.lovely.com/api/something"}, 
-            True)
-       # Can we search for it
-        assert self.doesSchemaNameExist(test_schema_name)==True
+            "eventSchema.json", 
+            TestSchemas.testEventSchema, 
+            "Test schema description")
+        
+        # Can we search for it
+        assert self.doesDraftSchemaNameExist(test_schema_name)==True
+        # Creating the draft shouldn't create the active
+        assert self.doesActiveSchemaNameExist(test_schema_name)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.schemas[createdSchema.id]
+        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
         # It should be gone
-        assert self.doesSchemaNameExist(test_schema_name)==False
-
-    def testCreateDeleteSchemaAndTrigger1(self):
+        assert self.doesDraftSchemaNameExist(test_schema_name)==False
+        
+    def testCreateUpdateDeleteSchema1(self):
         test_schema_name = TestSchemas.testSchemaName
-        assert self.doesSchemaNameExist(test_schema_name)==False
-
-        # Create an schema
+        assert self.doesDraftSchemaNameExist(test_schema_name)==False
+        
+        # Create a schema
         createdSchema = self.createAndCheckSchema(
             test_schema_name, 
-            "webhook", 
-            "Test schema description", 
-            {"targetUrl": "https://my.lovely.com/api/something"}, 
-            True)
-        assert self.doesSchemaNameExist(test_schema_name)==True
-
-        trigger1 = createdSchema.triggers.create(
-            "Test Rule Trigger", 
-            "rule", 
-            "Rule Trigger Description", 
-            { "ruleId": "*",
-              "logicalInterfaceId" : "4718d1b435d9ea9990be9fb3",
-              "type": "*",
-              "typeId": "*",
-              "instanceId": "*",
-            }, {}, True)
-
-        del self.appClient.statemanagement.schemas[createdSchema.id]
+            "eventSchema.json", 
+            TestSchemas.testEventSchema, 
+            "Test schema description")
         
-        # Schema and Trigger should be gone
-        assert self.doesSchemaNameExist(test_schema_name)==False
+       # Can we search for it
+        assert self.doesDraftSchemaNameExist(test_schema_name)==True
+        # Creating the draft shouldn't create the active
+        assert self.doesActiveSchemaNameExist(test_schema_name)==False
+
+        # Update the schema
+        updated_schema_name = TestSchemas.updatedTestSchemaName
+        updatedSchema = self.appClient.statemanagement.draftSchemas.update(
+            createdSchema.id, {'id': createdSchema.id, 'name': updated_schema_name, 'description': "Test schema updated description"})
+        self.checkSchema(updatedSchema, updated_schema_name, "eventSchema.json", TestSchemas.testEventSchema, "Test schema updated description")
+        
+        # Delete the schema
+        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        # It should be gone
+        assert self.doesDraftSchemaNameExist(test_schema_name)==False
+
+    # ==================================================================================
+    # We'll test the presence of active schemas as part of device type activation tests.
+    # ==================================================================================

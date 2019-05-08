@@ -8,71 +8,105 @@
 # *****************************************************************************
 
 from collections import defaultdict
-import iso8601
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from wiotp.sdk.api.common import IterableList
-from wiotp.sdk.api.common import  RestApiDict
+from wiotp.sdk.api.common import RestApiItemBase
+from wiotp.sdk.api.common import RestApiDict
+from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.exceptions import ApiException
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/Schema-mgr-beta.html
 
-
-class Schema(defaultdict):
+class Schema(RestApiItemBase):
     def __init__(self, apiClient, **kwargs):
-        self._apiClient = apiClient
-        dict.__init__(self, **kwargs)
+        super(Schema, self).__init__(
+            apiClient, **kwargs
+        )
+        self.contentUrl=None
+
+    # Note - data accessor functions for common data items are defined in RestApiItemBase
 
     @property
-    def id(self):
-        return self["id"]
+    def schemaType(self):
+        return self["schemaType"]
+
+    @property
+    def schemaFileName(self):
+        return self["schemaFileName"]
     
     @property
-    def name(self):
-        return self["name"]
-
-    @property
-    def description(self):
-        return self["description"]
-
-    @property
-    def SchemaType(self):
-        return self["type"]
-
-    @property
-    def enabled(self):
-        return self["enabled"]
+    def contentType(self):
+        return self["contentType"]
     
     @property
-    def configuration(self):
-        return self["configuration"]
-    
-    @property
-    def created(self):
-        return iso8601.parse_date(self["created"])
+    def content(self):
+        # determine the REST URL to call
+        if self.contentUrl== None:
+            if self.version == "draft":
+                self.contentUrl = "api/v0002/draft/schemas/%s/content"
+            elif self.version == "active":
+                self.contentUrl = "api/v0002/schemas/%s/content"
+            else:
+                raise Exception("Schema version is not recognised: (%s)"  % (self.version))
+
+        # call the Rest API                
+        r = self._apiClient.get(("api/v0002/draft/schemas/%s/content" % self.id))
+        if r.status_code == 200:
+            # TBD print ("returning schema content: %s " % r.json())
+            return r.json()
+        else:
+            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
 
     @property
-    def createdBy(self):
-        return self["createdBy"]
-
-    @property
-    def updated(self):
-        return iso8601.parse_date(self["updated"])
-
-    @property
-    def updatedBy(self):
-        return self["updatedBy"]
+    def version(self):
+        return self["version"]        
 
 class IterableSchemaList(IterableList):
-    def __init__(self, apiClient, filters=None):
+    def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
         super(IterableSchemaList, self).__init__(
-            apiClient, Schema, "api/v0002/schemas", sort=None, filters=filters, passApiClient=True
+            apiClient, Schema, url, filters=filters
         )
 
-
-class Schemas(RestApiDict):
+class ActiveSchemas(RestApiDict):
 
     def __init__(self, apiClient):
-        super(Schemas, self).__init__(
+        super(ActiveSchemas, self).__init__(
             apiClient, Schema, IterableSchemaList, "api/v0002/schemas"
         )
+        
+class DraftSchemas(RestApiDict):
+
+    def __init__(self, apiClient):
+        super(DraftSchemas, self).__init__(
+            apiClient, Schema, IterableSchemaList, "api/v0002/draft/schemas"
+        )
+        
+    def create(self, name, schemaFileName, schemaContents, description):
+
+        """
+        Create a schema for the org.
+        Returns: schemaId (string), response (object).
+        Throws APIException on failure
+        """
+        fields={
+        'schemaFile': (schemaFileName, schemaContents, 'application/json'),
+            'schemaType': 'json-schema',
+            'name': name,
+        }
+        if description:
+            fields["description"] = description
+
+        multipart_data = MultipartEncoder(fields=fields)
+        
+        # print("Creating schema, multipart Data: %s, content_type: %s " % (multipart_data, multipart_data.content_type))
+
+        r = self._apiClient.postMultipart(self._baseUrl, multipart_data)
+        if r.status_code == 201:
+            return Schema(apiClient=self._apiClient, **r.json())
+        else:
+            # print ("response status: %s reason:%s, text: %s, response: %s" % (r.status_code, r.reason, r.text, r))
+            raise ApiException(r)
+        
         

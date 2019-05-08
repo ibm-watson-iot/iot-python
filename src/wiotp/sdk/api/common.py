@@ -13,6 +13,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 from wiotp.sdk.exceptions import ApiException
+import iso8601
 
 
 from wiotp.sdk.exceptions import ConfigurationException
@@ -57,6 +58,17 @@ class ApiClient:
         resp.encoding = "utf-8"
         return resp
 
+    def patch(self, url, data):
+        resp = requests.patch(
+            "https://%s/%s" % (self._config.host, url),
+            auth=self._config.credentials,
+            data=json.dumps(data, cls=DateTimeEncoder),
+            headers={"content-type": "application/json"},
+            verify=self._config.verify,
+        )
+        resp.encoding = "utf-8"
+        return resp
+
     def post(self, url, data):
         resp = requests.post(
             "https://%s/%s" % (self._config.host, url),
@@ -68,6 +80,17 @@ class ApiClient:
         resp.encoding = "utf-8"
         return resp
 
+    def postMultipart(self, url, multipart_data):
+        resp = requests.post(
+            "https://%s/%s" % (self._config.host, url),
+            auth=self._config.credentials,
+            data=multipart_data,
+            headers={"Content-Type": multipart_data.content_type},
+            verify=self._config.verify
+        )
+        resp.encoding = "utf-8"
+        return resp
+    
     def put(self, url, data):
         resp = requests.put(
             "https://%s/%s" % (self._config.host, url),
@@ -79,6 +102,53 @@ class ApiClient:
         resp.encoding = "utf-8"
         return resp
 
+class IterableSimpleList(object):
+    def __init__(self, apiClient, castToClass, url, filters=None, passApiClient=True):
+        self._apiClient = apiClient
+        self._castToClass = castToClass
+        self._url = url
+        self._passApiClient = passApiClient
+
+        self._listBuffer = []
+        self._noMoreResults = False
+
+    def __iter__(self):
+        return self
+
+    # Python 2.x
+    def next(self):
+        if len(self._listBuffer) == 0 and not self._noMoreResults:
+            # We need to make an api call
+            apiResponse = self._makeApiCall()
+            # TBD DEBUG print ("apiResponse: %s" % apiResponse)
+            self._listBuffer = apiResponse
+            # We read all the results in one call so there are no more available to fetch
+            self._noMoreResults = True
+
+        if len(self._listBuffer) > 0:
+            if self._passApiClient:
+                return self._castToClass(apiClient=self._apiClient, **self._listBuffer.pop(0))
+            else:
+                return self._castToClass(**self._listBuffer.pop(0))
+        else:
+            raise StopIteration
+
+    # Python 3.x
+    def __next__(self):
+        return self.next()
+
+    def _makeApiCall(self, parameters=None):
+        """
+        Retrieve bulk objects
+        It accepts a list of parameters
+        In case of failure it throws Exception
+        """
+        r = self._apiClient.get(self._url, parameters)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
+
 
 class IterableList(object):
     def __init__(self, apiClient, castToClass, url, sort=None, filters=None, passApiClient=True):
@@ -87,6 +157,7 @@ class IterableList(object):
         self._url = url
         self._sort = sort
         self._filters = filters
+        # TBD debug print ("IterableList Filters: %s" % filters)
         self._passApiClient = passApiClient
 
         # For paging through the API
@@ -107,10 +178,14 @@ class IterableList(object):
 
             if self._filters is not None:
                 for param in self._filters:
+                    # print("Filter param: %s " % param)
                     parameters[param] = self._filters[param]
+
+            # TBD DEBUG print ("IterableList Parameters: %s" % parameters)
 
             # We need to make an api call
             apiResponse = self._makeApiCall(parameters=parameters)
+            # TBD DEBUG print ("apiResponse: %s" % apiResponse)
             self._listBuffer = apiResponse["results"]
 
             if "bookmark" in apiResponse:
@@ -142,7 +217,44 @@ class IterableList(object):
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
 
-class RestApiDict(defaultdict):
+
+# define the common properties found on most Rest API Items
+class RestApiItemBase(defaultdict):
+    def __init__(self, apiClient, **kwargs):
+        self._apiClient = apiClient
+        dict.__init__(self, **kwargs)
+
+    @property
+    def id(self):
+        return self["id"]
+    
+    @property
+    def name(self):
+        return self["name"]
+
+    @property
+    def description(self):
+        return self["description"]
+
+    @property
+    def created(self):
+        return iso8601.parse_date(self["created"])
+
+    @property
+    def createdBy(self):
+        return self["createdBy"]
+
+    @property
+    def updated(self):
+        return iso8601.parse_date(self["updated"])
+
+    @property
+    def updatedBy(self):
+        return self["updatedBy"]
+    
+        
+    
+class RestApiDictBase(defaultdict):
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
         self._apiClient = apiClient
         self._castToClass = castToClass
@@ -185,7 +297,37 @@ class RestApiDict(defaultdict):
             self.__missing__(key)
         else:
             raise ApiException(r)
+        
+    def __missing__(self, key):
+        """
+        Item does not exist
+        """
+        raise KeyError("Item %s does not exist" % (key))
 
+    def __iter__(self, *args, **kwargs):
+        """
+        Iterate through all Schemas
+        """
+        return self._listToCast(self._apiClient, self._baseUrl)
+
+    def find(self, query_params={}):
+        """
+        Gets the list of Schemas, they are used to call specific business logic when data in Watson IoT Platform changes.
+        
+        Parameters:
+        
+            - queryParams(dict) - Filter the results by the key-value pairs in the dictionary
+        
+        Throws APIException on failure.
+        """
+        return self._listToCast(self._apiClient, self._baseUrl, filters=query_params)
+
+class RestApiDict(RestApiDictBase):
+    def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
+        super(RestApiDict, self).__init__(
+            apiClient, castToClass, listToCast, url, sort, filters, passApiClient
+        )
+        
     def __setitem__(self, key, value):
         """
         Register a new Item - not currently supported via this interface
@@ -203,30 +345,6 @@ class RestApiDict(defaultdict):
             self.__missing__(key)
         elif r.status_code != 204:
             raise ApiException(r)
-
-    def __missing__(self, key):
-        """
-        Item does not exist
-        """
-        raise KeyError("Item %s does not exist" % (key))
-
-    def __iter__(self, *args, **kwargs):
-        """
-        Iterate through all Schemas
-        """
-        return self._listToCast(self._apiClient)
-
-    def find(self, query_params={}):
-        """
-        Gets the list of Schemas, they are used to call specific business logic when data in Watson IoT Platform changes.
-        
-        Parameters:
-        
-            - queryParams(dict) - Filter the results by the key-value pairs in the dictionary
-        
-        Throws APIException on failure.
-        """
-        return self._listToCast(self._apiClient, filters=query_params)
 
     def create(self, item):
         """
@@ -262,7 +380,41 @@ class RestApiDict(defaultdict):
         else:
             raise ApiException(r)
     
+
     
+class RestApiDictActive(RestApiDictBase):
+    """
+    The Active version restricts the ability to directly modify the retrieved item.
+    """
+
+    def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
+        super(RestApiDictActive, self).__init__(
+            apiClient, castToClass, listToCast, url, sort, filters, passApiClient
+        )
+        
+    def __setitem__(self, key, value):
+        """
+        Register a new Item - not supported for active item
+        """
+        raise Exception("Unable to register or update this active item, please modify the draft version.")
+
+    def __delitem__(self, key):
+        """
+        Delete an Item - not supported for active item
+        """
+        raise Exception("Unable to delete this active item, please delete the draft version.")
+
+    def create(self, item):
+        """
+        Create an Item - not supported for CTIVE item
+        """
+        raise Exception("Unable to delete this active item, please delete the draft version.")
+
+    def update(self, key, item):
+        """
+        Create an Item - not supported for CTIVE item
+        """
+        raise Exception("Unable to update this active item, please update and activate the draft version.")
 
 class DateTimeEncoder(json.JSONEncoder):
     """

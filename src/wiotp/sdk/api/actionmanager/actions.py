@@ -11,11 +11,10 @@ from collections import defaultdict
 import iso8601
 
 from wiotp.sdk.api.actionmanager.triggers import Triggers
-from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
+from wiotp.sdk.api.common import  RestApiDict
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/action-mgr-beta.html
-
 
 class Action(defaultdict):
     def __init__(self, apiClient, **kwargs):
@@ -78,76 +77,12 @@ class IterableActionList(IterableList):
         )
 
 
-class Actions(defaultdict):
-
-    allActionsUrl = "api/v0002/actions"
-    oneActionUrl = "api/v0002/actions/%s"
+class Actions(RestApiDict):
 
     def __init__(self, apiClient):
-        self._apiClient = apiClient
-        
-    def __contains__(self, key):
-        """
-        Does an action exist?
-        """
-        url = Actions.oneActionUrl % (key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return True
-        if r.status_code == 404:
-            return False
-        else:
-            raise ApiException(r)
-
-    def __getitem__(self, key):
-        """
-        Retrieve the action with the specified id.
-        Parameters:
-            - ActionId (String), Action Id which is a UUID
-        Throws APIException on failure.
-
-        """
-
-        url = Actions.oneActionUrl % (key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return Action(apiClient=self._apiClient, **r.json())
-        if r.status_code == 404:
-            self.__missing__(key)
-        else:
-            raise ApiException(r)
-
-    def __setitem__(self, key, value):
-        """
-        Register a new action - not currently supported via this interface, use: `actionmanager.actions.create()`
-        """
-        raise Exception("Unable to register or update a action via this interface at the moment.")
-
-    def __delitem__(self, key):
-        """
-        Delete an action
-        """
-        url = Actions.oneActionUrl % (key)
-
-        r = self._apiClient.delete(url)
-        if r.status_code == 404:
-            self.__missing__(key)
-        elif r.status_code != 204:
-            raise ApiException(r)
-
-    def __missing__(self, key):
-        """
-        Action does not exist
-        """
-        raise KeyError("Action %s does not exist" % (key))
-
-    def __iter__(self, *args, **kwargs):
-        """
-        Iterate through all Actions
-        """
-        return IterableActionList(self._apiClient)
+        super(Actions, self).__init__(
+            apiClient, Action, IterableActionList, "api/v0002/actions"
+        )
 
     def find(self, nameFilter=None, typeFilter=None, enabledFilter=None, triggerLIId=None, triggerRuleId=None, triggerTypeId=None, triggerInstanceId=None):
         """
@@ -184,7 +119,8 @@ class Actions(defaultdict):
         if triggerInstanceId:
             queryParms["triggerInstanceId"] = triggerInstanceId
 
-        return IterableActionList(self._apiClient, filters=queryParms)
+        # print ("finding actions, queryParams: %s" % queryParms)
+        return super(Actions, self).find(queryParms)
 
     def create(self, name, type, description, configuration, enabled):
         """
@@ -207,13 +143,10 @@ class Actions(defaultdict):
             "enabled": enabled,
         }
 
-        r = self._apiClient.post(Actions.allActionsUrl, data=action)
-        if r.status_code == 201:
-            return Action(apiClient=self._apiClient, **r.json())
-        else:
-            raise ApiException(r)
+        return super(Actions, self).create(action)
 
-    def update(self, actionId, name, description, configuration, enabled):
+
+    def update(self, actionId, name, type, description, configuration, enabled):
         """
         Updates the action with the specified actionId.
         if description is empty, the existing description will be removed.
@@ -227,16 +160,13 @@ class Actions(defaultdict):
 
         """
 
-        url = Actions.oneActionUrl % (actionId)
-
-        actionBody = {}
-        actionBody["name"] = name
-        actionBody["description"] = description
-        actionBody["configuration"] = configuration
-        actionBody["enabled"] = enabled
-
-        r = self._apiClient.put(url, data=actionBody)
-        if r.status_code == 200:
-            return Action(apiClient=self._apiClient, **r.json())
-        else:
-            raise ApiException(r)
+        action = {
+            "id" : actionId,
+            "name": name,
+            "type": type,
+            "description": description,
+            "configuration": configuration,
+            "enabled": enabled,
+        }
+        
+        return super(Actions, self).update(actionId, action)
