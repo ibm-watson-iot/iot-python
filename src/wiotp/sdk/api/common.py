@@ -252,18 +252,41 @@ class RestApiItemBase(defaultdict):
     def updatedBy(self):
         return self["updatedBy"]
     
-class RestApiModifiableProperty(object):
-    def __init__(self, apiClient, url):
-        self._apiClient = apiClient
+"""
+This should be instantiated as a class property, 
+it uses the instance parameter to access instance specific values  TBD describe!!!
+"""    
+class RestApiModifiableProperty(property):
+    def __init__(self, castToClass):
+        self._castToClass = castToClass
         
     def __get__(self, instance, type=None):
-        print ("Get, Instance, instance: %s, Owner: %s" % (instance, type))
-        
+        url = self.getUrl(instance)
+        print ("Get, Instance, instance: %s, Owner: %s, URL: %s" % (instance, type, url))
+
+        r = instance._apiClient.get(url)
+        if r.status_code == 200:
+            return self._castToClass(apiClient=instance._apiClient, **r.json())
+        else:
+            raise ApiException(r)        
+
     def __set__(self, instance, value):
-        print ("Set, Instance, instance: %s, Value: %s" % (instance, value))
+        url = self.getUrl(instance)
+        print ("Set, Instance, instance: %s, \nOwner: %s, URL: %s, Value: $s" % (instance, type, url, value))
+
+        r = self._apiClient.put(url, data=value)
+        if r.status_code == 200:
+            return self._castToClass(apiClient=instance._apiClient, **r.json())
+        else:
+            raise ApiException(r)
 
     def __delete__(self, instance):
         print ("Delete, Instance, instance: %s, Value: %s" % (instance))    
+        url = self.getUrl(instance)
+
+        r = self._apiClient.delete(url)
+        if r.status_code != 204:
+            raise ApiException(r)      
     
 class RestApiDictBase(defaultdict):
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
