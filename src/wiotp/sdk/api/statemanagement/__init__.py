@@ -15,6 +15,8 @@ from wiotp.sdk.api.statemanagement.physicalInterfaces import DraftPhysicalInterf
 from wiotp.sdk.api.statemanagement.physicalInterfaces import ActivePhysicalInterfaces
 from wiotp.sdk.api.statemanagement.logicalInterfaces import DraftLogicalInterfaces
 from wiotp.sdk.api.statemanagement.logicalInterfaces import ActiveLogicalInterfaces
+from wiotp.sdk.api.statemanagement.deviceTypes import DraftDeviceTypes
+from wiotp.sdk.api.statemanagement.deviceTypes import ActiveDeviceTypes
 
 """
 General overview of how Action Manager resources are related:
@@ -35,3 +37,5 @@ class StateManagement:
         self.activePhysicalInterfaces = ActivePhysicalInterfaces(self._apiClient)
         self.draftLogicalInterfaces = DraftLogicalInterfaces(self._apiClient)
         self.activeLogicalInterfaces = ActiveLogicalInterfaces(self._apiClient)
+        self.draftDeviceTypes = DraftDeviceTypes(self._apiClient)
+        self.activeDeviceTypes = ActiveDeviceTypes(self._apiClient)

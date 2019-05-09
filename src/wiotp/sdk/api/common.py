@@ -252,7 +252,18 @@ class RestApiItemBase(defaultdict):
     def updatedBy(self):
         return self["updatedBy"]
     
+class RestApiModifiableProperty(object):
+    def __init__(self, apiClient, url):
+        self._apiClient = apiClient
         
+    def __get__(self, instance, type=None):
+        print ("Get, Instance, instance: %s, Owner: %s" % (instance, type))
+        
+    def __set__(self, instance, value):
+        print ("Set, Instance, instance: %s, Value: %s" % (instance, value))
+
+    def __delete__(self, instance):
+        print ("Delete, Instance, instance: %s, Value: %s" % (instance))    
     
 class RestApiDictBase(defaultdict):
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):

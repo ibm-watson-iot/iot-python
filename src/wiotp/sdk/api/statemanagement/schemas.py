@@ -44,19 +44,19 @@ class Schema(RestApiItemBase):
         # determine the REST URL to call
         if self.contentUrl== None:
             if self.version == "draft":
-                self.contentUrl = "api/v0002/draft/schemas/%s/content"
+                self.contentUrl = "api/v0002/draft/schemas/%s/content" % (self.id)
             elif self.version == "active":
-                self.contentUrl = "api/v0002/schemas/%s/content"
+                self.contentUrl = "api/v0002/schemas/%s/content" % (self.id)
             else:
                 raise Exception("Schema version is not recognised: (%s)"  % (self.version))
 
         # call the Rest API                
-        r = self._apiClient.get(("api/v0002/draft/schemas/%s/content" % self.id))
+        r = self._apiClient.get((self.contentUrl))
         if r.status_code == 200:
             # TBD print ("returning schema content: %s " % r.json())
             return r.json()
         else:
-            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
+            raise Exception("Unexpected response from API (%s) = %s %s" % (self.contentUrl, r.status_code, r.text))
 
     @property
     def version(self):
