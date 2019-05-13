@@ -50,6 +50,9 @@ class DraftLogicalInterface(BaseLogicalInterface):
         if r.status_code == 200:
             print ("returning patch response response: %s " % r.json())
             return r.json()
+        elif r.status_code == 202:
+            print ("returning delayed patch response response: %s " % r.json())
+            return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
         
@@ -76,6 +79,9 @@ class ActiveLogicalInterface(BaseLogicalInterface):
         r = self._apiClient.patch(self._url, body)
         if r.status_code == 200:
             print ("returning patch response response: %s " % r.json())
+            return r.json()
+        elif r.status_code == 202:
+            print ("returning delayed patch response response: %s " % r.json())
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))

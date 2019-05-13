@@ -108,6 +108,7 @@ class ActiveDeviceType(BaseDeviceType):
     def __init__(self, apiClient, **kwargs):
         super(ActiveDeviceType, self).__init__(apiClient, **kwargs)
         self._url = "api/v0002/device/types/%s" % self.id
+        self._draftUrl = "api/v0002/draft/device/types/%s" % self.id
         self._logicalInterfaces = ActiveLogicalInterfaces(apiClient, self.id)
         self._mappings = ActiveMappings(apiClient, self.id)
 
@@ -118,20 +119,45 @@ class ActiveDeviceType(BaseDeviceType):
         if r.status_code == 200:
             print ("returning patch response response: %s " % r.json())
             return r.json()
+        if r.status_code == 202:
+            print ("returning delayed patch response response: %s " % r.json())
+            return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
         
     def deactivate(self):
-        print ("Activating Device Type: %s " % self.id)
+        print ("Deactivating Device Type: %s " % self.id)
         return self.__callPatchOperation__({"operation": "deactivate-configuration"})
     
-    def physicalInterface(self):
-        r = self._apiClient.get(self._url + "/physicalinterface")
+    def __callDraftPatchOperation__(self, body):
+        r = self._apiClient.patch(self._draftUrl, body)
         if r.status_code == 200:
-            # TBD print ("returning schema content: %s " % r.json())
+            print ("returning patch response response: %s " % r.json())
+            return r.json()
+        if r.status_code == 202:
+            print ("returning delayed patch response response: %s " % r.json())
             return r.json()
         else:
-            raise Exception("Unexpected response from API (%s) = %s %s" % (self.contentUrl, r.status_code, r.text))
+            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
+             
+    def activate(self):
+        print ("Activating Device Type: %s " % self.id)
+        return self.__callDraftPatchOperation__({"operation": "activate-configuration"})
+ 
+    def validate(self):
+        print ("Validating Device Type: %s " % self.id)
+        return self.__callDraftPatchOperation__({"operation": "validate-configuration"})
+ 
+    def differences(self):
+        print ("List differences for Device Type: %s " % self.id)
+        return self.__callDraftPatchOperation__({"operation": "list-differences"})
+    #def physicalInterface(self):
+    #    r = self._apiClient.get(self._url + "/physicalinterface")
+    #    if r.status_code == 200:
+    #        # TBD print ("returning schema content: %s " % r.json())
+    #        return r.json()
+    #    else:
+    #        raise Exception("Unexpected response from API (%s) = %s %s" % (self.contentUrl, r.status_code, r.text))
 
     
 class IterableDraftDeviceTypeList(IterableList):

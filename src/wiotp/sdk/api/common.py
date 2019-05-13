@@ -262,7 +262,7 @@ class RestApiModifiableProperty(property):
         
     def __get__(self, instance, type=None):
         url = self.getUrl(instance)
-        print ("Get, Instance, instance: %s, Owner: %s, URL: %s" % (instance, type, url))
+        # TBD debug print ("Get, Instance, instance: %s, Owner: %s, URL: %s" % (instance, type, url))
 
         r = instance._apiClient.get(url)
         if r.status_code == 200:
@@ -272,19 +272,19 @@ class RestApiModifiableProperty(property):
 
     def __set__(self, instance, value):
         url = self.getUrl(instance)
-        print ("Set, Instance, instance: %s, \nOwner: %s, URL: %s, Value: $s" % (instance, type, url, value))
+        # TBD debug print ("Set, Instance, instance: %s, \nOwner: %s, URL: %s, Value: %s" % (instance, type, url, value))
 
-        r = self._apiClient.put(url, data=value)
-        if r.status_code == 200:
+        r = instance._apiClient.post(url, data=value)
+        if r.status_code == 201:
             return self._castToClass(apiClient=instance._apiClient, **r.json())
         else:
             raise ApiException(r)
 
     def __delete__(self, instance):
-        print ("Delete, Instance, instance: %s, Value: %s" % (instance))    
+        # TBD debug print ("Delete, Instance, instance: %s" % (instance))    
         url = self.getUrl(instance)
 
-        r = self._apiClient.delete(url)
+        r = instance._apiClient.delete(url)
         if r.status_code != 204:
             raise ApiException(r)      
     
