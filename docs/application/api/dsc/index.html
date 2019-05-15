@@ -231,10 +231,6 @@
               
                 <h1 id="data-store-connectors">Data Store Connectors<a class="headerlink" href="#data-store-connectors" title="Permanent link"></a></h1>
 <p>Data store connectors can only be configured after you have set up one or more <a href="../bindings/">service bindings</a>:</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Don't use the dsc package yet, there is a bug in the DSC API paging code, that this client library exposed which would result in an infinite loop in your code if you use the <code>dsc</code>, or <code>dsc[connectorId].rules</code> iterators</p>
-</div>
 <pre><code class="python">import wiotp.sdk.application
 
 options = wiotp.sdk.application.parseEnvVars()
