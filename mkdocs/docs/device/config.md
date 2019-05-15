@@ -55,10 +55,10 @@ In most cases you will not manually build the `config` dictionary.  Two helper m
 `wiotp.sdk.device.parseConfigFile()` allows one to easily pass in device configuration from environment variables.
 
 ```python
-import wiotp.device.sdk
+import wiotp.sdk.device
 
 myConfig = wiotp.sdk.device.parseConfigFile("device.yaml")
-client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 ```
 
 ### Minimal Required Configuration File
@@ -104,7 +104,7 @@ options:
 import wiotp.sdk.device
 
 myConfig = wiotp.sdk.device.parseEnvVars()
-client = wiopt.sdk.device.Client(config=myConfig, logHandlers=None)
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 ```
 
 ### Minimal Required Environment Variables
