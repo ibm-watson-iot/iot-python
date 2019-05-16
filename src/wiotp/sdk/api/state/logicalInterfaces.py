@@ -15,6 +15,8 @@ from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
 from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.state.rules import DraftRulesPerLI
+from wiotp.sdk.api.state.rules import ActiveRulesPerLI
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/state-mgmt.html#/Logical Interfaces
 
@@ -38,10 +40,15 @@ class BaseLogicalInterface(RestApiItemBase):
     def version(self):
         return self["version"]   
     
+    @property
+    def rules(self):
+        return self._rules    
+    
 class DraftLogicalInterface(BaseLogicalInterface):
     def __init__(self, apiClient, **kwargs):
         super(DraftLogicalInterface, self).__init__(apiClient, **kwargs)
         self._url = "api/v0002/draft/logicalinterfaces/%s" % self.id
+        self._rules = DraftRulesPerLI(apiClient, self.id)
 
     # Note - data accessor functions for common data items are defined in BaseLogicalInterface
 
@@ -72,6 +79,7 @@ class ActiveLogicalInterface(BaseLogicalInterface):
     def __init__(self, apiClient, **kwargs):
         super(ActiveLogicalInterface, self).__init__(apiClient, **kwargs)
         self._url = "api/v0002/logicalinterfaces/%s" % self.id
+        self._rules = ActiveRulesPerLI(apiClient, self.id)
 
     # Note - data accessor functions for common data items are defined in BaseLogicalInterface
 

@@ -7,17 +7,18 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-from collections import defaultdict
 import iso8601
 
-from wiotp.sdk.api.actionmanager.triggers import Triggers
+from wiotp.sdk.api.actions.triggers import Triggers
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import  RestApiDict
+from wiotp.sdk.api.common import  RestApiItemBase
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/action-mgr-beta.html
 
-class Action(defaultdict):
+class Action(RestApiItemBase):
     def __init__(self, apiClient, **kwargs):
+        
         self._apiClient = apiClient
 
         self.triggers=Triggers(
@@ -26,18 +27,7 @@ class Action(defaultdict):
         ) 
         dict.__init__(self, **kwargs)
 
-
-    @property
-    def id(self):
-        return self["id"]
-    
-    @property
-    def name(self):
-        return self["name"]
-
-    @property
-    def description(self):
-        return self["description"]
+    # Note - data accessor functions for common data items are defined in RestApiItemBase
 
     @property
     def actionType(self):
@@ -47,33 +37,16 @@ class Action(defaultdict):
     def enabled(self):
         return self["enabled"]
 
-    # TBD Configuration subcomponents?
-    
+    # TBD Configuration subcomponents?   
     @property
     def configuration(self):
         return self["configuration"]
     
-    @property
-    def created(self):
-        return iso8601.parse_date(self["created"])
-
-    @property
-    def createdBy(self):
-        return self["createdBy"]
-
-    @property
-    def updated(self):
-        return iso8601.parse_date(self["updated"])
-
-    @property
-    def updatedBy(self):
-        return self["updatedBy"]
-
 class IterableActionList(IterableList):
-    def __init__(self, apiClient, filters=None):
+    def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
         super(IterableActionList, self).__init__(
-            apiClient, Action, "api/v0002/actions", sort=None, filters=filters, passApiClient=True
+            apiClient, Action, url, sort=None, filters=filters, passApiClient=True
         )
 
 

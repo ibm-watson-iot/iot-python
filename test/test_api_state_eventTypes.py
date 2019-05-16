@@ -54,14 +54,14 @@ class TestEventTypes(testUtils.AbstractTest):
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        for et in self.appClient.statemanagement.draftEventTypes:
+        for et in self.appClient.state.draft.eventTypes:
             if et.name in (TestEventTypes.testEventTypeName, TestEventTypes.updatedEventTypeName):
                 # print("Deleting old test schema instance: %s" % (a))
-                del self.appClient.statemanagement.draftEventTypes[et.id]
+                del self.appClient.state.draft.eventTypes[et.id]
                 
-        for s in self.appClient.statemanagement.draftSchemas:
+        for s in self.appClient.state.draft.schemas:
             if s.name == TestEventTypes.testSchemaName:
-                del self.appClient.statemanagement.draftSchemas[s.id]
+                del self.appClient.state.draft.schemas[s.id]
 
     def checkEventType (self, eventType, name, description, schemaId):
         assert eventType.name == name
@@ -75,36 +75,36 @@ class TestEventTypes(testUtils.AbstractTest):
         assert isinstance(eventType.updatedBy, str)            
         
     def doesSchemaNameExist (self, name):
-        for a in self.appClient.statemanagement.draftSchemas.find({"name": name}):
+        for a in self.appClient.state.draft.schemas.find({"name": name}):
             if (a.name == name):
                 return True
         return False
     
     def doesActiveEventTypeNameExist (self, name):
-        for et in self.appClient.statemanagement.activeEventTypes.find({"name": name}):
+        for et in self.appClient.state.active.eventTypes.find({"name": name}):
             if (et.name == name):
                 return True
         return False
     
     def doesDraftEventTypeNameExist (self, name):
-        for et in self.appClient.statemanagement.draftEventTypes.find({"name": name}):
+        for et in self.appClient.state.draft.eventTypes.find({"name": name}):
             if (et.name == name):
                 return True
         return False
 
     def createSchema(self, name, schemaFileName, schemaContents, description):
         jsonSchemaContents = json.dumps(schemaContents)
-        createdSchema = self.appClient.statemanagement.draftSchemas.create(
+        createdSchema = self.appClient.state.draft.schemas.create(
             name, schemaFileName, jsonSchemaContents, description)        
         return createdSchema
     
     def createAndCheckEventType(self, name, description, schemaId):
-        createdEventType = self.appClient.statemanagement.draftEventTypes.create(
+        createdEventType = self.appClient.state.draft.eventTypes.create(
             {"name": name, "description": description, "schemaId": schemaId})
         self.checkEventType(createdEventType, name, description, schemaId)
 
         # now actively refetch the schema to check it is stored
-        fetchedEventType = self.appClient.statemanagement.draftEventTypes.__getitem__(createdEventType.id)
+        fetchedEventType = self.appClient.state.draft.eventTypes.__getitem__(createdEventType.id)
         assert createdEventType == fetchedEventType
         
         return createdEventType
@@ -134,12 +134,12 @@ class TestEventTypes(testUtils.AbstractTest):
         assert self.doesActiveEventTypeNameExist(test_eventType_name)==False
 
         # Delete the event type
-        del self.appClient.statemanagement.draftEventTypes[createdEventType.id]
+        del self.appClient.state.draft.eventTypes[createdEventType.id]
         # It should be gone
         assert self.doesDraftEventTypeNameExist(test_eventType_name)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesSchemaNameExist(test_schema_name)==False
     
@@ -169,17 +169,17 @@ class TestEventTypes(testUtils.AbstractTest):
 
         # Update the event type
         updated_eventType_name = TestEventTypes.updatedEventTypeName
-        updatedEventType = self.appClient.statemanagement.draftEventTypes.update(
+        updatedEventType = self.appClient.state.draft.eventTypes.update(
             createdEventType.id, {'id': createdEventType.id, 'name': updated_eventType_name, 'description': "Test event type updated description", 'schemaId': createdSchema.id})
         self.checkEventType(updatedEventType, updated_eventType_name, "Test event type updated description", createdSchema.id)
        
         # Delete the event type
-        del self.appClient.statemanagement.draftEventTypes[createdEventType.id]
+        del self.appClient.state.draft.eventTypes[createdEventType.id]
         # It should be gone
         assert self.doesDraftEventTypeNameExist(test_eventType_name)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesSchemaNameExist(test_schema_name)==False
         

@@ -18,3 +18,5 @@ README.txt
 build/*
 dist/*
 .coverage
+
+tox.out

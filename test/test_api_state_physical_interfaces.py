@@ -58,19 +58,19 @@ class TestPhysicalInterfaces(testUtils.AbstractTest):
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        for pi in self.appClient.statemanagement.draftPhysicalInterfaces:
+        for pi in self.appClient.state.draft.physicalInterfaces:
             if pi.name == TestPhysicalInterfaces.testPhysicalInterfaceName:
                 # print("Deleting old test schema instance: %s" % (a))
-                del self.appClient.statemanagement.draftPhysicalInterfaces[pi.id]
+                del self.appClient.state.draft.physicalInterfaces[pi.id]
             
-        for et in self.appClient.statemanagement.draftEventTypes:
+        for et in self.appClient.state.draft.eventTypes:
             if et.name == TestPhysicalInterfaces.testEventTypeName:
                 # print("Deleting old test schema instance: %s" % (a))
-                del self.appClient.statemanagement.draftEventTypes[et.id]
+                del self.appClient.state.draft.eventTypes[et.id]
                 
-        for s in self.appClient.statemanagement.draftSchemas:
+        for s in self.appClient.state.draft.schemas:
             if s.name == TestPhysicalInterfaces.testSchemaName:
-                del self.appClient.statemanagement.draftSchemas[s.id]      
+                del self.appClient.state.draft.schemas[s.id]      
         
     def checkPI (self, physicalInterface, name, description):
         assert physicalInterface.name == name
@@ -82,41 +82,41 @@ class TestPhysicalInterfaces(testUtils.AbstractTest):
         assert isinstance(physicalInterface.updatedBy, str)            
         
     def doesSchemaNameExist (self, name):
-        for a in self.appClient.statemanagement.draftSchemas.find({"name": name}):
+        for a in self.appClient.state.draft.schemas.find({"name": name}):
             if (a.name == name):
                 return True
         return False
     
     def doesEventTypeNameExist (self, name):
-        for et in self.appClient.statemanagement.draftEventTypes.find({"name": name}):
+        for et in self.appClient.state.draft.eventTypes.find({"name": name}):
             if (et.name == name):
                 return True
         return False
     
     def doesPINameExist (self, name):
-        for pi in self.appClient.statemanagement.draftPhysicalInterfaces.find({"name": name}):
+        for pi in self.appClient.state.draft.physicalInterfaces.find({"name": name}):
             if (pi.name == name):
                 return True
         return False
     
     def createSchema(self, name, schemaFileName, schemaContents, description):
         jsonSchemaContents = json.dumps(schemaContents)
-        createdSchema = self.appClient.statemanagement.draftSchemas.create(
+        createdSchema = self.appClient.state.draft.schemas.create(
             name, schemaFileName, jsonSchemaContents, description)        
         return createdSchema
     
     def createEventType(self, name, description, schemaId):
-        createdEventType = self.appClient.statemanagement.draftEventTypes.create(
+        createdEventType = self.appClient.state.draft.eventTypes.create(
             {"name": name, "description": description, "schemaId": schemaId})
         return createdEventType
 
     def createAndCheckPI(self, name, description):
-        createdPI = self.appClient.statemanagement.draftPhysicalInterfaces.create(
+        createdPI = self.appClient.state.draft.physicalInterfaces.create(
             {"name": name, "description": description})
         self.checkPI(createdPI, name, description)
 
         # now actively refetch the PI to check it is stored
-        fetchedPI = self.appClient.statemanagement.draftPhysicalInterfaces.__getitem__(createdPI.id)
+        fetchedPI = self.appClient.state.draft.physicalInterfaces.__getitem__(createdPI.id)
         assert createdPI == fetchedPI
         
         # Check that there are no associated event mappings when it's just created
@@ -139,12 +139,12 @@ class TestPhysicalInterfaces(testUtils.AbstractTest):
 
         # Update the PI
         updated_pi_name = TestPhysicalInterfaces.updatedPhysicalInterfaceName
-        updatedPI = self.appClient.statemanagement.draftPhysicalInterfaces.update(
+        updatedPI = self.appClient.state.draft.physicalInterfaces.update(
             createdPI.id, {'id': createdPI.id, 'name': updated_pi_name, 'description': "Test PI updated description"})
         self.checkPI(updatedPI, updated_pi_name, "Test PI updated description")
 
         # Delete the PI
-        del self.appClient.statemanagement.draftPhysicalInterfaces[createdPI.id]
+        del self.appClient.state.draft.physicalInterfaces[createdPI.id]
         # It should be gone
         assert self.doesPINameExist(testPIName)==False
     
@@ -204,16 +204,16 @@ class TestPhysicalInterfaces(testUtils.AbstractTest):
             assert False        
              
         # Delete the PI
-        del self.appClient.statemanagement.draftPhysicalInterfaces[createdPI.id]
+        del self.appClient.state.draft.physicalInterfaces[createdPI.id]
         # It should be gone
         assert self.doesPINameExist(testPIName)==False
 
         # Delete the event type
-        del self.appClient.statemanagement.draftEventTypes[createdEventType.id]
+        del self.appClient.state.draft.eventTypes[createdEventType.id]
         # It should be gone
         assert self.doesEventTypeNameExist(test_eventType_name)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesSchemaNameExist(test_schema_name)==False        

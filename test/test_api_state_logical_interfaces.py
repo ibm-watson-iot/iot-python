@@ -54,14 +54,14 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        for li in self.appClient.statemanagement.draftLogicalInterfaces:
+        for li in self.appClient.state.draft.logicalInterfaces:
             if li.name in (TestLogicalInterfaces.testLogicalInterfaceName, TestLogicalInterfaces.updatedLogicalInterfaceName):
                 # print("Deleting old test schema instance: %s" % (a))
-                del self.appClient.statemanagement.draftLogicalInterfaces[li.id]
+                del self.appClient.state.draft.logicalInterfaces[li.id]
             
-        for s in self.appClient.statemanagement.draftSchemas:
+        for s in self.appClient.state.draft.schemas:
             if s.name == TestLogicalInterfaces.testSchemaName:
-                del self.appClient.statemanagement.draftSchemas[s.id]      
+                del self.appClient.state.draft.schemas[s.id]      
         
     def checkLI (self, logicalInterface, name, description, schemaId):
         assert logicalInterface.name == name
@@ -75,30 +75,30 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         assert isinstance(logicalInterface.updatedBy, str)            
         
     def doesSchemaNameExist (self, name):
-        for a in self.appClient.statemanagement.draftSchemas.find({"name": name}):
+        for a in self.appClient.state.draft.schemas.find({"name": name}):
             if (a.name == name):
                 return True
         return False
     
     def doesLINameExist (self, name):
-        for li in self.appClient.statemanagement.draftLogicalInterfaces.find({"name": name}):
+        for li in self.appClient.state.draft.logicalInterfaces.find({"name": name}):
             if (li.name == name):
                 return True
         return False
     
     def createSchema(self, name, schemaFileName, schemaContents, description):
         jsonSchemaContents = json.dumps(schemaContents)
-        createdSchema = self.appClient.statemanagement.draftSchemas.create(
+        createdSchema = self.appClient.state.draft.schemas.create(
             name, schemaFileName, jsonSchemaContents, description)        
         return createdSchema
     
     def createAndCheckLI(self, name, description, schemaId):
-        createdLI = self.appClient.statemanagement.draftLogicalInterfaces.create(
+        createdLI = self.appClient.state.draft.logicalInterfaces.create(
             {"name": name, "description": description, "schemaId": schemaId})
         self.checkLI(createdLI, name, description, schemaId)
 
         # now actively refetch the LI to check it is stored
-        fetchedLI = self.appClient.statemanagement.draftLogicalInterfaces.__getitem__(createdLI.id)
+        fetchedLI = self.appClient.state.draft.logicalInterfaces.__getitem__(createdLI.id)
         assert createdLI == fetchedLI
         
         return createdLI
@@ -128,17 +128,17 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
 
         # Update the LI
         updated_li_name = TestLogicalInterfaces.updatedLogicalInterfaceName
-        updatedLI = self.appClient.statemanagement.draftLogicalInterfaces.update(
+        updatedLI = self.appClient.state.draft.logicalInterfaces.update(
             createdLI.id, {'id': createdLI.id, 'name': updated_li_name, 'description': "Test LI updated description", "schemaId": createdSchema.id})
         self.checkLI(updatedLI, updated_li_name, "Test LI updated description", createdSchema.id)
 
         # Delete the LI
-        del self.appClient.statemanagement.draftLogicalInterfaces[createdLI.id]
+        del self.appClient.state.draft.logicalInterfaces[createdLI.id]
         # It should be gone
         assert self.doesLINameExist(testLIName)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesSchemaNameExist(test_schema_name)==False
     
@@ -178,12 +178,12 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
             assert True; # The expected exception was raised 
         
         # Delete the LI
-        del self.appClient.statemanagement.draftLogicalInterfaces[createdLI.id]
+        del self.appClient.state.draft.logicalInterfaces[createdLI.id]
         # It should be gone
         assert self.doesLINameExist(testLIName)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesSchemaNameExist(test_schema_name)==False    
         

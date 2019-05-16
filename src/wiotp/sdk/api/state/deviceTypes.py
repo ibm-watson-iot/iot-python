@@ -17,8 +17,9 @@ from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
 from wiotp.sdk.api.common import RestApiDictActive
 from wiotp.sdk.api.common import RestApiModifiableProperty
-from wiotp.sdk.api.statemanagement.logicalInterfaces import BaseLogicalInterface
-from wiotp.sdk.api.statemanagement.physicalInterfaces import PhysicalInterface
+from wiotp.sdk.api.state.devices import Devices
+from wiotp.sdk.api.state.logicalInterfaces import BaseLogicalInterface
+from wiotp.sdk.api.state.physicalInterfaces import PhysicalInterface
         
 # =========================================================================
 # Physical Interface for the Device Type
@@ -69,7 +70,8 @@ class BaseDeviceType(RestApiItemBase):
     @property 
     def mappings(self):
         return self._mappings   
-    
+
+        
 class DraftDeviceType(BaseDeviceType):
     physicalInterface = DraftPI()
 
@@ -104,16 +106,22 @@ class DraftDeviceType(BaseDeviceType):
 
  
 class ActiveDeviceType(BaseDeviceType):
-    physicalInterface = DraftPI()
+    physicalInterface = DraftPI()  # TBD need to provide access to active and draft.
     def __init__(self, apiClient, **kwargs):
         super(ActiveDeviceType, self).__init__(apiClient, **kwargs)
         self._url = "api/v0002/device/types/%s" % self.id
         self._draftUrl = "api/v0002/draft/device/types/%s" % self.id
-        self._logicalInterfaces = ActiveLogicalInterfaces(apiClient, self.id)
+        self._logicalInterfaces = DraftLogicalInterfaces(apiClient, self.id) # TBD need to provide access to active and draft.
         self._mappings = ActiveMappings(apiClient, self.id)
+        self._devices = Devices(apiClient, self.id)
 
     # Note - data accessor functions for common data items are defined in BaseDeviceType
 
+
+    @property 
+    def devices(self):
+        return self._devices   
+    
     def __callPatchOperation__(self, body):
         r = self._apiClient.patch(self._url, body)
         if r.status_code == 200:
@@ -212,7 +220,7 @@ class DraftLogicalInterfaces(RestApiDict):
         
 class ActiveLogicalInterfaces(RestApiDict):
     def __init__(self, apiClient, deviceTypeId):
-        url = "api/v0002/draft/device/types/%s/logicalinterfaces" % deviceTypeId
+        url = "api/v0002/device/types/%s/logicalinterfaces" % deviceTypeId
         super(ActiveLogicalInterfaces, self).__init__(
             apiClient, 
             BaseLogicalInterface, 

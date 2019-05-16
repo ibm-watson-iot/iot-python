@@ -56,23 +56,21 @@ class Trigger(defaultdict):
         return self["variableMappings"]
 
 class IterableTriggerList(IterableList):
-    def __init__(self, apiClient, actionId, filters=None):
+    def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableTriggerList, actionId, self).__init__(
+        super(IterableTriggerList, IterableTriggerList).__init__(
             apiClient,
             Trigger,
-            "api/v0002/actions/%s/triggers" % (actionId),
-            sort=None,
+            url,
             filters=filters,
-            passApiClient=False,
         )
-
 
 class Triggers(RestApiDict):
 
     def __init__(self, apiClient, actionId):
+        url = "api/v0002/actions/%s/triggers" % actionId
         super(Triggers, self).__init__(
-            apiClient, Trigger, IterableTriggerList(apiClient, actionId), "api/v0002/actions/%s/triggers" % actionId
+            apiClient, Trigger, IterableTriggerList, url
         )
 
     def create(self, name, type, description, configuration, variable_mappings, enabled):

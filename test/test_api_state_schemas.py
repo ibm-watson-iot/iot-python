@@ -53,10 +53,10 @@ class TestSchemas(testUtils.AbstractTest):
     # =========================================================================
     def testCleanup(self):
         # print("Cleaning up  old test schema instances")
-        for a in self.appClient.statemanagement.draftSchemas:
+        for a in self.appClient.state.draft.schemas:
             if a.name == TestSchemas.testSchemaName:
                 # print("Deleting old test schema instance: %s" % (a))
-                del self.appClient.statemanagement.draftSchemas[a.id]
+                del self.appClient.state.draft.schemas[a.id]
             # TBD debug else:
                 #  print("Found a non matching test schema instance: %s" % (a))
 
@@ -76,13 +76,13 @@ class TestSchemas(testUtils.AbstractTest):
         assert isinstance(schema.updatedBy, str)            
         
     def doesDraftSchemaNameExist (self, name):
-        for a in self.appClient.statemanagement.draftSchemas.find({"name": name}):
+        for a in self.appClient.state.draft.schemas.find({"name": name}):
             if (a.name == name):
                 return True
         return False
 
     def doesActiveSchemaNameExist (self, name):
-        for a in self.appClient.statemanagement.activeSchemas.find({"name": name}):
+        for a in self.appClient.state.active.schemas.find({"name": name}):
             if (a.name == name):
                 return True
         return False
@@ -90,12 +90,12 @@ class TestSchemas(testUtils.AbstractTest):
     def createAndCheckSchema(self, name, schemaFileName, schemaContents, description):
 
         jsonSchemaContents = json.dumps(schemaContents)
-        createdSchema = self.appClient.statemanagement.draftSchemas.create(
+        createdSchema = self.appClient.state.draft.schemas.create(
             name, schemaFileName, jsonSchemaContents, description)
         self.checkSchema(createdSchema, name, schemaFileName, schemaContents, description)
 
         # now actively refetch the schema to check it is stored
-        fetchedSchema = self.appClient.statemanagement.draftSchemas.__getitem__(createdSchema.id)
+        fetchedSchema = self.appClient.state.draft.schemas.__getitem__(createdSchema.id)
         assert createdSchema == fetchedSchema
         
         return createdSchema
@@ -118,7 +118,7 @@ class TestSchemas(testUtils.AbstractTest):
         assert self.doesActiveSchemaNameExist(test_schema_name)==False
 
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesDraftSchemaNameExist(test_schema_name)==False
         
@@ -140,12 +140,12 @@ class TestSchemas(testUtils.AbstractTest):
 
         # Update the schema
         updated_schema_name = TestSchemas.updatedTestSchemaName
-        updatedSchema = self.appClient.statemanagement.draftSchemas.update(
+        updatedSchema = self.appClient.state.draft.schemas.update(
             createdSchema.id, {'id': createdSchema.id, 'name': updated_schema_name, 'description': "Test schema updated description"})
         self.checkSchema(updatedSchema, updated_schema_name, "eventSchema.json", TestSchemas.testEventSchema, "Test schema updated description")
         
         # Delete the schema
-        del self.appClient.statemanagement.draftSchemas[createdSchema.id]
+        del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
         assert self.doesDraftSchemaNameExist(test_schema_name)==False
 

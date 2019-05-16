@@ -177,6 +177,7 @@ class IterableList(object):
                 parameters["_sort"] = self._sort
 
             if self._filters is not None:
+                # print("Filters: %s " % self._filters)
                 for param in self._filters:
                     # print("Filter param: %s " % param)
                     parameters[param] = self._filters[param]
@@ -287,7 +288,8 @@ class RestApiModifiableProperty(property):
         r = instance._apiClient.delete(url)
         if r.status_code != 204:
             raise ApiException(r)      
-    
+
+
 class RestApiDictBase(defaultdict):
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
         self._apiClient = apiClient

@@ -6,7 +6,6 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
-
 from wiotp.sdk.api.common import ApiClient
 from wiotp.sdk.api.registry import Registry
 from wiotp.sdk.api.usage import Usage
@@ -15,8 +14,8 @@ from wiotp.sdk.api.dsc import DSC
 from wiotp.sdk.api.lec import LEC
 from wiotp.sdk.api.mgmt import Mgmt
 from wiotp.sdk.api.services import ServiceBindings
-from wiotp.sdk.api.actionmanager import ActionManager
-from wiotp.sdk.api.statemanagement import StateManagement 
+from wiotp.sdk.api.actions import Actions
+from wiotp.sdk.api.state import StateMgr
 
 # This method returns the organization
 # def getOrganizationDetails(self):
