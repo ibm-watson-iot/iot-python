@@ -101,34 +101,34 @@ class TestDeviceState(testUtils.AbstractTest):
            
         # delete any left over device types
         for dt in self.appClient.state.active.deviceTypes:
-            #ßprint("Device type instance: %s" % (dt))
+            #print("Device type instance: %s" % (dt))
             if (dt.id in (TestDeviceState.testDeviceTypeName, TestDeviceState.updatedDeviceTypeName)):
                 for dev in dt.devices:
-                    print("Deleting devices %s for device type instance: %s" % (dev.deviceId, dt.id))
+                    # print("Deleting devices %s for device type instance: %s" % (dev.deviceId, dt.id))
                     del dt.devices[dev.deviceId]   
-                print("Deleting old test device type instance: %s" % (dt.id))
+                # print("Deleting old test device type instance: %s" % (dt.id))
                 del self.appClient.state.active.deviceTypes[dt.id]
                                
          # delete any left over logical interfaces
         for li in self.appClient.state.draft.logicalInterfaces:
             if li.name == TestDeviceState.testLogicalInterfaceName:
-                print("Deleting old test LI: %s" % (li))
+                # print("Deleting old test LI: %s" % (li))
                 del self.appClient.state.draft.logicalInterfaces[li.id]
                 
         # delete any left over physical interfaces, event type and schema
         for pi in self.appClient.state.draft.physicalInterfaces:
             if pi.name == TestDeviceState.testPhysicalInterfaceName:
-                print("Deleting old test PI: %s" % (pi))
+                # print("Deleting old test PI: %s" % (pi))
                 del self.appClient.state.draft.physicalInterfaces[pi.id]
             
         for et in self.appClient.state.draft.eventTypes:
             if et.name == TestDeviceState.testEventTypeName:
-                print("Deleting old test event type: %s" % (et))
+                # print("Deleting old test event type: %s" % (et))
                 del self.appClient.state.draft.eventTypes[et.id]
                 
         for s in self.appClient.state.draft.schemas:
             if s.name in (TestDeviceState.testEventSchemaName, TestDeviceState.testLiSchemaName):
-                print("Deleting old test schema instance: %s" % (s))
+                # print("Deleting old test schema instance: %s" % (s))
                 del self.appClient.state.draft.schemas[s.id]    
                
         # TBD this was all debugv stuff        
@@ -345,22 +345,22 @@ class TestDeviceState(testUtils.AbstractTest):
                 
 
     def testDefaultDeviceState(self):
-        print("test Device state")
+        # print("test Device state")
         for li in TestDeviceState.createdDT.logicalInterfaces:
-            print("LI: %s" % (li.id))
+            # print("LI: %s" % (li.id))
             if li.name == TestDeviceState.testLogicalInterfaceName:
                 deviceState = TestDeviceState.createdDevice.states[li.id]
-                print("Device state: %s" % (deviceState))
+                # print("Device state: %s" % (deviceState))
                 assert deviceState.state==TestDeviceState.defaultDeviceState
 
     def testResetDeviceState(self):
-        print("test Device state")
+        # print("test Device state")
         for li in TestDeviceState.createdDT.logicalInterfaces:
-            print("LI: %s" % (li.id))
+            # print("LI: %s" % (li.id))
             if li.name == TestDeviceState.testLogicalInterfaceName:
                 TestDeviceState.createdDevice.states[li.id].reset()
                 deviceState = TestDeviceState.createdDevice.states[li.id]
-                print("Device state: %s" % (deviceState))
+                # print("Device state: %s" % (deviceState))
                 assert deviceState.state==TestDeviceState.defaultDeviceState
              
         

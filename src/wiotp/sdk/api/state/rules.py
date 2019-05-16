@@ -11,7 +11,7 @@ from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
-from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.common import RestApiDictReadOnly
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/state-mgmt.html#/Rules
 
@@ -53,7 +53,7 @@ class DraftRules(RestApiDict):
             apiClient, Rule, IterableRuleList, "api/v0002/draft/rules"
         )
             
-class ActiveRules(RestApiDictActive):
+class ActiveRules(RestApiDictReadOnly):
 
     def __init__(self, apiClient):
         super(ActiveRules, self).__init__(
@@ -68,7 +68,7 @@ class DraftRulesPerLI(RestApiDict):
             apiClient, Rule, IterableRuleList, url
         )
             
-class ActiveRulesPerLI(RestApiDictActive):
+class ActiveRulesPerLI(RestApiDictReadOnly):
 
     def __init__(self, apiClient, logicalInterfaceId):
         url = "api/v0002/logicalinterfaces/%s/rules" % logicalInterfaceId

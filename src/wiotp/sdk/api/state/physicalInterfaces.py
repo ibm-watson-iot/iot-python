@@ -15,7 +15,7 @@ from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import IterableSimpleList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
-from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.common import RestApiDictReadOnly
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/state-mgmt.html#/Physical Interfaces
 

@@ -280,10 +280,10 @@ client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 <p>In most cases you will not manually build the <code>config</code> dictionary.  Two helper methods are provided to make configuration simple:</p>
 <h2 id="yaml-file-support">YAML File Support<a class="headerlink" href="#yaml-file-support" title="Permanent link"></a></h2>
 <p><code>wiotp.sdk.device.parseConfigFile()</code> allows one to easily pass in device configuration from environment variables.</p>
-<pre><code class="python">import wiotp.device.sdk
+<pre><code class="python">import wiotp.sdk.device
 
 myConfig = wiotp.sdk.device.parseConfigFile(&quot;device.yaml&quot;)
-client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 </code></pre>
 
 <h3 id="minimal-required-configuration-file">Minimal Required Configuration File<a class="headerlink" href="#minimal-required-configuration-file" title="Permanent link"></a></h3>
@@ -320,7 +320,7 @@ options:
 <pre><code class="python">import wiotp.sdk.device
 
 myConfig = wiotp.sdk.device.parseEnvVars()
-client = wiopt.sdk.device.Client(config=myConfig, logHandlers=None)
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 </code></pre>
 
 <h3 id="minimal-required-environment-variables">Minimal Required Environment Variables<a class="headerlink" href="#minimal-required-environment-variables" title="Permanent link"></a></h3>

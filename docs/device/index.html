@@ -263,7 +263,7 @@
         &quot;token&quot;: &quot;Ab$76s)asj8_s5&quot;
     }
 }
-client = wiotp.sdk.device.Client(config=myConfig)
+client = wiotp.sdk.device.DeviceClient(config=myConfig)
 </code></pre>
 
 <h2 id="connectivity">Connectivity<a class="headerlink" href="#connectivity" title="Permanent link"></a></h2>
@@ -317,7 +317,7 @@ def myCommandCallback(cmd):
 
 # Configure
 myConfig = wiotp.sdk.device.parseConfigFile(&quot;device.yaml&quot;)
-client = wiotp.sdk.device.Client(config=myConfig, logHandlers=None)
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 client.setKeepAliveInterval(60)
 client.commandCallback = myCommandCallback
 

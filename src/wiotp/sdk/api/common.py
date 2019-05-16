@@ -418,13 +418,13 @@ class RestApiDict(RestApiDictBase):
     
 
     
-class RestApiDictActive(RestApiDictBase):
+class RestApiDictReadOnly(RestApiDictBase):
     """
     The Active version restricts the ability to directly modify the retrieved item.
     """
 
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
-        super(RestApiDictActive, self).__init__(
+        super(RestApiDictReadOnly, self).__init__(
             apiClient, castToClass, listToCast, url, sort, filters, passApiClient
         )
         

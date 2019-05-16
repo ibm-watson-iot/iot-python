@@ -12,13 +12,15 @@ from collections import defaultdict
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.exceptions import ApiException
 
+
 class ClientStatus(defaultdict):
     def __init__(self, **kwargs):
-        #if not set(["message", "timestamp"]).issubset(kwargs):
+        # if not set(["message", "timestamp"]).issubset(kwargs):
         #    raise Exception("message and timestamp are required properties for a LogEntry")
 
-        #kwargs["timestamp"] = iso8601.parse_date(kwargs["timestamp"])
+        # kwargs["timestamp"] = iso8601.parse_date(kwargs["timestamp"])
         dict.__init__(self, **kwargs)
+
 
 #    @property
 #    def message(self):
@@ -31,7 +33,9 @@ class ClientStatus(defaultdict):
 
 class IterableClientStatusList(IterableList):
     def __init__(self, apiClient, filters=None):
-        super(IterableClientStatusList, self).__init__(apiClient, ClientStatus, "api/v0002/clientconnectionstates", sort=None, filters=filters, passApiClient=False)
+        super(IterableClientStatusList, self).__init__(
+            apiClient, ClientStatus, "api/v0002/clientconnectionstates", sort=None, filters=filters, passApiClient=False
+        )
 
 
 class ConnectionStatus(defaultdict):
@@ -59,7 +63,7 @@ class ConnectionStatus(defaultdict):
             self.__missing__(key)
         else:
             raise ApiException(r)
-    
+
     def __iter__(self, *args, **kwargs):
         """
         Iterate through all Connectors
@@ -71,7 +75,7 @@ class ConnectionStatus(defaultdict):
         Device does not exist
         """
         raise KeyError("No status available for client %s" % (key))
-        
+
     def __setitem__(self, key, value):
         raise Exception("Unsupported operation")
 
@@ -89,4 +93,3 @@ class ConnectionStatus(defaultdict):
             queryParms["connectedAfter"] = connectedAfter
 
         return IterableClientStatusList(self._apiClient, filters=queryParms)
-    

@@ -15,7 +15,7 @@ from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import IterableSimpleList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
-from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.common import RestApiDictReadOnly
 from wiotp.sdk.api.common import RestApiModifiableProperty
 from wiotp.sdk.api.state.devices import Devices
 from wiotp.sdk.api.state.logicalInterfaces import BaseLogicalInterface

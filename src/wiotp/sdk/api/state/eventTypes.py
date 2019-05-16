@@ -14,7 +14,7 @@ from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
-from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.common import RestApiDictReadOnly
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/EventType-mgr-beta.html
 
@@ -40,7 +40,7 @@ class IterableEventTypeList(IterableList):
             apiClient, EventType, url, filters=filters
         )
 
-class ActiveEventTypes(RestApiDictActive):
+class ActiveEventTypes(RestApiDictReadOnly):
 
     def __init__(self, apiClient):
         super(ActiveEventTypes, self).__init__(

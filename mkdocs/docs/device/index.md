@@ -34,7 +34,7 @@ myConfig = {
         "token": "Ab$76s)asj8_s5"
     }
 }
-client = wiotp.sdk.device.Client(config=myConfig)
+client = wiotp.sdk.device.DeviceClient(config=myConfig)
 ```
 
 
@@ -105,7 +105,7 @@ def myCommandCallback(cmd):
 
 # Configure
 myConfig = wiotp.sdk.device.parseConfigFile("device.yaml")
-client = wiotp.sdk.device.Client(config=myConfig, logHandlers=None)
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
 client.setKeepAliveInterval(60)
 client.commandCallback = myCommandCallback
 

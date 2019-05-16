@@ -34,7 +34,7 @@ def exportTypes(destination):
     print("Exporting Device Types ...")
 
     with open(destination, "a") as out_file:
-        for deviceType in client.api.registry.devicetypes:
+        for deviceType in client.registry.devicetypes:
             export = {
                 "id": deviceType.id,
                 "classId": deviceType.classId,
@@ -50,7 +50,7 @@ def exportDevices(destination):
     print("Exporting Devices ...")
 
     with open(destination, "a") as out_file:
-        for device in client.api.registry.devices:
+        for device in client.registry.devices:
             export = {
                 "typeId": device.typeId,
                 "deviceId": device.deviceId,
@@ -81,35 +81,29 @@ if __name__ == "__main__":
 
     # Initialize the properties we need
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", required=True)
     parser.add_argument("-m", "--mode", required=True)
     parser.add_argument("-d", "--directory", required=True)
 
     args, unknown = parser.parse_known_args()
 
     client = None
-    options = wiotp.sdk.application.parseConfigFile(args.config)
-    try:
-        client = wiotp.sdk.application.ApplicationClient(options)
-        client.logger.setLevel(logging.DEBUG)
-        # Note that we do not need to call connect to make API calls
+    options = wiotp.sdk.application.parseEnvVars()
+    client = wiotp.sdk.application.ApplicationClient(options)
+    client.logger.setLevel(logging.DEBUG)
+    # Note that we do not need to call connect to make API calls
 
-        devicesFilePath = args.directory + "/devices.txt"
-        typesFilePath = args.directory + "/types.txt"
+    devicesFilePath = args.directory + "/devices.txt"
+    typesFilePath = args.directory + "/types.txt"
 
-        if args.mode == "import":
-            importTypes(typesFilePath)
-            importDevices(devicesFilePath)
+    if args.mode == "import":
+        importTypes(typesFilePath)
+        importDevices(devicesFilePath)
 
-        elif args.mode == "export":
-            if os.path.isfile(typesFilePath):
-                os.remove(typesFilePath)
-            exportTypes(typesFilePath)
+    elif args.mode == "export":
+        if os.path.isfile(typesFilePath):
+            os.remove(typesFilePath)
+        exportTypes(typesFilePath)
 
-            if os.path.isfile(devicesFilePath):
-                os.remove(devicesFilePath)
-            exportDevices(devicesFilePath)
-
-    except Exception as e:
-        print(str(e))
-        sys.exit(1)
+        if os.path.isfile(devicesFilePath):
+            os.remove(devicesFilePath)
+        exportDevices(devicesFilePath)

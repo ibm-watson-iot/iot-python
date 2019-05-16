@@ -13,7 +13,7 @@ from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
-from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.common import RestApiDictReadOnly
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/State-mgr-beta.html
 
@@ -55,7 +55,7 @@ class IterableStateList(IterableList):
             apiClient, State, url, filters=filters
         )
 
-class States(RestApiDictActive):
+class States(RestApiDictReadOnly):
 
     def __init__(self, apiClient, typeId, instanceId):
         url=("api/v0002/device/types/%s/devices/%s/state" % (typeId, instanceId) )

@@ -13,7 +13,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiItemBase
 from wiotp.sdk.api.common import RestApiDict
-from wiotp.sdk.api.common import RestApiDictActive
+from wiotp.sdk.api.common import RestApiDictReadOnly
 from wiotp.sdk.exceptions import ApiException
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/Schema-mgr-beta.html

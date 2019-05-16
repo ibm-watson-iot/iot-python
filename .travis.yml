@@ -1,6 +1,12 @@
 group: travis_latest
+
 language: python
+
+services:
+  - docker
+
 cache: pip
+
 matrix:
   include:
     - python: "2.7"
@@ -8,7 +14,15 @@ matrix:
     - python: "3.6"
     - python: "3.7"
       dist: xenial    # required for Python >= 3.7
-install: pip install tox-travis coveralls
-script: tox
+      env: BUILD_DOCKER_IMAGES=true 
+
+install: 
+  - pip install tox-travis coveralls
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+script: 
+  - tox
+  - ./buildDockerImages.sh
+
 after_success:
-    - coveralls
+  - coveralls

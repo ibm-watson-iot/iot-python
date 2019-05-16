@@ -3,10 +3,6 @@
 Data store connectors can only be configured after you have set up one or more [service bindings](bindings.md):
 
 
-!!! warning
-    Don't use the dsc package yet, there is a bug in the DSC API paging code, that this client library exposed which would result in an infinite loop in your code if you use the `dsc`, or `dsc[connectorId].rules` iterators
-
-
 ```python
 import wiotp.sdk.application
 
