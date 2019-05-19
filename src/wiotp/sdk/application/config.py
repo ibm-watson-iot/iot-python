@@ -41,9 +41,6 @@ class ApplicationClientConfig(defaultdict):
         if "appId" not in kwargs["identity"]:
             kwargs["identity"]["appId"] = str(uuid.uuid4())
 
-        if "instanceId" not in kwargs["identity"]:
-            kwargs["identity"]["instanceId"] = None
-
         if "options" not in kwargs:
             kwargs["options"] = {}
 
@@ -55,6 +52,9 @@ class ApplicationClientConfig(defaultdict):
 
         if "mqtt" not in kwargs["options"]:
             kwargs["options"]["mqtt"] = {}
+
+        if "instanceId" not in kwargs["options"]["mqtt"]:
+            kwargs["options"]["mqtt"]["instanceId"] = None
 
         if "port" not in kwargs["options"]["mqtt"]:
             kwargs["options"]["mqtt"]["port"] = None
@@ -96,7 +96,7 @@ class ApplicationClientConfig(defaultdict):
 
     @property
     def instanceId(self):
-        return self["identity"]["instanceId"]
+        return self["options"]["mqtt"]["instanceId"]
 
     @property
     def clientId(self):
@@ -172,11 +172,11 @@ def parseEnvVars():
     device client constructor as the `options` parameter
 
     - `WIOTP_IDENTITY_APPID`
-    - `WIOTP_IDENTITY_INSTANCEID` (optional)
     - `WIOTP_AUTH_KEY`
     - `WIOTP_AUTH_TOKEN`
     - `WIOTP_OPTIONS_DOMAIN` (optional)
     - `WIOTP_OPTIONS_LOGLEVEL` (optional)
+    - `WIOTP_OPTIONS_MQTT_INSTANCEID` (optional)
     - `WIOTP_OPTIONS_MQTT_PORT` (optional)
     - `WIOTP_OPTIONS_MQTT_TRANSPORT` (optional)
     - `WIOTP_OPTIONS_MQTT_CAFILE` (optional)
@@ -197,10 +197,10 @@ def parseEnvVars():
 
     # Identity
     appId = os.getenv("WIOTP_IDENTITY_APPID", str(uuid.uuid4()))
-    instanceId = os.getenv("WIOTP_IDENTITY_INSTANCEID", None)
     # Options
     domain = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
     logLevel = os.getenv("WIOTP_OPTIONS_LOGLEVEL", "info")
+    instanceId = os.getenv("WIOTP_OPTIONS_MQTT_INSTANCEID", None)
     port = os.getenv("WIOTP_OPTIONS_MQTT_PORT", None)
     transport = os.getenv("WIOTP_OPTIONS_MQTT_TRANSPORT", None)
     caFile = os.getenv("WIOTP_OPTIONS_MQTT_CAFILE", None)
@@ -233,13 +233,13 @@ def parseEnvVars():
 
     cfg = {
         "identity": {
-            "appId": appId, 
-            "instanceId": instanceId
+            "appId": appId
         },
         "options": {
             "domain": domain,
             "logLevel": logLevel,
             "mqtt": {
+                "instanceId": instanceId,
                 "port": port,
                 "transport": transport,
                 "cleanStart": cleanStart in ["True", "true", "1"],
@@ -267,7 +267,6 @@ def parseConfigFile(configFilePath):
     
     identity:
       appId: myApp
-      instanceId: myInstance
     auth:
       key: a-23gh56-sdsdajhjnee
       token: Ab$76s)asj8_s5
@@ -275,6 +274,7 @@ def parseConfigFile(configFilePath):
       domain: internetofthings.ibmcloud.com
       logLevel: error|warning|info|debug
       mqtt:
+        instanceId: myInstance
         port: 8883
         transport: tcp
         cleanStart: false

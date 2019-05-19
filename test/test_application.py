@@ -16,14 +16,16 @@ class TestApplication(testUtils.AbstractTest):
     def testApplicationSharedSubscriptions(self):
         appId = str(uuid.uuid4())
         appCliInstance1 = wiotp.sdk.application.ApplicationClient({
-            "identity": { "appId": appId,  "instanceId": str(uuid.uuid4()) },
-            "auth": { "key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN") }
+            "identity": { "appId": appId },
+            "auth": { "key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN") },
+            "options": { "mqtt": { "instanceId": str(uuid.uuid4()) }}
         })
         assert isinstance(appCliInstance1, wiotp.sdk.application.ApplicationClient)
 
         appCliInstance2 = wiotp.sdk.application.ApplicationClient({
-            "identity": { "appId": appId,  "instanceId": str(uuid.uuid4()) },
-            "auth": { "key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN") }
+            "identity": { "appId": appId },
+            "auth": { "key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN") },
+            "options": { "mqtt": { "instanceId": str(uuid.uuid4()) }}
         })
         assert isinstance(appCliInstance2, wiotp.sdk.application.ApplicationClient)
 
