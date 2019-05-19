@@ -74,11 +74,11 @@ class GatewayClient(DeviceClient):
         self.client.on_connect = self._onConnect
         self.client.on_disconnect = self._onDisconnect
 
-    def publishDeviceEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
+    def publishDeviceEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, onPublish=None):
         topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/evt/" + eventId + "/fmt/" + msgFormat
-        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
-    def publishEvent(self, eventId, msgFormat, data, qos=0, on_publish=None):
+    def publishEvent(self, eventId, msgFormat, data, qos=0, onPublish=None):
         topic = (
             "iot-2/type/"
             + self._config.typeId
@@ -89,7 +89,7 @@ class GatewayClient(DeviceClient):
             + "/fmt/"
             + msgFormat
         )
-        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
     def subscribeToDeviceCommands(self, typeId, deviceId, commandId="+", format="json", qos=1):
         topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/cmd/" + commandId + "/fmt/" + format

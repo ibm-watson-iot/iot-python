@@ -110,7 +110,7 @@ class TestGateway(testUtils.AbstractTest):
             print("Publish Event done!!!")
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, on_publish=publishCallback) == True
+        assert gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, onPublish=publishCallback) == True
         assert gatewayClient.publishEvent("testGatewayPublishEventJson", "json", myData, on_publish=publishCallback) == True
 
         # mid = 0 means there was a problem with the subscription
