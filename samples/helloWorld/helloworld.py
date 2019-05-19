@@ -83,7 +83,7 @@ for x in range(0, 10):
     def myOnPublishCallback():
         print("Confirmed event %s received by IoTF\n" % x)
 
-    success = deviceCli.publishEvent("greeting", "json", data, qos=0, on_publish=myOnPublishCallback)
+    success = deviceCli.publishEvent("greeting", "json", data, qos=0, onPublish=myOnPublishCallback)
     if not success:
         print("Not connected to IoTF")
     time.sleep(1)

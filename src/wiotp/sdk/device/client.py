@@ -77,11 +77,11 @@ class DeviceClient(AbstractClient):
         msgFormat (string): Format of the data for this event
         data (dict): Data for this event
         qos (int): MQTT quality of service level to use (`0`, `1`, or `2`)
-        on_publish(function): A function that will be called when receipt 
+        onPublish(function): A function that will be called when receipt 
            of the publication is confirmed.  
         
         # Callback and QoS
-        The use of the optional #on_publish function has different implications depending 
+        The use of the optional #onPublish function has different implications depending 
         on the level of qos used to publish the event: 
         
         - qos 0: the client has asynchronously begun to send the event

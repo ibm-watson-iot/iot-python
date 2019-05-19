@@ -158,11 +158,11 @@ class ApplicationClient(AbstractClient):
         topic = "iot-2/type/%s/id/%s/cmd/%s/fmt/%s" % (typeId, deviceId, commandId, msgFormat)
         return self._subscribe(topic, 0)
 
-    def publishEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
+    def publishEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, onPublish=None):
         topic = "iot-2/type/%s/id/%s/evt/%s/fmt/%s" % (typeId, deviceId, eventId, msgFormat)
-        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
-    def publishCommand(self, typeId, deviceId, commandId, msgFormat, data=None, qos=0, on_publish=None):
+    def publishCommand(self, typeId, deviceId, commandId, msgFormat, data=None, qos=0, onPublish=None):
         """
         Publish a command to a device
 
@@ -173,7 +173,7 @@ class ApplicationClient(AbstractClient):
         msgFormat (string) : The format of the command payload
         data (dict) : The command data
         qos (int) : The equivalent MQTT semantics of quality of service using the same constants (optional, defaults to `0`)
-        on_publish (function) : A function that will be called when receipt of the publication is confirmed.  This has
+        onPublish (function) : A function that will be called when receipt of the publication is confirmed.  This has
             different implications depending on the qos:
             - qos 0 : the client has asynchronously begun to send the event
             - qos 1 and 2 : the client has confirmation of delivery from WIoTP
@@ -204,11 +204,11 @@ class ApplicationClient(AbstractClient):
                     if result[1] in self._onPublishCallbacks:
                         # paho callback beat this thread so call callback inline now
                         del self._onPublishCallbacks[result[1]]
-                        if on_publish is not None:
-                            on_publish()
+                        if onPublish is not None:
+                            onPublish()
                     else:
                         # this thread beat paho callback so set up for call later
-                        self._onPublishCallbacks[result[1]] = on_publish
+                        self._onPublishCallbacks[result[1]] = onPublish
                 return True
             else:
                 return False
