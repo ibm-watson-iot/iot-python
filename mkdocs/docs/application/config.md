@@ -3,7 +3,8 @@
 Application configuration can be broken down into required and optional configuration:
 
 ## Required Configuration
-- `identity.appId` Your organization ID.
+- `identity.appId` Your unique application ID.
+- `identity.instanceId` Optional instance ID, use if you wish create a multi-instance application which will loadbalance incoming messages.
 - `auth.key` An API key authentication token to securely connect your application to Watson IoT Platform.
 - `auth.token` The authentication token for the API key you are using.
 
@@ -24,6 +25,7 @@ The config parameter when constructing an instance of `wiotp.sdk.application.App
 myConfig = { 
     "identity": {
         "appId": "app1",
+        "instanceId": "instance1",
     }.
     "auth" {
         "key": "orgid-h798S783DK"
@@ -76,6 +78,7 @@ This file defines all optional configuration parameters.
 ```yaml
 identity:
     appId: app1
+    instanceId: instance1
 auth:
     key: orgid-h798S783DK
     token: Ab$76s)asj8_s5
@@ -109,6 +112,7 @@ client = wiotp.sdk.application.ApplicationClient(config=myConfig, logHandlers=No
 - `WIOTP_AUTH_KEY`
 
 ### Optional Additional Environment Variables
+- `WIOTP_IDENTITY_INSTANCEID`
 - `WIOTP_OPTIONS_DOMAIN`
 - `WIOTP_OPTIONS_LOGLEVEL`
 - `WIOTP_OPTIONS_MQTT_PORT`
@@ -117,4 +121,3 @@ client = wiotp.sdk.application.ApplicationClient(config=myConfig, logHandlers=No
 - `WIOTP_OPTIONS_MQTT_CLEANSTART`
 - `WIOTP_OPTIONS_MQTT_SESSIONEXPIRY`
 - `WIOTP_OPTIONS_MQTT_KEEPALIVE`
-

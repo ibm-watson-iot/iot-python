@@ -41,6 +41,9 @@ class ApplicationClientConfig(defaultdict):
         if "appId" not in kwargs["identity"]:
             kwargs["identity"]["appId"] = str(uuid.uuid4())
 
+        if "instanceId" not in kwargs["identity"]:
+            kwargs["identity"]["instanceId"] = None
+
         if "options" not in kwargs:
             kwargs["options"] = {}
 
@@ -58,9 +61,6 @@ class ApplicationClientConfig(defaultdict):
 
         if "transport" not in kwargs["options"]["mqtt"] or kwargs["options"]["mqtt"]["transport"] is None:
             kwargs["options"]["mqtt"]["transport"] = "tcp"
-
-        if "sharedSubscription" not in kwargs["options"]["mqtt"]:
-            kwargs["options"]["mqtt"]["sharedSubscription"] = False
 
         if "cleanStart" not in kwargs["options"]["mqtt"]:
             kwargs["options"]["mqtt"]["cleanStart"] = False
@@ -95,9 +95,15 @@ class ApplicationClientConfig(defaultdict):
         return self["identity"]["appId"]
 
     @property
+    def instanceId(self):
+        return self["identity"]["instanceId"]
+
+    @property
     def clientId(self):
-        clientIdPrefix = "A" if (self.sharedSubscription is True) else "a"
-        return "%s:%s:%s" % (clientIdPrefix, self.orgId, self.appId)
+        if (self.instanceId is None):
+            return "a:%s:%s" % (self.orgId, self.appId)
+        else:
+            return "A:%s:%s:%s" % (self.orgId, self.appId, self.instanceId)
 
     @property
     def apiKey(self):
@@ -152,10 +158,6 @@ class ApplicationClientConfig(defaultdict):
         return self["options"]["mqtt"]["keepAlive"]
 
     @property
-    def sharedSubscription(self):
-        return self["options"]["mqtt"]["sharedSubscription"]
-
-    @property
     def caFile(self):
         return self["options"]["mqtt"]["caFile"]
 
@@ -170,6 +172,7 @@ def parseEnvVars():
     device client constructor as the `options` parameter
 
     - `WIOTP_IDENTITY_APPID`
+    - `WIOTP_IDENTITY_INSTANCEID` (optional)
     - `WIOTP_AUTH_KEY`
     - `WIOTP_AUTH_TOKEN`
     - `WIOTP_OPTIONS_DOMAIN` (optional)
@@ -180,7 +183,6 @@ def parseEnvVars():
     - `WIOTP_OPTIONS_MQTT_CLEANSTART` (optional)
     - `WIOTP_OPTIONS_MQTT_SESSIONEXPIRY` (optional)
     - `WIOTP_OPTIONS_MQTT_KEEPALIVE` (optional)
-    - `WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION` (optional)
     - `WIOTP_OPTIONS_HTTP_VERIFY` (optional)
     """
 
@@ -195,6 +197,7 @@ def parseEnvVars():
 
     # Identity
     appId = os.getenv("WIOTP_IDENTITY_APPID", str(uuid.uuid4()))
+    instanceId = os.getenv("WIOTP_IDENTITY_INSTANCEID", None)
     # Options
     domain = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
     logLevel = os.getenv("WIOTP_OPTIONS_LOGLEVEL", "info")
@@ -204,7 +207,6 @@ def parseEnvVars():
     cleanStart = os.getenv("WIOTP_OPTIONS_MQTT_CLEANSTART", "True")
     sessionExpiry = os.getenv("WIOTP_OPTIONS_MQTT_SESSIONEXPIRY", "3600")
     keepAlive = os.getenv("WIOTP_OPTIONS_MQTT_KEEPALIVE", "60")
-    sharedSubs = os.getenv("WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION", "False")
     verifyCert = os.getenv("WIOTP_OPTIONS_HTTP_VERIFY", "True")
 
     if port is not None:
@@ -230,7 +232,10 @@ def parseEnvVars():
         logLevel = logging.getLevelName(logLevel.upper())
 
     cfg = {
-        "identity": {"appId": appId},
+        "identity": {
+            "appId": appId, 
+            "instanceId": instanceId
+        },
         "options": {
             "domain": domain,
             "logLevel": logLevel,
@@ -240,7 +245,6 @@ def parseEnvVars():
                 "cleanStart": cleanStart in ["True", "true", "1"],
                 "sessionExpiry": sessionExpiry,
                 "keepAlive": keepAlive,
-                "sharedSubscription": sharedSubs in ["True", "true", "1"],
                 "caFile": caFile,
             },
             "http": {"verify": verifyCert in ["True", "true", "1"]},
@@ -263,6 +267,7 @@ def parseConfigFile(configFilePath):
     
     identity:
       appId: myApp
+      instanceId: myInstance
     auth:
       key: a-23gh56-sdsdajhjnee
       token: Ab$76s)asj8_s5
@@ -275,7 +280,6 @@ def parseConfigFile(configFilePath):
         cleanStart: false
         sessionExpiry: 3600
         keepAlive: 60
-        sharedSubscription: false
         caFile: /path/to/certificateAuthorityFile.pem
       http:
         verify: true    

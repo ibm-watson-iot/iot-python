@@ -267,6 +267,9 @@ class AbstractClient(object):
         self.client.loop_stop()
         self.logger.info("Closed connection to the IBM Watson IoT Platform")
 
+    def isConnected(self):
+        return self.connectEvent.isSet()
+    
     def _onLog(self, mqttc, obj, level, string):
         """
         Called when the client has log information.  

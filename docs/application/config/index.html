@@ -235,7 +235,8 @@
 <p>Application configuration can be broken down into required and optional configuration:</p>
 <h2 id="required-configuration">Required Configuration<a class="headerlink" href="#required-configuration" title="Permanent link"></a></h2>
 <ul>
-<li><code>identity.appId</code> Your organization ID.</li>
+<li><code>identity.appId</code> Your unique application ID.</li>
+<li><code>identity.instanceId</code> Optional instance ID, use if you wish create a multi-instance application which will loadbalance incoming messages.</li>
 <li><code>auth.key</code> An API key authentication token to securely connect your application to Watson IoT Platform.</li>
 <li><code>auth.token</code> The authentication token for the API key you are using.</li>
 </ul>
@@ -254,6 +255,7 @@
 <pre><code class="python">myConfig = { 
     &quot;identity&quot;: {
         &quot;appId&quot;: &quot;app1&quot;,
+        &quot;instanceId&quot;: &quot;instance1&quot;,
     }.
     &quot;auth&quot; {
         &quot;key&quot;: &quot;orgid-h798S783DK&quot;
@@ -296,6 +298,7 @@ auth:
 <p>This file defines all optional configuration parameters.</p>
 <pre><code class="yaml">identity:
     appId: app1
+    instanceId: instance1
 auth:
     key: orgid-h798S783DK
     token: Ab$76s)asj8_s5
@@ -327,6 +330,7 @@ client = wiotp.sdk.application.ApplicationClient(config=myConfig, logHandlers=No
 </ul>
 <h3 id="optional-additional-environment-variables">Optional Additional Environment Variables<a class="headerlink" href="#optional-additional-environment-variables" title="Permanent link"></a></h3>
 <ul>
+<li><code>WIOTP_IDENTITY_INSTANCEID</code></li>
 <li><code>WIOTP_OPTIONS_DOMAIN</code></li>
 <li><code>WIOTP_OPTIONS_LOGLEVEL</code></li>
 <li><code>WIOTP_OPTIONS_MQTT_PORT</code></li>
