@@ -10,6 +10,7 @@ The following data points are collected:
  * Outbound network utilization across all network interfaces (KB/s)
  * Inbound network utilization across all network interfaces (KB/s)
 
+A tutorial guiding you through the process of setting up this sample on a Raspberry Pi is published on [IBM Developer developerWorks Recipes](https://developer.ibm.com/recipes/tutorials/raspberry-pi-4/)
 
 ## Event Format
 
@@ -83,6 +84,8 @@ pi@raspberrypi ~ $ python iotpsutil.py --quickstart
 (Press Ctrl+C to disconnect)
 
 ```
+
+Note: Set the same environment variables detailed in the Docker section of this README (above) and ommit the `--quickstart` argument to connect your Raspberry Pi to IBM Watson IoT Platform as a registered device.
 
 
 ## Support Application

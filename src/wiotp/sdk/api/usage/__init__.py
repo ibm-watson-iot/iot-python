@@ -18,7 +18,7 @@ class DataTransferSummary(defaultdict):
         if "days" in kwargs and kwargs["days"] is not None:
             for day in kwargs["days"]:
                 daysAsObj.append(DayDataTransfer(**day))
-            del kwargs["days"]
+        del kwargs["days"]
         dict.__init__(self, days=daysAsObj, **kwargs)
 
     @property
