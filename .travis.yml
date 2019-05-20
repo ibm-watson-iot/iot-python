@@ -28,6 +28,6 @@ script:
 after_success:
   # Only upload coverage report from pythonn 3.7 test run if BUILD_DOCKER_IMAGES is not null and not empty
   - |
-    if [-n "${BUILD_DOCKER_IMAGES}" ]; then
+    if [ -n "${BUILD_DOCKER_IMAGES}" ]; then
       coveralls
     fi
