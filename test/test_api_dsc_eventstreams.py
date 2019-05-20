@@ -16,7 +16,7 @@ import time
 from wiotp.sdk.api.services import EventStreamsServiceBindingCredentials, EventStreamsServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
-@testUtils.py27onlytest
+@testUtils.oneJobOnlyTest
 class TestDscEventStreams(testUtils.AbstractTest):
     
     # =========================================================================
