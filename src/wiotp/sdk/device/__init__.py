@@ -11,7 +11,7 @@
 # Expose public API for this package
 from wiotp.sdk.device.client import DeviceClient
 from wiotp.sdk.device.command import Command
-from wiotp.sdk.device.config import parseConfigFile, parseEnvVars
+from wiotp.sdk.device.config import DeviceClientConfig, parseConfigFile, parseEnvVars
 from wiotp.sdk.device.deviceFirmware import DeviceFirmware
 from wiotp.sdk.device.deviceInfo import DeviceInfo
 from wiotp.sdk.device.managedClient import ManagedDeviceClient

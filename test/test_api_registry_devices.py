@@ -26,6 +26,8 @@ class TestRegistryDevices(testUtils.AbstractTest):
         devicesToRegister = [device1Id, device2Id]
         self.appClient.registry.devices.create(devicesToRegister)
         
+        assert str(device1Id) == device1Id.typeId + ":" + device1Id.deviceId
+
         assert device1Id.deviceId in deviceType.devices
         assert device2Id.deviceId in deviceType.devices
     
@@ -71,8 +73,17 @@ class TestRegistryDevices(testUtils.AbstractTest):
             deviceInfo=DeviceInfo(serialNumber="123", descriptiveLocation="Floor 3, Room 2")
         )
         
-        self.appClient.registry.devices.create(deviceUid)
-             
+        assert deviceUid.authToken == "NotVerySecretPassw0rd"
+        assert deviceUid.location is None
+        assert deviceUid.metadata is None
+
+        deviceCreateResponse = self.appClient.registry.devices.create(deviceUid)
+
+        assert deviceCreateResponse.typeId == deviceUid.typeId
+        assert deviceCreateResponse.deviceId == deviceUid.deviceId
+        assert deviceCreateResponse.success == True
+        assert deviceCreateResponse.authToken == deviceUid.authToken
+
         assert deviceUid.deviceId in deviceType.devices
         
         deviceAfterCreate = deviceType.devices[deviceUid.deviceId]
@@ -101,6 +112,13 @@ class TestRegistryDevices(testUtils.AbstractTest):
         assert deviceAfter3rdUpdate.deviceInfo.description == "hello"
         assert deviceAfter3rdUpdate.deviceInfo.model == "foobar"
         assert deviceAfter3rdUpdate.deviceInfo.descriptiveLocation == "Floor 3, Room 2"
+        assert deviceAfter3rdUpdate.deviceInfo.deviceClass == None
+        assert deviceAfter3rdUpdate.deviceInfo.fwVersion == None
+        assert deviceAfter3rdUpdate.deviceInfo.hwVersion == None
+        assert deviceAfter3rdUpdate.deviceInfo.manufacturer== None
+
+        assert str(deviceAfter3rdUpdate) == "[%s] hello" % (deviceAfter3rdUpdate.clientId)
+
 
         # Cleanup
         self.appClient.registry.devices.delete({"typeId": deviceUid.typeId, "deviceId": deviceUid.deviceId})
