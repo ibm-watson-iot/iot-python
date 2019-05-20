@@ -53,7 +53,6 @@ class Schema(RestApiItemBase):
         # call the Rest API                
         r = self._apiClient.get((self.contentUrl))
         if r.status_code == 200:
-            # TBD print ("returning schema content: %s " % r.json())
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self.contentUrl, r.status_code, r.text))
@@ -100,13 +99,8 @@ class DraftSchemas(RestApiDict):
 
         multipart_data = MultipartEncoder(fields=fields)
         
-        # print("Creating schema, multipart Data: %s, content_type: %s " % (multipart_data, multipart_data.content_type))
-
         r = self._apiClient.postMultipart(self._baseUrl, multipart_data)
         if r.status_code == 201:
             return Schema(apiClient=self._apiClient, **r.json())
         else:
-            # print ("response status: %s reason:%s, text: %s, response: %s" % (r.status_code, r.reason, r.text, r))
             raise ApiException(r)
-        
-        

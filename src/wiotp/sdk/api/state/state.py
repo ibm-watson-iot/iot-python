@@ -38,13 +38,11 @@ class State(defaultdict):
     def __callPatchOperation__(self, body):
         r = self._apiClient.patch(self._url, body)
         if r.status_code == 200:
-            print ("returning patch response: %s " % r.json())
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
         
     def reset(self):
-        print ("Resetting State")
         return self.__callPatchOperation__({"operation": "reset-state"})    
 
         
@@ -63,7 +61,7 @@ class States(RestApiDictReadOnly):
             apiClient, State, IterableStateList, url
         )
         
-    # TBD this method overrides the base class moethod to pass the state URL to the constructed state
+    # TBD this method overrides the base class method to pass the state URL to the constructed state
     # without this, we can't invoke reset-state api call.
     def __getitem__(self, key):
         """

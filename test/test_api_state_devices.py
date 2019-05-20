@@ -88,18 +88,10 @@ class TestDevice(testUtils.AbstractTest):
     # =========================================================================
     # Set up services
     # =========================================================================
-    def testCleanup(self):
-        # delete any left over device types
-        #for li in self.appClient.state.draft.logicalInterfaces:
-        #    for dt in self.appClient.state.draft.deviceTypes.find({"logicalInterfaceId":li.id}):
-        #        print("Device type instance: %s" % (dt))
-        #        if (dt.id in (TestDevice.testDeviceTypeName, TestDevice.updatedDeviceTypeName)):
-        #            print("Deleting old test device type instance: %s" % (dt))
-        #            del self.appClient.state.draft.deviceTypes[dt.id]
-           
+    def testCleanup(self):           
         # delete any left over device types
         for dt in self.appClient.state.active.deviceTypes:
-            #ßprint("Device type instance: %s" % (dt))
+            #print("Device type instance: %s" % (dt))
             if (dt.id in (TestDevice.testDeviceTypeName, TestDevice.updatedDeviceTypeName)):
                 for dev in dt.devices:
                     print("Deleting devices %s for device type instance: %s" % (dev.deviceId, dt.id))

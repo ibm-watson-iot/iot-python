@@ -16,8 +16,7 @@ from wiotp.sdk.api.common import RestApiDictReadOnly
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/state-mgmt.html#/Rules
 
 class Rule(RestApiItemBase):
-    def __init__(self, apiClient, **kwargs):
-        self._apiClient = apiClient
+    def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
@@ -40,7 +39,7 @@ class Rule(RestApiItemBase):
     
     
 class IterableRuleList(IterableList):
-    def __init__(self, apiClient, url, filters=None):
+    def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
         super(IterableRuleList, self).__init__(
             apiClient, Rule, url, filters=filters

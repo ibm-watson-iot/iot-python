@@ -32,7 +32,7 @@ class Device(RestApiItemBase):
     def deviceId(self):
         return self["deviceId"]
     
-    # TBD complex type!!
+    
     @property
     def deviceInfo(self):
         return self["deviceInfo"]

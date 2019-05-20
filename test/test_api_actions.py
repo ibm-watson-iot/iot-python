@@ -99,7 +99,6 @@ class TestActions(testUtils.AbstractTest):
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        print("Cleaning up  old test action instances")
         for a in self.appClient.actions:
             print("Action instance %s, name: %s" % (a.id, a.name))
             if a.name in [TestActions.testActionName, TestActions.updated_action_name]:
@@ -152,7 +151,7 @@ class TestActions(testUtils.AbstractTest):
         assert self.isstring(action.updatedBy)
         
     def doesActionNameExist (self, name):
-        for a in self.appClient.actions.find(nameFilter=name):
+        for a in self.appClient.actions.find({"name": name}):
             if (a.name == name):
                 return True
         return False
@@ -245,8 +244,13 @@ class TestActions(testUtils.AbstractTest):
 
     def createAndCheckAction(self, name, type, description, configuration, enabled):
 
-        createdAction = self.appClient.actions.create(
-            name, type, description, configuration, enabled)
+        createdAction = self.appClient.actions.create({
+            "name": name,
+            "type": type,
+            "description": description,
+            "configuration": configuration,
+            "enabled": enabled,
+        })
         self.checkAction(createdAction, name, type, description, configuration, enabled)
 
         # now actively refetch the action to check it is stored
@@ -254,6 +258,23 @@ class TestActions(testUtils.AbstractTest):
         assert createdAction == fetchedAction
         
         return createdAction
+
+    def checkTrigger (self, trigger, expectedTrigger):
+        assert trigger.name == expectedTrigger["name"]
+        assert trigger.triggerType == expectedTrigger["type"]
+        assert trigger.enabled == expectedTrigger["enabled"]
+        assert trigger.variableMappings == expectedTrigger["variableMappings"]
+        assert trigger.configuration == expectedTrigger["configuration"]
+            
+    def createAndCheckTrigger(self, action, trigger):
+        createdTrigger = action.triggers.create(trigger)
+        self.checkTrigger(createdTrigger, trigger)
+  
+        # now actively refetch the trigger to check it is stored
+        for fetchedTrigger in action.triggers:
+            assert createdTrigger == fetchedTrigger
+    
+        return createdTrigger
     
     def activateDeviceType(self):
         # LI
@@ -346,7 +367,6 @@ class TestActions(testUtils.AbstractTest):
                self.doesActivePINameExist(TestActions.testPhysicalInterfaceName) and
                self.doesActiveLINameExist(TestActions.testLogicalInterfaceName) and
                self.doesActiveDTNameExist(TestActions.testDeviceTypeName)):
-                print ("Device Type resources are all activated, attempt %s" % attempt)
                 break
             print ("Device Type resources not yet activated, attempt %s" % attempt)
             print ("Active? Event Schema: %s, LI Schema: %s, Event Type: %s, Physical Interface: %s, Logical Interface: %s, Devive Type: %s" %
@@ -368,7 +388,6 @@ class TestActions(testUtils.AbstractTest):
                self.doesActiveEventTypeNameExist(TestActions.testEventTypeName) or
                self.doesActivePINameExist(TestActions.testPhysicalInterfaceName) or
                self.doesActiveLINameExist(TestActions.testLogicalInterfaceName)):
-                print ("Device Type resources are all de-activated, attempt %s" % attempt)
                 break
             print ("Device Type resources not yet de-activated, attempt %s" % attempt)
             print ("Active? Event Schema: %s, LI Schema: %s, Event Type: %s, Physical Interface: %s, Logical Interface: %s" %
@@ -434,8 +453,14 @@ class TestActions(testUtils.AbstractTest):
 
         # Update the action
         updated_action_name = TestActions.updated_action_name
-        updatedAction = self.appClient.actions.update(
-            createdAction.id, updated_action_name, "webhook", "Test action updated description",  {"targetUrl": "https://my.lovely.com/api/somethingelse"}, False)
+        updatedAction = self.appClient.actions.update(createdAction.id, {
+            "id" : createdAction.id,
+            "name": updated_action_name,
+            "type": "webhook",
+            "description": "Test action updated description",
+            "configuration": {"targetUrl": "https://my.lovely.com/api/somethingelse"},
+            "enabled": False,
+        })
         self.checkAction(updatedAction, updated_action_name, "webhook", "Test action updated description",  {"targetUrl": "https://my.lovely.com/api/somethingelse"}, False)
  
         # Can we search for it
@@ -462,17 +487,19 @@ class TestActions(testUtils.AbstractTest):
             True)
         assert self.doesActionNameExist(test_action_name)==True
 
-        trigger1 = createdAction.triggers.create(
-             "Test Rule Trigger", 
-             "rule", 
-             "Rule Trigger Description", 
-             { "ruleId": "*",
+        trigger1 = self.createAndCheckTrigger(createdAction, {
+            "name": "Test Rule Trigger", 
+            "type": "rule",
+            "description": "Rule Trigger Description",
+            "configuration": { "ruleId": "*",
                "logicalInterfaceId" : self.createdLI.id,
                "type": "*",
                "typeId": "*",
                "instanceId": "*",
-             }, {}, True)
-
+            },
+            "variableMappings": {},
+            "enabled": True,
+        })
 
         del self.appClient.actions[createdAction.id]
         

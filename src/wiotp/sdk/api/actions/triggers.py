@@ -34,22 +34,8 @@ class Trigger(defaultdict):
         return self["enabled"]
     
     @property
-    def configurationLiId(self):
-        return self["configuration"]["logicalInterfaceId"]
-
-    @property
-    def configurationRuleId(self):
-        return self["configuration"]["ruleId"]
-    
-    @property
-    def configurationTypeId(self):
-        return self["configuration"]["typeId"]
-    
-    # TBD Should I model Configuration and variable mapping subcomponents?
-        
-    @property
     def configuration(self):
-        return self["configuration"]["instanceId"]
+        return self["configuration"]
     
     @property
     def variableMappings(self):
@@ -58,11 +44,8 @@ class Trigger(defaultdict):
 class IterableTriggerList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableTriggerList, IterableTriggerList).__init__(
-            apiClient,
-            Trigger,
-            url,
-            filters=filters,
+        super(IterableTriggerList, self).__init__(
+            apiClient, Trigger, url, filters=filters, passApiClient=False,
         )
 
 class Triggers(RestApiDict):
@@ -70,17 +53,5 @@ class Triggers(RestApiDict):
     def __init__(self, apiClient, actionId):
         url = "api/v0002/actions/%s/triggers" % actionId
         super(Triggers, self).__init__(
-            apiClient, Trigger, IterableTriggerList, url
+            apiClient, Trigger, IterableTriggerList, url, passApiClient=False
         )
-
-    def create(self, name, type, description, configuration, variable_mappings, enabled):
-        trigger = {
-            "name": name, 
-            "type": type,
-            "description": description,
-            "configuration": configuration,
-            "variableMappings": variable_mappings,
-            "enabled": enabled,
-        }
-        
-        return super(Triggers, self).create(trigger)

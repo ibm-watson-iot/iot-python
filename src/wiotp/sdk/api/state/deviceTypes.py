@@ -50,18 +50,27 @@ class BaseDeviceType(RestApiItemBase):
         """
         return self["classId"]    # 
     
-    # TBD can we subtype these to describe all the sub fields?
+    
     @property
     def deviceInfo(self):
-        return self["deviceInfo"]
+        if "deviceInfo" in self:
+            return self["deviceInfo"]
+        else:
+            return None
 
     @property
     def metadata(self):
-        return self["schemaId"]
-        
+        if "metadata" in self:
+            return self["metadata"]
+        else:
+            return None
+    
     @property
-    def version(self):
-        return self["version"]   
+    def edgeConfiguration(self):
+        if "edgeConfiguration" in self:
+            return self["edgeConfiguration"]   
+        else:
+            return None
  
     @property 
     def logicalInterfaces(self):
@@ -78,7 +87,7 @@ class DraftDeviceType(BaseDeviceType):
     def __init__(self, apiClient, **kwargs):
         super(DraftDeviceType, self).__init__(apiClient, **kwargs)
         self._url = "api/v0002/draft/device/types/%s" % self.id
-        #ßself.physicalInterface = RestApiModifiableProperty(apiClient, self._url + "/physicalinterface")
+        #self.physicalInterface = RestApiModifiableProperty(apiClient, self._url + "/physicalinterface")
         self._logicalInterfaces = DraftLogicalInterfaces(apiClient, self.id)
         self._mappings = DraftMappings(apiClient, self.id)
 
@@ -87,21 +96,17 @@ class DraftDeviceType(BaseDeviceType):
     def __callPatchOperation__(self, body):
         r = self._apiClient.patch(self._url, body)
         if r.status_code == 200:
-            print ("returning patch response response: %s " % r.json())
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
         
     def activate(self):
-        print ("Activating Device Type: %s " % self.id)
         return self.__callPatchOperation__({"operation": "activate-configuration"})
  
     def validate(self):
-        print ("Validating Device Type: %s " % self.id)
         return self.__callPatchOperation__({"operation": "validate-configuration"})
  
     def differences(self):
-        print ("List differences for Device Type: %s " % self.id)
         return self.__callPatchOperation__({"operation": "list-differences"})
 
  
@@ -124,49 +129,29 @@ class ActiveDeviceType(BaseDeviceType):
     
     def __callPatchOperation__(self, body):
         r = self._apiClient.patch(self._url, body)
-        if r.status_code == 200:
-            print ("returning patch response response: %s " % r.json())
-            return r.json()
-        if r.status_code == 202:
-            print ("returning delayed patch response response: %s " % r.json())
+        if r.status_code in (200, 202):
             return r.json()
         else:
-            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
+            raise ApiException(r)
         
     def deactivate(self):
-        print ("Deactivating Device Type: %s " % self.id)
         return self.__callPatchOperation__({"operation": "deactivate-configuration"})
     
     def __callDraftPatchOperation__(self, body):
         r = self._apiClient.patch(self._draftUrl, body)
-        if r.status_code == 200:
-            print ("returning patch response response: %s " % r.json())
-            return r.json()
-        if r.status_code == 202:
-            print ("returning delayed patch response response: %s " % r.json())
+        if r.status_code in (200,202):
             return r.json()
         else:
-            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
+            raise ApiException(r)
              
     def activate(self):
-        print ("Activating Device Type: %s " % self.id)
         return self.__callDraftPatchOperation__({"operation": "activate-configuration"})
  
     def validate(self):
-        print ("Validating Device Type: %s " % self.id)
         return self.__callDraftPatchOperation__({"operation": "validate-configuration"})
  
     def differences(self):
-        print ("List differences for Device Type: %s " % self.id)
         return self.__callDraftPatchOperation__({"operation": "list-differences"})
-    #def physicalInterface(self):
-    #    r = self._apiClient.get(self._url + "/physicalinterface")
-    #    if r.status_code == 200:
-    #        # TBD print ("returning schema content: %s " % r.json())
-    #        return r.json()
-    #    else:
-    #        raise Exception("Unexpected response from API (%s) = %s %s" % (self.contentUrl, r.status_code, r.text))
-
     
 class IterableDraftDeviceTypeList(IterableList):
     def __init__(self, apiClient, url, filters=None):
@@ -234,8 +219,7 @@ class ActiveLogicalInterfaces(RestApiDict):
         
 # define the common properties found on most Rest API Items
 class DeviceTypeMapping(defaultdict):
-    def __init__(self, apiClient, **kwargs):
-        self._apiClient = apiClient
+    def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
         
     @property
@@ -272,7 +256,7 @@ class DeviceTypeMapping(defaultdict):
         return self["updatedBy"]
     
 class IterableMappingList(IterableSimpleList):
-    def __init__(self, apiClient, url, filters=None):
+    def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
         super(IterableMappingList, self).__init__(
             apiClient, DeviceTypeMapping, url

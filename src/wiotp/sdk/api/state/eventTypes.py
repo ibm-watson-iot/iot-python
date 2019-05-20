@@ -19,8 +19,7 @@ from wiotp.sdk.api.common import RestApiDictReadOnly
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/EventType-mgr-beta.html
 
 class EventType(RestApiItemBase):
-    def __init__(self, apiClient, **kwargs):
-        self._apiClient = apiClient
+    def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
     
     # Note - data accessor functions for common data items are defined in RestApiItemBase
@@ -34,7 +33,7 @@ class EventType(RestApiItemBase):
         return self["version"]    
         
 class IterableEventTypeList(IterableList):
-    def __init__(self, apiClient, url, filters=None):
+    def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
         super(IterableEventTypeList, self).__init__(
             apiClient, EventType, url, filters=filters

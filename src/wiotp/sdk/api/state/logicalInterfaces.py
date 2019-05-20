@@ -55,24 +55,19 @@ class DraftLogicalInterface(BaseLogicalInterface):
     def __callPatchOperation__(self, body):
         r = self._apiClient.patch(self._url, body)
         if r.status_code == 200:
-            print ("returning patch response response: %s " % r.json())
             return r.json()
         elif r.status_code == 202:
-            print ("returning delayed patch response response: %s " % r.json())
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
         
     def activate(self):
-        print ("Activating LI: %s " % self.id)
         return self.__callPatchOperation__({"operation": "activate-configuration"})
  
     def validate(self):
-        print ("Validating LI: %s " % self.id)
         return self.__callPatchOperation__({"operation": "validate-configuration"})
  
     def differences(self):
-        print ("List differences for LI: %s " % self.id)
         return self.__callPatchOperation__({"operation": "list-differences"})
  
 class ActiveLogicalInterface(BaseLogicalInterface):
@@ -86,16 +81,13 @@ class ActiveLogicalInterface(BaseLogicalInterface):
     def __callPatchOperation__(self, body):
         r = self._apiClient.patch(self._url, body)
         if r.status_code == 200:
-            print ("returning patch response response: %s " % r.json())
             return r.json()
         elif r.status_code == 202:
-            print ("returning delayed patch response response: %s " % r.json())
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
         
     def deactivate(self):
-        print ("Activating LI: %s " % self.id)
         return self.__callPatchOperation__({"operation": "deactivate-configuration"})
     
     

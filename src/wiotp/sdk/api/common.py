@@ -120,7 +120,7 @@ class IterableSimpleList(object):
         if len(self._listBuffer) == 0 and not self._noMoreResults:
             # We need to make an api call
             apiResponse = self._makeApiCall()
-            # TBD DEBUG print ("apiResponse: %s" % apiResponse)
+            
             self._listBuffer = apiResponse
             # We read all the results in one call so there are no more available to fetch
             self._noMoreResults = True
@@ -157,7 +157,6 @@ class IterableList(object):
         self._url = url
         self._sort = sort
         self._filters = filters
-        # TBD debug print ("IterableList Filters: %s" % filters)
         self._passApiClient = passApiClient
 
         # For paging through the API
@@ -182,11 +181,8 @@ class IterableList(object):
                     # print("Filter param: %s " % param)
                     parameters[param] = self._filters[param]
 
-            # TBD DEBUG print ("IterableList Parameters: %s" % parameters)
-
             # We need to make an api call
             apiResponse = self._makeApiCall(parameters=parameters)
-            # TBD DEBUG print ("apiResponse: %s" % apiResponse)
             self._listBuffer = apiResponse["results"]
 
             if "bookmark" in apiResponse:
@@ -265,9 +261,9 @@ class RestApiModifiableProperty(property):
         url = self.getUrl(instance)
         # TBD debug print ("Get, Instance, instance: %s, Owner: %s, URL: %s" % (instance, type, url))
 
-        r = instance._apiClient.get(url)
+        r = self.getApiClient(instance).get(url)
         if r.status_code == 200:
-            return self._castToClass(apiClient=instance._apiClient, **r.json())
+            return self._castToClass(apiClient=self.getApiClient(instance), **r.json())
         else:
             raise ApiException(r)        
 
@@ -275,9 +271,9 @@ class RestApiModifiableProperty(property):
         url = self.getUrl(instance)
         # TBD debug print ("Set, Instance, instance: %s, \nOwner: %s, URL: %s, Value: %s" % (instance, type, url, value))
 
-        r = instance._apiClient.post(url, data=value)
+        r = self.getApiClient(instance).post(url, data=value)
         if r.status_code == 201:
-            return self._castToClass(apiClient=instance._apiClient, **r.json())
+            return self._castToClass(apiClient=self.getApiClient(instance), **r.json())
         else:
             raise ApiException(r)
 
@@ -285,7 +281,7 @@ class RestApiModifiableProperty(property):
         # TBD debug print ("Delete, Instance, instance: %s" % (instance))    
         url = self.getUrl(instance)
 
-        r = instance._apiClient.delete(url)
+        r = self.getApiClient(instance).delete(url)
         if r.status_code != 204:
             raise ApiException(r)      
 
@@ -395,6 +391,10 @@ class RestApiDict(RestApiDictBase):
         """
         r = self._apiClient.post(self._baseUrl, data=item)
         if r.status_code == 201:
+            if self._passApiClient:
+                return self._castToClass(apiClient=self._apiClient, **r.json())
+            else:
+                return self._castToClass(**r.json())
             return self._castToClass(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
@@ -412,7 +412,10 @@ class RestApiDict(RestApiDictBase):
 
         r = self._apiClient.put(url, data=item)
         if r.status_code == 200:
-            return self._castToClass(apiClient=self._apiClient, **r.json())
+            if self._passApiClient:
+                return self._castToClass(apiClient=self._apiClient, **r.json())
+            else:
+                return self._castToClass(**r.json())
         else:
             raise ApiException(r)
     

@@ -73,8 +73,7 @@ class ActivePhysicalInterfaces(RestApiDict):
 # =========================================================================
 
 class EventMapping(defaultdict):
-    def __init__(self, apiClient, **kwargs):
-        self._apiClient = apiClient
+    def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
 
     @property
@@ -86,7 +85,7 @@ class EventMapping(defaultdict):
         return self["eventTypeId"]
         
 class IterableEventMappingList(IterableSimpleList):
-    def __init__(self, apiClient, url, filters=None):
+    def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
         super(IterableEventMappingList, self).__init__(
             apiClient, EventMapping, url
