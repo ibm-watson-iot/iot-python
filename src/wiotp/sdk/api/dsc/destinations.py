@@ -124,10 +124,10 @@ class Destinations(defaultdict):
 
     def create(self, name, **kwargs):
         if self.connectorType == "cloudant":
-            if ["bucketInterval"] != kwargs.keys():
+            if "bucketInterval" not in kwargs.keys():
                 raise Exception("You must specify bucketInterval parameter on create for a Cloudant destination")
         if self.connectorType == "eventstreams":
-            if ["partitions"] != kwargs.keys():
+            if "partitions" not in  kwargs.keys():
                 raise Exception("You must specify partitions parameter on create for an EventStreams destination")
 
         destination = {"name": name, "type": self.connectorType, "configuration": kwargs}
