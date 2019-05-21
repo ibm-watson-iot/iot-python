@@ -16,6 +16,7 @@ from wiotp.sdk.exceptions import ApiException
 import string
 import json
 import sys
+from test_state_utils import TestStateUtils
 
 class TestDeviceTypes(testUtils.AbstractTest):
     
@@ -89,43 +90,12 @@ class TestDeviceTypes(testUtils.AbstractTest):
     # Set up services
     # =========================================================================
     def testCleanup(self):
-        # delete any left over device types
-        for dt in self.appClient.state.active.deviceTypes:
-            if (dt.id in (TestDeviceTypes.testDeviceTypeName, TestDeviceTypes.updatedDeviceTypeName, TestDeviceTypes.oldtestDeviceTypeName)):
-                print("Deleting old test device type instance: %s" % (dt))
-                del self.appClient.state.active.deviceTypes[dt.id]
-                               
-         # delete any left over logical interfaces
-        for li in self.appClient.state.draft.logicalInterfaces:
-            if li.name == TestDeviceTypes.testLogicalInterfaceName:
-                print("Deleting old test LI: %s" % (li))
-                del self.appClient.state.draft.logicalInterfaces[li.id]
-                
- 
-        # delete any left over physical interfaces, event type and schema
-        for pi in self.appClient.state.draft.physicalInterfaces:
-            if pi.name == TestDeviceTypes.testPhysicalInterfaceName:
-                print("Deleting old test PI: %s" % (pi))
-                del self.appClient.state.draft.physicalInterfaces[pi.id]
-            
-        for et in self.appClient.state.draft.eventTypes:
-            if et.name == TestDeviceTypes.testEventTypeName:
-                print("Deleting old test event type: %s" % (et))
-                del self.appClient.state.draft.eventTypes[et.id]
-                
-        for s in self.appClient.state.draft.schemas:
-            if s.name in (TestDeviceTypes.testEventSchemaName, TestDeviceTypes.testLiSchemaName):
-                print("Deleting old test schema instance: %s" % (s))
-                del self.appClient.state.draft.schemas[s.id]    
+        TestStateUtils.deleteDeviceTypes(self.appClient, (TestDeviceTypes.testDeviceTypeName, TestDeviceTypes.updatedDeviceTypeName, TestDeviceTypes.oldtestDeviceTypeName))
+        TestStateUtils.deleteDraftLIs(self.appClient, (TestDeviceTypes.testLogicalInterfaceName))                
+        TestStateUtils.deleteDraftPIs(self.appClient, (TestDeviceTypes.testPhysicalInterfaceName))
+        TestStateUtils.deleteDraftEventTypes(self.appClient, (TestDeviceTypes.testEventTypeName))
+        TestStateUtils.deleteDraftSchemas(self.appClient, (TestDeviceTypes.testEventSchemaName, TestDeviceTypes.testLiSchemaName))
         
-    def checkDT (self, deviceType, name, description, deviceInfo = None, metadata = None, edgeConfiguration = None, classId = "Device"):
-        # print("Checking Device Type: %s" % (deviceType))
-        assert deviceType.id == name
-        assert deviceType.description == description
-        assert deviceType.deviceInfo == deviceInfo
-        assert deviceType.metadata == metadata
-        assert deviceType.edgeConfiguration == edgeConfiguration
-        assert deviceType.classId == classId
 
     def isstring(self, s):
         # if we use Python 3
@@ -134,111 +104,10 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # we use Python 2
         return isinstance(s, basestring)
     
-    def checkMapping (self, mapping, logicalInterfaceId, notificationStrategy, propertyMappings, version="draft"):
-        # print("Checking Device Type: %s" % (deviceType))
-        assert mapping.logicalInterfaceId == logicalInterfaceId
-        assert mapping.notificationStrategy == notificationStrategy
-        assert mapping.propertyMappings == propertyMappings
-        assert mapping.logicalInterfaceId == logicalInterfaceId
-        assert mapping.version == version
-        assert isinstance(mapping.created, datetime)
-        assert self.isstring(mapping.createdBy)
-        assert isinstance(mapping.updated, datetime)        
-        assert self.isstring(mapping.updatedBy)
-        
-    def doesSchemaNameExist (self, name):
-        for a in self.appClient.state.draft.schemas.find({"name": name}):
-            if (a.name == name):
-                return True
-        return False
-
-    def doesEventTypeNameExist (self, name):
-        for et in self.appClient.state.draft.eventTypes.find({"name": name}):
-            if (et.name == name):
-                return True
-        return False
-
-    def doesPINameExist (self, name):
-        for pi in self.appClient.state.draft.physicalInterfaces.find({"name": name}):
-            if (pi.name == name):
-                return True
-        return False
-
-    def doesLINameExist (self, name):
-        for li in self.appClient.state.draft.logicalInterfaces.find({"name": name}):
-            if (li.name == name):
-                return True
-        return False
-    
-    def doesDTNameExist (self, name):
-        for dt in self.appClient.state.active.deviceTypes.find({"id": name}):
-            if (dt.id == name):
-                return True
-        return False
-    
-    def doesActiveSchemaNameExist (self, name):
-        for a in self.appClient.state.active.schemas.find({"name": name}):
-            if (a.name == name):
-                return True
-        return False
-    
-    def doesActiveEventTypeNameExist (self, name):
-        for et in self.appClient.state.active.eventTypes.find({"name": name}):
-            if (et.name == name):
-                return True
-        return False
-    
-    def doesActivePINameExist (self, name):
-        for pi in self.appClient.state.active.physicalInterfaces.find({"name": name}):
-            if (pi.name == name):
-                return True
-        return False
-        
-    def doesActiveLINameExist (self, name):
-        for li in self.appClient.state.active.logicalInterfaces.find({"name": name}):
-            if (li.name == name):
-                return True
-        return False
-    
-    def doesActiveDTNameExist (self, name):
-        for dt in self.appClient.state.active.deviceTypes.find({"id": name}):
-            if (dt.id == name):
-                return True
-        return False
-    
-    def createSchema(self, name, schemaFileName, schemaContents, description):
-        jsonSchemaContents = json.dumps(schemaContents)
-        createdSchema = self.appClient.state.draft.schemas.create(
-            name, schemaFileName, jsonSchemaContents, description)        
-        return createdSchema
-    
-    def createEventType(self, name, description, schemaId):
-        createdEventType = self.appClient.state.draft.eventTypes.create(
-            {"name": name, "description": description, "schemaId": schemaId})
-        return createdEventType
-
-    def createPI(self, name, description):
-        createdPI = self.appClient.state.draft.physicalInterfaces.create(
-            {"name": name, "description": description})        
-        return createdPI
-    
-    def comparePIs(self, PI1, PI2):
-        assert PI1.id == PI2.id
-        assert PI1.name == PI2.name
-        assert PI1.description == PI2.description
-        assert PI1.version == PI2.version
-        assert PI1.events == PI2.events
-    
-    def createLI(self, name, description, schemaId):
-        createdLI = self.appClient.state.draft.logicalInterfaces.create(
-            {"name": name, "description": description, "schemaId": schemaId})        
-        return createdLI
-    
     def createAndCheckDT(self, name, description, deviceInfo = None, metadata = None, edgeConfiguration = None, classId = "Device"):
-        payload = {'id' : name, 'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata,'classId': classId, 'edgeConfiguration': edgeConfiguration}
 
-        createdDT = self.appClient.state.active.deviceTypes.create(payload)
-        self.checkDT(createdDT, name, description, deviceInfo, metadata, edgeConfiguration, classId)
+        createdDT = TestStateUtils.createDT(self.appClient, name, description, deviceInfo, metadata, edgeConfiguration, classId)
+        TestStateUtils.checkDT(createdDT, name, description, deviceInfo, metadata, edgeConfiguration, classId)
 
         # now actively refetch the DT to check it is stored
         fetchedDT = self.appClient.state.active.deviceTypes.__getitem__(createdDT.id)
@@ -247,11 +116,8 @@ class TestDeviceTypes(testUtils.AbstractTest):
         return createdDT
     
     def createAndCheckMapping(self, deviceType, logicalInterfaceId, notificationStrategy, propertyMappings):
-        payload = {"logicalInterfaceId": logicalInterfaceId,
-                   "notificationStrategy": notificationStrategy,
-                   "propertyMappings": propertyMappings}
-        createdMapping = deviceType.mappings.create(payload)
-        self.checkMapping(createdMapping, logicalInterfaceId, notificationStrategy, propertyMappings)
+        createdMapping = TestStateUtils.createMapping(self.appClient, deviceType, logicalInterfaceId, notificationStrategy, propertyMappings)
+        TestStateUtils.checkMapping(createdMapping, logicalInterfaceId, notificationStrategy, propertyMappings)
 
         # now actively refetch the mapping to check it is stored
         for fetchedMapping in deviceType.mappings:
@@ -262,12 +128,13 @@ class TestDeviceTypes(testUtils.AbstractTest):
     def testCreatePreReqs(self):
         # LI
         test_schema_name = TestDeviceTypes.testLiSchemaName
-        assert self.doesSchemaNameExist(test_schema_name)==False
+        assert TestStateUtils.doesSchemaNameExist(self.appClient, test_schema_name)==False
         testLIName = TestDeviceTypes.testLogicalInterfaceName
-        assert self.doesLINameExist(testLIName)==False
+        assert TestStateUtils.doesLINameExist(self.appClient, testLIName)==False
         
         # Create a schema
-        TestDeviceTypes.createdLISchema = self.createSchema(
+        TestDeviceTypes.createdLISchema = TestStateUtils.createSchema(
+            self.appClient, 
             test_schema_name, 
             "liSchema.json", 
             TestDeviceTypes.testLISchema, 
@@ -275,34 +142,37 @@ class TestDeviceTypes(testUtils.AbstractTest):
             )
 
         # Create a Logical Interface
-        TestDeviceTypes.createdLI = self.createLI(
-            testLIName, 
+        TestDeviceTypes.createdLI = TestStateUtils.createLI(
+            self.appClient, testLIName, 
             "Test Logical Interface description",
             TestDeviceTypes.createdLISchema.id)      
         
         # PI
         test_schema_name = TestDeviceTypes.testEventSchemaName
-        assert self.doesSchemaNameExist(test_schema_name)==False
+        assert TestStateUtils.doesSchemaNameExist(self.appClient, test_schema_name)==False
         test_eventType_name = TestDeviceTypes.testEventTypeName
-        assert self.doesEventTypeNameExist(test_eventType_name)==False
+        assert TestStateUtils.doesEventTypeNameExist(self.appClient, test_eventType_name)==False
         testPIName = TestDeviceTypes.testPhysicalInterfaceName
-        assert self.doesPINameExist(testPIName)==False
+        assert TestStateUtils.doesPINameExist(self.appClient, testPIName)==False
         
         # Create a schema
-        TestDeviceTypes.createdEventSchema = self.createSchema(
+        TestDeviceTypes.createdEventSchema = TestStateUtils.createSchema(
+            self.appClient, 
             test_schema_name, 
             "eventSchema.json", 
             TestDeviceTypes.testEventSchema, 
             "Test schema description")
         
         # Create an eventType
-        TestDeviceTypes.createdEventType = self.createEventType(
+        TestDeviceTypes.createdEventType = TestStateUtils.createEventType(
+            self.appClient, 
             test_eventType_name, 
             "Test event type description",
             TestDeviceTypes.createdEventSchema.id)
 
         # Create a Physical Interface
-        TestDeviceTypes.createdPI = self.createPI(
+        TestDeviceTypes.createdPI = TestStateUtils.createPI(
+            self.appClient, 
             testPIName, 
             "Test Physical Interface description")      
         
@@ -310,10 +180,10 @@ class TestDeviceTypes(testUtils.AbstractTest):
         TestDeviceTypes.createdPI.events.create({"eventId": TestDeviceTypes.testEventId, "eventTypeId": TestDeviceTypes.createdEventType.id})
            
 
-    def notestDeviceTypeCRUD(self):
+    def testDeviceTypeCRUD(self):
         
         test_dt_name = TestDeviceTypes.testDeviceTypeName
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
         
         # Create a Device Type
         createdDT = self.createAndCheckDT(
@@ -321,22 +191,22 @@ class TestDeviceTypes(testUtils.AbstractTest):
             "Test Device Type description")
                 
         # Can we search for it
-        assert self.doesDTNameExist(test_dt_name)==True
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==True
 
         # Update the DT 
         updatedDT = self.appClient.state.active.deviceTypes.update(
             createdDT.id, {'description': "Test Device Type updated description"})
-        self.checkDT(updatedDT, test_dt_name, "Test Device Type updated description")
+        TestStateUtils.checkDT(updatedDT, test_dt_name, "Test Device Type updated description")
 
         # Delete the DT
         del self.appClient.state.active.deviceTypes[createdDT.id]
         # It should be gone
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
 
-    def notestDeviceTypeFullCRUD(self):
+    def testDeviceTypeFullCRUD(self):
         
         test_dt_name = TestDeviceTypes.testDeviceTypeName
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
         
         deviceInfo = {
                 "serialNumber": "100087",
@@ -362,22 +232,22 @@ class TestDeviceTypes(testUtils.AbstractTest):
             metadata)
                 
         # Can we search for it
-        assert self.doesDTNameExist(test_dt_name)==True
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==True
 
         # Update the DT 
         updatedDT = self.appClient.state.active.deviceTypes.update(
             createdDT.id, {'description': "Test Device Type updated description"})
-        self.checkDT(updatedDT, test_dt_name, "Test Device Type updated description", deviceInfo, metadata)
+        TestStateUtils.checkDT(updatedDT, test_dt_name, "Test Device Type updated description", deviceInfo, metadata)
 
         # Delete the DT
         del self.appClient.state.active.deviceTypes[createdDT.id]
         # It should be gone
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
     
-    def notestDeviceTypePICRUD(self):
+    def testDeviceTypePICRUD(self):
         
         test_dt_name = TestDeviceTypes.testDeviceTypeName
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
         
         # Create a Device Type
         createdDT = self.createAndCheckDT(
@@ -394,7 +264,7 @@ class TestDeviceTypes(testUtils.AbstractTest):
        
         createdDT.physicalInterface = TestDeviceTypes.createdPI
         
-        self.comparePIs(createdDT.physicalInterface,TestDeviceTypes.createdPI)    
+        TestStateUtils.comparePIs(createdDT.physicalInterface,TestDeviceTypes.createdPI)    
         
         # Update the PI 
         createdDT.physicalInterface = TestDeviceTypes.createdPI
@@ -413,19 +283,19 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # Delete the DT
         del self.appClient.state.active.deviceTypes[createdDT.id]
         # It should be gone
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
 
 
-    def notestDeviceTypeLICRUD(self):
+    def testDeviceTypeLICRUD(self):
         
         test_dt_name = TestDeviceTypes.testDeviceTypeName
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
         
         # Create a Device Type
         createdDT = self.createAndCheckDT(
             test_dt_name, 
             "Test Device Type description")
-        assert self.doesDTNameExist(test_dt_name)==True
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==True
         
         # Check the LI
         for li in createdDT.logicalInterfaces:
@@ -453,12 +323,12 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # Delete the DT
         del self.appClient.state.active.deviceTypes[createdDT.id]
         # It should be gone
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
 
-    def notestDeviceTypeEventMappingCRUD(self):
+    def testDeviceTypeEventMappingCRUD(self):
         
         test_dt_name = TestDeviceTypes.testDeviceTypeName
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
         
         # Create a Device Type
         createdDT = self.createAndCheckDT(
@@ -500,12 +370,12 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # Delete the DT
         del self.appClient.state.active.deviceTypes[createdDT.id]
         # It should be gone
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
 
     def testDeviceTypeActivation(self):
 
         test_dt_name = TestDeviceTypes.testDeviceTypeName
-        assert self.doesDTNameExist(test_dt_name)==False
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False
         
         # Create a Device Type
         createdDT = self.createAndCheckDT(
@@ -539,21 +409,21 @@ class TestDeviceTypes(testUtils.AbstractTest):
         
         # Check all the active resources, we mayhave to wait for this to complete
         for attempt in range(6):
-            if (self.doesActiveSchemaNameExist(TestDeviceTypes.testEventSchemaName) and
-               self.doesActiveSchemaNameExist(TestDeviceTypes.testLiSchemaName) and
-               self.doesActiveEventTypeNameExist(TestDeviceTypes.testEventTypeName) and
-               self.doesActivePINameExist(TestDeviceTypes.testPhysicalInterfaceName) and
-               self.doesActiveLINameExist(TestDeviceTypes.testLogicalInterfaceName) and
-               self.doesActiveDTNameExist(TestDeviceTypes.testDeviceTypeName)):
+            if (TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testEventSchemaName) and
+               TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testLiSchemaName) and
+               TestStateUtils.doesActiveEventTypeNameExist(self.appClient, TestDeviceTypes.testEventTypeName) and
+               TestStateUtils.doesActivePINameExist(self.appClient, TestDeviceTypes.testPhysicalInterfaceName) and
+               TestStateUtils.doesActiveLINameExist(self.appClient, TestDeviceTypes.testLogicalInterfaceName) and
+               TestStateUtils.doesActiveDTNameExist(self.appClient, TestDeviceTypes.testDeviceTypeName)):
                 break
             print ("Device Type resources not yet activated, attempt %s" % attempt)
             print ("Active? Event Schema: %s, LI Schema: %s, Event Type: %s, Physical Interface: %s, Logical Interface: %s, Devive Type: %s" %
-                      (self.doesActiveSchemaNameExist(TestDeviceTypes.testEventSchemaName),
-                       self.doesActiveSchemaNameExist(TestDeviceTypes.testLiSchemaName),
-                       self.doesActiveEventTypeNameExist(TestDeviceTypes.testEventTypeName),
-                       self.doesActivePINameExist(TestDeviceTypes.testPhysicalInterfaceName),
-                       self.doesActiveLINameExist(TestDeviceTypes.testLogicalInterfaceName),
-                       self.doesActiveDTNameExist(TestDeviceTypes.testDeviceTypeName)))
+                      (TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testEventSchemaName),
+                       TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testLiSchemaName),
+                       TestStateUtils.doesActiveEventTypeNameExist(self.appClient, TestDeviceTypes.testEventTypeName),
+                       TestStateUtils.doesActivePINameExist(self.appClient, TestDeviceTypes.testPhysicalInterfaceName),
+                       TestStateUtils.doesActiveLINameExist(self.appClient, TestDeviceTypes.testLogicalInterfaceName),
+                       TestStateUtils.doesActiveDTNameExist(self.appClient, TestDeviceTypes.testDeviceTypeName)))
             time.sleep(10)
 
         
@@ -570,42 +440,42 @@ class TestDeviceTypes(testUtils.AbstractTest):
         
         # Check all the active resources are removed, we may have to wait for this to complete
         for attempt in range(6):
-            if not (self.doesActiveSchemaNameExist(TestDeviceTypes.testEventSchemaName) or
-               self.doesActiveSchemaNameExist(TestDeviceTypes.testLiSchemaName) or
-               self.doesActiveEventTypeNameExist(TestDeviceTypes.testEventTypeName) or
-               self.doesActivePINameExist(TestDeviceTypes.testPhysicalInterfaceName) or
-               self.doesActiveLINameExist(TestDeviceTypes.testLogicalInterfaceName)):
+            if not (TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testEventSchemaName) or
+               TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testLiSchemaName) or
+               TestStateUtils.doesActiveEventTypeNameExist(self.appClient, TestDeviceTypes.testEventTypeName) or
+               TestStateUtils.doesActivePINameExist(self.appClient, TestDeviceTypes.testPhysicalInterfaceName) or
+               TestStateUtils.doesActiveLINameExist(self.appClient, TestDeviceTypes.testLogicalInterfaceName)):
                 break
             print ("Device Type resources not yet de-activated, attempt %s" % attempt)
             print ("Active? Event Schema: %s, LI Schema: %s, Event Type: %s, Physical Interface: %s, Logical Interface: %s" %
-                      (self.doesActiveSchemaNameExist(TestDeviceTypes.testEventSchemaName),
-                       self.doesActiveSchemaNameExist(TestDeviceTypes.testLiSchemaName),
-                       self.doesActiveEventTypeNameExist(TestDeviceTypes.testEventTypeName),
-                       self.doesActivePINameExist(TestDeviceTypes.testPhysicalInterfaceName),
-                       self.doesActiveLINameExist(TestDeviceTypes.testLogicalInterfaceName)))
+                      (TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testEventSchemaName),
+                       TestStateUtils.doesActiveSchemaNameExist(self.appClient, TestDeviceTypes.testLiSchemaName),
+                       TestStateUtils.doesActiveEventTypeNameExist(self.appClient, TestDeviceTypes.testEventTypeName),
+                       TestStateUtils.doesActivePINameExist(self.appClient, TestDeviceTypes.testPhysicalInterfaceName),
+                       TestStateUtils.doesActiveLINameExist(self.appClient, TestDeviceTypes.testLogicalInterfaceName)))
             time.sleep(10)
                 
          # Delete the DT
         del self.appClient.state.active.deviceTypes[createdDT.id]
         # It should be gone
-        assert self.doesDTNameExist(test_dt_name)==False       
+        assert TestStateUtils.doesDTNameExist(self.appClient, test_dt_name)==False       
 
         
     def testDeletePreReqs(self):
         del self.appClient.state.draft.physicalInterfaces[TestDeviceTypes.createdPI.id]
-        assert self.doesPINameExist(TestDeviceTypes.testPhysicalInterfaceName)==False
+        assert TestStateUtils.doesPINameExist(self.appClient, TestDeviceTypes.testPhysicalInterfaceName)==False
 
         del self.appClient.state.draft.eventTypes[TestDeviceTypes.createdEventType.id]
-        assert self.doesEventTypeNameExist(TestDeviceTypes.testEventTypeName)==False
+        assert TestStateUtils.doesEventTypeNameExist(self.appClient, TestDeviceTypes.testEventTypeName)==False
 
         del self.appClient.state.draft.schemas[TestDeviceTypes.createdEventSchema.id]
-        assert self.doesSchemaNameExist(TestDeviceTypes.testEventSchemaName)==False     
+        assert TestStateUtils.doesSchemaNameExist(self.appClient, TestDeviceTypes.testEventSchemaName)==False     
         
         # Delete the LI
         del self.appClient.state.draft.logicalInterfaces[TestDeviceTypes.createdLI.id]
-        assert self.doesLINameExist(TestDeviceTypes.testLogicalInterfaceName)==False
+        assert TestStateUtils.doesLINameExist(self.appClient, TestDeviceTypes.testLogicalInterfaceName)==False
 
         # Delete the schema
         del self.appClient.state.draft.schemas[TestDeviceTypes.createdLISchema.id]
-        assert self.doesSchemaNameExist(TestDeviceTypes.testLiSchemaName)==False    
+        assert TestStateUtils.doesSchemaNameExist(self.appClient, TestDeviceTypes.testLiSchemaName)==False    
         
