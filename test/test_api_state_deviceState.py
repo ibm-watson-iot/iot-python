@@ -365,7 +365,7 @@ class TestDeviceState(testUtils.AbstractTest):
             dummyLiId = "DummyLI"
             deviceState = TestDeviceState.createdDevice.states[dummyLiId]
             print("There should be no device state for LI %s. We have: %s" % (dummyLiId, deviceState))
-            fail
+            assert False==True # fail
         except KeyError as e:
              assert True # This is what we expect
              
@@ -373,7 +373,7 @@ class TestDeviceState(testUtils.AbstractTest):
         try:
             for deviceState in TestDeviceState.createdDevice.states:
                 print("We shouldn't be able to iterate over device state for LIs. We have: %s" % deviceState)
-                fail
+                assert False==True # fail
         except:
              assert True # This is what we expect
 
@@ -381,7 +381,7 @@ class TestDeviceState(testUtils.AbstractTest):
         try:
             for deviceState in TestDeviceState.createdDevice.states.find({"name": ""}):
                 print("We shouldn't be able to iterate over device state for LIs. We have: %s" % deviceState)
-                fail
+                assert False==True # fail
         except:
              assert True # This is what we expect
 

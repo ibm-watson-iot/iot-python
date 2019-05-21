@@ -61,10 +61,8 @@ class TestStateUtils:
     def isstring(s):
         # if we use Python 3
         if (sys.version_info[0] >= 3):
-            return isinstance(s, str)
-        # we use Python 2
-        return isinstance(s, basestring)
-               
+            basestring=str
+        return isinstance(s, basestring)               
         
     def checkDT (deviceType, name, description, deviceInfo = None, metadata = None, edgeConfiguration = None, classId = "Device"):
         # print("Checking Device Type: %s" % (deviceType))

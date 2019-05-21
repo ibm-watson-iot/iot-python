@@ -100,10 +100,9 @@ class TestDeviceTypes(testUtils.AbstractTest):
     def isstring(self, s):
         # if we use Python 3
         if (sys.version_info[0] >= 3):
-            return isinstance(s, str)
-        # we use Python 2
+            basestring=str
         return isinstance(s, basestring)
-    
+        
     def createAndCheckDT(self, name, description, deviceInfo = None, metadata = None, edgeConfiguration = None, classId = "Device"):
 
         createdDT = TestStateUtils.createDT(self.appClient, name, description, deviceInfo, metadata, edgeConfiguration, classId)
@@ -258,7 +257,7 @@ class TestDeviceTypes(testUtils.AbstractTest):
         try:
             PI = createdDT.physicalInterface
             print("A newly created Device Type shouldn't have an associated Physical Interface. We have: %s" % PI)
-            fail
+            assert False==True # fail
         except:
              assert True # TBD check the exception
        
@@ -275,7 +274,7 @@ class TestDeviceTypes(testUtils.AbstractTest):
         try:
             PI = createdDT.physicalInterface
             print("We deleted the PI, so there shouldn't be an associated Physical Interface. We have: %s" % PI)
-            assert False==True
+            assert False==True # fail
         except:
              assert True # TBD check the exception
 

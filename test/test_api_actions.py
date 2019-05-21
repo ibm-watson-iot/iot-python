@@ -87,11 +87,11 @@ class TestActions(testUtils.AbstractTest):
     testActionName = "test-action-new"
     updated_action_name = testActionName +"-updated"
     
+      
     def isstring(self, s):
         # if we use Python 3
         if (sys.version_info[0] >= 3):
-            return isinstance(s, str)
-        # we use Python 2
+            basestring=str
         return isinstance(s, basestring)
 
 
