@@ -19,7 +19,7 @@ import json
 class TestSchemas(testUtils.AbstractTest):
     
     testSchemaName = "python-api-test-schema"
-    updatedTestSchemaName = "python-api-test-schema-updated"
+    updatedTestSchemaName = testSchemaName+"-updated"
     
     testEventSchema =  {
         '$schema' : 'http://json-schema.org/draft-04/schema#',
