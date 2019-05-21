@@ -68,27 +68,27 @@ class DeviceClient(AbstractClient):
         if not self._config.isQuickstart():
             self._subscriptions[self._COMMAND_TOPIC] = 1
 
-    def publishEvent(self, event, msgFormat, data, qos=0, on_publish=None):
+    def publishEvent(self, eventId, msgFormat, data, qos=0, onPublish=None):
         """
         Publish an event to Watson IoT Platform.
 
         # Parameters
-        event (string): Name of this event
+        eventId (string): Name of this event
         msgFormat (string): Format of the data for this event
         data (dict): Data for this event
         qos (int): MQTT quality of service level to use (`0`, `1`, or `2`)
-        on_publish(function): A function that will be called when receipt 
+        onPublish(function): A function that will be called when receipt 
            of the publication is confirmed.  
         
         # Callback and QoS
-        The use of the optional #on_publish function has different implications depending 
+        The use of the optional #onPublish function has different implications depending 
         on the level of qos used to publish the event: 
         
         - qos 0: the client has asynchronously begun to send the event
         - qos 1 and 2: the client has confirmation of delivery from the platform
         """
-        topic = "iot-2/evt/{event}/fmt/{msg_format}".format(event=event, msg_format=msgFormat)
-        return self._publishEvent(topic, event, msgFormat, data, qos, on_publish)
+        topic = "iot-2/evt/{eventId}/fmt/{msgFormat}".format(eventId=eventId, msgFormat=msgFormat)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
     def _onCommand(self, client, userdata, pahoMessage):
         """
@@ -100,6 +100,6 @@ class DeviceClient(AbstractClient):
         except InvalidEventException as e:
             self.logger.critical(str(e))
         else:
-            self.logger.debug("Received command '%s'" % (command.command))
+            self.logger.debug("Received command '%s'" % (command.commandId))
             if self.commandCallback:
                 self.commandCallback(command)

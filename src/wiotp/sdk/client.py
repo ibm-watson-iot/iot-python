@@ -267,6 +267,9 @@ class AbstractClient(object):
         self.client.loop_stop()
         self.logger.info("Closed connection to the IBM Watson IoT Platform")
 
+    def isConnected(self):
+        return self.connectEvent.isSet()
+    
     def _onLog(self, mqttc, obj, level, string):
         """
         Called when the client has log information.  
@@ -391,7 +394,7 @@ class AbstractClient(object):
             else:
                 return 0
 
-    def _publishEvent(self, topic, event, msgFormat, data, qos=0, on_publish=None):
+    def _publishEvent(self, topic, event, msgFormat, data, qos=0, onPublish=None):
         if not self.connectEvent.wait(timeout=10):
             self.logger.warning("Unable to send event %s because client is is disconnected state", event)
             return False
@@ -423,11 +426,11 @@ class AbstractClient(object):
                     if result[1] in self._onPublishCallbacks:
                         # Paho callback beat this thread so call callback inline now
                         del self._onPublishCallbacks[result[1]]
-                        if on_publish is not None:
-                            on_publish()
+                        if onPublish is not None:
+                            onPublish()
                     else:
                         # This thread beat paho callback so set up for call later
-                        self._onPublishCallbacks[result[1]] = on_publish
+                        self._onPublishCallbacks[result[1]] = onPublish
                 return True
             else:
                 return False

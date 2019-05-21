@@ -53,14 +53,14 @@ class ApplicationClientConfig(defaultdict):
         if "mqtt" not in kwargs["options"]:
             kwargs["options"]["mqtt"] = {}
 
+        if "instanceId" not in kwargs["options"]["mqtt"]:
+            kwargs["options"]["mqtt"]["instanceId"] = None
+
         if "port" not in kwargs["options"]["mqtt"]:
             kwargs["options"]["mqtt"]["port"] = None
 
         if "transport" not in kwargs["options"]["mqtt"] or kwargs["options"]["mqtt"]["transport"] is None:
             kwargs["options"]["mqtt"]["transport"] = "tcp"
-
-        if "sharedSubscription" not in kwargs["options"]["mqtt"]:
-            kwargs["options"]["mqtt"]["sharedSubscription"] = False
 
         if "cleanStart" not in kwargs["options"]["mqtt"]:
             kwargs["options"]["mqtt"]["cleanStart"] = False
@@ -95,9 +95,15 @@ class ApplicationClientConfig(defaultdict):
         return self["identity"]["appId"]
 
     @property
+    def instanceId(self):
+        return self["options"]["mqtt"]["instanceId"]
+
+    @property
     def clientId(self):
-        clientIdPrefix = "A" if (self.sharedSubscription is True) else "a"
-        return "%s:%s:%s" % (clientIdPrefix, self.orgId, self.appId)
+        if (self.instanceId is None):
+            return "a:%s:%s" % (self.orgId, self.appId)
+        else:
+            return "A:%s:%s:%s" % (self.orgId, self.appId, self.instanceId)
 
     @property
     def apiKey(self):
@@ -152,10 +158,6 @@ class ApplicationClientConfig(defaultdict):
         return self["options"]["mqtt"]["keepAlive"]
 
     @property
-    def sharedSubscription(self):
-        return self["options"]["mqtt"]["sharedSubscription"]
-
-    @property
     def caFile(self):
         return self["options"]["mqtt"]["caFile"]
 
@@ -174,13 +176,13 @@ def parseEnvVars():
     - `WIOTP_AUTH_TOKEN`
     - `WIOTP_OPTIONS_DOMAIN` (optional)
     - `WIOTP_OPTIONS_LOGLEVEL` (optional)
+    - `WIOTP_OPTIONS_MQTT_INSTANCEID` (optional)
     - `WIOTP_OPTIONS_MQTT_PORT` (optional)
     - `WIOTP_OPTIONS_MQTT_TRANSPORT` (optional)
     - `WIOTP_OPTIONS_MQTT_CAFILE` (optional)
     - `WIOTP_OPTIONS_MQTT_CLEANSTART` (optional)
     - `WIOTP_OPTIONS_MQTT_SESSIONEXPIRY` (optional)
     - `WIOTP_OPTIONS_MQTT_KEEPALIVE` (optional)
-    - `WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION` (optional)
     - `WIOTP_OPTIONS_HTTP_VERIFY` (optional)
     """
 
@@ -198,13 +200,13 @@ def parseEnvVars():
     # Options
     domain = os.getenv("WIOTP_OPTIONS_DOMAIN", None)
     logLevel = os.getenv("WIOTP_OPTIONS_LOGLEVEL", "info")
+    instanceId = os.getenv("WIOTP_OPTIONS_MQTT_INSTANCEID", None)
     port = os.getenv("WIOTP_OPTIONS_MQTT_PORT", None)
     transport = os.getenv("WIOTP_OPTIONS_MQTT_TRANSPORT", None)
     caFile = os.getenv("WIOTP_OPTIONS_MQTT_CAFILE", None)
     cleanStart = os.getenv("WIOTP_OPTIONS_MQTT_CLEANSTART", "True")
     sessionExpiry = os.getenv("WIOTP_OPTIONS_MQTT_SESSIONEXPIRY", "3600")
     keepAlive = os.getenv("WIOTP_OPTIONS_MQTT_KEEPALIVE", "60")
-    sharedSubs = os.getenv("WIOTP_OPTIONS_MQTT_SHAREDSUBSCRIPTION", "False")
     verifyCert = os.getenv("WIOTP_OPTIONS_HTTP_VERIFY", "True")
 
     if port is not None:
@@ -230,17 +232,19 @@ def parseEnvVars():
         logLevel = logging.getLevelName(logLevel.upper())
 
     cfg = {
-        "identity": {"appId": appId},
+        "identity": {
+            "appId": appId
+        },
         "options": {
             "domain": domain,
             "logLevel": logLevel,
             "mqtt": {
+                "instanceId": instanceId,
                 "port": port,
                 "transport": transport,
                 "cleanStart": cleanStart in ["True", "true", "1"],
                 "sessionExpiry": sessionExpiry,
                 "keepAlive": keepAlive,
-                "sharedSubscription": sharedSubs in ["True", "true", "1"],
                 "caFile": caFile,
             },
             "http": {"verify": verifyCert in ["True", "true", "1"]},
@@ -270,12 +274,12 @@ def parseConfigFile(configFilePath):
       domain: internetofthings.ibmcloud.com
       logLevel: error|warning|info|debug
       mqtt:
+        instanceId: myInstance
         port: 8883
         transport: tcp
         cleanStart: false
         sessionExpiry: 3600
         keepAlive: 60
-        sharedSubscription: false
         caFile: /path/to/certificateAuthorityFile.pem
       http:
         verify: true    

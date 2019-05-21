@@ -117,11 +117,11 @@ class ManagedGatewayClient(ManagedDeviceClient):
         self._subscriptions[self.DM_OBSERVE_TOPIC_TEMPLATE % (self._config.typeId, self._config.deviceId)] = 1
         self._subscriptions[self.COMMAND_TOPIC] = 1
 
-    def publishDeviceEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, on_publish=None):
+    def publishDeviceEvent(self, typeId, deviceId, eventId, msgFormat, data, qos=0, onPublish=None):
         topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/evt/" + eventId + "/fmt/" + msgFormat
-        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
-    def publishEvent(self, eventId, msgFormat, data, qos=0, on_publish=None):
+    def publishEvent(self, eventId, msgFormat, data, qos=0, onPublish=None):
         topic = (
             "iot-2/type/"
             + self._config.typeId
@@ -132,7 +132,7 @@ class ManagedGatewayClient(ManagedDeviceClient):
             + "/fmt/"
             + msgFormat
         )
-        return self._publishEvent(topic, eventId, msgFormat, data, qos, on_publish)
+        return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
     def subscribeToDeviceCommands(self, typeId, deviceId, commandId="+", format="json", qos=1):
         topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/cmd/" + commandId + "/fmt/" + format

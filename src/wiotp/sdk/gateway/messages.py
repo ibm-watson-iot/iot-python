@@ -17,9 +17,9 @@ class Command:
     def __init__(self, pahoMessage, messageEncoderModules):
         result = COMMAND_RE.match(pahoMessage.topic)
         if result:
-            self.type = result.group(1)
-            self.id = result.group(2)
-            self.command = result.group(3)
+            self.typeId = result.group(1)
+            self.deviceId = result.group(2)
+            self.commandId = result.group(3)
             self.format = result.group(4)
 
             if self.format in messageEncoderModules:
@@ -39,8 +39,8 @@ class Notification:
     def __init__(self, pahoMessage, messageEncoderModules):
         result = NOTIFY_RE.match(pahoMessage.topic)
         if result:
-            self.type = result.group(1)
-            self.id = result.group(2)
+            self.typeId = result.group(1)
+            self.deviceId = result.group(2)
             self.format = "json"
 
             if self.format in messageEncoderModules:

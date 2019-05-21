@@ -43,8 +43,8 @@ class TestLEC(testUtils.AbstractTest):
         
         deviceClient = DeviceClient(deviceOptions)
         deviceClient.connect()
-        deviceClient.publishEvent(event="test1", msgFormat="json", data={"foo": "bar1"}, qos=1)
-        deviceClient.publishEvent(event="test2", msgFormat="json", data={"foo": "bar2"}, qos=1)
+        deviceClient.publishEvent(eventId="test1", msgFormat="json", data={"foo": "bar1"}, qos=1)
+        deviceClient.publishEvent(eventId="test2", msgFormat="json", data={"foo": "bar2"}, qos=1)
         deviceClient.disconnect()
         
         # Wait 30 seconds to increase likelihood that the message has been processed/cached

@@ -15,10 +15,10 @@ from wiotp.sdk.exceptions import ApiException
 class DataTransferSummary(defaultdict):
     def __init__(self, **kwargs):
         daysAsObj = []
-        if "days" in kwargs:
+        if "days" in kwargs and kwargs["days"] is not None:
             for day in kwargs["days"]:
                 daysAsObj.append(DayDataTransfer(**day))
-            del kwargs["days"]
+        del kwargs["days"]
         dict.__init__(self, days=daysAsObj, **kwargs)
 
     @property

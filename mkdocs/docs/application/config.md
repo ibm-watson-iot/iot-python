@@ -3,13 +3,14 @@
 Application configuration can be broken down into required and optional configuration:
 
 ## Required Configuration
-- `identity.appId` Your organization ID.
+- `identity.appId` Your unique application ID.
 - `auth.key` An API key authentication token to securely connect your application to Watson IoT Platform.
 - `auth.token` The authentication token for the API key you are using.
 
 ## Optional Configuration
 - `options.domain` A boolean value indicating which Watson IoT Platform domain to connect to (e.g. if you have a dedicated platform instance). Defaults to `internetofthings.ibmcloud.com`
 - `options.logLevel` Controls the level of logging in the client, can be set to `error`, `warning`, `info`, or `debug`.  Defaults to `info`.
+- `options.mqtt.instanceId` Optional instance ID, use if you wish create a multi-instance application which will loadbalance incoming messages.
 - `options.mqtt.port` A integer value defining the MQTT port.  Defaults to auto-negotiation.
 - `options.mqtt.transport` The transport to use for MQTT connectivity - `tcp` or `websockets`.
 - `options.mqtt.cleanStart` A boolean value indicating whether to discard any previous state when reconnecting to the service.  Defaults to `False`.
@@ -23,7 +24,7 @@ The config parameter when constructing an instance of `wiotp.sdk.application.App
 ```python
 myConfig = { 
     "identity": {
-        "appId": "app1",
+        "appId": "app1"
     }.
     "auth" {
         "key": "orgid-h798S783DK"
@@ -33,6 +34,7 @@ myConfig = {
         "domain": "internetofthings.ibmcloud.com",
         "logLevel": "error|warning|info|debug",
         "mqtt": {
+            "instanceId": "instance1",
             "port": 8883,
             "transport": "tcp|websockets",
             "cleanStart": True|False,
@@ -83,6 +85,7 @@ options:
     domain: internetofthings.ibmcloud.com
     logLevel: debug
     mqtt:
+        instanceId: instance1
         port: 8883
         transport: tcp
         cleanStart: true
@@ -111,10 +114,10 @@ client = wiotp.sdk.application.ApplicationClient(config=myConfig, logHandlers=No
 ### Optional Additional Environment Variables
 - `WIOTP_OPTIONS_DOMAIN`
 - `WIOTP_OPTIONS_LOGLEVEL`
+- `WIOTP_OPTIONS_MQTT_INSTANCEID`
 - `WIOTP_OPTIONS_MQTT_PORT`
 - `WIOTP_OPTIONS_MQTT_TRANSPORT`
 - `WIOTP_OPTIONS_MQTT_CAFILE`
 - `WIOTP_OPTIONS_MQTT_CLEANSTART`
 - `WIOTP_OPTIONS_MQTT_SESSIONEXPIRY`
 - `WIOTP_OPTIONS_MQTT_KEEPALIVE`
-

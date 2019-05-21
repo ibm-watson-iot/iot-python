@@ -11,7 +11,7 @@ import pytest
 import testUtils
 import wiotp.sdk.gateway
 
-class TestDeviceCfg(testUtils.AbstractTest):
+class TestGatewayCfg(testUtils.AbstractTest):
 
     def testMissingOptions(self):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
@@ -65,3 +65,15 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.parseConfigFile(deviceFile)
         assert e.value.reason =="Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')"
+
+    def testAuthProperties(self):
+        config = wiotp.sdk.gateway.GatewayClientConfig(**{
+            "identity": {
+                "orgId": "myOrg", "typeId": "myType", "deviceId": "myId"
+            },
+            "auth": { "token" : "myToken" }
+        })
+
+        assert config.apiKey == "g/myOrg/myType/myId"
+        assert config.apiToken == "myToken"
+        

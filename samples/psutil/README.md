@@ -10,6 +10,7 @@ The following data points are collected:
  * Outbound network utilization across all network interfaces (KB/s)
  * Inbound network utilization across all network interfaces (KB/s)
 
+A tutorial guiding you through the process of setting up this sample on a Raspberry Pi is published on [IBM Developer developerWorks Recipes](https://developer.ibm.com/recipes/tutorials/raspberry-pi-4/)
 
 ## Event Format
 
@@ -19,6 +20,17 @@ The following data points are collected:
 - `network.up` calculated using `psutil.net_io_counters()`
 - `network.down` calculated using `psutil.net_io_counters()`
 
+## Before you Begin
+
+Register a device with IBM Watson IoT Platform.  
+
+For information on how to register devices, see the [Connecting Devices](https://www.ibm.com/support/knowledgecenter/SSQP8H/iot/platform/iotplatform_task.html) topic in the IBM Watson IoT Platform documentation.  
+
+At the end of the registration process, make a note of the following parameters: 
+   - Organization ID
+   - Device Type
+   - Device ID
+   - Authentication Token  
 
 ## Docker
 
@@ -31,7 +43,13 @@ $ docker logs -tf psutil
 2019-05-07T11:09:19.672513500Z 2019-05-07 11:09:19,671   wiotp.sdk.device.client.DeviceClient  INFO    Connected successfully: d:quickstart:sample-iotpsutil:242ac110002
 ```
 
-To connect as a registered device in your organization you must set the following environment variables: `WIOTP_IDENTITY_ORGID`, `WIOTP_IDENTITY_TYPEID`, `WIOTP_IDENTITY_DEVICEID`, and `WIOTP_AUTH_TOKEN` in the container's environment.
+To connect as a registered device in your organization you must set the following environment variables in the container's environment. These variables correspond to the device parameters for your registered device: 
+- `WIOTP_IDENTITY_ORGID`
+- `WIOTP_IDENTITY_TYPEID`
+- `WIOTP_IDENTITY_DEVICEID`
+- `WIOTP_AUTH_TOKEN`.
+
+The following example shows how to set the environment variables:
 
 ```
 $ export WIOTP_IDENTITY_ORGID=myorgid
@@ -53,7 +71,7 @@ Installation across all OS's is pretty much the same:
 - [Download](https://github.com/ibm-watson-iot/iot-python/archive/master.zip) the sample code from GitHub
 - Run the sample
 
-The example below shows the setup process on **Raspbian** (Raspberry Pi).
+The following example shows the setup process on **Raspbian** (Raspberry Pi).
 
 ```
 pi@raspberrypi ~ $ sudo apt-get update
@@ -66,6 +84,8 @@ pi@raspberrypi ~ $ python iotpsutil.py --quickstart
 (Press Ctrl+C to disconnect)
 
 ```
+
+Note: Set the same environment variables detailed in the Docker section of this README (above) and ommit the `--quickstart` argument to connect your Raspberry Pi to IBM Watson IoT Platform as a registered device.
 
 
 ## Support Application
