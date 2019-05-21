@@ -61,14 +61,14 @@ class TestSchemas(testUtils.AbstractTest):
                 #  print("Found a non matching test schema instance: %s" % (a))
 
 
-    def checkSchema (self, schema, name, schemaFileName, schemaContents, description):
+    def checkSchema (self, schema, name, schemaFileName, schemaContents, description, version="draft"):
         assert schema.name == name
         assert schema.description == description
         assert schema.schemaType == "json-schema"
         assert schema.schemaFileName == schemaFileName
         assert schema.contentType == "application/json"
         assert schema.content == schemaContents
-        assert schema.version == "draft"
+        assert schema.version == version
 
         assert isinstance(schema.created, datetime)
         assert isinstance(schema.createdBy, str)

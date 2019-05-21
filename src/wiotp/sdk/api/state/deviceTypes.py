@@ -79,41 +79,11 @@ class BaseDeviceType(RestApiItemBase):
     @property 
     def mappings(self):
         return self._mappings   
-
-        
-class DraftDeviceType(BaseDeviceType):
-    physicalInterface = DraftPI()
-
-    def __init__(self, apiClient, **kwargs):
-        super(DraftDeviceType, self).__init__(apiClient, **kwargs)
-        self._url = "api/v0002/draft/device/types/%s" % self.id
-        #self.physicalInterface = RestApiModifiableProperty(apiClient, self._url + "/physicalinterface")
-        self._logicalInterfaces = DraftLogicalInterfaces(apiClient, self.id)
-        self._mappings = DraftMappings(apiClient, self.id)
-
-    # Note - data accessor functions for common data items are defined in BaseDeviceType    
-    
-    def __callPatchOperation__(self, body):
-        r = self._apiClient.patch(self._url, body)
-        if r.status_code == 200:
-            return r.json()
-        else:
-            raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
-        
-    def activate(self):
-        return self.__callPatchOperation__({"operation": "activate-configuration"})
  
-    def validate(self):
-        return self.__callPatchOperation__({"operation": "validate-configuration"})
- 
-    def differences(self):
-        return self.__callPatchOperation__({"operation": "list-differences"})
-
- 
-class ActiveDeviceType(BaseDeviceType):
+class DeviceType(BaseDeviceType):
     physicalInterface = DraftPI()  # TBD need to provide access to active and draft.
     def __init__(self, apiClient, **kwargs):
-        super(ActiveDeviceType, self).__init__(apiClient, **kwargs)
+        super(DeviceType, self).__init__(apiClient, **kwargs)
         self._url = "api/v0002/device/types/%s" % self.id
         self._draftUrl = "api/v0002/draft/device/types/%s" % self.id
         self._logicalInterfaces = DraftLogicalInterfaces(apiClient, self.id) # TBD need to provide access to active and draft.
@@ -153,32 +123,19 @@ class ActiveDeviceType(BaseDeviceType):
     def differences(self):
         return self.__callDraftPatchOperation__({"operation": "list-differences"})
     
-class IterableDraftDeviceTypeList(IterableList):
+
+class IterableDeviceTypeList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableDraftDeviceTypeList, self).__init__(
-            apiClient, DraftDeviceType, url, filters=filters
+        super(IterableDeviceTypeList, self).__init__(
+            apiClient, DeviceType, url, filters=filters
         )
 
-class DraftDeviceTypes(RestApiDict):
+class DeviceTypes(RestApiDict):
 
     def __init__(self, apiClient):
-        super(DraftDeviceTypes, self).__init__(
-            apiClient, DraftDeviceType, IterableDraftDeviceTypeList, "api/v0002/draft/device/types"
-        )
-            
-class IterableActiveDeviceTypeList(IterableList):
-    def __init__(self, apiClient, url, filters=None):
-        # This API does not support sorting
-        super(IterableActiveDeviceTypeList, self).__init__(
-            apiClient, ActiveDeviceType, url, filters=filters
-        )
-
-class ActiveDeviceTypes(RestApiDict):
-
-    def __init__(self, apiClient):
-        super(ActiveDeviceTypes, self).__init__(
-            apiClient, ActiveDeviceType, IterableActiveDeviceTypeList, "api/v0002/device/types"
+        super(DeviceTypes, self).__init__(
+            apiClient, DeviceType, IterableDeviceTypeList, "api/v0002/device/types"
         )      
 
 

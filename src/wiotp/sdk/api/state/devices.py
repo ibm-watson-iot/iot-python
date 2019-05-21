@@ -32,7 +32,6 @@ class Device(RestApiItemBase):
     def deviceId(self):
         return self["deviceId"]
     
-    
     @property
     def deviceInfo(self):
         return self["deviceInfo"]
@@ -43,7 +42,7 @@ class Device(RestApiItemBase):
     
     @property
     def registration(self):
-        return self["version"]        
+        return self["registration"]        
 
     @property
     def status(self):

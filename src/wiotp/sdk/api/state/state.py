@@ -45,33 +45,17 @@ class State(defaultdict):
     def reset(self):
         return self.__callPatchOperation__({"operation": "reset-state"})    
 
-        
-class IterableStateList(IterableList):
-    def __init__(self, apiClient, url, filters=None):
-        # This API does not support sorting
-        super(IterableStateList, self).__init__(
-            apiClient, State, url, filters=filters
-        )
-
 class States(RestApiDictReadOnly):
 
     def __init__(self, apiClient, typeId, instanceId):
         url=("api/v0002/device/types/%s/devices/%s/state" % (typeId, instanceId) )
         super(States, self).__init__(
-            apiClient, State, IterableStateList, url
+            apiClient, State, None, url
         )
         
     # TBD this method overrides the base class method to pass the state URL to the constructed state
     # without this, we can't invoke reset-state api call.
     def __getitem__(self, key):
-        """
-        Retrieve the Item with the specified id.
-        Parameters:
-            - key (String), Identity field to access item
-        Throws APIException on failure.
-
-        """
-
         url = self._singleItemUrl % (key)
 
         r = self._apiClient.get(url)
@@ -81,4 +65,10 @@ class States(RestApiDictReadOnly):
             self.__missing__(key)
         else:
             raise ApiException(r)
+        
+    # override the standard iterator as there is no api to get all state itetrating over LIs
+    def __iter__(self, *args, **kwargs):
+        raise Exception("Unable to iterate through device state. Retrieve it for a specific LI.")
 
+    def find(self, query_params={}):
+        raise Exception("Unable to find device state. Retrieve it for a specific LI.")

@@ -333,6 +333,46 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # It should be gone
         assert self.doesDTNameExist(test_dt_name)==False
 
+    def notestDeviceTypeFullCRUD(self):
+        
+        test_dt_name = TestDeviceTypes.testDeviceTypeName
+        assert self.doesDTNameExist(test_dt_name)==False
+        
+        deviceInfo = {
+                "serialNumber": "100087",
+                "manufacturer": "ACME Co.",
+                "model": "7865",
+                "deviceClass": "A",
+                "description": "My shiny device",
+                "fwVersion": "1.0.0",
+                "hwVersion": "1.0",
+                "descriptiveLocation": "Office 5, D Block"
+            }
+        
+        metadata = {
+                "customField1": "customValue1",
+                "customField2": "customValue2"
+            }
+        
+        # Create a Device Type
+        createdDT = self.createAndCheckDT(
+            test_dt_name, 
+            "Test Device Type description",
+            deviceInfo,
+            metadata)
+                
+        # Can we search for it
+        assert self.doesDTNameExist(test_dt_name)==True
+
+        # Update the DT 
+        updatedDT = self.appClient.state.active.deviceTypes.update(
+            createdDT.id, {'description': "Test Device Type updated description"})
+        self.checkDT(updatedDT, test_dt_name, "Test Device Type updated description", deviceInfo, metadata)
+
+        # Delete the DT
+        del self.appClient.state.active.deviceTypes[createdDT.id]
+        # It should be gone
+        assert self.doesDTNameExist(test_dt_name)==False
     
     def notestDeviceTypePICRUD(self):
         
@@ -348,7 +388,7 @@ class TestDeviceTypes(testUtils.AbstractTest):
         try:
             PI = createdDT.physicalInterface
             print("A newly created Device Type shouldn't have an associated Physical Interface. We have: %s" % PI)
-            assert False==True
+            fail
         except:
              assert True # TBD check the exception
        
@@ -415,7 +455,7 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # It should be gone
         assert self.doesDTNameExist(test_dt_name)==False
 
-    def testDeviceTypeEventMappingCRUD(self):
+    def notestDeviceTypeEventMappingCRUD(self):
         
         test_dt_name = TestDeviceTypes.testDeviceTypeName
         assert self.doesDTNameExist(test_dt_name)==False
@@ -462,7 +502,7 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # It should be gone
         assert self.doesDTNameExist(test_dt_name)==False
 
-    def notestDeviceTypeActivation(self):
+    def testDeviceTypeActivation(self):
 
         test_dt_name = TestDeviceTypes.testDeviceTypeName
         assert self.doesDTNameExist(test_dt_name)==False
@@ -520,7 +560,12 @@ class TestDeviceTypes(testUtils.AbstractTest):
         # Now we should be able to activate the LI:
         TestDeviceTypes.createdLI.validate()
         TestDeviceTypes.createdLI.activate()
+        
+        # print ("Device Type differences: %s" % )
+        configDifferences = createdDT.differences()
+        assert configDifferences["contentState"] == "SAME"
        
+        # print ("deactivating Device Type %s" % createdDT)
         createdDT.deactivate()
         
         # Check all the active resources are removed, we may have to wait for this to complete

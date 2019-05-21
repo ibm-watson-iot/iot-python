@@ -16,7 +16,7 @@ from wiotp.sdk.exceptions import ApiException
 import string
 import json
 from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
-
+from pip._vendor.chardet import codingstatemachine
 
 class TestDeviceState(testUtils.AbstractTest):
     
@@ -141,10 +141,13 @@ class TestDeviceState(testUtils.AbstractTest):
         
     def checkDT (self, DeviceType, name, description, deviceInfo = None, metadata = None, edgeConfiguration = None, classId = "Device"):
         assert DeviceType.id == name
-        assert DeviceType.description == description
+        assert DeviceType.description == description       
         
-        # TBD more needed here
-        
+    def checkState (self, state, expectedState):
+        assert state.state == expectedState
+        assert isinstance(state.timestamp, datetime)
+        assert isinstance(state.updated, datetime)        
+                
     def doesSchemaNameExist (self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):
             if (a.name == name):
@@ -343,7 +346,8 @@ class TestDeviceState(testUtils.AbstractTest):
             if li.name == TestDeviceState.testLogicalInterfaceName:
                 deviceState = TestDeviceState.createdDevice.states[li.id]
                 # print("Device state: %s" % (deviceState))
-                assert deviceState.state==TestDeviceState.defaultDeviceState
+                self.checkState (deviceState, TestDeviceState.defaultDeviceState)
+            
 
     def testResetDeviceState(self):
         # print("test Device state")
@@ -353,8 +357,34 @@ class TestDeviceState(testUtils.AbstractTest):
                 TestDeviceState.createdDevice.states[li.id].reset()
                 deviceState = TestDeviceState.createdDevice.states[li.id]
                 # print("Device state: %s" % (deviceState))
-                assert deviceState.state==TestDeviceState.defaultDeviceState
+                self.checkState (deviceState, TestDeviceState.defaultDeviceState)
              
+    def testDeviceStateErrors(self):
+        # Check state for a non existent LI
+        try:
+            dummyLiId = "DummyLI"
+            deviceState = TestDeviceState.createdDevice.states[dummyLiId]
+            print("There should be no device state for LI %s. We have: %s" % (dummyLiId, deviceState))
+            fail
+        except KeyError as e:
+             assert True # This is what we expect
+             
+        # Try to iterate over state for all LIs
+        try:
+            for deviceState in TestDeviceState.createdDevice.states:
+                print("We shouldn't be able to iterate over device state for LIs. We have: %s" % deviceState)
+                fail
+        except:
+             assert True # This is what we expect
+
+        # Try to 'find' state
+        try:
+            for deviceState in TestDeviceState.createdDevice.states.find({"name": ""}):
+                print("We shouldn't be able to iterate over device state for LIs. We have: %s" % deviceState)
+                fail
+        except:
+             assert True # This is what we expect
+
         
     def testDeletePreReqs(self):
 

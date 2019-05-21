@@ -304,12 +304,28 @@ class TestDevice(testUtils.AbstractTest):
                 
 
     def testRegisterDevice(self):
+        createdDeviceId = str(uuid.uuid4())
+        deviceInfo = {"serialNumber":"123", "descriptiveLocation":"Floor 3, Room 2"}
+        metadata = {
+                "customField1": "customValue1",
+                "customField2": "customValue2"
+            }        
         TestDevice.createdDevice = TestDevice.createdDT.devices.create({
-                "deviceId": str(uuid.uuid4()), 
+                "deviceId": createdDeviceId, 
                 "authToken": "NotVerySecretPassw0rd",
-                "deviceInfo": DeviceInfo(serialNumber="123", descriptiveLocation="Floor 3, Room 2")
+                "deviceInfo": deviceInfo,
+                "metadata" : metadata
             })
         
+        # read it back to check it's there
+        for retrievedDevice in TestDevice.createdDT.devices:
+            assert retrievedDevice.typeId == TestDevice.createdDT.id
+            assert retrievedDevice.deviceId == createdDeviceId
+            assert retrievedDevice.metadata == metadata
+            assert retrievedDevice.registration != None
+            assert retrievedDevice.status != None
+            assert retrievedDevice.deviceInfo == deviceInfo
+            
              
         
     def testDeletePreReqs(self):
