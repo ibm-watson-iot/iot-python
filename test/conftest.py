@@ -33,8 +33,8 @@ def deviceType(request, testUtil):
             logging.exception("Unable to register device type for test %s. API response: %s" % (request.module.__name__, ex.message))
     
     yield deviceType
-
-    testUtil.appClient.registry.devicetypes.delete(typeId)
+    # We don't delete the devicetype as we want to re-use it across threads in Travis
+    # testUtil.appClient.registry.devicetypes.delete(typeId)
 
 @pytest.fixture
 def device(request, testUtil, deviceType, authToken):
@@ -86,7 +86,8 @@ def gatewayDeviceType(request, testUtil):
     
     yield gatewayDeviceType
 
-    testUtil.appClient.registry.devicetypes.delete(typeId)
+    # We don't delete the devicetype as we want to re-use it across threads in Travis
+    # testUtil.appClient.registry.devicetypes.delete(typeId)
 
 
 
