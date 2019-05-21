@@ -208,7 +208,7 @@ class TestDevice(testUtils.AbstractTest):
         assert deviceClient.publishEvent("testPublishJsonEvent", "json", myData, onPublish=devPublishCallback, qos=2) == True
         deviceClient.disconnect()
 
-    def testPublishEventPortInvalid(self):
+    def testConfigPortInvalid(self):
         options = {
             "identity": {
                 "orgId": self.ORG_ID, "typeId": "xxx", "deviceId": "xxx" 

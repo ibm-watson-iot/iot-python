@@ -91,14 +91,14 @@ class GatewayClient(DeviceClient):
         )
         return self._publishEvent(topic, eventId, msgFormat, data, qos, onPublish)
 
-    def subscribeToDeviceCommands(self, typeId, deviceId, commandId="+", format="json", qos=1):
-        topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/cmd/" + commandId + "/fmt/" + format
+    def subscribeToDeviceCommands(self, typeId, deviceId, commandId="+", msgFormat="json", qos=1):
+        topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/cmd/" + commandId + "/fmt/" + msgFormat
         return self._subscribe(topic, qos=1)
 
-    def subscribeToCommands(self, commandId="+", format="json", qos=1):
+    def subscribeToCommands(self, commandId="+", msgFormat="json", qos=1):
         typeId = self._config.typeId
         deviceId = self._config.deviceId
-        topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/cmd/" + commandId + "/fmt/" + format
+        topic = "iot-2/type/" + typeId + "/id/" + deviceId + "/cmd/" + commandId + "/fmt/" + msgFormat
         return self._subscribe(topic, qos=1)
 
     def subscribeToNotifications(self):
@@ -118,7 +118,7 @@ class GatewayClient(DeviceClient):
         except InvalidEventException as e:
             self.logger.critical(str(e))
         else:
-            self.logger.debug("Received device command '%s'" % (command.command))
+            self.logger.debug("Received device command '%s'" % (command.commandId))
             if self.commandCallback:
                 self.commandCallback(command)
 
@@ -132,7 +132,7 @@ class GatewayClient(DeviceClient):
         except InvalidEventException as e:
             self.logger.critical(str(e))
         else:
-            self.logger.debug("Received gateway command '%s'" % (command.command))
+            self.logger.debug("Received gateway command '%s'" % (command.commandId))
             if self.deviceCommandCallback:
                 self.deviceCommandCallback(command)
 
