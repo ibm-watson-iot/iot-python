@@ -15,7 +15,7 @@ import pytest
 from wiotp.sdk.api.services import CloudantServiceBindingCredentials, CloudantServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
-@testUtils.py27onlytest
+@testUtils.oneJobOnlyTest
 class TestDscCloudant(testUtils.AbstractTest):
     
     # =========================================================================

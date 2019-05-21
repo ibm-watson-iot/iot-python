@@ -12,7 +12,7 @@ import pytest
 import os
 import sys
 
-py27onlytest = pytest.mark.skipif(sys.version_info > (3,0), reason="Doesn't support running in multiple envs in parallel due to limits on # of service bindings allowed")
+oneJobOnlyTest = pytest.mark.skipif(sys.version_info < (3,7), reason="Doesn't support running in multiple envs in parallel due to limits on # of service bindings allowed")
 
 class AbstractTest(object):
 

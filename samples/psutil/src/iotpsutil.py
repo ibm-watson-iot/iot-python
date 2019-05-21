@@ -104,6 +104,10 @@ if __name__ == "__main__":
         print(str(e))
         sys.exit(1)
 
+    if args.quickstart:
+        print("Welcome to IBM Watson IoT Platform Quickstart, view a vizualization of live data from this device at the URL below:")
+        print("https://quickstart.internetofthings.ibmcloud.com/#/device/%s/sensor/" % (options["identity"]["deviceId"]))
+    
     print("(Press Ctrl+C to disconnect)")
 
     # Take initial reading

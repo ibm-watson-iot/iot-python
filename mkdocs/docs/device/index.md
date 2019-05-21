@@ -57,15 +57,15 @@ by the MQTT protocol. By default, events are published with a QoS level of 0.
 
 `publishEvent()` takes up to 5 arguments:
 
-- `event` Name of this event
+- `eventId` Name of this event
 - `msgFormat` Format of the data for this event
 - `data` Data for this event
 - `qos` MQTT quality of service level to use (`0`, `1`, or `2`)
-- `on_publish` A function that will be called when receipt of the publication is confirmed.
+- `onPublish` A function that will be called when receipt of the publication is confirmed.
 
 __Callback and QoS__
 
-The use of the optional `on_publish` function has different implications depending
+The use of the optional `onPublish` function has different implications depending
 on the level of qos used to publish the event:
 
 - qos 0: the client has asynchronously begun to send the event
@@ -86,7 +86,7 @@ client.commandCallback = myCommandCallback
 
 The messages are returned as an instance of the `Command` class with the following attributes:
 
-- `command`: Identifies the command
+- `commandId`: Identifies the command
 - `format`: Format that the command was encoded in, for example `json`
 - `data`: Data for the payload converted to a Python dict by an impleentation of `MessageCodec`
 - `timestamp`: Date and time that the event was recieved (as `datetime.datetime` object)
@@ -106,16 +106,14 @@ def myCommandCallback(cmd):
 # Configure
 myConfig = wiotp.sdk.device.parseConfigFile("device.yaml")
 client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
-client.setKeepAliveInterval(60)
 client.commandCallback = myCommandCallback
 
 # Connect
-print("Connecting using keepalive interval of %s seconds" % (client.getKeepAliveInterval()) )
 client.connect()
 
 # Send Data
 myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-client.publishEvent(event="status", msgFormat="json", data=myData, qos=0, on_publish=None)
+client.publishEvent(eventId="status", msgFormat="json", data=myData, qos=0, onPublish=None)
 
 # Disconnect
 client.disconnect()

@@ -37,7 +37,7 @@ class Command:
     def __init__(self, pahoMessage, messageEncoderModules):
         result = Command._TOPIC_REGEX.match(pahoMessage.topic)
         if result:
-            self.command = result.group(1)
+            self.commandId = result.group(1)
             self.format = result.group(2)
 
             if self.format in messageEncoderModules:
