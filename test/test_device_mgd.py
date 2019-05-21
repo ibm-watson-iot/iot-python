@@ -13,54 +13,45 @@ import uuid
 import os
 import wiotp.sdk
 
-class TestDevice(testUtils.AbstractTest):
-    registeredDevice = None
-    managedClient = None
-
-    DEVICE_TYPE = "test_device"
-    DEVICE_ID = str(uuid.uuid4())
-
-    @classmethod
-    def setup_class(self):
-        if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
-            self.appClient.registry.devicetypes.create({"id": self.DEVICE_TYPE})
-
-        self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
-
-        self.options={
-            "identity": {
-                "orgId": self.ORG_ID,
-                "typeId": self.registeredDevice["typeId"],
-                "deviceId": self.registeredDevice["deviceId"]
-            },
-            "auth" : {
-                "token": self.registeredDevice["authToken"]
-            }
-        }
-
-        #Create default DeviceInfo Instance and associate with ManagedClient Instance
-        deviceInfoObj = wiotp.sdk.device.DeviceInfo()
-        deviceInfoObj.fwVersion = 0.0
-        self.managedClient = wiotp.sdk.device.ManagedDeviceClient(self.options, deviceInfo=deviceInfoObj)
-
-    @classmethod
-    def teardown_class(self):
-        del self.managedClient
-        del self.appClient.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
-
-
-    def testManagedClientQSException(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+class TestDeviceMgd(testUtils.AbstractTest):
+    
+    def testManagedDeviceQSException(self):
+        with pytest.raises(wiotp.sdk.ConfigurationException)as e:
             options={
                 "identity": {
                     "orgId": "quickstart", 
-                    "typeId": self.registeredDevice["typeId"], 
-                    "deviceId": self.registeredDevice["deviceId"]
-                }
+                    "typeId": "xxx", 
+                    "deviceId": "xxx"
+                },
             }
             wiotp.sdk.device.ManagedDeviceClient(options)
-            assert "QuickStart does not support device management" == e.value.reason
+        assert "QuickStart does not support device management" == e.value.reason
 
-    def testManagedClientInstance(self):
-        managedClient = wiotp.sdk.device.ManagedDeviceClient(self.options)
-        assert isinstance(managedClient, wiotp.sdk.device.ManagedDeviceClient)
+    def testManagedDeviceConnectException(self, device):
+        badOptions = {
+            "identity": {
+                "orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId 
+            },
+            "auth": { "token": "xxxxxxxxxxxxxxxxxx" }
+        }
+        deviceInfoObj = wiotp.sdk.device.DeviceInfo()
+        managedDevice = wiotp.sdk.device.ManagedDeviceClient(badOptions, deviceInfo=deviceInfoObj)
+        assert isinstance(managedDevice, wiotp.sdk.device.ManagedDeviceClient)
+        with pytest.raises(wiotp.sdk.ConnectionException) as e:
+            managedDevice.connect()
+        assert managedDevice.isConnected() == False
+
+    def testManagedDeviceConnect(self, device):
+        badOptions = {
+            "identity": {
+                "orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId 
+            },
+            "auth": { "token": device.authToken }
+        }
+        deviceInfoObj = wiotp.sdk.device.DeviceInfo()
+        managedDevice = wiotp.sdk.device.ManagedDeviceClient(badOptions, deviceInfo=deviceInfoObj)
+        assert isinstance(managedDevice, wiotp.sdk.device.ManagedDeviceClient)
+        managedDevice.connect()
+        assert managedDevice.isConnected() == True
+        managedDevice.disconnect()
+        assert managedDevice.isConnected() == False

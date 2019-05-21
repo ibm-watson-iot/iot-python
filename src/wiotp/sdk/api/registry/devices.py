@@ -242,6 +242,13 @@ class Device(defaultdict):
         return self["deviceId"]
 
     @property
+    def authToken(self):
+        if "authToken" in self:
+            return self["authToken"]
+        else:
+            return None
+
+    @property
     def metadata(self):
         if "metadata" in self:
             return self["metadata"]

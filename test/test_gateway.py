@@ -18,107 +18,67 @@ class TestGateway(testUtils.AbstractTest):
     registeredDevice = None
     registeredGateway = None
     
-    DEVICE_TYPE = "test_device"
-    DEVICE_ID = str(uuid.uuid4())
-    
-    GATEWAY_TYPE = "test_gateway"
-    GATEWAY_ID = str(uuid.uuid4())
-
-    
-    @classmethod
-    def setup_class(self):
-        # Register a Device
-        if self.DEVICE_TYPE not in self.appClient.registry.devicetypes:
-            self.appClient.registry.devicetypes.create({"id": self.DEVICE_TYPE})
-
-        self.registeredDevice = self.appClient.registry.devices.create({"typeId": self.DEVICE_TYPE, "deviceId": self.DEVICE_ID})
-        
-        # Register a Gateway
-        if self.GATEWAY_TYPE not in self.appClient.registry.devicetypes:
-            self.appClient.registry.devicetypes.create({"id": self.GATEWAY_TYPE, "classId": "Gateway"})
-
-        self.registeredGateway = self.appClient.registry.devices.create({"typeId": self.GATEWAY_TYPE, "deviceId": self.GATEWAY_ID})
-        
-        self.options={
-            "identity": {
-                "orgId": self.ORG_ID,
-                "typeId": self.registeredGateway["typeId"],
-                "deviceId": self.registeredGateway["deviceId"]
-            },
-            "auth": {
-                "token": self.registeredGateway["authToken"]
-            }
-        }
-        
-        
-
-    @classmethod
-    def teardown_class(self):
-        del self.appClient.registry.devicetypes[self.DEVICE_TYPE].devices[self.DEVICE_ID]
-        del self.appClient.registry.devicetypes[self.GATEWAY_TYPE].devices[self.GATEWAY_ID]
-
-
-    def testGatewayClientInstance(self):
-        gatewayCli = wiotp.sdk.gateway.GatewayClient({
-            "identity": { "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] }, 
-            "auth": { "token": self.registeredGateway["authToken"] }
-        })
-        assert isinstance(gatewayCli , wiotp.sdk.gateway.GatewayClient)
-
-
-    def testNotAuthorizedConnect(self):
-        # Delay 5 seconds so that the gateway is active before we try to connect
-        time.sleep(5)
-
+    def testNotAuthorizedConnect(self, gateway):
         client = wiotp.sdk.gateway.GatewayClient({
-            "identity": { "orgId": self.ORG_ID, "typeId": self.registeredGateway["typeId"], "deviceId": self.registeredGateway["deviceId"] }, 
+            "identity": { "orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId }, 
             "auth": { "token": "MGxxxxxxxxxxxxx" }
         })
+        assert isinstance(client, wiotp.sdk.gateway.GatewayClient)
         with pytest.raises(wiotp.sdk.ConnectionException) as e:
             client.connect()
 
-    def testMissingMessageEncoder(self):
-        # Delay 5 seconds so that the gateway is active before we try to connect
-        time.sleep(5)
-        
-        gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
-        gatewayClient.connect()
 
-        with pytest.raises(wiotp.sdk.MissingMessageEncoderException) as e:
-            myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-            gatewayClient.publishDeviceEvent(self.registeredGateway["typeId"],self.registeredGateway["deviceId"],"missingMsgEncode", "jason", myData)
-
-    def testMissingMessageEncoderWithPublishEvent(self):
-        # Delay 5 seconds so that the gateway is active before we try to connect
-        time.sleep(5)
-        
-        gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
+    def testMissingMessageEncoder(self, gateway):
+        options = {
+            "identity": { "orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId },
+            "auth": { "token": gateway.authToken }
+        }
+        gatewayClient = wiotp.sdk.gateway.GatewayClient(options)
         gatewayClient.connect()
 
         with pytest.raises(wiotp.sdk.MissingMessageEncoderException) as e:
             myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
             gatewayClient.publishEvent("missingMsgEncode", "jason", myData)
-
-    def testGatewayPubSubMethods(self):
-        # Delay 5 seconds so that the gateway is active before we try to connect
-        time.sleep(5)
         
-        gatewayClient = wiotp.sdk.gateway.GatewayClient(self.options)
+        gatewayClient.disconnect()
+
+
+    def testMissingMessageEncoderWithPublishEvent(self, gateway):
+        options = {
+            "identity": { "orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId },
+            "auth": { "token": gateway.authToken }
+        }
+        gatewayClient = wiotp.sdk.gateway.GatewayClient(options)
+        gatewayClient.connect()
+
+        with pytest.raises(wiotp.sdk.MissingMessageEncoderException) as e:
+            myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+            gatewayClient.publishEvent("missingMsgEncode", "jason", myData)
+        gatewayClient.disconnect()
+
+
+    def testGatewayPubSubMethods(self, gateway):
+        options = {
+            "identity": { "orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId },
+            "auth": { "token": gateway.authToken }
+        }
+        gatewayClient = wiotp.sdk.gateway.GatewayClient(options)
         gatewayClient.connect()
 
         def publishCallback():
             print("Publish Event done!!!")
 
         myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-        assert gatewayClient.publishDeviceEvent(self.DEVICE_TYPE, self.DEVICE_ID, "testDevicePublishEventJson", "json", myData, onPublish=publishCallback) == True
+        assert gatewayClient.publishDeviceEvent(gateway.typeId, gateway.deviceId, "testDevicePublishEventJson", "json", myData, onPublish=publishCallback) == True
         assert gatewayClient.publishEvent("testGatewayPublishEventJson", "json", myData, onPublish=publishCallback) == True
 
         # mid = 0 means there was a problem with the subscription
-        assert gatewayClient.subscribeToDeviceCommands(self.DEVICE_TYPE, self.DEVICE_ID) != 0
+        assert gatewayClient.subscribeToDeviceCommands(gateway.typeId, gateway.deviceId) != 0
         assert gatewayClient.subscribeToCommands() != 0
         assert gatewayClient.subscribeToNotifications() != 0
 
         gatewayClient.disconnect()
+
 
     def testDeviceInfoInstance(self):
         deviceInfoObj = wiotp.sdk.gateway.DeviceInfo()
