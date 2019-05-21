@@ -76,13 +76,13 @@ def gatewayDeviceType(request, testUtil):
     typeId = typeId[:32]
     try:
         gatewayDeviceType = testUtil.appClient.registry.devicetypes[typeId]
-        logger.debug("Device type %s already exists for test %s" % (typeId, request.function.__name__))
+        logger.debug("Device type %s already exists for test %s" % (typeId, request.module.__name__))
     except KeyError:
-        logger.debug("Device type %s doesn't exist, creating now for test %s" % (typeId, request.function.__name__))
+        logger.debug("Device type %s doesn't exist, creating now for test %s" % (typeId, request.module.__name__))
         try:
             gatewayDeviceType = testUtil.appClient.registry.devicetypes.create({"id": typeId, "classId": "Gateway"})
         except ApiException as ex:
-            logging.exception("Unable to register device type for test %s. API response: %s" % (request.function.__name__, ex.message))
+            logging.exception("Unable to register device type for test %s. API response: %s" % (request.module.__name__, ex.message))
     
     yield gatewayDeviceType
 
