@@ -33,6 +33,14 @@ The use of the optional `on_publish` function has different implications dependi
 - qos 1 and 2: the client has confirmation of delivery from the platform
 
 
+```python
+def eventPublishCallback():
+    print("Device Publish Event done!!!")
+
+client.publishEvent(typeId="foo", deviceId="bar", eventId="status", msgFormat="json", data=myData, qos=0, onPublish=eventPublishCallback)
+```
+
+
 ## Subscribing to Device Events
 
 `subscribeToDeviceEvents()` allows the application to recieve real-time device events as they are published.  With no parameters provided the method would subscribe the application to all events from all connected devices. In most use cases this is **not** what you want to do.  Use the optional `typeId`, `deviceId`, `eventId`, and `msgFormat` parameters to control the scope of the subscription. 
