@@ -13,7 +13,7 @@ python deviceRegistrator.py --batchId 190523 --numberOfDevices 1000 --typeId iot
 ```
 
 
-## Device Deployment
+## Device Deployment & Recall
 
 `deviceDeployer.py` represents the stage post-manufacture where your devices are paired with the previously created configuration from the device registration process.  The device configuration holds everything required to identify each device uniquely.  We utilise Helm and Kubernetes as the framework for deploying the virtual devices, but the principles hold just as true if we were producing physical devices.  The python script does not perform any actions itself, instead it generates a script file containing the necessary helm commands to both create and delete virtual devices using the configuration files created during device registration.  
 
@@ -61,7 +61,7 @@ iotpsutil-190523-1000-psutil-6fb5cc5566-7ln5s  0/1    Pending  0         0s
 
 
 
-### Device recall
+### Device Recall
 
 The generated recall script will look something like the following:
 
