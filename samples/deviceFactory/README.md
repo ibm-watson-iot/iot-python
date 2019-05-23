@@ -20,7 +20,15 @@ python deviceRegistrator.py --batchId 190523 --numberOfDevices 1000 --typeId iot
 To generate the scripts to manage 1000 virtual devices into a Kubernetes cluster using batch `190523` of the `iotpsutil` devices using the `psutil` helm chart (also found in this repository):
 
 ```
-$ python deviceDeployer.py --batchId 190523 --numberOfDevices 100 --typeId iotpsutil --classId Device --helmChart "../../psutil/helm/psutil" 
+$ python deviceDeployer.py --batchId 190523 --numberOfDevices 100 --typeId iotpsutil --classId Device --helmChart wiotp/psutil
+```
+
+### Configuration
+
+Assuming you are going to use the official IBM Watson IoT Platform helm charts for your virtual devices you will want to add our Helm chart repository before you proceed:
+
+```
+$ helm repo add wiotp https://ibm-watson-iot.github.io/helm/charts/
 ```
 
 ### Device Deployment
@@ -28,22 +36,22 @@ $ python deviceDeployer.py --batchId 190523 --numberOfDevices 100 --typeId iotps
 The generated deployment script will look something like the following:
 
 ```
-helm upgrade iotpsutil-190523-0001 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0001.yaml
-helm upgrade iotpsutil-190523-0002 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0002.yaml
-helm upgrade iotpsutil-190523-0003 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0003.yaml
-helm upgrade iotpsutil-190523-0004 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0004.yaml
+helm upgrade iotpsutil-190523-0001 wiotp/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0001.yaml
+helm upgrade iotpsutil-190523-0002 wiotp/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0002.yaml
+helm upgrade iotpsutil-190523-0003 wiotp/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0003.yaml
+helm upgrade iotpsutil-190523-0004 wiotp/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0004.yaml
 ...
 ```
 
 Note: this step can take some time to work through large batch sizes, it took approximately 1 hour to deploy a batch of 1000 virtual devices using the `psutil` helm chart
 
-![1000 Deployed Pods](https://raw.githubusercontent.com/ibm-watson-iot/iot-python/deviceFactorySample/samples/deviceFactory/docs/resources/pods.png)
+![1000 Deployed Pods](https://raw.githubusercontent.com/ibm-watson-iot/iot-python/master/samples/deviceFactory/docs/resources/pods.png)
 
 ```
 $ bash bin/deploy-device-iotpsutil-190523.bat
 
 ...
-helm upgrade iotpsutil-190523-1000 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-1000.yaml
+helm upgrade iotpsutil-190523-1000 wiotp/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-1000.yaml
 Release "iotpsutil-190523-1000" does not exist. Installing it now.
 NAME:   iotpsutil-190523-1000
 LAST DEPLOYED: Wed May 22 22:40:53 2019

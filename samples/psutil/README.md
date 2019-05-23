@@ -69,13 +69,15 @@ $ docker logs -tf psutil
 A [helm chart](https://github.com/ibm-watson-iot/iot-python/tree/master/samples/psutil/helm/psutil) is available if that is your preferred way to Docker.  The chart accepts the standard format device configuration file as a Helm values file:
 
 ```
-$ helm install psutil-mydevice iot-python/samples/psutil/helm/psutil --values path/to/mydevice.yaml
+$ helm repo add wiotp https://ibm-watson-iot.github.io/helm/charts/
+$ helm install psutil-mydevice wiotp/psutil --values path/to/mydevice.yaml
 ```
 
 If you provide no additional values the chart will deploy in a configuration supporting Quickstart by default:
 
 ```
-$ helm install psutil-quickstart iot-python/samples/psutil/helm/psutil
+$ helm repo add wiotp https://ibm-watson-iot.github.io/helm/charts/
+$ helm install psutil-quickstart wiotp/psutil
 ```
 
 The pod consumes very little resource during operation, you can easily max out the default 110 pod/node limit with a cheap 2cpu/4gb worker if you are looking to deploy this chart at scale.
