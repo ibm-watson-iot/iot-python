@@ -1,0 +1,78 @@
+# IBM Watson IoT Platform Device Factory Sample
+
+This sample demonstrates the principles of device registration and deployment.
+
+## Device Registration
+
+`deviceRegistrator.py` represents the necessary integration with IBM Watson IoT Platform at the earliest phase of manufacturing physical devices that will connect to the platform.  For each device that rolls off the assembly line a device registration request must be processed by Watson IoT to retrieve the necessary configuration for the devices.  For efficiency these requests are processed in batches.
+
+For example, to register 1000 devices of typeId `iotpsutil` using the registration date as the batchId (e.g. `190523`) and a simple incrementing count to complete a unique identifier for each device in the batch:
+
+```
+python deviceRegistrator.py --batchId 190523 --numberOfDevices 1000 --typeId iotpsutil --classId Device
+```
+
+
+## Device Deployment
+
+`deviceDeployer.py` represents the stage post-manufacture where your devices are paired with the previously created configuration from the device registration process.  The device configuration holds everything required to identify each device uniquely.  We utilise Helm and Kubernetes as the framework for deploying the virtual devices, but the principles hold just as true if we were producing physical devices.  The python script does not perform any actions itself, instead it generates a script file containing the necessary helm commands to both create and delete virtual devices using the configuration files created during device registration.  
+
+To generate the scripts to manage 1000 virtual devices into a Kubernetes cluster using batch `190523` of the `iotpsutil` devices using the `psutil` helm chart (also found in this repository):
+
+```
+$ python deviceDeployer.py --batchId 190523 --numberOfDevices 100 --typeId iotpsutil --classId Device --helmChart "../../psutil/helm/psutil" 
+```
+
+### Device Deployment
+
+The generated deployment script will look something like the following:
+
+```
+helm upgrade iotpsutil-190523-0001 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0001.yaml
+helm upgrade iotpsutil-190523-0002 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0002.yaml
+helm upgrade iotpsutil-190523-0003 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0003.yaml
+helm upgrade iotpsutil-190523-0004 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-0004.yaml
+...
+```
+
+Note: this step can take some time to work through large batch sizes, it took approximately 1 hour to deploy a batch of 1000 virtual devices using the `psutil` helm chart
+
+```
+$ bash bin/deploy-device-iotpsutil-190523.bat
+
+...
+helm upgrade iotpsutil-190523-1000 ../psutil/helm/psutil -i  --values ./localDeviceRegistry/device/iotpsutil/190523/190523-1000.yaml
+Release "iotpsutil-190523-1000" does not exist. Installing it now.
+NAME:   iotpsutil-190523-1000
+LAST DEPLOYED: Wed May 22 22:40:53 2019
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/Deployment
+NAME                          READY  UP-TO-DATE  AVAILABLE  AGE
+iotpsutil-190523-1000-psutil  0/1    1           0          0s
+
+==> v1/Pod(related)
+NAME                                           READY  STATUS   RESTARTS  AGE
+iotpsutil-190523-1000-psutil-6fb5cc5566-7ln5s  0/1    Pending  0         0s
+
+```
+
+
+
+### Device recall
+
+The generated recall script will look something like the following:
+
+```
+helm delete --purge iotpsutil-190523-0001
+helm delete --purge iotpsutil-190523-0002
+helm delete --purge iotpsutil-190523-0003
+helm delete --purge iotpsutil-190523-0004
+...
+```
+
+```
+$ bash bin/recall-device-iotpsutil-190523.bat
+```

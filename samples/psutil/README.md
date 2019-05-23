@@ -28,13 +28,15 @@ For information on how to register devices, see the [Connecting Devices](https:/
 
 At the end of the registration process, make a note of the following parameters: 
    - Organization ID
-   - Device Type
+   - Type ID
    - Device ID
    - Authentication Token  
 
 ## Docker
 
 The easiest way to test out the sample is via the [wiotp/psutil](https://cloud.docker.com/u/wiotp/repository/docker/wiotp/psutil) Docker image provided and the `--quickstart` command line option.
+
+The resource requirements for this container are tiny, if you use the accompanying helm chart it is by default confiugured with a request of 2m CPU + 18Mi memory, and  limits set to 4m cpu + 24Mi memory.
 
 ```
 $ docker run -d --name psutil wiotp/psutil --quickstart
@@ -56,14 +58,30 @@ $ export WIOTP_IDENTITY_ORGID=myorgid
 $ export WIOTP_IDENTITY_TYPEID=mytypeid
 $ export WIOTP_IDENTITY_DEVICEID=mydeviceid
 $ export WIOTP_AUTH_TOKEN=myauthtoken
-$ docker run -d -e WIOTP_IDENTITY_ORGID -e WIOTP_IDENTITY_ORGID -e WIOTP_AUTH_TOKEN --name psutil wiotp/psutil
+$ docker run -d -e WIOTP_IDENTITY_ORGID -e WIOTP_IDENTITY_TYPEID -e WIOTP_IDENTITY_DEVICEID -e WIOTP_AUTH_TOKEN --name psutil wiotp/psutil
 psutil
 $ docker logs -tf psutil
 2019-05-07T11:09:19.672513500Z 2019-05-07 11:09:19,671   wiotp.sdk.device.client.DeviceClient  INFO    Connected successfully: d:myorgid:mytypeid:mydeviceid
 ```
 
+## Kubernetes & Helm
 
-## Installation
+A [helm chart](https://github.com/ibm-watson-iot/iot-python/tree/master/samples/psutil/helm/psutil) is available if that is your preferred way to Docker.  The chart accepts the standard format device configuration file as a Helm values file:
+
+```
+$ helm install psutil-mydevice iot-python/samples/psutil/helm/psutil --values path/to/mydevice.yaml
+```
+
+If you provide no additional values the chart will deploy in a configuration supporting Quickstart by default:
+
+```
+$ helm install psutil-quickstart iot-python/samples/psutil/helm/psutil
+```
+
+The pod consumes very little resource during operation, you can easily max out the default 110 pod/node limit with a cheap 2cpu/4gb worker if you are looking to deploy this chart at scale.
+
+
+## Local Installation
 Installation across all OS's is pretty much the same:
 
 - Install any necessary system packages missing from the host (in order to [install psutil on Windows](https://github.com/giampaolo/psutil/blob/master/INSTALL.rst#windows) you'll need Visual Studio installed)

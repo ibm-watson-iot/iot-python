@@ -18,3 +18,7 @@ README.txt
 build/*
 dist/*
 .coverage
+samples/deviceFactory/localDeviceRegistry
+samples/deviceFactory/bin
+samples/*.exe
+samples/rbac-config.yaml
