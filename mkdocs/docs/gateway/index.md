@@ -79,6 +79,13 @@ on the level of qos used to publish the event:
 - qos 0: the client has asynchronously begun to send the event
 - qos 1 and 2: the client has confirmation of delivery from the platform
 
+```python
+def eventPublishCallback():
+    print("Device Publish Event done!!!")
+
+client.publishEvent(eventId="status", msgFormat="json", data=myData, qos=0, onPublish=eventPublishCallback)
+```
+
 
 ## Handling Commands
 

@@ -278,19 +278,25 @@ the sending device, which means that a device cannot impersonate another device.
 by the MQTT protocol. By default, events are published with a QoS level of 0.</p>
 <p><code>publishEvent()</code> takes up to 5 arguments:</p>
 <ul>
-<li><code>event</code> Name of this event</li>
+<li><code>eventId</code> Name of this event</li>
 <li><code>msgFormat</code> Format of the data for this event</li>
 <li><code>data</code> Data for this event</li>
 <li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
-<li><code>on_publish</code> A function that will be called when receipt of the publication is confirmed.</li>
+<li><code>onPublish</code> A function that will be called when receipt of the publication is confirmed.</li>
 </ul>
 <p><strong>Callback and QoS</strong></p>
-<p>The use of the optional <code>on_publish</code> function has different implications depending
+<p>The use of the optional <code>onPublish</code> function has different implications depending
 on the level of qos used to publish the event:</p>
 <ul>
 <li>qos 0: the client has asynchronously begun to send the event</li>
 <li>qos 1 and 2: the client has confirmation of delivery from the platform</li>
 </ul>
+<pre><code class="python">def eventPublishCallback():
+    print(&quot;Device Publish Event done!!!&quot;)
+
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=eventPublishCallback)
+</code></pre>
+
 <h2 id="handling-commands">Handling Commands<a class="headerlink" href="#handling-commands" title="Permanent link"></a></h2>
 <p>When the device client connects, it automatically subscribes to any command that is specified for
 this device. To process specific commands, you need to register a command callback method.</p>
@@ -302,7 +308,7 @@ client.commandCallback = myCommandCallback
 
 <p>The messages are returned as an instance of the <code>Command</code> class with the following attributes:</p>
 <ul>
-<li><code>command</code>: Identifies the command</li>
+<li><code>commandId</code>: Identifies the command</li>
 <li><code>format</code>: Format that the command was encoded in, for example <code>json</code></li>
 <li><code>data</code>: Data for the payload converted to a Python dict by an impleentation of <code>MessageCodec</code></li>
 <li><code>timestamp</code>: Date and time that the event was recieved (as <code>datetime.datetime</code> object)</li>
@@ -318,16 +324,14 @@ def myCommandCallback(cmd):
 # Configure
 myConfig = wiotp.sdk.device.parseConfigFile(&quot;device.yaml&quot;)
 client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
-client.setKeepAliveInterval(60)
 client.commandCallback = myCommandCallback
 
 # Connect
-print(&quot;Connecting using keepalive interval of %s seconds&quot; % (client.getKeepAliveInterval()) )
 client.connect()
 
 # Send Data
 myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
-client.publishEvent(event=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, on_publish=None)
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=None)
 
 # Disconnect
 client.disconnect()
