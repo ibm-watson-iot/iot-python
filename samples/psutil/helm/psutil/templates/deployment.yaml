@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{ if eq .Values.identity.orgId "quickstart" }}
+          args: 
+            - "--quickstart"
+          {{ else }}
+          env:
+            - name: WIOTP_IDENTITY_ORGID
+              value: {{ .Values.identity.orgId }}
+            - name: WIOTP_IDENTITY_TYPEID
+              value: {{ .Values.identity.typeId }}
+            - name: WIOTP_IDENTITY_DEVICEID
+              value: {{ .Values.identity.deviceId }}
+            # Note: this can contain special characters, so we wrap the value in quotes
+            - name: WIOTP_AUTH_TOKEN
+              value: "{{ .Values.auth.token }}"
+          {{ end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
