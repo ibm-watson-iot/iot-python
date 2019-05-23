@@ -37,7 +37,9 @@ helm upgrade iotpsutil-190523-0004 ../psutil/helm/psutil -i  --values ./localDev
 
 Note: this step can take some time to work through large batch sizes, it took approximately 1 hour to deploy a batch of 1000 virtual devices using the `psutil` helm chart
 
-![1000 Deployed Pods](https://raw.githubusercontent.com/ibm-watson-iot/iot-python/deviceFactorySample/samples/deviceFactory/docs/resources/pods.png)
+<p align="center">
+  <img alt="1000 Virtual Devices Configured and Connected in 1 hour" src="https://raw.githubusercontent.com/ibm-watson-iot/iot-python/deviceFactorySample/samples/deviceFactory/docs/resources/pods.png">
+</p>
 
 ```
 $ bash bin/deploy-device-iotpsutil-190523.bat
