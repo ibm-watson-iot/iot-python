@@ -35,7 +35,7 @@ except:
 
 setup(
     name='wiotp-sdk',
-    version="0.9.2",
+    version="0.9.3",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
