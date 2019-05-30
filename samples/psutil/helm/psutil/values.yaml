@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: wiotp/psutil
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 resources:
   limits:

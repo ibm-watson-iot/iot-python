@@ -2,6 +2,7 @@
 
 This sample demonstrates the principles of device registration and deployment.
 
+
 ## Device Registration
 
 `deviceRegistrator.py` represents the necessary integration with IBM Watson IoT Platform at the earliest phase of manufacturing physical devices that will connect to the platform.  For each device that rolls off the assembly line a device registration request must be processed by Watson IoT to retrieve the necessary configuration for the devices.  For efficiency these requests are processed in batches.
@@ -9,7 +10,9 @@ This sample demonstrates the principles of device registration and deployment.
 For example, to register 1000 devices of typeId `iotpsutil` using the registration date as the batchId (e.g. `190523`) and a simple incrementing count to complete a unique identifier for each device in the batch:
 
 ```
-python deviceRegistrator.py --batchId 190523 --numberOfDevices 1000 --typeId iotpsutil --classId Device
+$ export WIOTP_API_KEY=mykey
+$ export WIOTP_API_TOKEN=mytoken
+$ python deviceRegistrator.py --batchId 190523 --numberOfDevices 1000 --typeId iotpsutil --classId Device
 ```
 
 
@@ -17,9 +20,19 @@ python deviceRegistrator.py --batchId 190523 --numberOfDevices 1000 --typeId iot
 
 `deviceDeployer.py` represents the stage post-manufacture where your devices are paired with the previously created configuration from the device registration process.  The device configuration holds everything required to identify each device uniquely.  We utilise Helm and Kubernetes as the framework for deploying the virtual devices, but the principles hold just as true if we were producing physical devices.  The python script does not perform any actions itself, instead it generates a script file containing the necessary helm commands to both create and delete virtual devices using the configuration files created during device registration.  
 
-To generate the scripts to manage 1000 virtual devices into a Kubernetes cluster using batch `190523` of the `iotpsutil` devices using the `psutil` helm chart (also found in this repository):
+### Supported Virtual Device Images
+
+These Helm charts are designed to take the standard WIoTP device configuration file and inject it into the docker container as a set of environment variables treating it as a Helm values file, you can easily write your own Helm charts and Docker images that do the same thing too:
+
+- `--helmChart wiotp/psutil` PSUtil Device Client (Python) [wiotp/psutil](https://hub.docker.com/r/wiotp/psutil)
+- `--helmChart wiotp/oshi` OSHI Device Client (Java) [wiotp/oshi](https://hub.docker.com/r/wiotp/oshi)
+
+
+To generate the scripts to manage 1000 virtual devices into a Kubernetes cluster using batch `190523` of the `iotpsutil` devices using the `wiotp/psutil` helm chart (also found in this repository):
 
 ```
+$ export WIOTP_API_KEY=mykey
+$ export WIOTP_API_TOKEN=mytoken
 $ python deviceDeployer.py --batchId 190523 --numberOfDevices 100 --typeId iotpsutil --classId Device --helmChart wiotp/psutil
 ```
 
