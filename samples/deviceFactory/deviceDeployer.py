@@ -20,7 +20,7 @@ import wiotp.sdk.application
 def loadConfigFile(source):
     data = {}
     with open(source, "r") as sourceFile:
-        data = yaml.load(sourceFile)
+        data = yaml.full_load(sourceFile)
     return data
 
 if __name__ == "__main__":
@@ -69,7 +69,8 @@ if __name__ == "__main__":
             # get the devicecfg
             cfg = loadConfigFile(valuesFile)
             releaseName = "%s-%s" % (cfg["identity"]["typeId"], cfg["identity"]["deviceId"])
-            command = "%s upgrade %s %s -i --timeout 300 --wait --values %s" % (args.helmCmd, releaseName, args.helmChart, valuesFile)
+            # Add "--timeout 300 --wait" if want to make the deploy wait to verify each release (will slow things down a lot)! 
+            command = "%s upgrade %s %s -i --values %s" % (args.helmCmd, releaseName, args.helmChart, valuesFile)
             commands.append(command)
 
             stopCommand = "%s delete --purge %s" % (args.helmCmd, releaseName)
