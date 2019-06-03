@@ -10,6 +10,7 @@ Application configuration can be broken down into required and optional configur
 ## Optional Configuration
 - `options.domain` A boolean value indicating which Watson IoT Platform domain to connect to (e.g. if you have a dedicated platform instance). Defaults to `internetofthings.ibmcloud.com`
 - `options.logLevel` Controls the level of logging in the client, can be set to `error`, `warning`, `info`, or `debug`.  Defaults to `info`.
+- `options.http.verify` Allows HTTP certificate verification to be disabled if set to `False`.  You are strongly discouraged from using this in any production usage, this primarily exists as a development aid.  Defaults to `True`
 - `options.mqtt.instanceId` Optional instance ID, use if you wish create a multi-instance application which will loadbalance incoming messages.
 - `options.mqtt.port` A integer value defining the MQTT port.  Defaults to auto-negotiation.
 - `options.mqtt.transport` The transport to use for MQTT connectivity - `tcp` or `websockets`.
@@ -33,6 +34,9 @@ myConfig = {
     "options": {
         "domain": "internetofthings.ibmcloud.com",
         "logLevel": "error|warning|info|debug",
+        "http": {
+            "verify": True|False
+        },
         "mqtt": {
             "instanceId": "instance1",
             "port": 8883,
@@ -84,6 +88,8 @@ auth:
 options:
     domain: internetofthings.ibmcloud.com
     logLevel: debug
+    http:
+        verify: True
     mqtt:
         instanceId: instance1
         port: 8883
@@ -114,6 +120,7 @@ client = wiotp.sdk.application.ApplicationClient(config=myConfig, logHandlers=No
 ### Optional Additional Environment Variables
 - `WIOTP_OPTIONS_DOMAIN`
 - `WIOTP_OPTIONS_LOGLEVEL`
+- `WIOTP_OPTIONS_HTTP_VERIFY`
 - `WIOTP_OPTIONS_MQTT_INSTANCEID`
 - `WIOTP_OPTIONS_MQTT_PORT`
 - `WIOTP_OPTIONS_MQTT_TRANSPORT`

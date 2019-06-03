@@ -243,6 +243,7 @@
 <ul>
 <li><code>options.domain</code> A boolean value indicating which Watson IoT Platform domain to connect to (e.g. if you have a dedicated platform instance). Defaults to <code>internetofthings.ibmcloud.com</code></li>
 <li><code>options.logLevel</code> Controls the level of logging in the client, can be set to <code>error</code>, <code>warning</code>, <code>info</code>, or <code>debug</code>.  Defaults to <code>info</code>.</li>
+<li><code>options.http.verify</code> Allows HTTP certificate verification to be disabled if set to <code>False</code>.  You are strongly discouraged from using this in any production usage, this primarily exists as a development aid.  Defaults to <code>True</code></li>
 <li><code>options.mqtt.instanceId</code> Optional instance ID, use if you wish create a multi-instance application which will loadbalance incoming messages.</li>
 <li><code>options.mqtt.port</code> A integer value defining the MQTT port.  Defaults to auto-negotiation.</li>
 <li><code>options.mqtt.transport</code> The transport to use for MQTT connectivity - <code>tcp</code> or <code>websockets</code>.</li>
@@ -263,6 +264,9 @@
     &quot;options&quot;: {
         &quot;domain&quot;: &quot;internetofthings.ibmcloud.com&quot;,
         &quot;logLevel&quot;: &quot;error|warning|info|debug&quot;,
+        &quot;http&quot;: {
+            &quot;verify&quot;: True|False
+        },
         &quot;mqtt&quot;: {
             &quot;instanceId&quot;: &quot;instance1&quot;,
             &quot;port&quot;: 8883,
@@ -304,6 +308,8 @@ auth:
 options:
     domain: internetofthings.ibmcloud.com
     logLevel: debug
+    http:
+        verify: True
     mqtt:
         instanceId: instance1
         port: 8883
@@ -332,6 +338,7 @@ client = wiotp.sdk.application.ApplicationClient(config=myConfig, logHandlers=No
 <ul>
 <li><code>WIOTP_OPTIONS_DOMAIN</code></li>
 <li><code>WIOTP_OPTIONS_LOGLEVEL</code></li>
+<li><code>WIOTP_OPTIONS_HTTP_VERIFY</code></li>
 <li><code>WIOTP_OPTIONS_MQTT_INSTANCEID</code></li>
 <li><code>WIOTP_OPTIONS_MQTT_PORT</code></li>
 <li><code>WIOTP_OPTIONS_MQTT_TRANSPORT</code></li>

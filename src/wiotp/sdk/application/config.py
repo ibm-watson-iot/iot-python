@@ -255,7 +255,7 @@ def parseEnvVars():
     if authToken is not None:
         cfg["auth"] = {"key": authKey, "token": authToken}
 
-    return cfg
+    return ApplicationClientConfig(**cfg)
 
 
 def parseConfigFile(configFilePath):
@@ -287,7 +287,7 @@ def parseConfigFile(configFilePath):
 
     try:
         with open(configFilePath) as f:
-            data = yaml.load(f)
+            data = yaml.full_load(f)
     except (OSError, IOError) as e:
         # In 3.3, IOError became an alias for OSError, and FileNotFoundError is a subclass of OSError
         reason = "Error reading device configuration file '%s' (%s)" % (configFilePath, e)
@@ -300,4 +300,4 @@ def parseConfigFile(configFilePath):
             # Convert log levels from string to int (we need to upper case our strings from the config)
             data["options"]["logLevel"] = logging.getLevelName(data["options"]["logLevel"].upper())
 
-    return data
+    return ApplicationClientConfig(**data)

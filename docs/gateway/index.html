@@ -169,6 +169,20 @@
             
     <li class="toctree-l3"><a href="#gateway-sdk">Gateway SDK</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l4" href="#configuration">Configuration</a></li>
+        
+            <li><a class="toctree-l4" href="#connectivity">Connectivity</a></li>
+        
+            <li><a class="toctree-l4" href="#publishing-events">Publishing Events</a></li>
+        
+            <li><a class="toctree-l4" href="#handling-commands">Handling Commands</a></li>
+        
+            <li><a class="toctree-l4" href="#sample-code">Sample Code</a></li>
+        
+        </ul>
+    
 
     </ul>
                 </li>
@@ -220,7 +234,117 @@
             <div class="section">
               
                 <h1 id="gateway-sdk">Gateway SDK<a class="headerlink" href="#gateway-sdk" title="Permanent link"></a></h1>
-<p>Sorry, this documentation is still a work in progress.</p>
+<p>The <code>wiotp.sdk.gateway</code> package contains the following:</p>
+<p>Two client implementations:</p>
+<ul>
+<li><code>wiotp.sdk.gateway.GatewayClient</code></li>
+<li><code>wiotp.sdk.gateway.ManagedGatewayClient</code></li>
+</ul>
+<p>Support classes for working with the data model:</p>
+<ul>
+<li><code>wiotp.sdk.gateway.Command</code></li>
+<li><code>wiotp.sdk.gateway.Notification</code></li>
+<li><code>wiotp.sdk.gateway.DeviceInfo</code></li>
+<li><code>wiotp.sdk.gateway.DeviceFirmware</code></li>
+</ul>
+<p>Support methods for handling device configuration:</p>
+<ul>
+<li><code>wiotp.sdk.gateway.parseConfigFile</code></li>
+<li><code>wiotp.sdk.gateway.parseEnvVars</code></li>
+</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link"></a></h2>
+<p>Gateway configuration is passed to the client via the <code>config</code> parameter when you create the client instance.  See the <a href="config/">configure gateways</a> section for full details of all available options, and the built-in support for YAML file and environment variable sourced configuration.</p>
+<pre><code class="python">myConfig = { 
+    &quot;identity&quot;: {
+        &quot;orgId&quot;: &quot;org1id&quot;,
+        &quot;typeId&quot;: &quot;raspberry-pi-3&quot;
+        &quot;deviceId&quot;: &quot;00ef08ac05&quot;
+    }.
+    &quot;auth&quot; {
+        &quot;token&quot;: &quot;Ab$76s)asj8_s5&quot;
+    }
+}
+client = wiotp.sdk.gateway.GatewayClient(config=myConfig)
+</code></pre>
+
+<h2 id="connectivity">Connectivity<a class="headerlink" href="#connectivity" title="Permanent link"></a></h2>
+<p><code>connect()</code> &amp; <code>disconnect()</code> methods are used to manage the MQTT connection to IBM Watson IoT Platform that allows the gateway to 
+handle commands and publish events.</p>
+<h2 id="publishing-events">Publishing Events<a class="headerlink" href="#publishing-events" title="Permanent link"></a></h2>
+<p>Events are the mechanism by which devices &amp; gateway publish data to the Watson IoT Platform. The gateway
+controls the content of the event and assigns a name for each event that it sends.</p>
+<p>Events can be published with any of the three quality of service (QoS) levels that are defined
+by the MQTT protocol. By default, events are published with a QoS level of 0.</p>
+<p><code>publishEvent()</code> takes up to 5 arguments and submits an event from the gateway itself:</p>
+<ul>
+<li><code>eventId</code> Name of this event</li>
+<li><code>msgFormat</code> Format of the data for this event</li>
+<li><code>data</code> Data for this event</li>
+<li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+<li><code>onPublish</code> A function that will be called when receipt of the publication is confirmed.</li>
+</ul>
+<p><code>publishDeviceEvent()</code> takes up to 7 arguments and submits an event from a device connected to the gateway, rather than the gateway itself:</p>
+<ul>
+<li><code>typeId</code> Type ID of the device connected to this gateway that the event belongs to</li>
+<li><code>deviceId</code> Device ID of the device connected to this gateway that the event belongs to</li>
+<li><code>eventId</code> Name of this event</li>
+<li><code>msgFormat</code> Format of the data for this event</li>
+<li><code>data</code> Data for this event</li>
+<li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+<li><code>onPublish</code> A function that will be called when receipt of the publication is confirmed.</li>
+</ul>
+<p><strong>Callback and QoS</strong></p>
+<p>The use of the optional <code>onPublish</code> function has different implications depending
+on the level of qos used to publish the event:</p>
+<ul>
+<li>qos 0: the client has asynchronously begun to send the event</li>
+<li>qos 1 and 2: the client has confirmation of delivery from the platform</li>
+</ul>
+<pre><code class="python">def eventPublishCallback():
+    print(&quot;Device Publish Event done!!!&quot;)
+
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=eventPublishCallback)
+</code></pre>
+
+<h2 id="handling-commands">Handling Commands<a class="headerlink" href="#handling-commands" title="Permanent link"></a></h2>
+<p>Unlike devices, When the gateway client connects, it does <strong>not</strong> automatically subscribes to any commands. To 
+process specific commands, you need to explicitly subscribe as well as registering a command callback method.</p>
+<p>The messages are returned as an instance of the <code>Command</code> class with the following attributes:</p>
+<ul>
+<li><code>typeId</code>: Identifies the typeId of the device the command is directed at</li>
+<li><code>eventId</code>: Identifies the deviceId of the device the command is directed at</li>
+<li><code>commandId</code>: Identifies the commandId</li>
+<li><code>format</code>: Format that the command was encoded in, for example <code>json</code></li>
+<li><code>data</code>: Data for the payload converted to a Python dict by an impleentation of <code>MessageCodec</code></li>
+<li><code>timestamp</code>: Date and time that the event was recieved (as <code>datetime.datetime</code> object)</li>
+</ul>
+<p>If a command is recieved in an unknown format or if the gateway does not recognize the format, the gateway
+library raises <code>wiotp.sdk.MissingMessageDecoderException</code>.</p>
+<h2 id="sample-code">Sample Code<a class="headerlink" href="#sample-code" title="Permanent link"></a></h2>
+<pre><code class="python">import wiotp.sdk.gateway
+
+def myCommandCallback(cmd):
+    print(&quot;Command received for %s:%s: %s&quot; % (cmd.typeId, cmd.deviceId, cmd.data))
+
+# Configure
+myConfig = wiotp.sdk.gateway.parseConfigFile(&quot;gateway.yaml&quot;)
+client = wiotp.sdk.gateway.GatewayClient(config=myConfig, logHandlers=None)
+client.commandCallback = myCommandCallback
+
+# Connect
+client.connect()
+
+# Send data on behalf of the gateway itself
+myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=None)
+
+# Send data on behalf of a device connected to this gateway
+aDeviceData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=aDeviceData, qos=0, onPublish=None)
+
+# Disconnect
+client.disconnect()
+</code></pre>
               
             </div>
           </div>

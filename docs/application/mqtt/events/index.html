@@ -257,6 +257,12 @@ client.publishEvent(myDeviceType, myDeviceId, &quot;status&quot;, &quot;json&quo
 <li>qos 0: the client has asynchronously begun to send the event</li>
 <li>qos 1 and 2: the client has confirmation of delivery from the platform</li>
 </ul>
+<pre><code class="python">def eventPublishCallback():
+    print(&quot;Device Publish Event done!!!&quot;)
+
+client.publishEvent(typeId=&quot;foo&quot;, deviceId=&quot;bar&quot;, eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=eventPublishCallback)
+</code></pre>
+
 <h2 id="subscribing-to-device-events">Subscribing to Device Events<a class="headerlink" href="#subscribing-to-device-events" title="Permanent link"></a></h2>
 <p><code>subscribeToDeviceEvents()</code> allows the application to recieve real-time device events as they are published.  With no parameters provided the method would subscribe the application to all events from all connected devices. In most use cases this is <strong>not</strong> what you want to do.  Use the optional <code>typeId</code>, <code>deviceId</code>, <code>eventId</code>, and <code>msgFormat</code> parameters to control the scope of the subscription. </p>
 <p>A single client can support multiple subscriptions. The following code samples show how you can use deviceType, deviceId, event, and msgFormat parameters to define the scope of a subscription:</p>

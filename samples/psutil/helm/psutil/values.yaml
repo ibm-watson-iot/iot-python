@@ -1,0 +1,26 @@
+# Default values for psutil.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+image:
+  repository: wiotp/psutil
+  tag: latest
+  pullPolicy: Always
+
+resources:
+  limits:
+    cpu: 4m
+    memory: 24Mi
+  requests:
+    cpu: 2m
+    memory: 18Mi
+
+
+# WIoTP device configuration properties -- override these to connect
+# Without any configuration, the defaults will result in a connection to Quickstart
+identity:
+  orgId: quickstart
+  typeId: <undefined>
+  deviceId: <undefined>
+auth:
+  token: <undefined>
