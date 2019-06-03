@@ -18,6 +18,7 @@ import json
 from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
 from pip._vendor.chardet import codingstatemachine
 
+@testUtils.oneJobOnlyTest
 class TestDeviceState(testUtils.AbstractTest):
     
     # Physical Interface Stuff
