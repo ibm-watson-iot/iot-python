@@ -18,6 +18,7 @@ import json
 import sys
 from test_state_utils import TestStateUtils
 
+@testUtils.oneJobOnlyTest
 class TestDeviceTypes(testUtils.AbstractTest):
     
     # Physical Interface Stuff

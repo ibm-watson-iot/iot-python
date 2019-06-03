@@ -16,6 +16,7 @@ from wiotp.sdk.exceptions import ApiException
 import string
 import json
 
+@testUtils.oneJobOnlyTest
 class TestLogicalInterfaces(testUtils.AbstractTest):
     
     testSchemaName = "python-api-test-li-schema"

@@ -17,7 +17,7 @@ import string
 import json
 from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
 
-
+@testUtils.oneJobOnlyTest
 class TestDevice(testUtils.AbstractTest):
     
     # Physical Interface Stuff

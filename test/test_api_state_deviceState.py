@@ -145,8 +145,6 @@ class TestDeviceState(testUtils.AbstractTest):
         
     def checkState (self, state, expectedState):
         assert state.state == expectedState
-        assert isinstance(state.timestamp, datetime)
-        assert isinstance(state.updated, datetime)        
                 
     def doesSchemaNameExist (self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):

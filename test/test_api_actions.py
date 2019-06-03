@@ -17,6 +17,7 @@ import string
 import sys
 import json
 
+@testUtils.oneJobOnlyTest
 class TestActions(testUtils.AbstractTest):
     
     # Physical Interface Stuff
