@@ -261,6 +261,7 @@ class TestActions(testUtils.AbstractTest):
         return createdAction
 
     def checkTrigger (self, trigger, expectedTrigger):
+        id = trigger.id # just make sure it exists
         assert trigger.name == expectedTrigger["name"]
         assert trigger.triggerType == expectedTrigger["type"]
         assert trigger.enabled == expectedTrigger["enabled"]

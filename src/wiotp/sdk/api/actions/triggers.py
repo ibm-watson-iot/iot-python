@@ -13,17 +13,15 @@ import iso8601
 from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import  RestApiDict
+from wiotp.sdk.api.common import  RestApiItemBase
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/action-mgr-beta.html
 
-class Trigger(defaultdict):
+class Trigger(RestApiItemBase):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
 
-    @property
-    def name(self):
-        # Unlike most other resources name == the UUID, there is no seperate id property
-        return self["name"]
+    # Note - data accessor functions for common data items are defined in RestApiItemBase
 
     @property
     def triggerType(self):
