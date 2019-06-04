@@ -8,6 +8,7 @@
 # *****************************************************************************
 
 from wiotp.sdk.exceptions import ApiException
+from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import IterableSimpleList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
@@ -38,7 +39,7 @@ class Rule(RestApiItemBase):
         return self["version"]   
     
     
-class IterableRuleList(IterableSimpleList):
+class IterableRuleList(IterableList):
     def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
         super(IterableRuleList, self).__init__(
@@ -59,12 +60,19 @@ class ActiveRules(RestApiDictReadOnly):
             apiClient, Rule, IterableRuleList, "api/v0002/rules"
         )
         
+class IterableSimpleRuleList(IterableSimpleList):
+    def __init__(self, apiClient, url, filters=None, passApiClient=False):
+        # This API does not support sorting
+        super(IterableSimpleRuleList, self).__init__(
+            apiClient, Rule, url, filters=filters
+        )
+        
 class DraftRulesPerLI(RestApiDict):
 
     def __init__(self, apiClient, logicalInterfaceId):
         url = "api/v0002/draft/logicalinterfaces/%s/rules" % logicalInterfaceId
         super(DraftRulesPerLI, self).__init__(
-            apiClient, Rule, IterableRuleList, url
+            apiClient, Rule, IterableSimpleRuleList, url
         )
             
 class ActiveRulesPerLI(RestApiDictReadOnly):
@@ -72,5 +80,5 @@ class ActiveRulesPerLI(RestApiDictReadOnly):
     def __init__(self, apiClient, logicalInterfaceId):
         url = "api/v0002/logicalinterfaces/%s/rules" % logicalInterfaceId
         super(ActiveRulesPerLI, self).__init__(
-            apiClient, Rule, IterableRuleList, url
+            apiClient, Rule, IterableSimpleRuleList, url
         )

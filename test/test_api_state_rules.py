@@ -102,6 +102,12 @@ class TestRules(testUtils.AbstractTest):
                 return True
         return False
     
+    def doesRuleNameExistInLi (self, li, name):
+        for r in li.rules:
+            if (r.name == name):
+                return True
+        return False
+    
     def createSchema(self, name, schemaFileName, schemaContents, description):
         jsonSchemaContents = json.dumps(schemaContents)
         createdSchema = self.appClient.state.draft.schemas.create(
@@ -149,6 +155,7 @@ class TestRules(testUtils.AbstractTest):
     def testRuleCRUD(self):
         # Check that the rule doesn't exist at first
         assert self.doesRuleNameExist(TestRules.testRuleName)==False
+        assert self.doesRuleNameExistInLi(TestRules.createdLI, TestRules.testRuleName)==False
 
         # Create a Rule
         createdRule = self.createAndCheckRule(
@@ -158,9 +165,10 @@ class TestRules(testUtils.AbstractTest):
             "$state.temperature > 50",
             {"when": "every-time"})
                 
-       # Can we search for it
+        # Can we search for it
         assert self.doesRuleNameExist(TestRules.testRuleName)==True
-
+        assert self.doesRuleNameExistInLi(TestRules.createdLI, TestRules.testRuleName)==True
+        #
         # Update the rule
         # updated_rule_name = TestRules.updatedTestRuleName
         # updatedRule = self.appClient.state.draft.logicalInterfaces.update(
@@ -171,6 +179,7 @@ class TestRules(testUtils.AbstractTest):
         del TestRules.createdLI.rules[createdRule.id]
         # It should be gone
         assert self.doesRuleNameExist(TestRules.testRuleName)==False
+        assert self.doesRuleNameExistInLi(TestRules.createdLI, TestRules.testRuleName)==False
                  
         
     def testDeletePreReqs(self):
