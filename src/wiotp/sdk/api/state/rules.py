@@ -8,7 +8,7 @@
 # *****************************************************************************
 
 from wiotp.sdk.exceptions import ApiException
-from wiotp.sdk.api.common import IterableList
+from wiotp.sdk.api.common import IterableSimpleList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase
 from wiotp.sdk.api.common import RestApiDictReadOnly
@@ -38,7 +38,7 @@ class Rule(RestApiItemBase):
         return self["version"]   
     
     
-class IterableRuleList(IterableList):
+class IterableRuleList(IterableSimpleList):
     def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
         super(IterableRuleList, self).__init__(
