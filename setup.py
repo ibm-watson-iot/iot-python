@@ -51,7 +51,9 @@ setup(
         'wiotp.sdk.api.status',
         'wiotp.sdk.api.usage',
         'wiotp.sdk.api.lec',
-        'wiotp.sdk.api.services'
+        'wiotp.sdk.api.services',
+        'wiotp.sdk.api.actions',
+        'wiotp.sdk.api.state'
     ],
     namespace_packages=['wiotp'],
     package_data={'wiotp.sdk': ['*.pem']},
@@ -67,7 +69,8 @@ setup(
         "pytz >= 2018.9",
         "pyyaml >= 3.13",
         "paho-mqtt >= 1.4.0",
-        "requests >= 2.21.0"
+        "requests >= 2.21.0",
+        "requests_toolbelt >= 0.8.0",
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

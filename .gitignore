@@ -18,6 +18,7 @@ README.txt
 build/*
 dist/*
 .coverage
+tox.out
 samples/deviceFactory/localDeviceRegistry
 samples/deviceFactory/bin
 samples/*.exe

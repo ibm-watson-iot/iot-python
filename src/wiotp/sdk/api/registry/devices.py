@@ -258,7 +258,7 @@ class Device(defaultdict):
     @property
     def deviceInfo(self):
         # Unpack the deviceInfo dictionary into keyword arguments so that we
-        # can return a DeviceIngo object instead of a plain dictionary
+        # can return a DeviceInfo object instead of a plain dictionary
         return DeviceInfo(**self["deviceInfo"])
 
     @property

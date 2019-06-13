@@ -113,6 +113,10 @@ def myCommandCallback(cmd):
 # Configure
 myConfig = wiotp.sdk.device.parseConfigFile("device.yaml")
 client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
+<<<<<<< HEAD
+client.setKeepAliveInterval(60)
+=======
+>>>>>>> master
 client.commandCallback = myCommandCallback
 
 # Connect
