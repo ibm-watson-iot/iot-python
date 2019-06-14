@@ -1,0 +1,44 @@
+{
+    "$schema" : "http://json-schema.org/draft-04/schema#",
+    "type" : "object",
+    "title" : "IoTPSUTIL Sensor Event Schema",
+    "properties" : {
+        "name" : {
+            "description" : "Device name",
+            "type" : "string"
+        },
+        "cpu" : {
+            "description" : "CPU utilization (%)",
+            "type" : "number",
+            "minimum" : 0.0,
+            "maximum" : 100.0,
+            "default" : 0.0
+        },
+        "mem" : {
+            "description" : "Memory utilization (%)",
+            "type" : "number",
+            "minimum" : 0.0,
+            "maximum" : 100.0,
+            "default" : 0.0
+        },
+        "network": {
+            "type": "object",
+            "properties": {
+                "up" : {
+                    "description" : "Network out (KB/s)",
+                    "type" : "number",
+                    "minimum" : 0.0,
+                    "default" : 0.0
+                    },
+                "down" : {
+                    "description" : "Network in (KB/s)",
+                    "type" : "number",
+                    "minimum" : 0.0,
+                    "default" : 0.0
+                }
+            },
+            "required" : ["up", "down"]
+        }
+    },
+    "required" : ["name", "cpu", "mem", "network"]
+} 
