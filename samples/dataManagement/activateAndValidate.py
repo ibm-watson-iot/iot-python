@@ -21,11 +21,11 @@ import wiotp.sdk.application
 if __name__ == "__main__":
     # Initialize the properties we need
     parser = argparse.ArgumentParser(
-        description="IBM Watson IoT Platform Device Deployer.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/deviceFactory",
+        description="IBM Watson IoT Platform Data Management Configuration for Reference Device Clients.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/dataManagement",
     )
-    parser.add_argument(
-        "-c", "--classId", required=False, default="Device", help="Set the classId of the devices (Device, or Gateway). Defaults to Device"
-    )
+    parser.add_argument("-d", "--diff", required=False, action="store_true", default=False, help="Run difference")
+    parser.add_argument("-v", "--validate", required=False, action="store_true", default=False, help="Run validation")
+    parser.add_argument("-a", "--activate", required=False, action="store_true", default=False, help="Run activation")
     args, unknown = parser.parse_known_args()
 
     options = wiotp.sdk.application.parseEnvVars()
@@ -34,22 +34,27 @@ if __name__ == "__main__":
     # =========================================================================
     # Validate and activate the configuration
     # =========================================================================
-    #print(client.state.draft.deviceTypes["iotpsutil"].validate())
-    #print(client.state.draft.deviceTypes["iotoshi"].validate())
+    if args.diff:
+        print(client.state.draft.deviceTypes["iotpsutil"].differences())
+        print(client.state.draft.deviceTypes["iotoshi"].differences())
 
-    #print(client.state.draft.deviceTypes["iotpsutil"].activate())
-    #print(client.state.draft.deviceTypes["iotoshi"].activate())
+    if args.validate:
+        print(client.state.draft.deviceTypes["iotpsutil"].validate())
+        print(client.state.draft.deviceTypes["iotoshi"].validate())
+
+    if args.activate:
+        print(client.state.draft.deviceTypes["iotpsutil"].activate())
+        print(client.state.draft.deviceTypes["iotoshi"].activate())
 
     # =========================================================================
-    # Retrieve the state of the device
+    # Retrieve the state of the device for the first ten devices of each type
     # =========================================================================
-
-    count = 0
-    limit = 10
-    for device in client.state.active.deviceTypes["iotpsutil"].devices:
-        if count > limit:
-            break
-        
-        print("%s - %s" % (device.deviceId, device.states["sysutil"]))
-        print("%s - %s" % (device.deviceId, device.states["networkio"]))
+    for typeId in ["iotpsutil", "iotoshi"]:
+        count = 0
+        limit = 10
+        for device in client.state.active.deviceTypes[typeId].devices:
+            if count > limit:
+                break
+            print("%s:%s - %s" % (typeId, device.deviceId, device.states["sysutil"].state))
+            count +=1
     

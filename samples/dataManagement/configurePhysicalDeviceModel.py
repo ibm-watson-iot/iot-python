@@ -19,7 +19,7 @@ import wiotp.sdk.application
 
 def manageSchema(schemaName, schemaFileName, schemaDescription):
     schemaContent = {}
-    with open(schemaFileName, "r") as schemaFile:
+    with open(os.path.join("schemas", "events", schemaFileName), "r") as schemaFile:
         schemaContent = json.load(schemaFile)
     
     existingSchema = None
@@ -145,10 +145,7 @@ def manageDeviceType(typeId, pi):
 if __name__ == "__main__":
     # Initialize the properties we need
     parser = argparse.ArgumentParser(
-        description="IBM Watson IoT Platform Device Deployer.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/deviceFactory",
-    )
-    parser.add_argument(
-        "-c", "--classId", required=False, default="Device", help="Set the classId of the devices (Device, or Gateway). Defaults to Device"
+        description="IBM Watson IoT Platform Data Management Configuration for Reference Device Clients.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/dataManagement",
     )
     args, unknown = parser.parse_known_args()
 
