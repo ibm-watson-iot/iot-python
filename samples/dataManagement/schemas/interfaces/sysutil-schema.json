@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type" : "object",
+    "title" : "System Utilization Logical Interface Schema",
+    "description" : "Schema that defines the canonical interface for anythin capable of reading System Utilization data",
+    "properties" : {
+        "cpu" : {
+            "description" : "CPU Utilization %",
+            "type" : "number",
+            "minimum" : 0,
+            "maximum" : 100,
+            "default" : 0.0
+        },
+        "memory" : {
+            "description" : "Memory utilization (%)",
+            "type" : "number",
+            "minimum" : 0.0,
+            "maximum" : 100,
+            "default" : 0.0
+        }
+    }
+}

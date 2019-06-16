@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type" : "object",
+    "title" : "Network I/O Logical Interface Schema",
+    "description" : "Schema that defines the canonical interface for anything capable of reading Network I/O data",
+    "properties" : {
+        "network": {
+            "type": "object",
+            "properties": {
+                "outbound" : {
+                    "description" : "Network out (KB/s)",
+                    "type" : "number",
+                    "minimum" : 0.0,
+                    "default" : 0.0
+                    },
+                "inbound" : {
+                    "description" : "Network in (KB/s)",
+                    "type" : "number",
+                    "minimum" : 0.0,
+                    "default" : 0.0
+                }
+            },
+            "required" : ["up", "down"]
+        }
+    }
+}
