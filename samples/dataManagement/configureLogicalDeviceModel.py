@@ -16,8 +16,6 @@ import yaml
 import json
 import wiotp.sdk.application
 
-
-
 def manageLiSchema(schemaName, schemaFileName, description):
     schemaContent = {}
     with open(schemaFileName, "r") as schemaFile:
