@@ -35,6 +35,7 @@ class AbstractTest(object):
     EVENTSTREAMS_USER=os.getenv("EVENTSTREAMS_USER")
     EVENTSTREAMS_PASSWORD=os.getenv("EVENTSTREAMS_PASSWORD")
 
+
     try:
         ORG_ID = WIOTP_API_KEY.split("-")[1]
     except:
