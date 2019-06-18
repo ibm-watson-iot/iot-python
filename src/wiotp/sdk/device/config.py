@@ -199,7 +199,7 @@ def parseEnvVars():
     try:
         keepAlive = int(keepAlive)
     except ValueError as e:
-        raise ConfigurationException("WIOTP_OPTIONS_MQTT_KEEPAIVE must be a number")
+        raise ConfigurationException("WIOTP_OPTIONS_MQTT_KEEPALIVE must be a number")
 
     if logLevel not in ["error", "warning", "info", "debug"]:
         raise ConfigurationException("WIOTP_OPTIONS_LOGLEVEL must be one of error, warning, info, debug")
