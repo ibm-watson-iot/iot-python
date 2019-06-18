@@ -65,7 +65,6 @@ def device(request, testUtil, deviceType, authToken):
     # Cleanup device after test is finished
     testUtil.appClient.registry.devices.delete({"typeId": deviceType.id, "deviceId": deviceId})
 
-
 @pytest.fixture(scope="module")
 def gatewayDeviceType(request, testUtil):
     """
@@ -88,8 +87,6 @@ def gatewayDeviceType(request, testUtil):
 
     # We don't delete the devicetype as we want to re-use it across threads in Travis
     # testUtil.appClient.registry.devicetypes.delete(typeId)
-
-
 
 @pytest.fixture
 def gateway(request, testUtil, gatewayDeviceType, authToken):
@@ -119,6 +116,31 @@ def gateway(request, testUtil, gatewayDeviceType, authToken):
     # Cleanup device after test is finished
     testUtil.appClient.registry.devices.delete({"typeId": gateway.typeId, "deviceId": gateway.deviceId})
 
+@pytest.fixture
+def manageEnvVars(request):
+    #Add placeholder environmental variables for testing
+    os.environ['WIOTP_IDENTITY_ORGID'] = 'myOrg'
+    os.environ['WIOTP_IDENTITY_TYPEID'] = 'myType'
+    os.environ['WIOTP_IDENTITY_DEVICEID'] = 'myDevice'
+    os.environ['WIOTP_AUTH_TOKEN'] = 'myToken'
+    yield True
+    #Remove the placeholder variables so as not to intefere in other areas of the program
+    try:
+        del os.environ['WIOTP_IDENTITY_ORGID'] 
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_IDENTITY_ORGID')
+    try:
+        del os.environ['WIOTP_IDENTITY_TYPEID'] 
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_IDENTITY_TYPEID')
+    try:
+        del os.environ['WIOTP_IDENTITY_DEVICEID']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_IDENTITY_DEVICEID')
+    try: 
+        del os.environ['WIOTP_AUTH_TOKEN']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_AUTH_TOKEN')
 
 @pytest.fixture
 def authToken():
