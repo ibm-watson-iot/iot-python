@@ -19,10 +19,10 @@ class AbstractTest(object):
     WIOTP_API_KEY=os.getenv("WIOTP_API_KEY")
     WIOTP_API_TOKEN=os.getenv("WIOTP_API_TOKEN")
 
-    CLOUDANT_HOST=os.getenv("CLOUDANT_HOST")
-    CLOUDANT_PORT=os.getenv("CLOUDANT_PORT")
-    CLOUDANT_USERNAME=os.getenv("CLOUDANT_USERNAME")
-    CLOUDANT_PASSWORD=os.getenv("CLOUDANT_PASSWORD")
+    CLOUDANT_HOST=os.getenv("CLOUDANT_HOST",None)
+    CLOUDANT_PORT=os.getenv("CLOUDANT_PORT",None)
+    CLOUDANT_USERNAME=os.getenv("CLOUDANT_USERNAME",None)
+    CLOUDANT_PASSWORD=os.getenv("CLOUDANT_PASSWORD",None)
 
 
     EVENTSTREAMS_API_KEY=os.getenv("EVENTSTREAMS_API_KEY")
@@ -47,14 +47,7 @@ class AbstractTest(object):
     if ORG_ID is None:
         raise Exception("Unable to set ORG_ID from WIOTP_API_KEY")
 
-    if CLOUDANT_HOST is None:
-        raise Exception("CLOUDANT_HOST environment variable is not set")
-    if CLOUDANT_PORT is None:
-        raise Exception("CLOUDANT_PORT environment variable is not set")
-    if CLOUDANT_USERNAME is None:
-        raise Exception("CLOUDANT_USERNAME environment variable is not set")
-    if CLOUDANT_PASSWORD is None:
-        raise Exception("CLOUDANT_PASSWORD environment variable is not set")
+
 
     options = wiotp.sdk.application.parseEnvVars()
     # import pprint
