@@ -11,6 +11,7 @@
 import wiotp.sdk.device
 import testUtils
 import pytest
+import os
 
 class TestDeviceCfg(testUtils.AbstractTest):
 
@@ -23,7 +24,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient({
                 "identity": {
-                    "orgId": None, "typeId": "myType", "deviceId": "myId"
+                    "orgId": None, "typeId": "myType", "deviceId": "myDevice"
                 },
                 "auth": { "token" : "myToken" }
             })
@@ -33,7 +34,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient({
                 "identity": {
-                    "orgId": "myOrg", "typeId": None, "deviceId": "myId"
+                    "orgId": "myOrg", "typeId": None, "deviceId": "myDevice"
                 },
                 "auth": { "token" : "myToken" }
             })
@@ -53,7 +54,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient({
                 "identity": {
-                    "orgId": "myOrg", "typeId": "myType", "deviceId": "myId"
+                    "orgId": "myOrg", "typeId": "myType", "deviceId": "myDevice"
                 },
                 "auth": { "token" : None }
             })
@@ -66,3 +67,37 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.parseConfigFile(deviceFile)
         assert e.value.reason == "Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')"
+
+
+    def testMissingOrgIDEnvVar(self):
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+           os.environ['WIOTP_IDENTITY_ORGID'] = "myOrg"
+           os.environ['WIOTP_IDENTITY_TYPEID'] = "myType"
+           os.environ['WIOTP_IDENTITY_DEVICEID'] = "myDevice"
+           os.environ['WIOTP_AUTH_TOKEN'] = "myToken"
+
+           del os.environ['WIOTP_IDENTITY_ORGID']
+           wiotp.sdk.device.parseEnvVars()
+        assert e.value.reason == "Missing WIOTP_IDENTITY_ORGID environment variable"
+    
+    def testMissingTypeIDEnvVar(self):
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+           os.environ['WIOTP_IDENTITY_ORGID'] = "myOrg"
+           os.environ['WIOTP_IDENTITY_TYPEID'] = "myType"
+           os.environ['WIOTP_IDENTITY_DEVICEID'] = "myDevice"
+           os.environ['WIOTP_AUTH_TOKEN'] = "myToken"
+
+           del os.environ['WIOTP_IDENTITY_TYPEID']
+           wiotp.sdk.device.parseEnvVars()
+        assert e.value.reason == "Missing WIOTP_IDENTITY_TYPEID environment variable"
+
+    def testMissingDeviceIDEnvVar(self):
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+           os.environ['WIOTP_IDENTITY_ORGID'] = "myOrg"
+           os.environ['WIOTP_IDENTITY_TYPEID'] = "myType"
+           os.environ['WIOTP_IDENTITY_DEVICEID'] = "myDevice"
+           os.environ['WIOTP_AUTH_TOKEN'] = "myToken"
+
+           del os.environ['WIOTP_IDENTITY_DEVICEID']
+           wiotp.sdk.device.parseEnvVars()
+        assert e.value.reason == "Missing WIOTP_IDENTITY_DEVICEID environment variable"
