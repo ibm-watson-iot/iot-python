@@ -20,7 +20,8 @@
                     "default" : 0.0
                 }
             },
-            "required" : ["up", "down"]
-        }
+            "required" : ["outbound", "inbound"]
+        },
+        "required" : ["network"]
     }
 }
