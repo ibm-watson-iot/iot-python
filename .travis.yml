@@ -17,7 +17,7 @@ matrix:
       env: BUILD_DOCKER_IMAGES=true 
 
 install: 
-  - pip install tox-travis coveralls
+  - pip install tox-travis coveralls pyyaml
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 script: 
