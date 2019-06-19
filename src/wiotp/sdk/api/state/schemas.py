@@ -104,3 +104,21 @@ class DraftSchemas(RestApiDict):
             return Schema(apiClient=self._apiClient, **r.json())
         else:
             raise ApiException(r)
+
+    def update(self, schemaId, schemaFileName, schemaContents):
+        """
+        Updates a schema for the org.
+        Returns: True on success
+        Throws APIException on failure
+        """
+        fields={
+            'schemaFile': (schemaFileName, schemaContents, 'application/json')
+        }
+
+        multipart_data = MultipartEncoder(fields=fields)
+        
+        r = self._apiClient.putMultipart("%s/%s/content" % (self._baseUrl, schemaId), multipart_data)
+        if r.status_code == 204:
+            return True
+        else:
+            raise ApiException(r)

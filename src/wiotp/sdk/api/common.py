@@ -102,6 +102,18 @@ class ApiClient:
         resp.encoding = "utf-8"
         return resp
 
+    def putMultipart(self, url, multipart_data):
+        resp = requests.put(
+            "https://%s/%s" % (self._config.host, url),
+            auth=self._config.credentials,
+            data=multipart_data,
+            headers={"Content-Type": multipart_data.content_type},
+            verify=self._config.verify
+        )
+        resp.encoding = "utf-8"
+        return resp
+
+
 class IterableSimpleList(object):
     def __init__(self, apiClient, castToClass, url, filters=None, passApiClient=True):
         self._apiClient = apiClient
