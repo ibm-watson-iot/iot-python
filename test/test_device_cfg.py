@@ -101,7 +101,17 @@ class TestDeviceCfg(testUtils.AbstractTest):
         assert e.value.reason == 'Optional setting options.mqtt.cleanStart must be a boolean if provided'
 
     def testMissingConfigFile(self):
-        deviceFile="InvalidFile.out"
+        deviceFile="notAFile.yaml"
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.parseConfigFile(deviceFile)
-        assert e.value.reason == "Error reading device configuration file 'InvalidFile.out' ([Errno 2] No such file or directory: 'InvalidFile.out')"
+        assert e.value.reason == "Error reading device configuration file 'notAFile.yaml' ([Errno 2] No such file or directory: 'notAFile.yaml')"
+
+
+    def testConfigFileWrongLogLevel(self):
+        deviceFile="test/test_device_configfile.yaml"
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.device.parseConfigFile(deviceFile)
+        assert e.value.reason == 'Optional setting options.logLevel must be one of error, warning, info, debug'
+
+
+    

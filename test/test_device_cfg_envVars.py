@@ -47,24 +47,18 @@ class TestDeviceCfg(testUtils.AbstractTest):
 
     def testSessionExpiryEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_PORT'] = "0"
             os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = "notAnInteger"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_SESSIONEXPIRY must be a number"
 
     def testKeepAliveEnvVarNotInteger(self, manageEnvVars):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_PORT'] = "0"
-            os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = "0"
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e: 
             os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE'] = "notAnInteger"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_KEEPALIVE must be a number"
 
     def testLogLevelEnvVarWrongValue(self,manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_PORT'] = "0"
-            os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = "0"
-            os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE'] = "0"
-            os.environ['WIOTP_OPTIONS_LOGLEVEL'] = "myLogLevel"
+            os.environ['WIOTP_OPTIONS_LOGLEVEL'] = "notALogLevel"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_LOGLEVEL must be one of error, warning, info, debug"

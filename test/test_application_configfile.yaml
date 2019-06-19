@@ -1,0 +1,18 @@
+    identity:
+      appId: myApp
+    auth:
+      key: 0
+      token: 0
+    options:
+      domain: myDomain
+      logLevel: incorrectLogLevel
+      mqtt:
+        instanceId: myInstance
+        port: 0
+        transport: tcp
+        cleanStart: false
+        sessionExpiry: 0
+        keepAlive: 0
+        caFile: myPath
+      http:
+        verify: true    

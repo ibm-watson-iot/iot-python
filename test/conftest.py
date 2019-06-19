@@ -123,6 +123,11 @@ def manageEnvVars(request):
     os.environ['WIOTP_IDENTITY_TYPEID'] = 'myType'
     os.environ['WIOTP_IDENTITY_DEVICEID'] = 'myDevice'
     os.environ['WIOTP_AUTH_TOKEN'] = 'myToken'
+    os.environ['WIOTP_PORT'] = '0'
+    os.environ['WIOTP_OPTIONS_MQTT_PORT'] = '0'
+    os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = '0'
+    os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE'] = '0'
+    os.environ['WIOTP_OPTIONS_LOGLEVEL'] = 'info'
     yield True
     #Remove the placeholder variables so as not to intefere in other areas of the program
     try:
@@ -141,6 +146,26 @@ def manageEnvVars(request):
         del os.environ['WIOTP_AUTH_TOKEN']
     except KeyError:
         logging.exception('KeyError when deleting WIOTP_AUTH_TOKEN')
+    try: 
+        del os.environ['WIOTP_PORT']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_PORT')
+    try: 
+        del os.environ['WIOTP_MQTT_OPTIONS_PORT']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_PORT')
+    try: 
+        del os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_OPTIONS_MQTT_SESSIONEXPIRY')
+    try: 
+        del os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_OPTIONS_MQTT_KEEPALIVE')
+    try: 
+        del os.environ['WIOTP_OPTIONS_LOGLEVEL']
+    except KeyError:
+        logging.exception('KeyError when deleting WIOTP_OPTIONS_LOGLEVEL')
 
 @pytest.fixture
 def authToken():
