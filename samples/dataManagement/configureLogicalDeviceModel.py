@@ -18,7 +18,7 @@ import wiotp.sdk.application
 
 def manageLiSchema(schemaName, schemaFileName, description):
     schemaContent = {}
-    with open(schemaFileName, "r") as schemaFile:
+    with open(os.path.join("schemas", "interfaces", schemaFileName), "r") as schemaFile:
         schemaContent = json.load(schemaFile)
     
     existingSchema = None
@@ -26,18 +26,20 @@ def manageLiSchema(schemaName, schemaFileName, description):
         if (schema.name == schemaName):
             existingSchema = schema
 
+    jsonSchemaContent = json.dumps(schemaContent)
     if existingSchema is None:
         print("LI Schema %s needs to be created" % (schemaName))
-        jsonSchemaContent = json.dumps(schemaContent)
         createdSchema = client.state.draft.schemas.create(schemaName, schemaFileName, jsonSchemaContent, description)        
         print(createdSchema)
         print("")
         return createdSchema
     else:
-        print("LI Schema %s alreadyExists" % (schemaName))
-        print(existingSchema)
+        print("LI Schema %s already exists - updating it" % (schemaName))
+        client.state.draft.schemas.update(existingSchema.id, schemaFileName, jsonSchemaContent)
+        updatedSchema = client.state.draft.schemas[existingSchema.id]
+        print(updatedSchema)
         print("")
-        return existingSchema
+        return updatedSchema
 
 def manageLi(liName, liAlias, description, schemaId):
     li = None

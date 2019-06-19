@@ -58,3 +58,15 @@ if __name__ == "__main__":
             print("%s:%s - %s" % (typeId, device.deviceId, device.states["sysutil"].state))
             count +=1
     
+    # =========================================================================
+    # Retrieve the state of the device for the first ten devices of each type
+    # =========================================================================
+    for typeId in ["iotpsutil"]:
+        count = 0
+        limit = 10
+        for device in client.state.active.deviceTypes[typeId].devices:
+            if count > limit:
+                break
+            print("%s:%s - %s" % (typeId, device.deviceId, device.states["networkio"].state))
+            count +=1
+    
