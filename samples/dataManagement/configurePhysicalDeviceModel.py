@@ -17,7 +17,7 @@ import json
 import wiotp.sdk.application
 
 
-def manageSchema(schemaName, schemaFileName, schemaDescription):
+def manageSchema(schemaName, schemaFileName, description):
     schemaContent = {}
     with open(os.path.join("schemas", "events", schemaFileName), "r") as schemaFile:
         schemaContent = json.load(schemaFile)
@@ -27,25 +27,23 @@ def manageSchema(schemaName, schemaFileName, schemaDescription):
     for a in client.state.draft.schemas.find({"name": schemaName}):
         if (a.name == schemaName):
             existingSchema = a
-    
+
+    # TODO: Be Pythonic - We shouldn't serializse this to string, accept a python dict representing the schema
+    schemaContentAsString = json.dumps(schemaContent)
+
     if existingSchema is None:
         print("Event schema %s needs to be created" % (schemaName))
-
-        # TODO: Be Pythonic - We shouldn't serializse this to string, accept a python dict representing the schema
-        schemaContentAsString = json.dumps(schemaContent)
-        createdSchema = client.state.draft.schemas.create(schemaName, schemaFileName, schemaContentAsString, schemaDescription)
+        createdSchema = client.state.draft.schemas.create(schemaName, schemaFileName, schemaContentAsString, description)
         print(createdSchema)
         print("")
         return createdSchema
     else:
-        print("Event schema %s already exists" % (schemaName))
-        print(existingSchema)
+        print("Event Schema %s already exists - updating it" % (schemaName))
+        client.state.draft.schemas.updateContent(existingSchema.id, schemaFileName, schemaContentAsString)
+        updatedSchema = client.state.draft.schemas.update(existingSchema.id, {'id': createdSchema.id, 'name': schemaName, 'description': description})
+        print(updatedSchema)
         print("")
-        # TODO: We can't update the content yet / open issue to add this support to library
-        #updatedSchema = client.state.draft.schemas.update(existingSchema.id, {'id': createdSchema.id, 'name': updated_schema_name, 'description': "Test schema updated description"})
-        #self.checkSchema(updatedSchema, updated_schema_name, "eventSchema.json", TestSchemas.testEventSchema, "Test schema updated description")
-        #print(existingSchema)
-        return existingSchema
+        return updatedSchema
 
 def manageEventType(typeName, schemaId, description):
     existingType = None
@@ -155,8 +153,8 @@ if __name__ == "__main__":
     # =========================================================================
     # Create Event Schemas
     # =========================================================================
-    psutilSchema = manageSchema(schemaName="psutil-eschema", schemaFileName="psutil-schema.json", schemaDescription="Schema for PSUTIL event data")
-    oshiSchema = manageSchema(schemaName="oshi-eschema", schemaFileName="oshi-schema.json", schemaDescription="Schema for OSHI event data")
+    psutilSchema = manageSchema(schemaName="psutil-eschema", schemaFileName="psutil-schema.json", description="Schema for PSUTIL event data")
+    oshiSchema = manageSchema(schemaName="oshi-eschema", schemaFileName="oshi-schema.json", description="Schema for OSHI event data")
 
     # =========================================================================
     # Create Event Type

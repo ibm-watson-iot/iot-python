@@ -105,7 +105,7 @@ class DraftSchemas(RestApiDict):
         else:
             raise ApiException(r)
 
-    def update(self, schemaId, schemaFileName, schemaContents):
+    def updateContent(self, schemaId, schemaFileName, schemaContents):
         """
         Updates a schema for the org.
         Returns: True on success

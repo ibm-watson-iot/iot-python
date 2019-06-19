@@ -35,8 +35,8 @@ def manageLiSchema(schemaName, schemaFileName, description):
         return createdSchema
     else:
         print("LI Schema %s already exists - updating it" % (schemaName))
-        client.state.draft.schemas.update(existingSchema.id, schemaFileName, jsonSchemaContent)
-        updatedSchema = client.state.draft.schemas[existingSchema.id]
+        client.state.draft.schemas.updateContent(existingSchema.id, schemaFileName, jsonSchemaContent)
+        updatedSchema = client.state.draft.schemas.update(existingSchema.id, {'id': createdSchema.id, 'name': schemaName, 'description': description})
         print(updatedSchema)
         print("")
         return updatedSchema

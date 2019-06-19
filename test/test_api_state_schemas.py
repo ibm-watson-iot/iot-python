@@ -48,7 +48,28 @@ class TestSchemas(testUtils.AbstractTest):
         },
         'required' : ['temperature', 'humidity', 'publishTimestamp']
     } 
-        
+
+    testEventSchemaUpdated =  {
+        '$schema' : 'http://json-schema.org/draft-04/schema#',
+        'type' : 'object',
+        'title' : 'Sensor Event Schema with temperature removed',
+        'properties' : {
+            'humidity' : {
+                'description' : 'relative humidty (%)',
+                'type' : 'number',
+                'minimum' : 0.0,
+                'default' : 0.0
+            },
+            'publishTimestamp' : {
+                'description' : 'publishTimestamp',
+                'type' : 'number',
+                'minimum' : 0.0,
+                'default' : 0.0
+            }
+        },
+        'required' : ['humidity', 'publishTimestamp']
+    } 
+
     # =========================================================================
     # Set up services
     # =========================================================================
@@ -142,9 +163,19 @@ class TestSchemas(testUtils.AbstractTest):
         # Update the schema
         updated_schema_name = TestSchemas.updatedTestSchemaName
         updatedSchema = self.appClient.state.draft.schemas.update(
-            createdSchema.id, {'id': createdSchema.id, 'name': updated_schema_name, 'description': "Test schema updated description"})
+            createdSchema.id, {'id': createdSchema.id, 'name': updated_schema_name, 'description': "Test schema updated description"}
+        )
         self.checkSchema(updatedSchema, updated_schema_name, "eventSchema.json", TestSchemas.testEventSchema, "Test schema updated description")
-        
+
+        # Update the schema content
+        updated_schema_name = TestSchemas.updatedTestSchemaName
+        result = self.appClient.state.draft.schemas.updateContent(
+            createdSchema.id, "newEventSchema.json", json.dumps(TestSchemas.testEventSchemaUpdated)
+        )
+        assert(result == True)
+        updatedSchema = self.appClient.state.draft.schemas[createdSchema.id]
+        self.checkSchema(updatedSchema, updated_schema_name, "newEventSchema.json", TestSchemas.testEventSchemaUpdated, "Test schema updated description")
+
         # Delete the schema
         del self.appClient.state.draft.schemas[createdSchema.id]
         # It should be gone
