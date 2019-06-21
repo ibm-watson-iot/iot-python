@@ -9,6 +9,8 @@ The following data points are collected:
  * Memory utilization (%)
  * Outbound network utilization across all network interfaces (KB/s)
  * Inbound network utilization across all network interfaces (KB/s)
+ * Disk write rate (KB/s)
+ * Disk read rate (KB/s)
 
 A tutorial guiding you through the process of setting up this sample on a Raspberry Pi is published on [IBM Developer developerWorks Recipes](https://developer.ibm.com/recipes/tutorials/raspberry-pi-4/)
 
@@ -19,6 +21,8 @@ A tutorial guiding you through the process of setting up this sample on a Raspbe
 - `mem` obtained from `psutil.virtual_memory().percent`
 - `network.up` calculated using `psutil.net_io_counters()`
 - `network.down` calculated using `psutil.net_io_counters()`
+- `disk.write` calculated using `psutil.disk_io_counters()`
+- `disk.read` calculated using `psutil.disk_io_counters()`
 
 ## Before you Begin
 
