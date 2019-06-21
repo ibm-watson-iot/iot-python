@@ -112,31 +112,36 @@ if __name__ == "__main__":
 
     # Take initial reading
     psutil.cpu_percent(percpu=False)
-    ioBefore_ts = time.time()
+    before_ts = time.time()
     ioBefore = psutil.net_io_counters()
-
+    diskBefore = psutil.disk_io_counters()
+    psutil.disk_io_counters(perdisk=False, nowrap=True)
     while True:
         time.sleep(interval)
-        ioAfter_ts = time.time()
+        after_ts = time.time()
         ioAfter = psutil.net_io_counters()
-
+        diskAfter = psutil.disk_io_counters()
         # Calculate the time taken between IO checks
-        ioDuration = ioAfter_ts - ioBefore_ts
+        duration = after_ts - before_ts
 
         data = {
             "name": args.name,
             "cpu": psutil.cpu_percent(percpu=False),
             "mem": psutil.virtual_memory().percent,
             "network": {
-                "up": round((ioAfter.bytes_sent - ioBefore.bytes_sent) / (ioDuration * 1024), 2),
-                "down": round((ioAfter.bytes_recv - ioBefore.bytes_recv) / (ioDuration * 1024), 2),
+                "up": round((ioAfter.bytes_sent - ioBefore.bytes_sent) / (duration * 1024), 2),
+                "down": round((ioAfter.bytes_recv - ioBefore.bytes_recv) / (duration * 1024), 2)
             },
+             "disk": {
+                "read": round((diskAfter.read_bytes - diskBefore.read_bytes) / (duration * 1024), 2),
+                "write": round((diskAfter.write_bytes - diskBefore.write_bytes) / (duration * 1024), 2)
+            }
         }
         if args.verbose:
             print("Datapoint = " + json.dumps(data))
 
         client.publishEvent("psutil", "json", data)
-
         # Update timestamp and data ready for next loop
-        ioBefore_ts = ioAfter_ts
+        before_ts = after_ts
         ioBefore = ioAfter
+        diskBefore = diskAfter
