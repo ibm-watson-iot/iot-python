@@ -227,7 +227,7 @@ def parseEnvVars():
     if authToken is not None:
         cfg["auth"] = {"token": authToken}
 
-    return cfg
+    return DeviceClientConfig(**cfg)
 
 
 def parseConfigFile(configFilePath):
@@ -271,4 +271,4 @@ def parseConfigFile(configFilePath):
             # Convert log levels from string to int (we need to upper case our strings from the config)
             data["options"]["logLevel"] = logging.getLevelName(data["options"]["logLevel"].upper())
 
-    return data
+    return DeviceClientConfig(**data)

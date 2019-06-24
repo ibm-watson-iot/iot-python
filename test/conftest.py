@@ -123,12 +123,11 @@ def manageEnvVars(request):
     os.environ['WIOTP_IDENTITY_TYPEID'] = 'myType'
     os.environ['WIOTP_IDENTITY_DEVICEID'] = 'myDevice'
     os.environ['WIOTP_AUTH_TOKEN'] = 'myToken'
-    os.environ['WIOTP_PORT'] = '0'
     os.environ['WIOTP_OPTIONS_MQTT_PORT'] = '0'
     os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = '0'
     os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE'] = '0'
     os.environ['WIOTP_OPTIONS_LOGLEVEL'] = 'info'
-    yield True
+    yield manageEnvVars
     #Remove the placeholder variables so as not to intefere in other areas of the program
     try:
         del os.environ['WIOTP_IDENTITY_ORGID'] 
@@ -146,10 +145,6 @@ def manageEnvVars(request):
         del os.environ['WIOTP_AUTH_TOKEN']
     except KeyError:
         logging.exception('KeyError when deleting WIOTP_AUTH_TOKEN')
-    try: 
-        del os.environ['WIOTP_PORT']
-    except KeyError:
-        logging.exception('KeyError when deleting WIOTP_PORT')
     try: 
         del os.environ['WIOTP_MQTT_OPTIONS_PORT']
     except KeyError:

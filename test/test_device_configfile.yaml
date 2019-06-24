@@ -1,18 +1,18 @@
+    
     identity:
-      appId: myApp
+      orgId: myOrg
+      typeId: myType
+      deviceId: myDevice
     auth:
-      key: 0
-      token: 0
+      token: myToken
     options:
-      domain: myDomain
-      logLevel: incorrectLogLevel
-      mqtt:
-        instanceId: myInstance
-        port: 0
+      domain: internetofthings.ibmcloud.com
+      logLevel: notAValidLogLevel
+    mqtt:
+        port: 8883
         transport: tcp
-        cleanStart: false
-        sessionExpiry: 0
-        keepAlive: 0
+        cleanStart: true
+        sessionExpiry: 3600
+        keepAlive: 60
         caFile: myPath
-      http:
-        verify: true    
+

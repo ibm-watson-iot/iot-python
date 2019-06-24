@@ -213,7 +213,7 @@ def parseEnvVars():
         try:
             port = int(port)
         except ValueError as e:
-            raise ConfigurationException("WIOTP_PORT must be a number")
+            raise ConfigurationException("WIOTP_OPTIONS_MQTT_PORT must be a number")
 
     try:
         sessionExpiry = int(sessionExpiry)
