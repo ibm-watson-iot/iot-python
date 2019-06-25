@@ -7,7 +7,7 @@
     options:
       domain: internetofthings.ibmcloud.com
       logLevel: notAValidLogLevel
-    mqtt:
+      mqtt:
         instanceId: myInstance
         port: 8883
         transport: tcp
@@ -15,5 +15,5 @@
         sessionExpiry: 3600
         keepAlive: 60
         caFile: myPath
-    http:
+      http:
         verify: true    
