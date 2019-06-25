@@ -14,6 +14,7 @@ import pytest
 class FakeMessageStatus():
     topic = "iot-2/type/typeid/id/deviceid/mon"
     payload = b'{"a":4}'
+    retain = False
 
 class FakePahoMessageEvent(): 
     topic = "iot-2/type/1/id/2/evt/3/fmt/json"
