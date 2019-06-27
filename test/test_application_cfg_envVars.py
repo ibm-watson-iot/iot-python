@@ -18,7 +18,7 @@ class TestApplication(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             os.environ['WIOTP_OPTIONS_MQTT_PORT'] = "notANumber"
             wiotp.sdk.application.parseEnvVars()
-        assert e.value.reason == "WIOTP_PORT must be a number"
+        assert e.value.reason == "WIOTP_OPTIONS_MQTT_PORT must be a number"
 
     def testSessionExpiryEnvVarNotInteger(self,manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
