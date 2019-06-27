@@ -14,6 +14,7 @@ import pytest
 class FakeMessageStatus():
     topic = "iot-2/type/typeid/id/deviceid/mon"
     payload = b'{"a":4}'
+    retain = False
 
 class FakePahoMessageEvent(): 
     topic = "iot-2/type/1/id/2/evt/3/fmt/json"
@@ -39,6 +40,7 @@ class TestApplicationMsgStat(testUtils.AbstractTest):
             message = FakePahoMessageEvent()
             status = wiotp.sdk.application.Status(message)
         assert e.value.reason == "Received device status on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
+        assert str(e.value) == "Invalid Event: iot-2/type/1/id/2/evt/3/fmt/json"
 
 
 
@@ -60,6 +62,7 @@ class TestApplicationMsgEv(testUtils.AbstractTest):
             messageEncoderModules = {"fidaa":wiotp.sdk.JsonCodec()}
             event = wiotp.sdk.application.Event(pahoMessage, messageEncoderModules)
         assert e.value.format == 'json'
+        assert str(e.value) == "No message decoder defined for message format: json"
 
     def testInvalidEventTopic(self):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
