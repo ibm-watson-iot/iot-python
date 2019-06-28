@@ -21,12 +21,12 @@ class TestDevice(testUtils.AbstractTest):
         deviceInfoObj = wiotp.sdk.device.DeviceInfo() 
         deviceInfoObj.serialNumber = "0101"
         deviceInfoObj.manufacturer = "0202"
-        deviceInfoObj.model == "0303"
-        deviceInfoObj.deviceClass == "0404" 
-        deviceInfoObj.description == "0505"
-        deviceInfoObj.fwVersion == "0606"   
-        deviceInfoObj.hwVersion == "0707"
-        deviceInfoObj.descriptiveLocation == "0808"
+        deviceInfoObj.model = "0303"
+        deviceInfoObj.deviceClass = "0404" 
+        deviceInfoObj.description = "0505"
+        deviceInfoObj.fwVersion = "0606"   
+        deviceInfoObj.hwVersion = "0707"
+        deviceInfoObj.descriptiveLocation = "0808"
         assert isinstance(deviceInfoObj, wiotp.sdk.device.DeviceInfo)
         print(deviceInfoObj)
         assert deviceInfoObj.serialNumber == "0101"
