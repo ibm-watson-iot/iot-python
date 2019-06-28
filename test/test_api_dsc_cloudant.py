@@ -135,9 +135,19 @@ class TestDscCloudant(testUtils.AbstractTest):
             typeId="*",
             eventId="*"
         )
+
+
         assert destination1.name == rule1.destinationName
         assert "*" == rule1.typeId
         assert "*" == rule1.eventId
+        assert rule1.name == "test-rule-cloudant1"
+        assert rule1.destinationName == destination1.name
+        assert rule1.description == "Test rule 1"
+        assert rule1.selector == {'deviceType': '*', 'eventId': '*'}
+        assert rule1.enabled == True
+        assert isinstance(rule1.id, str)
+        assert isinstance(rule1.updated, datetime)
+        assert isinstance(rule1.created, datetime)
 
         with pytest.raises(ApiException) as e:
             del createdConnector.destinations[destination1.name]
