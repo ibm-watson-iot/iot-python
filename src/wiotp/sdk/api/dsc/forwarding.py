@@ -29,6 +29,10 @@ class ForwardingRule(defaultdict):
         return self["name"]
 
     @property
+    def description(self):
+        return self["description"]
+
+    @property
     def destinationName(self):
         return self["destinationName"]
 
