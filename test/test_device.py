@@ -18,9 +18,27 @@ from wiotp.sdk.exceptions import ApiException, ConnectionException, MissingMessa
 class TestDevice(testUtils.AbstractTest):
 
     def testDeviceInfoInstance(self):
-        deviceInfoObj = wiotp.sdk.device.DeviceInfo()
+        deviceInfoObj = wiotp.sdk.device.DeviceInfo() 
+        deviceInfoObj.serialNumber = "0101"
+        deviceInfoObj.manufacturer = "0202"
+        deviceInfoObj.model = "0303"
+        deviceInfoObj.deviceClass = "0404" 
+        deviceInfoObj.description = "0505"
+        deviceInfoObj.fwVersion = "0606"   
+        deviceInfoObj.hwVersion = "0707"
+        deviceInfoObj.descriptiveLocation = "0808"
         assert isinstance(deviceInfoObj, wiotp.sdk.device.DeviceInfo)
         print(deviceInfoObj)
+        assert deviceInfoObj.serialNumber == "0101"
+        assert deviceInfoObj.manufacturer == "0202"
+        assert deviceInfoObj.model == "0303"
+        assert deviceInfoObj.deviceClass == "0404"
+        assert deviceInfoObj.description == "0505"
+        assert deviceInfoObj.fwVersion == "0606"
+        assert deviceInfoObj.hwVersion == "0707"
+        assert deviceInfoObj.descriptiveLocation == "0808"
+
+
 
     def testDeviceFirmwareInstance(self):
         deviceFWObj = wiotp.sdk.device.DeviceFirmware()

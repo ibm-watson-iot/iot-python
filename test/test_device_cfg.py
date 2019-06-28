@@ -18,6 +18,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient({})
         assert e.value.reason == 'Missing identity from configuration'
+        assert str(e.value) == 'Missing identity from configuration'
 
     def testMissingOrg(self):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
