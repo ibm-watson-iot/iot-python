@@ -86,11 +86,11 @@ class ApiClient:
             auth=self._config.credentials,
             data=multipart_data,
             headers={"Content-Type": multipart_data.content_type},
-            verify=self._config.verify
+            verify=self._config.verify,
         )
         resp.encoding = "utf-8"
         return resp
-    
+
     def put(self, url, data):
         resp = requests.put(
             "https://%s/%s" % (self._config.host, url),
@@ -108,7 +108,7 @@ class ApiClient:
             auth=self._config.credentials,
             data=multipart_data,
             headers={"Content-Type": multipart_data.content_type},
-            verify=self._config.verify
+            verify=self._config.verify,
         )
         resp.encoding = "utf-8"
         return resp
@@ -132,7 +132,7 @@ class IterableSimpleList(object):
         if len(self._listBuffer) == 0 and not self._noMoreResults:
             # We need to make an api call
             apiResponse = self._makeApiCall()
-            
+
             self._listBuffer = apiResponse
             # We read all the results in one call so there are no more available to fetch
             self._noMoreResults = True
@@ -236,7 +236,7 @@ class RestApiItemBase(defaultdict):
     @property
     def id(self):
         return self["id"]
-    
+
     @property
     def name(self):
         return self["name"]
@@ -260,15 +260,18 @@ class RestApiItemBase(defaultdict):
     @property
     def updatedBy(self):
         return self["updatedBy"]
-    
+
+
 """
 This should be instantiated as a class property, 
 it uses the instance parameter to access instance specific values  TBD describe!!!
-"""    
+"""
+
+
 class RestApiModifiableProperty(property):
     def __init__(self, castToClass):
         self._castToClass = castToClass
-        
+
     def __get__(self, instance, type=None):
         url = self.getUrl(instance)
         # TBD debug print ("Get, Instance, instance: %s, Owner: %s, URL: %s" % (instance, type, url))
@@ -277,7 +280,7 @@ class RestApiModifiableProperty(property):
         if r.status_code == 200:
             return self._castToClass(apiClient=self.getApiClient(instance), **r.json())
         else:
-            raise ApiException(r)        
+            raise ApiException(r)
 
     def __set__(self, instance, value):
         url = self.getUrl(instance)
@@ -290,12 +293,12 @@ class RestApiModifiableProperty(property):
             raise ApiException(r)
 
     def __delete__(self, instance):
-        # TBD debug print ("Delete, Instance, instance: %s" % (instance))    
+        # TBD debug print ("Delete, Instance, instance: %s" % (instance))
         url = self.getUrl(instance)
 
         r = self.getApiClient(instance).delete(url)
         if r.status_code != 204:
-            raise ApiException(r)      
+            raise ApiException(r)
 
 
 class RestApiDictBase(defaultdict):
@@ -308,7 +311,7 @@ class RestApiDictBase(defaultdict):
         self._sort = sort
         self._filters = filters
         self._passApiClient = passApiClient
-        
+
     def __contains__(self, key):
         """
         Does an Item exist?
@@ -341,7 +344,7 @@ class RestApiDictBase(defaultdict):
             self.__missing__(key)
         else:
             raise ApiException(r)
-        
+
     def __missing__(self, key):
         """
         Item does not exist
@@ -366,12 +369,11 @@ class RestApiDictBase(defaultdict):
         """
         return self._listToCast(self._apiClient, self._baseUrl, filters=query_params)
 
+
 class RestApiDict(RestApiDictBase):
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
-        super(RestApiDict, self).__init__(
-            apiClient, castToClass, listToCast, url, sort, filters, passApiClient
-        )
-        
+        super(RestApiDict, self).__init__(apiClient, castToClass, listToCast, url, sort, filters, passApiClient)
+
     def __setitem__(self, key, value):
         """
         Register a new Item - not currently supported via this interface
@@ -430,19 +432,16 @@ class RestApiDict(RestApiDictBase):
                 return self._castToClass(**r.json())
         else:
             raise ApiException(r)
-    
 
-    
+
 class RestApiDictReadOnly(RestApiDictBase):
     """
     The Active version restricts the ability to directly modify the retrieved item.
     """
 
     def __init__(self, apiClient, castToClass, listToCast, url, sort=None, filters=None, passApiClient=True):
-        super(RestApiDictReadOnly, self).__init__(
-            apiClient, castToClass, listToCast, url, sort, filters, passApiClient
-        )
-        
+        super(RestApiDictReadOnly, self).__init__(apiClient, castToClass, listToCast, url, sort, filters, passApiClient)
+
     def __setitem__(self, key, value):
         """
         Register a new Item - not supported for active item
@@ -466,6 +465,7 @@ class RestApiDictReadOnly(RestApiDictBase):
         Create an Item - not supported for CTIVE item
         """
         raise Exception("Unable to update this active item, please update and activate the draft version.")
+
 
 class DateTimeEncoder(json.JSONEncoder):
     """

@@ -18,12 +18,11 @@ from wiotp.sdk.exceptions import ApiException
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/Schema-mgr-beta.html
 
+
 class Schema(RestApiItemBase):
     def __init__(self, apiClient, **kwargs):
-        super(Schema, self).__init__(
-            apiClient, **kwargs
-        )
-        self.contentUrl=None
+        super(Schema, self).__init__(apiClient, **kwargs)
+        self.contentUrl = None
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
 
@@ -34,23 +33,23 @@ class Schema(RestApiItemBase):
     @property
     def schemaFileName(self):
         return self["schemaFileName"]
-    
+
     @property
     def contentType(self):
         return self["contentType"]
-    
+
     @property
     def content(self):
         # determine the REST URL to call
-        if self.contentUrl== None:
+        if self.contentUrl == None:
             if self.version == "draft":
                 self.contentUrl = "api/v0002/draft/schemas/%s/content" % (self.id)
             elif self.version == "active":
                 self.contentUrl = "api/v0002/schemas/%s/content" % (self.id)
             else:
-                raise Exception("Schema version is not recognised: (%s)"  % (self.version))
+                raise Exception("Schema version is not recognised: (%s)" % (self.version))
 
-        # call the Rest API                
+        # call the Rest API
         r = self._apiClient.get((self.contentUrl))
         if r.status_code == 200:
             return r.json()
@@ -59,29 +58,24 @@ class Schema(RestApiItemBase):
 
     @property
     def version(self):
-        return self["version"]        
+        return self["version"]
+
 
 class IterableSchemaList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableSchemaList, self).__init__(
-            apiClient, Schema, url, filters=filters
-        )
+        super(IterableSchemaList, self).__init__(apiClient, Schema, url, filters=filters)
+
 
 class ActiveSchemas(RestApiDict):
-
     def __init__(self, apiClient):
-        super(ActiveSchemas, self).__init__(
-            apiClient, Schema, IterableSchemaList, "api/v0002/schemas"
-        )
-        
+        super(ActiveSchemas, self).__init__(apiClient, Schema, IterableSchemaList, "api/v0002/schemas")
+
+
 class DraftSchemas(RestApiDict):
-
     def __init__(self, apiClient):
-        super(DraftSchemas, self).__init__(
-            apiClient, Schema, IterableSchemaList, "api/v0002/draft/schemas"
-        )
-        
+        super(DraftSchemas, self).__init__(apiClient, Schema, IterableSchemaList, "api/v0002/draft/schemas")
+
     def create(self, name, schemaFileName, schemaContents, description):
 
         """
@@ -89,16 +83,16 @@ class DraftSchemas(RestApiDict):
         Returns: schemaId (string), response (object).
         Throws APIException on failure
         """
-        fields={
-        'schemaFile': (schemaFileName, schemaContents, 'application/json'),
-            'schemaType': 'json-schema',
-            'name': name,
+        fields = {
+            "schemaFile": (schemaFileName, schemaContents, "application/json"),
+            "schemaType": "json-schema",
+            "name": name,
         }
         if description:
             fields["description"] = description
 
         multipart_data = MultipartEncoder(fields=fields)
-        
+
         r = self._apiClient.postMultipart(self._baseUrl, multipart_data)
         if r.status_code == 201:
             return Schema(apiClient=self._apiClient, **r.json())
@@ -111,12 +105,10 @@ class DraftSchemas(RestApiDict):
         Returns: True on success
         Throws APIException on failure
         """
-        fields={
-            'schemaFile': (schemaFileName, schemaContents, 'application/json')
-        }
+        fields = {"schemaFile": (schemaFileName, schemaContents, "application/json")}
 
         multipart_data = MultipartEncoder(fields=fields)
-        
+
         r = self._apiClient.putMultipart("%s/%s/content" % (self._baseUrl, schemaId), multipart_data)
         if r.status_code == 204:
             return True

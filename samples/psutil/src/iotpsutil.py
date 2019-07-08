@@ -105,9 +105,13 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if args.quickstart:
-        print("Welcome to IBM Watson IoT Platform Quickstart, view a vizualization of live data from this device at the URL below:")
-        print("https://quickstart.internetofthings.ibmcloud.com/#/device/%s/sensor/" % (options["identity"]["deviceId"]))
-    
+        print(
+            "Welcome to IBM Watson IoT Platform Quickstart, view a vizualization of live data from this device at the URL below:"
+        )
+        print(
+            "https://quickstart.internetofthings.ibmcloud.com/#/device/%s/sensor/" % (options["identity"]["deviceId"])
+        )
+
     print("(Press Ctrl+C to disconnect)")
 
     # Take initial reading
@@ -130,12 +134,12 @@ if __name__ == "__main__":
             "mem": psutil.virtual_memory().percent,
             "network": {
                 "up": round((ioAfter.bytes_sent - ioBefore.bytes_sent) / (duration * 1024), 2),
-                "down": round((ioAfter.bytes_recv - ioBefore.bytes_recv) / (duration * 1024), 2)
+                "down": round((ioAfter.bytes_recv - ioBefore.bytes_recv) / (duration * 1024), 2),
             },
-             "disk": {
+            "disk": {
                 "read": round((diskAfter.read_bytes - diskBefore.read_bytes) / (duration * 1024), 2),
-                "write": round((diskAfter.write_bytes - diskBefore.write_bytes) / (duration * 1024), 2)
-            }
+                "write": round((diskAfter.write_bytes - diskBefore.write_bytes) / (duration * 1024), 2),
+            },
         }
         if args.verbose:
             print("Datapoint = " + json.dumps(data))

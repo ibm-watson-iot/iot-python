@@ -9,16 +9,16 @@
 
 import testUtils
 
+
 class TestRegistryStatus(testUtils.AbstractTest):
-    
+
     # =========================================================================
     # Service Status
     # =========================================================================
     def testStatus(self):
         status = self.appClient.status.serviceStatus()
-        
+
         assert status.region == "us"
         assert status.dashboard in ["green", "orange", "red"]
         assert status.messaging in ["green", "orange", "red"]
         assert status.thirdParty in ["green", "orange", "red"]
-    

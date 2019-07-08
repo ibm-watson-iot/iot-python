@@ -20,14 +20,14 @@ from wiotp.sdk.api.state.rules import ActiveRulesPerLI
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/state-mgmt.html#/Logical Interfaces
 
-        
+
 class BaseLogicalInterface(RestApiItemBase):
     def __init__(self, apiClient, **kwargs):
         self._apiClient = apiClient
         dict.__init__(self, **kwargs)
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
-    
+
     @property
     def alias(self):
         return self["alias"]
@@ -35,15 +35,16 @@ class BaseLogicalInterface(RestApiItemBase):
     @property
     def schemaId(self):
         return self["schemaId"]
-        
+
     @property
     def version(self):
-        return self["version"]   
-    
+        return self["version"]
+
     @property
     def rules(self):
-        return self._rules    
-    
+        return self._rules
+
+
 class DraftLogicalInterface(BaseLogicalInterface):
     def __init__(self, apiClient, **kwargs):
         super(DraftLogicalInterface, self).__init__(apiClient, **kwargs)
@@ -60,16 +61,17 @@ class DraftLogicalInterface(BaseLogicalInterface):
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
-        
+
     def activate(self):
         return self.__callPatchOperation__({"operation": "activate-configuration"})
- 
+
     def validate(self):
         return self.__callPatchOperation__({"operation": "validate-configuration"})
- 
+
     def differences(self):
         return self.__callPatchOperation__({"operation": "list-differences"})
- 
+
+
 class ActiveLogicalInterface(BaseLogicalInterface):
     def __init__(self, apiClient, **kwargs):
         super(ActiveLogicalInterface, self).__init__(apiClient, **kwargs)
@@ -86,25 +88,24 @@ class ActiveLogicalInterface(BaseLogicalInterface):
             return r.json()
         else:
             raise Exception("Unexpected response from API (%s) = %s %s" % (self._url, r.status_code, r.text))
-        
+
     def deactivate(self):
         return self.__callPatchOperation__({"operation": "deactivate-configuration"})
-    
-    
+
+
 class IterableDraftLogicalInterfaceList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableDraftLogicalInterfaceList, self).__init__(
-            apiClient, DraftLogicalInterface, url, filters=filters
-        )
+        super(IterableDraftLogicalInterfaceList, self).__init__(apiClient, DraftLogicalInterface, url, filters=filters)
+
 
 class DraftLogicalInterfaces(RestApiDict):
-
     def __init__(self, apiClient):
         super(DraftLogicalInterfaces, self).__init__(
             apiClient, DraftLogicalInterface, IterableDraftLogicalInterfaceList, "api/v0002/draft/logicalinterfaces"
         )
-            
+
+
 class IterableActiveLogicalInterfaceList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
@@ -112,8 +113,8 @@ class IterableActiveLogicalInterfaceList(IterableList):
             apiClient, ActiveLogicalInterface, url, filters=filters
         )
 
-class ActiveLogicalInterfaces(RestApiDict):
 
+class ActiveLogicalInterfaces(RestApiDict):
     def __init__(self, apiClient):
         super(ActiveLogicalInterfaces, self).__init__(
             apiClient, ActiveLogicalInterface, IterableActiveLogicalInterfaceList, "api/v0002/logicalinterfaces"

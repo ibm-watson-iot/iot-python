@@ -7,4 +7,4 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-from wiotp.sdk.api.actions.actions import Actions 
+from wiotp.sdk.api.actions.actions import Actions

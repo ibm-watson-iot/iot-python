@@ -13,28 +13,28 @@ import testUtils
 
 from wiotp.sdk import InvalidEventException, Utf8Codec
 
+
 class NonJsonDummyPahoMessage(object):
     def __init__(self, object):
         self.payload = bytearray()
         try:
             self.payload.extend(object)
         except:
-            #python 3
+            # python 3
             self.payload.extend(map(ord, object))
 
+
 class TestDevice(testUtils.AbstractTest):
-    
     def testFileObject(self):
         cwd = os.getcwd()
         fileContent = None
         with open("%s/README.md" % cwd) as fileIn:
             fileContent = fileIn.read()
-        
+
         assert fileContent is not None
-        
+
         encodedPayload = Utf8Codec.encode(fileContent, None)
 
         message = Utf8Codec.decode(NonJsonDummyPahoMessage(encodedPayload))
         assert message.data.__class__.__name__ in ["str", "unicode"]
         assert message.data == fileContent
-        

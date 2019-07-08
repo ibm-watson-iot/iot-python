@@ -13,26 +13,18 @@ import uuid
 import os
 import wiotp.sdk
 
+
 class TestDeviceMgd(testUtils.AbstractTest):
-    
     def testManagedDeviceQSException(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException)as e:
-            options={
-                "identity": {
-                    "orgId": "quickstart", 
-                    "typeId": "xxx", 
-                    "deviceId": "xxx"
-                },
-            }
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+            options = {"identity": {"orgId": "quickstart", "typeId": "xxx", "deviceId": "xxx"}}
             wiotp.sdk.device.ManagedDeviceClient(options)
         assert "QuickStart does not support device management" == e.value.reason
 
     def testManagedDeviceConnectException(self, device):
         badOptions = {
-            "identity": {
-                "orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId 
-            },
-            "auth": { "token": "xxxxxxxxxxxxxxxxxx" }
+            "identity": {"orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId},
+            "auth": {"token": "xxxxxxxxxxxxxxxxxx"},
         }
         deviceInfoObj = wiotp.sdk.device.DeviceInfo()
         managedDevice = wiotp.sdk.device.ManagedDeviceClient(badOptions, deviceInfo=deviceInfoObj)
@@ -43,10 +35,8 @@ class TestDeviceMgd(testUtils.AbstractTest):
 
     def testManagedDeviceConnect(self, device):
         badOptions = {
-            "identity": {
-                "orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId 
-            },
-            "auth": { "token": device.authToken }
+            "identity": {"orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId},
+            "auth": {"token": device.authToken},
         }
         deviceInfoObj = wiotp.sdk.device.DeviceInfo()
         managedDevice = wiotp.sdk.device.ManagedDeviceClient(badOptions, deviceInfo=deviceInfoObj)
