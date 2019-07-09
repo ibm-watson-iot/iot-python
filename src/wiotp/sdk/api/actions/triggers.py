@@ -12,10 +12,11 @@ import iso8601
 
 from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
-from wiotp.sdk.api.common import  RestApiDict
-from wiotp.sdk.api.common import  RestApiItemBase
+from wiotp.sdk.api.common import RestApiDict
+from wiotp.sdk.api.common import RestApiItemBase
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/action-mgr-beta.html
+
 
 class Trigger(RestApiItemBase):
     def __init__(self, **kwargs):
@@ -30,26 +31,23 @@ class Trigger(RestApiItemBase):
     @property
     def enabled(self):
         return self["enabled"]
-    
+
     @property
     def configuration(self):
         return self["configuration"]
-    
+
     @property
     def variableMappings(self):
         return self["variableMappings"]
 
+
 class IterableTriggerList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableTriggerList, self).__init__(
-            apiClient, Trigger, url, filters=filters, passApiClient=False,
-        )
+        super(IterableTriggerList, self).__init__(apiClient, Trigger, url, filters=filters, passApiClient=False)
+
 
 class Triggers(RestApiDict):
-
     def __init__(self, apiClient, actionId):
         url = "api/v0002/actions/%s/triggers" % actionId
-        super(Triggers, self).__init__(
-            apiClient, Trigger, IterableTriggerList, url, passApiClient=False
-        )
+        super(Triggers, self).__init__(apiClient, Trigger, IterableTriggerList, url, passApiClient=False)

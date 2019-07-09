@@ -15,12 +15,11 @@ from wiotp.sdk.api.state.state import States
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/Device-mgr-beta.html
 
+
 class Device(RestApiItemBase):
     def __init__(self, apiClient, **kwargs):
-        super(Device, self).__init__(
-            apiClient, **kwargs
-        )
-        self._states = States (apiClient, self.typeId, self.deviceId)
+        super(Device, self).__init__(apiClient, **kwargs)
+        self._states = States(apiClient, self.typeId, self.deviceId)
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
 
@@ -31,41 +30,35 @@ class Device(RestApiItemBase):
     @property
     def deviceId(self):
         return self["deviceId"]
-    
+
     @property
     def deviceInfo(self):
         return self["deviceInfo"]
-    
+
     @property
     def metadata(self):
         return self["metadata"]
-    
+
     @property
     def registration(self):
-        return self["registration"]        
+        return self["registration"]
 
     @property
     def status(self):
-        return self["status"]   
-    
+        return self["status"]
+
     @property
     def states(self):
-        return self._states         
+        return self._states
+
 
 class IterableDeviceList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterableDeviceList, self).__init__(
-            apiClient, Device, url, filters=filters
-        )
+        super(IterableDeviceList, self).__init__(apiClient, Device, url, filters=filters)
+
 
 class Devices(RestApiDict):
-
     def __init__(self, apiClient, deviceTypeId):
         url = "api/v0002/device/types/%s/devices" % deviceTypeId
-        super(Devices, self).__init__(
-            apiClient, Device, IterableDeviceList, url
-        )
-
-        
-
+        super(Devices, self).__init__(apiClient, Device, IterableDeviceList, url)

@@ -269,7 +269,7 @@ class AbstractClient(object):
 
     def isConnected(self):
         return self.connectEvent.isSet()
-    
+
     def _onLog(self, mqttc, obj, level, string):
         """
         Called when the client has log information.  

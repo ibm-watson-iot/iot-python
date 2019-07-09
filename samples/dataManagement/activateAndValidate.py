@@ -17,11 +17,10 @@ import json
 import wiotp.sdk.application
 
 
-
 if __name__ == "__main__":
     # Initialize the properties we need
     parser = argparse.ArgumentParser(
-        description="IBM Watson IoT Platform Data Management Configuration for Reference Device Clients.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/dataManagement",
+        description="IBM Watson IoT Platform Data Management Configuration for Reference Device Clients.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/dataManagement"
     )
     parser.add_argument("-d", "--diff", required=False, action="store_true", default=False, help="Run difference")
     parser.add_argument("-v", "--validate", required=False, action="store_true", default=False, help="Run validation")
@@ -56,8 +55,8 @@ if __name__ == "__main__":
             if count > limit:
                 break
             print("%s:%s - %s" % (typeId, device.deviceId, device.states["sysutil"].state))
-            count +=1
-    
+            count += 1
+
     # =========================================================================
     # Retrieve the state of the device for the first ten devices of each type
     # =========================================================================
@@ -68,5 +67,4 @@ if __name__ == "__main__":
             if count > limit:
                 break
             print("%s:%s - %s" % (typeId, device.deviceId, device.states["networkio"].state))
-            count +=1
-    
+            count += 1

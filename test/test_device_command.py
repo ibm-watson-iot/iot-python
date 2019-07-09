@@ -12,11 +12,13 @@ import testUtils
 import wiotp.sdk
 import pytest
 
-class FakePahoMessageCommand():
+
+class FakePahoMessageCommand:
     topic = "iot-2/cmd/commandid/fmt/json"
     payload = b'{"a":4}'
 
-class FakeFakePahoMessageCommand():
+
+class FakeFakePahoMessageCommand:
     topic = "hi"
     payload = b'{"a":4}'
 
@@ -24,28 +26,23 @@ class FakeFakePahoMessageCommand():
 class TestDeviceCommand(testUtils.AbstractTest):
     def testCommand(self):
         pahoMessage = FakePahoMessageCommand()
-        messageEncoderModules = {"json":wiotp.sdk.JsonCodec()}
+        messageEncoderModules = {"json": wiotp.sdk.JsonCodec()}
         command = wiotp.sdk.device.Command(pahoMessage, messageEncoderModules)
-        assert (command.format == "json")
-        assert (command.commandId == "commandid")
-        assert ( "a" in command.data)
-        assert (command.data["a"] == 4)
+        assert command.format == "json"
+        assert command.commandId == "commandid"
+        assert "a" in command.data
+        assert command.data["a"] == 4
 
     def testCommandMissingCodec(self):
         with pytest.raises(wiotp.sdk.MissingMessageDecoderException) as e:
             pahoMessage = FakePahoMessageCommand()
-            messageEncoderModules = {"fidaa":wiotp.sdk.JsonCodec()}
+            messageEncoderModules = {"fidaa": wiotp.sdk.JsonCodec()}
             command = wiotp.sdk.device.Command(pahoMessage, messageEncoderModules)
-        assert e.value.format == 'json'
+        assert e.value.format == "json"
 
     def testInvalidCommandTopic(self):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
             pahoMessage = FakeFakePahoMessageCommand()
-            messageEncoderModules = {"b":wiotp.sdk.JsonCodec()}
+            messageEncoderModules = {"b": wiotp.sdk.JsonCodec()}
             command = wiotp.sdk.device.Command(pahoMessage, messageEncoderModules)
         assert e.value.reason == "Received command on invalid topic: hi"
-
-
-
-
-
