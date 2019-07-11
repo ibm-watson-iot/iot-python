@@ -152,7 +152,7 @@ class TestSchemas(testUtils.AbstractTest):
         # Update the schema content
         updated_schema_name = TestSchemas.updatedTestSchemaName
         result = self.appClient.state.draft.schemas.updateContent(
-            createdSchema.id, "newEventSchema.json", json.dumps(TestSchemas.testEventSchemaUpdated)
+            createdSchema.id, "newEventSchema.json", TestSchemas.testEventSchemaUpdated
         )
         assert result == True
         updatedSchema = self.appClient.state.draft.schemas[createdSchema.id]
