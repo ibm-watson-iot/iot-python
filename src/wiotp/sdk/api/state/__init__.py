@@ -16,6 +16,8 @@ from wiotp.sdk.api.state.physicalInterfaces import ActivePhysicalInterfaces
 from wiotp.sdk.api.state.logicalInterfaces import DraftLogicalInterfaces
 from wiotp.sdk.api.state.logicalInterfaces import ActiveLogicalInterfaces
 from wiotp.sdk.api.state.deviceTypes import DeviceTypes
+from wiotp.sdk.api.state.thingTypes import DraftThingTypes
+from wiotp.sdk.api.state.thingTypes import ActiveThingTypes
 from wiotp.sdk.api.state.rules import DraftRules
 from wiotp.sdk.api.state.rules import ActiveRules
 
@@ -26,6 +28,7 @@ class DraftStateMgr:
         self.physicalInterfaces = DraftPhysicalInterfaces(apiClient)
         self.logicalInterfaces = DraftLogicalInterfaces(apiClient)
         self.deviceTypes = DeviceTypes(apiClient)
+        self.thingTypes = DraftThingTypes(apiClient)
         self.rules = DraftRules(apiClient)
         
 class ActiveStateMgr:
@@ -35,6 +38,7 @@ class ActiveStateMgr:
         self.physicalInterfaces = ActivePhysicalInterfaces(apiClient)
         self.logicalInterfaces = ActiveLogicalInterfaces(apiClient)
         self.deviceTypes = DeviceTypes(apiClient)
+        self.thingTypes = ActiveThingTypes(apiClient)
         self.rules = ActiveRules(apiClient)
                 
 class StateMgr:

@@ -19,6 +19,25 @@ from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRe
 import sys
 
 class TestStateUtils:
+    
+    def deleteThingTypes(appClient, TTNameList):           
+        # delete any left over device types
+        for tt in appClient.state.active.thingTypes:
+            #print("Device type instance: %s" % (dt))
+            if tt.id in TTNameList:
+                for thing in tt.things:
+                    print("Deleting things %s for active thing type instance: %s" % (thing.thingId, tt.id))
+                    del tt.devices[thing.thingId]   
+                print("Deactivating old test thing type instance: %s" % (tt.id))
+                appClient.state.active.thingTypes[tt.id].deactivate()
+        for tt in appClient.state.draft.thingTypes:
+            #print("Device type instance: %s" % (dt))
+            if tt.id in TTNameList:
+                for thing in tt.things:
+                    print("Deleting things %s for draft thing type instance: %s" % (thing.thingId, tt.id))
+                    del tt.devices[thing.thingId]   
+                print("Deleting old test thing type instance: %s" % (tt.id))
+                del appClient.state.draft.thingTypes[tt.id]
 
     def deleteDeviceTypes(appClient, DTNameList):           
         # delete any left over device types
@@ -73,6 +92,23 @@ class TestStateUtils:
         assert deviceType.edgeConfiguration == edgeConfiguration
         assert deviceType.classId == classId
         
+    def checkTT (thingType, id, name, description,schemaId, metadata = None):
+        assert thingType.id == id
+        assert thingType.name == name
+        assert thingType.description == description
+        assert thingType.schemaId == schemaId
+        assert thingType.metadata == metadata
+        
+    def checkThing (thing, thingTypeId, thingId , name, description, aggregatedObjects, metadata = None):
+        assert thing.thingTypeId == thingTypeId
+        assert thing.thingId == thingId
+        assert thing.description == description
+        assert thing.name == name
+        assert thing.metadata == metadata
+        assert thing.aggregatedObjects == aggregatedObjects
+        
+        
+        
     def checkMapping (mapping, logicalInterfaceId, notificationStrategy, propertyMappings, version="draft"):
         # print("Checking Device Type: %s" % (deviceType))
         assert mapping.logicalInterfaceId == logicalInterfaceId
@@ -116,6 +152,18 @@ class TestStateUtils:
                 return True
         return False
     
+    def doesTTNameExist (appClient, name):
+        for tt in appClient.state.draft.thingTypes.find({"id": name}):
+            if (tt.id == name):
+                return True
+        return False
+    
+    def doesThingIdExist (appClient,thingTypeId, name):
+        for thing in appClient.state.active.thingTypes[thingTypeId].things:
+            if (thing.thingId == name):
+                return True
+        return False
+    
     def doesActiveSchemaNameExist (appClient, name):
         for a in appClient.state.active.schemas.find({"name": name}):
             if (a.name == name):
@@ -143,6 +191,12 @@ class TestStateUtils:
     def doesActiveDTNameExist (appClient, name):
         for dt in appClient.state.active.deviceTypes.find({"id": name}):
             if (dt.id == name):
+                return True
+        return False
+    
+    def doesActiveTTNameExist (appClient, name):
+        for tt in appClient.state.active.thingTypes.find({"id": name}):
+            if (tt.id == name):
                 return True
         return False
     
@@ -178,6 +232,16 @@ class TestStateUtils:
         payload = {'id' : name, 'description' : description, 'deviceInfo' : deviceInfo, 'metadata': metadata,'classId': classId, 'edgeConfiguration': edgeConfiguration}
         createdDT = appClient.state.active.deviceTypes.create(payload)
         return createdDT
+    
+    def createTT(appClient,  id, name, description, schemaId, metadata = None):
+        payload = {"id": id, "name": name, 'description' : description, 'schemaId' : schemaId, 'metadata': metadata}
+        createdDT = appClient.state.draft.thingTypes.create(payload)
+        return createdDT
+     
+    def createThing(appClient, thingTypeId, thingId, name, description, aggregatedObjects, metadata = None):
+        payload = {"thingTypeId": thingTypeId, "thingId": thingId, "name": name, 'description' : description, 'aggregatedObjects' : aggregatedObjects, 'metadata': metadata}
+        createdThing = appClient.state.active.thingTypes[thingTypeId].things.create(payload)
+        return createdThing
 
     def createMapping(appClient, deviceType, logicalInterfaceId, notificationStrategy, propertyMappings):
         payload = {"logicalInterfaceId": logicalInterfaceId,
