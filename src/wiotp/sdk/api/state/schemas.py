@@ -16,6 +16,9 @@ from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiDictReadOnly
 from wiotp.sdk.exceptions import ApiException
 
+import json
+
+
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002-beta/Schema-mgr-beta.html
 
 
@@ -83,6 +86,9 @@ class DraftSchemas(RestApiDict):
         Returns: schemaId (string), response (object).
         Throws APIException on failure
         """
+        if not isinstance(schemaContents, str):
+            schemaContents = json.dumps(schemaContents)
+
         fields = {
             "schemaFile": (schemaFileName, schemaContents, "application/json"),
             "schemaType": "json-schema",
@@ -105,6 +111,9 @@ class DraftSchemas(RestApiDict):
         Returns: True on success
         Throws APIException on failure
         """
+        if not isinstance(schemaContents, str):
+            schemaContents = json.dumps(schemaContents)
+
         fields = {"schemaFile": (schemaFileName, schemaContents, "application/json")}
 
         multipart_data = MultipartEncoder(fields=fields)
