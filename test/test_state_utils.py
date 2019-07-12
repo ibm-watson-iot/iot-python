@@ -49,13 +49,23 @@ class TestStateUtils:
         for et in appClient.state.draft.eventTypes:
             if et.name in NameList:
                 print("Deleting old test event type: %s" % (et))
-                del appClient.state.draft.eventTypes[et.id]
+                try:
+                    del appClient.state.draft.eventTypes[et.id]
+                except:
+                    print(
+                        "Deleting old test event types could not be completed as the object is referenced by another resource"
+                    )
 
     def deleteDraftSchemas(appClient, NameList):
         for s in appClient.state.draft.schemas:
             if s.name in NameList:
                 print("Deleting old test schema instance: %s" % (s))
-                del appClient.state.draft.schemas[s.id]
+                try:
+                    del appClient.state.draft.schemas[s.id]
+                except:
+                    print(
+                        "Deleting old test schema instances could not be completed as the object is referenced by another resource"
+                    )
 
     def isstring(s):
         # if we use Python 3
