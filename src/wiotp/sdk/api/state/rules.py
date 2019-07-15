@@ -16,16 +16,17 @@ from wiotp.sdk.api.common import RestApiDictReadOnly
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/state-mgmt.html#/Rules
 
+
 class Rule(RestApiItemBase):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
-    
+
     @property
     def logicalInterfaceId(self):
         return self["logicalInterfaceId"]
-        
+
     @property
     def condition(self):
         return self["condition"]
@@ -33,52 +34,41 @@ class Rule(RestApiItemBase):
     @property
     def notificationStrategy(self):
         return self["notificationStrategy"]
-    
+
     @property
     def version(self):
-        return self["version"]   
-    
-    
+        return self["version"]
+
+
 class IterableRuleList(IterableList):
     def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
-        super(IterableRuleList, self).__init__(
-            apiClient, Rule, url, filters=filters
-        )
+        super(IterableRuleList, self).__init__(apiClient, Rule, url, filters=filters)
+
 
 class DraftRules(RestApiDict):
-
     def __init__(self, apiClient):
-        super(DraftRules, self).__init__(
-            apiClient, Rule, IterableRuleList, "api/v0002/draft/rules"
-        )
-            
+        super(DraftRules, self).__init__(apiClient, Rule, IterableRuleList, "api/v0002/draft/rules")
+
+
 class ActiveRules(RestApiDictReadOnly):
-
     def __init__(self, apiClient):
-        super(ActiveRules, self).__init__(
-            apiClient, Rule, IterableRuleList, "api/v0002/rules"
-        )
-        
+        super(ActiveRules, self).__init__(apiClient, Rule, IterableRuleList, "api/v0002/rules")
+
+
 class IterableSimpleRuleList(IterableSimpleList):
     def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
-        super(IterableSimpleRuleList, self).__init__(
-            apiClient, Rule, url, filters=filters
-        )
-        
-class DraftRulesPerLI(RestApiDict):
+        super(IterableSimpleRuleList, self).__init__(apiClient, Rule, url, filters=filters)
 
+
+class DraftRulesPerLI(RestApiDict):
     def __init__(self, apiClient, logicalInterfaceId):
         url = "api/v0002/draft/logicalinterfaces/%s/rules" % logicalInterfaceId
-        super(DraftRulesPerLI, self).__init__(
-            apiClient, Rule, IterableSimpleRuleList, url
-        )
-            
-class ActiveRulesPerLI(RestApiDictReadOnly):
+        super(DraftRulesPerLI, self).__init__(apiClient, Rule, IterableSimpleRuleList, url)
 
+
+class ActiveRulesPerLI(RestApiDictReadOnly):
     def __init__(self, apiClient, logicalInterfaceId):
         url = "api/v0002/logicalinterfaces/%s/rules" % logicalInterfaceId
-        super(ActiveRulesPerLI, self).__init__(
-            apiClient, Rule, IterableSimpleRuleList, url
-        )
+        super(ActiveRulesPerLI, self).__init__(apiClient, Rule, IterableSimpleRuleList, url)

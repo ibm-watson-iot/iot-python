@@ -13,27 +13,28 @@ import testUtils
 import wiotp.sdk.application
 import pytest
 
+
 class TestApplication(testUtils.AbstractTest):
-    def testPortEnvVarNotInteger(self,manageEnvVars):
+    def testPortEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_PORT'] = "notANumber"
+            os.environ["WIOTP_OPTIONS_MQTT_PORT"] = "notANumber"
             wiotp.sdk.application.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_PORT must be a number"
 
-    def testSessionExpiryEnvVarNotInteger(self,manageEnvVars):
+    def testSessionExpiryEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = "notANumber"
+            os.environ["WIOTP_OPTIONS_MQTT_SESSIONEXPIRY"] = "notANumber"
             wiotp.sdk.application.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_SESSIONEXPIRY must be a number"
 
-    def testKeepAliveEnvVarNotInteger(self,manageEnvVars):
+    def testKeepAliveEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE'] = "notANumber"
+            os.environ["WIOTP_OPTIONS_MQTT_KEEPALIVE"] = "notANumber"
             wiotp.sdk.application.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_KEEPALIVE must be a number"
 
-    def testLogLevelEnvVarNotValid(self,manageEnvVars):
+    def testLogLevelEnvVarNotValid(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_LOGLEVEL'] = "notALogLevel"
+            os.environ["WIOTP_OPTIONS_LOGLEVEL"] = "notALogLevel"
             wiotp.sdk.application.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_LOGLEVEL must be one of error, warning, info, debug"

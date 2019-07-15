@@ -12,28 +12,21 @@ import pytest
 import testUtils
 import wiotp.sdk
 
+
 class TestGatewayMgd(testUtils.AbstractTest):
     registeredDevice = None
     registeredGateway = None
-    
+
     def testManagedgatewayQSException(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException)as e:
-            options={
-                "identity": {
-                    "orgId": "quickstart", 
-                    "typeId": "xxx", 
-                    "deviceId": "xxx"
-                }
-            }
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+            options = {"identity": {"orgId": "quickstart", "typeId": "xxx", "deviceId": "xxx"}}
             wiotp.sdk.gateway.ManagedGatewayClient(options)
         assert "QuickStart does not support device management" == e.value.reason
 
     def testManagedGatewayConnectException(self, gateway):
         badOptions = {
-            "identity": {
-                "orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId 
-            },
-            "auth": { "token": gateway.authToken }
+            "identity": {"orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId},
+            "auth": {"token": gateway.authToken},
         }
         gatewayInfoObj = wiotp.sdk.gateway.DeviceInfo()
         managedGateway = wiotp.sdk.gateway.ManagedGatewayClient(badOptions, deviceInfo=gatewayInfoObj)
@@ -42,5 +35,3 @@ class TestGatewayMgd(testUtils.AbstractTest):
         assert managedGateway.isConnected() == True
         managedGateway.disconnect()
         assert managedGateway.isConnected() == False
-        
-

@@ -89,7 +89,6 @@ class ApplicationClient(AbstractClient):
             self.actions = Actions(apiClient)
             self.state = StateMgr(apiClient)
 
-
     def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """
         Subscribe to device event messages

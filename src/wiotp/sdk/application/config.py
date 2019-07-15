@@ -100,7 +100,7 @@ class ApplicationClientConfig(defaultdict):
 
     @property
     def clientId(self):
-        if (self.instanceId is None):
+        if self.instanceId is None:
             return "a:%s:%s" % (self.orgId, self.appId)
         else:
             return "A:%s:%s:%s" % (self.orgId, self.appId, self.instanceId)
@@ -232,9 +232,7 @@ def parseEnvVars():
         logLevel = logging.getLevelName(logLevel.upper())
 
     cfg = {
-        "identity": {
-            "appId": appId
-        },
+        "identity": {"appId": appId},
         "options": {
             "domain": domain,
             "logLevel": logLevel,

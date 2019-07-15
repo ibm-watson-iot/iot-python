@@ -21,6 +21,7 @@ from wiotp.sdk.api.state.thingTypes import ActiveThingTypes
 from wiotp.sdk.api.state.rules import DraftRules
 from wiotp.sdk.api.state.rules import ActiveRules
 
+
 class DraftStateMgr:
     def __init__(self, apiClient):
         self.schemas = DraftSchemas(apiClient)
@@ -30,7 +31,8 @@ class DraftStateMgr:
         self.deviceTypes = DeviceTypes(apiClient)
         self.thingTypes = DraftThingTypes(apiClient)
         self.rules = DraftRules(apiClient)
-        
+
+
 class ActiveStateMgr:
     def __init__(self, apiClient):
         self.schemas = ActiveSchemas(apiClient)
@@ -40,7 +42,8 @@ class ActiveStateMgr:
         self.deviceTypes = DeviceTypes(apiClient)
         self.thingTypes = ActiveThingTypes(apiClient)
         self.rules = ActiveRules(apiClient)
-                
+
+
 class StateMgr:
     def __init__(self, apiClient):
         self.draft = DraftStateMgr(apiClient)

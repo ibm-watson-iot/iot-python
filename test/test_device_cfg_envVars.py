@@ -17,48 +17,48 @@ import os
 class TestDeviceCfg(testUtils.AbstractTest):
     def testMissingOrgIDEnvVar(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            del os.environ['WIOTP_IDENTITY_ORGID']
+            del os.environ["WIOTP_IDENTITY_ORGID"]
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "Missing WIOTP_IDENTITY_ORGID environment variable"
-    
+
     def testMissingTypeIDEnvVar(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            del os.environ['WIOTP_IDENTITY_TYPEID']
+            del os.environ["WIOTP_IDENTITY_TYPEID"]
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "Missing WIOTP_IDENTITY_TYPEID environment variable"
 
     def testMissingDeviceIDEnvVar(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            del os.environ['WIOTP_IDENTITY_DEVICEID']
+            del os.environ["WIOTP_IDENTITY_DEVICEID"]
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "Missing WIOTP_IDENTITY_DEVICEID environment variable"
 
     def testMissingAuthTokenEnvVar(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            del os.environ['WIOTP_AUTH_TOKEN']
+            del os.environ["WIOTP_AUTH_TOKEN"]
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "Missing WIOTP_AUTH_TOKEN environment variable"
 
     def testPortEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_PORT'] = "notAnInteger"
+            os.environ["WIOTP_OPTIONS_MQTT_PORT"] = "notAnInteger"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_PORT must be a number"
 
     def testSessionExpiryEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_MQTT_SESSIONEXPIRY'] = "notAnInteger"
+            os.environ["WIOTP_OPTIONS_MQTT_SESSIONEXPIRY"] = "notAnInteger"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_SESSIONEXPIRY must be a number"
 
     def testKeepAliveEnvVarNotInteger(self, manageEnvVars):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e: 
-            os.environ['WIOTP_OPTIONS_MQTT_KEEPALIVE'] = "notAnInteger"
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+            os.environ["WIOTP_OPTIONS_MQTT_KEEPALIVE"] = "notAnInteger"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_KEEPALIVE must be a number"
 
-    def testLogLevelEnvVarWrongValue(self,manageEnvVars):
+    def testLogLevelEnvVarWrongValue(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            os.environ['WIOTP_OPTIONS_LOGLEVEL'] = "notALogLevel"
+            os.environ["WIOTP_OPTIONS_LOGLEVEL"] = "notALogLevel"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_LOGLEVEL must be one of error, warning, info, debug"

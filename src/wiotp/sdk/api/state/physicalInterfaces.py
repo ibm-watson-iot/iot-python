@@ -24,53 +24,48 @@ class PhysicalInterface(RestApiItemBase):
     def __init__(self, apiClient, **kwargs):
         self._apiClient = apiClient
         dict.__init__(self, **kwargs)
-        
+
         # setup access to the event mappings, a separate REST API call.
         if self.version == "draft":
-            self._events = DraftEventMappings(
-                 apiClient=self._apiClient, 
-                 physicalInterfaceId=kwargs["id"]
-            )
+            self._events = DraftEventMappings(apiClient=self._apiClient, physicalInterfaceId=kwargs["id"])
         elif self.version == "active":
-            self._events = ActiveEventMappings(
-                 apiClient=self._apiClient, 
-                 physicalInterfaceId=kwargs["id"]
-            )
+            self._events = ActiveEventMappings(apiClient=self._apiClient, physicalInterfaceId=kwargs["id"])
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
 
     @property
     def version(self):
-        return self["version"]   
-    
-    @property 
+        return self["version"]
+
+    @property
     def events(self):
         return self._events
-        
+
+
 class IterablePhysicalInterfaceList(IterableList):
     def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
-        super(IterablePhysicalInterfaceList, self).__init__(
-            apiClient, PhysicalInterface, url, filters=filters
-        )
+        super(IterablePhysicalInterfaceList, self).__init__(apiClient, PhysicalInterface, url, filters=filters)
+
 
 class DraftPhysicalInterfaces(RestApiDict):
-
     def __init__(self, apiClient):
         super(DraftPhysicalInterfaces, self).__init__(
             apiClient, PhysicalInterface, IterablePhysicalInterfaceList, "api/v0002/draft/physicalinterfaces"
         )
 
-class ActivePhysicalInterfaces(RestApiDict):
 
+class ActivePhysicalInterfaces(RestApiDict):
     def __init__(self, apiClient):
         super(ActivePhysicalInterfaces, self).__init__(
             apiClient, PhysicalInterface, IterablePhysicalInterfaceList, "api/v0002/physicalinterfaces"
         )
-        
+
+
 # =========================================================================
 # Event Mappings for the Physical Interfaces
 # =========================================================================
+
 
 class EventMapping(defaultdict):
     def __init__(self, **kwargs):
@@ -79,35 +74,25 @@ class EventMapping(defaultdict):
     @property
     def eventId(self):
         return self["eventId"]
-    
+
     @property
     def eventTypeId(self):
         return self["eventTypeId"]
-        
+
+
 class IterableEventMappingList(IterableSimpleList):
     def __init__(self, apiClient, url, filters=None, passApiClient=False):
         # This API does not support sorting
-        super(IterableEventMappingList, self).__init__(
-            apiClient, EventMapping, url
-        )
+        super(IterableEventMappingList, self).__init__(apiClient, EventMapping, url)
+
 
 class DraftEventMappings(RestApiDict):
     def __init__(self, apiClient, physicalInterfaceId):
         url = "api/v0002/draft/physicalinterfaces/%s/events" % physicalInterfaceId
-        super(DraftEventMappings, self).__init__(
-            apiClient, 
-            EventMapping, 
-            IterableEventMappingList, 
-            url
-        )
-        
+        super(DraftEventMappings, self).__init__(apiClient, EventMapping, IterableEventMappingList, url)
+
+
 class ActiveEventMappings(RestApiDict):
     def __init__(self, apiClient, physicalInterfaceId):
         url = "api/v0002/physicalinterfaces/%s/events" % physicalInterfaceId
-        super(ActiveEventMappings, self).__init__(
-            apiClient, 
-            EventMapping, 
-            IterableEventMappingList,
-            url
-        )        
-                
+        super(ActiveEventMappings, self).__init__(apiClient, EventMapping, IterableEventMappingList, url)
