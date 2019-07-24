@@ -72,9 +72,9 @@ class TestThingTypes(testUtils.AbstractTest):
             #print("Device type instance: %s" % (dt))
             if (tt.id in (TestThingTypes.thingTypeName)):
                 for thing in tt.things:
-                    print("Deleting devices %s for device type instance: %s" % (thing.thingId, tt.id))
+                    print("Deleting things %s for thing type instance: %s" % (thing.thingId, tt.id))
                     del tt.things[thing.thingId]   
-                print("Deleting old test device type instance: %s" % (tt.id))
+                print("Deleting old test thing type instance: %s" % (tt.id))
                 self.appClient.state.active.thingTypes[tt.id].deactivate()
                                 
         for tt in self.appClient.state.draft.thingTypes:

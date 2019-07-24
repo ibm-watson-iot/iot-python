@@ -28,11 +28,7 @@ class BaseThingType(RestApiItemBase):
         dict.__init__(self, **kwargs)
 
     # Note - data accessor functions for common data items are defined in RestApiItemBase
-    
-    @property 
-    def id(self):
-        return self["id"]
-    
+
     @property 
     def name(self):
         return self["name"]
@@ -105,7 +101,7 @@ class ActiveThingType(BaseThingType):
         self._mappings = ActiveMappings(apiClient, self.id)
         self._things = Things(apiClient, self.id)
 
-    # Note - data accessor functions for common data items are defined in BaseDeviceType
+    # Note - data accessor functions for common data items are defined in BaseThingType
 
 
     @property 
@@ -142,19 +138,19 @@ class DraftThingTypes(RestApiDict):
 
     def __init__(self, apiClient):
         super(DraftThingTypes, self).__init__(
-            apiClient, DraftThingType, DraftIterableThingTypeList, "api/v0002/draft/thing/types" #Why Draft here??
+            apiClient, DraftThingType, DraftIterableThingTypeList, "api/v0002/draft/thing/types" 
         )      
 
 class ActiveThingTypes(RestApiDictReadOnly):
 
     def __init__(self, apiClient):
         super(ActiveThingTypes, self).__init__(
-            apiClient, ActiveThingType, ActiveIterableThingTypeList, "api/v0002/thing/types" #Why Draft here??
+            apiClient, ActiveThingType, ActiveIterableThingTypeList, "api/v0002/thing/types" 
         )      
 
 
 # =========================================================================
-# Logical Interfaces for the Device Type
+# Logical Interfaces for the Thing Type
 # =========================================================================
         
 class IterableLogicalInterfaceList(IterableSimpleList):
@@ -185,7 +181,7 @@ class ActiveLogicalInterfaces(RestApiDict):
         )        
                 
 # =========================================================================
-# Mappings for the Device Type
+# Mappings for the Thing Type
 # =========================================================================
         
 # define the common properties found on most Rest API Items
@@ -201,7 +197,6 @@ class ThingTypeMapping(defaultdict):
     def notificationStrategy(self):
         return self["notificationStrategy"]   
         
-    # TBD define the substructure?
     @property
     def propertyMappings(self):
         return self["propertyMappings"]   

@@ -88,14 +88,13 @@ class TestThing(testUtils.AbstractTest):
     # =========================================================================
     def testCleanup(self):           
         
-        # delete any left over device types
+        # delete any left over thing types
         for tt in self.appClient.state.active.thingTypes:
-            #print("Device type instance: %s" % (dt))
             if (tt.id in (TestThing.thingTypeName)):
                 for thing in tt.things:
-                    print("Deleting devices %s for device type instance: %s" % (thing.thingId, tt.id))
+                    print("Deleting things %s for thing type instance: %s" % (thing.thingId, tt.id))
                     del tt.things[thing.thingId]   
-                print("Deleting old test device type instance: %s" % (tt.id))
+                print("Deleting old test thing type instance: %s" % (tt.id))
                 self.appClient.state.active.thingTypes[tt.id].deactivate()
                 
                 
@@ -496,14 +495,13 @@ class TestThing(testUtils.AbstractTest):
 
         
     def testDeletePreReqs(self):
-        # delete any left over device types
+        # delete any left over thing types
         for tt in self.appClient.state.active.thingTypes:
-            #print("Device type instance: %s" % (dt))
             if (tt.id in (TestThing.thingTypeId)):
                 for thing in tt.things:
-                    print("Deleting devices %s for device type instance: %s" % (thing.thingId, tt.id))
+                    print("Deleting things %s for thing type instance: %s" % (thing.thingId, tt.id))
                     del tt.things[thing.thingId]   
-                print("Deleting old test device type instance: %s" % (tt.id))
+                print("Deleting old test thing type instance: %s" % (tt.id))
                 self.appClient.state.active.thingTypes[tt.id].deactivate()
                 
                 

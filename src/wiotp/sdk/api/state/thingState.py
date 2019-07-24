@@ -53,8 +53,6 @@ class ThingStates(RestApiDictReadOnly):
             apiClient, ThingState, None, url
         )
         
-    # TBD this method overrides the base class method to pass the state URL to the constructed state
-    # without this, we can't invoke reset-state api call.
     def __getitem__(self, key):
         url = self._singleItemUrl % (key)
 

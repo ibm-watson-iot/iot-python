@@ -32,10 +32,6 @@ class Thing(RestApiItemBase):
         return self["thingId"]
     
     @property
-    def name(self):
-        return self["name"]
-    
-    @property
     def description(self):
         if "description" in self:
             return self["description"]
