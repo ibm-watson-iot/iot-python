@@ -23,3 +23,4 @@ samples/deviceFactory/localDeviceRegistry
 samples/deviceFactory/bin
 samples/*.exe
 samples/rbac-config.yaml
+test/.DS_Store
