@@ -62,8 +62,8 @@ class ApplicationClient(AbstractClient):
         self.client.message_callback_add("iot-2/type/+/id/+/evt/+/fmt/+", self._onDeviceEvent)
         self.client.message_callback_add("iot-2/type/+/id/+/mon", self._onDeviceStatus)
         self.client.message_callback_add("iot-2/app/+/mon", self._onAppStatus)
-        self.client.message.callback._add("iot-2/type/+/id/+/intf/+/evt/state", self._onThingState)
-        self.client.message.callback._add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
+        self.client.message_callback_add("iot-2/type/+/id/+/intf/+/evt/state", self._onThingState)
+        self.client.message_callback_add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
 
 
         # Add handler for commands if not connected to QuickStart
