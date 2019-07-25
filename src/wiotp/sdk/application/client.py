@@ -181,7 +181,7 @@ class ApplicationClient(AbstractClient):
             self.logger.warning("QuickStart applications do not support thing state")
             return 0
 
-        topic = "iot-2/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceID)
+        topic = "iot-2/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceId)
         return self._subscribe(topic, 0)
 
     def subscribeToDeviceCommands(self, typeId="+", deviceId="+", commandId="+", msgFormat="+"):
