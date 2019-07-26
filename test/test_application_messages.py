@@ -27,7 +27,7 @@ class FakePahoMessageCommand:
     payload = b'{"a":4}'
 
 class FakeThingStateMessage:
-    topic = "iot-2/type/typeid/id/thingid/intf/interfaceid/evt/state"
+    topic = "iot-2/thing/type/typeid/id/thingid/intf/interfaceid/evt/state"
     payload = b'{"a":4}'
 
 class FakeMessageError:
@@ -76,7 +76,7 @@ class TestApplicationMsgThingState(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
             message = FakePahoMessageEvent()
             state = wiotp.sdk.application.State(message)
-        assert e.value.reason == "Received thing state on invalid topic: iot-2/thing/type/1/id/2/evt/3/fmt/json"
+        assert e.value.reason == "Received thing state on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
 
 
 class TestApplicationMsgEv(testUtils.AbstractTest):
