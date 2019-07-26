@@ -144,11 +144,11 @@ class ApplicationClient(AbstractClient):
 
     def subscribeToErrorTopic(self, typeId="+", Id="+"):
         """
-        Subscribe to thing/device error messages
+        Subscribe to device error messages
 
         # Parameters
-        typeId (string): typeId for the subscription, optional.  Defaults to all thing/device types (MQTT `+` wildcard)
-        Id (string): thingId or deviceId for the subscription, optional.  Defaults to all things/devices (MQTT `+` wildcard)
+        typeId (string): typeId for the subscription, optional.  Defaults to all device types (MQTT `+` wildcard)
+        Id (string): deviceId for the subscription, optional.  Defaults to all devices (MQTT `+` wildcard)
 
         # Returns
         int: If the subscription was successful then the return Message ID (mid) for the subscribe request
@@ -165,11 +165,11 @@ class ApplicationClient(AbstractClient):
 
     def subscribeToThingErrors(self, typeId="+", Id="+"):
         """
-        Subscribe to thing/device error messages
+        Subscribe to thingerror messages
 
         # Parameters
-        typeId (string): typeId for the subscription, optional.  Defaults to all thing/device types (MQTT `+` wildcard)
-        Id (string): thingId or deviceId for the subscription, optional.  Defaults to all things/devices (MQTT `+` wildcard)
+        typeId (string): typeId for the subscription, optional.  Defaults to all thing types (MQTT `+` wildcard)
+        Id (string): thingId for the subscription, optional.  Defaults to all things (MQTT `+` wildcard)
 
         # Returns
         int: If the subscription was successful then the return Message ID (mid) for the subscribe request
