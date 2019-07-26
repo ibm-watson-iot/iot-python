@@ -130,8 +130,7 @@ class State:
             self.thingId = result.group(2)
             self.thing = self.typeId + ":" + self.thingId
 
-            self.stateId = result.group(3)
-            self.format = result.group(4)
+            self.logicalInterfaceId = result.group(3)
 
             self.payload = pahoMessage.payload
 
@@ -152,10 +151,6 @@ class Error:
             self.typeId = result.group(1)
             self.id = result.group(2)
             self.source = self.typeId + ":" + self.id
-
-            self.errorId = result.group(3)
-            self.format = result.group(4)
-
             self.payload = pahoMessage.payload
 
             if self.format in messageEncoderModules:
