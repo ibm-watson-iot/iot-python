@@ -79,7 +79,7 @@ class TestApplicationMsgThingError(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
             message = FakePahoMessageEvent()
             error = wiotp.sdk.application.ThingError(message)
-        assert e.value.reason == "Received error message on invalid topic: iot-2/thing/type/1/id/2/evt/3/fmt/json"
+        assert e.value.reason == "Received error message on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
 
 class TestApplicationMsgThingState(testUtils.AbstractTest):
     def testThingState(self):
