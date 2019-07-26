@@ -53,50 +53,30 @@ class TestApplicationMsgStat(testUtils.AbstractTest):
 class TestApplicationMsgError(testUtils.AbstractTest):
     def testError(self):
         message = FakeMessageError()
-        messageEncoderModules = {"json": wiotp.sdk.JsonCodec()}
-        error = wiotp.sdk.application.Error(message, messageEncoderModules)
+        error = wiotp.sdk.application.Error(message)
         assert error.typeId == "typeId"
         assert error.id == "id"
-
-    def testErrorMissingCodec(self):
-        with pytest.raises(wiotp.sdk.MissingMessageDecoderException) as e:
-            pahoMessage = FakeMessageError()
-            messageEncoderModules = {"fidaa": wiotp.sdk.JsonCodec()}
-            error = wiotp.sdk.application.Error(pahoMessage, messageEncoderModules)
-        assert e.value.format == "json"
-        assert str(e.value) == "No message decoder defined for message format: json"
 
     def testInvalidErrorEventException(self):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
             message = FakePahoMessageEvent()
-            messageEncoderModules = {"json": wiotp.sdk.JsonCodec()}
-            error = wiotp.sdk.application.Error(message, messageEncoderModules)
+            error = wiotp.sdk.application.Error(message)
         assert e.value.reason == "Received error message on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
 
 class TestApplicationMsgThingState(testUtils.AbstractTest):
     def testThingState(self):
         message = FakeThingStateMessage()
-        messageEncoderModules = {"json": wiotp.sdk.JsonCodec()}
-        state = wiotp.sdk.application.State(message, messageEncoderModules)
+        state = wiotp.sdk.application.State(message)
         assert state.typeId == "typeid"
         assert state.thingId == "thingid"
         assert state.logicalInterfaceId == "interfaceid"
 
-    def testStateMissingCodec(self):
-        with pytest.raises(wiotp.sdk.MissingMessageDecoderException) as e:
-            pahoMessage = FakeThingStateMessage()
-            messageEncoderModules = {"fidaa": wiotp.sdk.JsonCodec()}
-            state = wiotp.sdk.application.State(pahoMessage, messageEncoderModules)
-        assert e.value.format == "json"
-        assert str(e.value) == "No message decoder defined for message format: json"
 
     def testInvalidStateEventException(self):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
             message = FakePahoMessageEvent()
-            messageEncoderModules = {"json": wiotp.sdk.JsonCodec()}
-            state = wiotp.sdk.application.State(message, messageEncoderModules)
-        assert e.value.reason == "Received thing state on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
-        assert str(e.value) == "Invalid Event: iot-2/type/1/id/2/evt/3/fmt/json"
+            state = wiotp.sdk.application.State(message)
+        assert e.value.reason == "Received thing state on invalid topic: iot-2/thing/type/1/id/2/evt/3/fmt/json"
 
 
 class TestApplicationMsgEv(testUtils.AbstractTest):

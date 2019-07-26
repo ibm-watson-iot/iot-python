@@ -62,7 +62,7 @@ class ApplicationClient(AbstractClient):
         self.client.message_callback_add("iot-2/type/+/id/+/evt/+/fmt/+", self._onDeviceEvent)
         self.client.message_callback_add("iot-2/type/+/id/+/mon", self._onDeviceStatus)
         self.client.message_callback_add("iot-2/app/+/mon", self._onAppStatus)
-        self.client.message_callback_add("iot-2/type/+/id/+/intf/+/evt/state", self._onThingState)
+        self.client.message_callback_add("iot-2/thing/type/+/id/+/intf/+/evt/state", self._onThingState)
         self.client.message_callback_add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
 
 
@@ -181,7 +181,7 @@ class ApplicationClient(AbstractClient):
             self.logger.warning("QuickStart applications do not support thing state")
             return 0
 
-        topic = "iot-2/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceId)
+        topic = "iot-2/thing/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceId)
         return self._subscribe(topic, 0)
 
     def subscribeToDeviceCommands(self, typeId="+", deviceId="+", commandId="+", msgFormat="+"):

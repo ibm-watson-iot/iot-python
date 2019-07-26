@@ -15,7 +15,7 @@ from wiotp.sdk import InvalidEventException, MissingMessageDecoderException
 DEVICE_EVENT_RE = re.compile("iot-2/type/(.+)/id/(.+)/evt/(.+)/fmt/(.+)")
 DEVICE_COMMAND_RE = re.compile("iot-2/type/(.+)/id/(.+)/cmd/(.+)/fmt/(.+)")
 DEVICE_STATUS_RE = re.compile("iot-2/type/(.+)/id/(.+)/mon")
-THING_STATE_RE = re.compile("iot-2/type/(.+)/id/(.+)/intf/(.+)/evt/state")
+THING_STATE_RE = re.compile("iot-2/thing/type/(.+)/id/(.+)/intf/(.+)/evt/state")
 ERROR_TOPIC_RE = re.compile("iot-2/type/(.+)/id/(.+)/err/data")
 APP_STATUS_RE = re.compile("iot-2/app/(.+)/mon")
 
@@ -123,7 +123,7 @@ class Command:
 
 
 class State:
-    def __init__(self, pahoMessage, messageEncoderModules):
+    def __init__(self, pahoMessage):
         result = THING_STATE_RE.match(pahoMessage.topic)
         if result:
             self.typeId = result.group(1)
@@ -131,34 +131,19 @@ class State:
             self.thing = self.typeId + ":" + self.thingId
 
             self.logicalInterfaceId = result.group(3)
-
             self.payload = pahoMessage.payload
-
-            if self.format in messageEncoderModules:
-                message = messageEncoderModules[self.format].decode(pahoMessage)
-                self.timestamp = message.timestamp
-                self.data = message.data
-            else:
-                raise MissingMessageDecoderException(self.format)
         else:
             raise InvalidEventException("Received thing state on invalid topic: %s" % (pahoMessage.topic))
 
 
 class Error:
-    def __init__(self, pahoMessage, messageEncoderModules):
+    def __init__(self, pahoMessage):
         result = ERROR_TOPIC_RE.match(pahoMessage.topic)
         if result:
             self.typeId = result.group(1)
             self.id = result.group(2)
             self.source = self.typeId + ":" + self.id
             self.payload = pahoMessage.payload
-
-            if self.format in messageEncoderModules:
-                message = messageEncoderModules[self.format].decode(pahoMessage)
-                self.timestamp = message.timestamp
-                self.data = message.data
-            else:
-                raise MissingMessageDecoderException(self.format)
         else:
             raise InvalidEventException("Received error message on invalid topic: %s" % (pahoMessage.topic))
 
