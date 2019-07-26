@@ -17,6 +17,7 @@ DEVICE_COMMAND_RE = re.compile("iot-2/type/(.+)/id/(.+)/cmd/(.+)/fmt/(.+)")
 DEVICE_STATUS_RE = re.compile("iot-2/type/(.+)/id/(.+)/mon")
 THING_STATE_RE = re.compile("iot-2/thing/type/(.+)/id/(.+)/intf/(.+)/evt/state")
 ERROR_TOPIC_RE = re.compile("iot-2/type/(.+)/id/(.+)/err/data")
+THING_ERROR_RE = re.compile("iot-2/thing/type/(.+)/id/(.+)/err/data")
 APP_STATUS_RE = re.compile("iot-2/app/(.+)/mon")
 
 
@@ -137,6 +138,17 @@ class State:
 
 
 class Error:
+    def __init__(self, pahoMessage):
+        result = ERROR_TOPIC_RE.match(pahoMessage.topic)
+        if result:
+            self.typeId = result.group(1)
+            self.id = result.group(2)
+            self.source = self.typeId + ":" + self.id
+            self.payload = pahoMessage.payload
+        else:
+            raise InvalidEventException("Received error message on invalid topic: %s" % (pahoMessage.topic))
+
+class ThingError:
     def __init__(self, pahoMessage):
         result = ERROR_TOPIC_RE.match(pahoMessage.topic)
         if result:

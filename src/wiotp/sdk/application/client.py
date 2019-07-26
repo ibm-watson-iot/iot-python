@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime
 
 from wiotp.sdk import ConnectionException, MissingMessageEncoderException, AbstractClient, InvalidEventException
-from wiotp.sdk.application.messages import Status, Command, Event, State, Error
+from wiotp.sdk.application.messages import Status, Command, Event, State, Error, ThingError
 from wiotp.sdk.application.config import ApplicationClientConfig
 from wiotp.sdk.api import ApiClient, Registry, Usage, Status, DSC, LEC, Mgmt, ServiceBindings, Actions, StateMgr
 
@@ -64,6 +64,7 @@ class ApplicationClient(AbstractClient):
         self.client.message_callback_add("iot-2/app/+/mon", self._onAppStatus)
         self.client.message_callback_add("iot-2/thing/type/+/id/+/intf/+/evt/state", self._onThingState)
         self.client.message_callback_add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
+        self.client.message_callback_add("iot-2/thing/type/+/id/+/err/data", self._onThingError)
 
 
         # Add handler for commands if not connected to QuickStart
@@ -160,6 +161,27 @@ class ApplicationClient(AbstractClient):
             return 0
 
         topic = "iot-2/type/%s/id/%s/err/data" % (typeId, Id)
+        return self._subscribe(topic, 0)
+
+    def subscribeToThingErrors(self, typeId="+", Id="+"):
+        """
+        Subscribe to thing/device error messages
+
+        # Parameters
+        typeId (string): typeId for the subscription, optional.  Defaults to all thing/device types (MQTT `+` wildcard)
+        Id (string): thingId or deviceId for the subscription, optional.  Defaults to all things/devices (MQTT `+` wildcard)
+
+        # Returns
+        int: If the subscription was successful then the return Message ID (mid) for the subscribe request
+            will be returned. The mid value can be used to track the subscribe request by checking against
+            the mid argument if you register a subscriptionCallback method.
+            If the subscription fails then the return value will be `0`
+        """
+        if self._config.isQuickstart() and Id == "+":
+            self.logger.warning("QuickStart applications do not support wildcard subscription to error topics")
+            return 0
+
+        topic = "iot-2/thing/type/%s/id/%s/err/data" % (typeId, Id)
         return self._subscribe(topic, 0)
 
     def subscribeToThingState(self, typeId="+", thingId="+", logicalInterfaceId = "+"):
@@ -291,8 +313,8 @@ class ApplicationClient(AbstractClient):
         passes the information on to the registerd thing state callback
         """
         try:
-            state = State(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received state '%s' from %s:%s" % (state.stateId, state.typeId, state.thingId))
+            state = State(pahoMessage)
+            self.logger.debug("Received state from %s:%s" % ( state.typeId, state.thingId))
             if self.thingStateCallback:
                 self.thingStateCallback(state)
         except InvalidEventException as e:
@@ -304,8 +326,22 @@ class ApplicationClient(AbstractClient):
         passes the information on to the registerd error callback
         """
         try:
-            error = Error(pahoMessage, self._messageCodecs)
-            self.logger.debug("Received error '%s' from %s:%s" % (error.errorId, error.typeId, error.id))
+            error = Error(pahoMessage)
+            self.logger.debug("Received error from device %s:%s" % (error.typeId, error.id))
+            if self.errorTopicCallback:
+                self.errorTopicCallback(error)
+        except InvalidEventException as e:
+            self.logger.critical(str(e))
+
+
+    def _onThingError(self, client, userdata, pahoMessage):
+        """
+        Internal callback for error messages, parses source thing/device from topic string and
+        passes the information on to the registerd error callback
+        """
+        try:
+            error = ThingError(pahoMessage)
+            self.logger.debug("Received error from thing %s:%s" % ( error.typeId, error.id))
             if self.errorTopicCallback:
                 self.errorTopicCallback(error)
         except InvalidEventException as e:
