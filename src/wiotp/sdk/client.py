@@ -167,7 +167,7 @@ class AbstractClient(object):
                     ca_certs=caFile,
                     certfile=None,
                     keyfile=None,
-                    cert_reqs=ssl.CERT_REQUIRED,
+                    cert_reqs=ssl.CERT_NONE,
                     tls_version=ssl.PROTOCOL_TLSv1_2,
                 )
             self.client.username_pw_set(self.username, self.password)
