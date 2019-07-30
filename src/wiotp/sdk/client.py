@@ -160,14 +160,14 @@ class AbstractClient(object):
             # In environments where either ssl is not available, or TLSv1.2 is not available we will fallback to MQTT over TCP
             if self.tlsVersion is not None:
                 # Path to default CA certificate if none provided
-                if caFile is None:
-                    caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
+                #if caFile is None:
+                caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
 
                 self.client.tls_set(
                     ca_certs=caFile,
                     certfile=None,
                     keyfile=None,
-                    cert_reqs=ssl.CERT_NONE,
+                    cert_reqs=ssl.CERT_REQUIRED,
                     tls_version=ssl.PROTOCOL_TLSv1_2,
                 )
             self.client.username_pw_set(self.username, self.password)
