@@ -45,12 +45,15 @@ def interruptHandler(signal, frame):
 def commandProcessor(cmd):
     global interval
     print("Command received: %s" % cmd.data)
-    if cmd.command == "setInterval":
+    if cmd.commandId == "setInterval":
         if "interval" not in cmd.data:
             print("Error - command is missing required information: 'interval'")
         else:
-            interval = cmd.data["interval"]
-    elif cmd.command == "print":
+            try:
+                interval = int(cmd.data["interval"])
+            except ValueError:
+                print("Error - interval not an integer: ",cmd.data["interval"])
+    elif cmd.commandId == "print":
         if "message" not in cmd.data:
             print("Error - command is missing required information: 'message'")
         else:
