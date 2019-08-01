@@ -30,6 +30,10 @@ class FakeThingStateMessage:
     topic = "iot-2/thing/type/typeid/id/thingid/intf/interfaceid/evt/state"
     payload = b'{"a":4}'
 
+class FakeDeviceStateMessage:
+    topic = "iot-2/type/typeid/id/deviceid/intf/interfaceid/evt/state"
+    payload = b'{"a":4}'
+
 class FakeMessageError:
     topic = "iot-2/type/typeId/id/id/err/data"
     payload = b'{"a":4}'
@@ -95,6 +99,22 @@ class TestApplicationMsgThingState(testUtils.AbstractTest):
             message = FakePahoMessageEvent()
             state = wiotp.sdk.application.State(message)
         assert e.value.reason == "Received thing state on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
+
+
+class TestApplicationMsgDeviceState(testUtils.AbstractTest):
+    def testThingState(self):
+        message = FakeDeviceStateMessage()
+        state = wiotp.sdk.application.DeviceState(message)
+        assert state.typeId == "typeid"
+        assert state.thingId == "deviceid"
+        assert state.logicalInterfaceId == "interfaceid"
+
+
+    def testInvalidStateEventException(self):
+        with pytest.raises(wiotp.sdk.InvalidEventException) as e:
+            message = FakePahoMessageEvent()
+            state = wiotp.sdk.application.DeviceState(message)
+        assert e.value.reason == "Received device state on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
 
 
 class TestApplicationMsgEv(testUtils.AbstractTest):

@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime
 
 from wiotp.sdk import ConnectionException, MissingMessageEncoderException, AbstractClient, InvalidEventException
-from wiotp.sdk.application.messages import Status, Command, Event, State, Error, ThingError
+from wiotp.sdk.application.messages import Status, Command, Event, State, Error, ThingError, DeviceState
 from wiotp.sdk.application.config import ApplicationClientConfig
 from wiotp.sdk.api import ApiClient, Registry, Usage, Status, DSC, LEC, Mgmt, ServiceBindings, Actions, StateMgr
 
@@ -63,6 +63,7 @@ class ApplicationClient(AbstractClient):
         self.client.message_callback_add("iot-2/type/+/id/+/evt/+/fmt/+", self._onDeviceEvent)
         self.client.message_callback_add("iot-2/type/+/id/+/mon", self._onDeviceStatus)
         self.client.message_callback_add("iot-2/app/+/mon", self._onAppStatus)
+        self.client.message_callback_add("iot-2/type/+/id/+/intf/+/evt/state", self._onDeviceState)
         self.client.message_callback_add("iot-2/thing/type/+/id/+/intf/+/evt/state", self._onThingState)
         self.client.message_callback_add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
         self.client.message_callback_add("iot-2/thing/type/+/id/+/err/data", self._onThingError)
@@ -78,6 +79,7 @@ class ApplicationClient(AbstractClient):
         # Initialize user supplied callbacks
         self.deviceEventCallback = None
         self.deviceCommandCallback = None
+        self.deviceStateCallback = None
         self.deviceStatusCallback = None
         self.thingStateCallback = None
         self.errorTopicCallback = None
@@ -187,7 +189,7 @@ class ApplicationClient(AbstractClient):
 
     def subscribeToThingState(self, typeId="+", thingId="+", logicalInterfaceId = "+"):
         """
-        Subscribe to thing state messaged
+        Subscribe to thing state messages
 
         # Parameters
         typeId (string): typeId for the subscription, optional.  Defaults to all thing types (MQTT `+` wildcard)
@@ -205,6 +207,29 @@ class ApplicationClient(AbstractClient):
             return 0
 
         topic = "iot-2/thing/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceId)
+        return self._subscribe(topic, 0)
+
+
+    def subscribeToDeviceState(self, typeId="+", deviceId="+", logicalInterfaceId = "+"):
+        """
+        Subscribe to device state messages
+
+        # Parameters
+        typeId (string): typeId for the subscription, optional.  Defaults to all thing types (MQTT `+` wildcard)
+        deviceId (string): thingId for the subscription, optional.  Defaults to all devices (MQTT `+` wildcard)
+        logicalInterfaceId (string): logicalInterfaceId for the subscription, optional.  Defaults to all LIs (MQTT `+` wildcard)
+
+        # Returns
+        int: If the subscription was successful then the return Message ID (mid) for the subscribe request
+            will be returned. The mid value can be used to track the subscribe request by checking against
+            the mid argument if you register a subscriptionCallback method.
+            If the subscription fails then the return value will be `0`
+        """
+        if self._config.isQuickstart() :
+            self.logger.warning("QuickStart applications do not support device state")
+            return 0
+
+        topic = "iot-2/type/%s/id/%s/intf/%s/evt/state" % (typeId, deviceId, logicalInterfaceId)
         return self._subscribe(topic, 0)
 
     def subscribeToDeviceCommands(self, typeId="+", deviceId="+", commandId="+", msgFormat="+"):
@@ -318,6 +343,19 @@ class ApplicationClient(AbstractClient):
             self.logger.debug("Received state from %s:%s" % ( state.typeId, state.thingId))
             if self.thingStateCallback:
                 self.thingStateCallback(state)
+        except InvalidEventException as e:
+            self.logger.critical(str(e))
+
+    def _onDeviceState(self, client, userdata, pahoMessage):
+        """
+        Internal callback for thing state messages, parses source thing from topic string and
+        passes the information on to the registerd thing state callback
+        """
+        try:
+            state = DeviceState(pahoMessage)
+            self.logger.debug("Received state from %s:%s" % ( state.typeId, state.deviceId))
+            if self.deviceStateCallback:
+                self.deviceStateCallback(state)
         except InvalidEventException as e:
             self.logger.critical(str(e))
 
