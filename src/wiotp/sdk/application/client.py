@@ -55,8 +55,8 @@ class ApplicationClient(AbstractClient):
             logHandlers=logHandlers,
             cleanStart=self._config.cleanStart,
             port=self._config.port,
-            transport=self._config.transport,
-            caFile=self._config.caFile
+            transport=self._config.transport
+            #caFile=self._config.caFile
         )
 
         # Add handlers for events and status
