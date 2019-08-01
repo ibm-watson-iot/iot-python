@@ -102,11 +102,11 @@ class TestApplicationMsgThingState(testUtils.AbstractTest):
 
 
 class TestApplicationMsgDeviceState(testUtils.AbstractTest):
-    def testThingState(self):
+    def testDeviceState(self):
         message = FakeDeviceStateMessage()
         state = wiotp.sdk.application.DeviceState(message)
         assert state.typeId == "typeid"
-        assert state.thingId == "deviceid"
+        assert state.deviceId == "deviceid"
         assert state.logicalInterfaceId == "interfaceid"
 
 
