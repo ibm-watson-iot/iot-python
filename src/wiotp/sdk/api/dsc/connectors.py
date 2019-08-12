@@ -184,7 +184,7 @@ class Connectors(defaultdict):
 
         return IterableConnectorList(self._apiClient, filters=queryParms)
 
-    def create(self, name, serviceId, timezone, description, enabled):
+    def create(self, name, type, serviceId, timezone, description, enabled):
         """
         Create a connector for the organization in the Watson IoT Platform. 
         The connector must reference the target service that the Watson IoT Platform will store the IoT data in.
@@ -199,6 +199,7 @@ class Connectors(defaultdict):
 
         connector = {
             "name": name,
+            "type": type,
             "description": description,
             "serviceId": serviceId,
             "timezone": timezone,
