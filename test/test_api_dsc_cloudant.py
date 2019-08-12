@@ -88,6 +88,7 @@ class TestDscCloudant(testUtils.AbstractTest):
 
         createdConnector = self.appClient.dsc.create(
             name="test-connector-cloudant",
+            type="cloudant",
             serviceId=createdService.id,
             timezone="UTC",
             description="A test connector",
@@ -108,7 +109,9 @@ class TestDscCloudant(testUtils.AbstractTest):
 
         # Create a destination under the connector
         destination1 = createdConnector.destinations.create(name="test-destination-cloudant1", bucketInterval="DAY")
-        destination2 = createdConnector.destinations.create(name="test-destination-cloudant2", bucketInterval="DAY")
+        destination2 = createdConnector.destinations.create(
+            name="test-destination-cloudant2", bucketInterval="DAY", retentionDays=60
+        )
         destination3 = createdConnector.destinations.create(name="test-destination-cloudant3", bucketInterval="WEEK")
         destination4 = createdConnector.destinations.create(name="test-destination-cloudant4", bucketInterval="MONTH")
 
@@ -117,6 +120,10 @@ class TestDscCloudant(testUtils.AbstractTest):
             count += 1
             assert d.bucketInterval is not None
             assert d.partitions is None
+            if d.name == "test-destination-cloudant2":
+                assert d.retentionDays == 60
+            else:
+                assert d.retentionDays is None
         assert count == 4
 
         with pytest.raises(ApiException) as e:
