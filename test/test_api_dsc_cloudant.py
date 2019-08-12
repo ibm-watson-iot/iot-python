@@ -88,6 +88,7 @@ class TestDscCloudant(testUtils.AbstractTest):
 
         createdConnector = self.appClient.dsc.create(
             name="test-connector-cloudant",
+            type="cloudant",
             serviceId=createdService.id,
             timezone="UTC",
             description="A test connector",
