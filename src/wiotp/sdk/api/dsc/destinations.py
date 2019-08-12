@@ -49,6 +49,15 @@ class Destination(defaultdict):
         else:
             return None
 
+    # Cloudant only configuration
+    @property
+    def retentionDays(self):
+        # this is an optional parameter so check if it exists
+        if "configuration" in self and "retentionDays" in self["configuration"]:
+            return self["configuration"]["retentionDays"]
+        else:
+            return None
+
 
 class IterableDestinationList(IterableList):
     def __init__(self, apiClient, connectorId, filters=None):
