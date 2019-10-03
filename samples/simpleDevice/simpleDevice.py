@@ -60,7 +60,7 @@ if args.token:
 try:
     if args.cfg is not None:
         deviceOptions = wiotp.sdk.device.parseConfigFile(args.cfg)
-    elif args.organization is "quickstart":
+    elif args.organization == "quickstart":
         deviceOptions = {
             "identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId}
         }
