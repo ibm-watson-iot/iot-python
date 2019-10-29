@@ -58,6 +58,15 @@ class Destination(defaultdict):
         else:
             return None
 
+    # DB2 only configuration
+    @property
+    def columns(self):
+        # this is an optional parameter so check if it exists
+        if "configuration" in self and "columns" in self["configuration"]:
+            return self["configuration"]["columns"]
+        else:
+            return None
+
 
 class IterableDestinationList(IterableList):
     def __init__(self, apiClient, connectorId, filters=None):
@@ -110,9 +119,8 @@ class Destinations(defaultdict):
         r = self._apiClient.delete(url)
         if r.status_code == 404:
             self.__missing__(key)
-        elif r.status_code != 200:
-            # Unlike most DELETE requests, this API is expected to return 200 with a message body containing the message:
-            # "Successfully deleted Cloudant configuration, the Cloudant database must be manually deleted"
+        elif r.status_code != 200 and r.status_code != 204:
+            # Unlike most DELETE requests, this API is expected to return 200 or 204.
             raise ApiException(r)
 
     def __missing__(self, key):
@@ -138,6 +146,9 @@ class Destinations(defaultdict):
         if self.connectorType == "eventstreams":
             if "partitions" not in kwargs.keys():
                 raise Exception("You must specify partitions parameter on create for an EventStreams destination")
+        if self.connectorType == "db2":
+            if "columns" not in kwargs.keys():
+                raise Exception("You must specify a columns parameter on create for a DB2 destination")
 
         destination = {"name": name, "type": self.connectorType, "configuration": kwargs}
 

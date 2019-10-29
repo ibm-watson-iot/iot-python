@@ -84,3 +84,29 @@ class EventStreamsServiceBindingCredentials(ServiceBindingCredentials):
     @property
     def password(self):
         return self["password"]
+
+
+class DB2ServiceBindingCredentials(ServiceBindingCredentials):
+    def __init__(self, **kwargs):
+        if not set(
+            [
+                "hostname",
+                "port",
+                "username",
+                "password",
+                "https_url",
+                "ssldsn",
+                "host",
+                "uri",
+                "db",
+                "ssljdbcurl",
+                "jdbcurl",
+            ]
+        ).issubset(kwargs):
+            raise Exception(
+                "hostname, port, username, password, https_url, ssldsn, host, uri, db, ssljdbcurl, jdbcurl are required parameters for a DB2 Service Binding: %s"
+                % (json.dumps(kwargs, sort_keys=True))
+            )
+
+        ServiceBindingCredentials.__init__(self, **kwargs)
+    

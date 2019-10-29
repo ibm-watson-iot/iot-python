@@ -90,6 +90,15 @@ class ForwardingRule(defaultdict):
         else:
             return None
 
+    # DB2 column mapping configuration
+    @property
+    def columnMappings(self):
+        # this is an optional parameter so check if it exists
+        if "configuration" in self and "columnMappings" in self["configuration"]:
+            return self["configuration"]["columnMappings"]
+        else:
+            return None
+
 
 class IterableForwardingRuleList(IterableList):
     def __init__(self, apiClient, connectorId, filters=None):
@@ -178,7 +187,7 @@ class ForwardingRules(defaultdict):
 
         return self._create(rule)
 
-    def createStateRule(self, name, destinationName, description, enabled, logicalInterfaceId):
+    def createStateRule(self, name, destinationName, description, enabled, logicalInterfaceId, configuration=None):
         rule = {
             "name": name,
             "destinationName": destinationName,
@@ -187,6 +196,8 @@ class ForwardingRules(defaultdict):
             "description": description,
             "enabled": enabled,
         }
+        if configuration != None:
+            rule["configuration"] = configuration
 
         return self._create(rule)
 
@@ -199,7 +210,7 @@ class ForwardingRules(defaultdict):
         else:
             raise ApiException(r)
 
-    def update(self, ruleId, name, description, destinationName, selector, enabled):
+    def update(self, ruleId, name, description, destinationName, selector, enabled, configuration=None):
         url = "api/v0002/historianconnectors/%s/forwardingrules/%s" % (self.connectorId, ruleId)
 
         body = {}
@@ -208,6 +219,8 @@ class ForwardingRules(defaultdict):
         body["destinationName"] = destinationName
         body["enabled"] = enabled
         body["selector"] = selector
+        if configuration != None:
+            body["configuration"] = configuration
 
         r = self._apiClient.put(url, data=body)
         if r.status_code == 200:

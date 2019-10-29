@@ -12,7 +12,11 @@ import iso8601
 from datetime import datetime
 
 from wiotp.sdk.exceptions import ApiException
-from wiotp.sdk.api.services.credentials import CloudantServiceBindingCredentials, EventStreamsServiceBindingCredentials
+from wiotp.sdk.api.services.credentials import (
+    CloudantServiceBindingCredentials,
+    EventStreamsServiceBindingCredentials,
+    DB2ServiceBindingCredentials,
+)
 from wiotp.sdk.api.common import IterableList
 from collections import defaultdict
 
@@ -52,6 +56,23 @@ class EventStreamsServiceBindingCreateRequest(ServiceBindingCreateRequest):
             kwargs["credentials"] = EventStreamsServiceBindingCredentials(**kwargs["credentials"])
 
         kwargs["type"] = "eventstreams"
+
+        ServiceBindingCreateRequest.__init__(self, **kwargs)
+
+
+class DB2ServiceBindingCreateRequest(ServiceBindingCreateRequest):
+    def __init__(self, **kwargs):
+        if not set(["name", "credentials", "description"]).issubset(kwargs):
+            raise Exception(
+                "name, credentials, & description are required parameters for creating a DB2 Service Binding: %s"
+                % (json.dumps(kwargs, sort_keys=True))
+            )
+
+        # Convert credentials to EventStreamsServiceBindingCredentials for validation
+        if not isinstance(kwargs["credentials"], DB2ServiceBindingCredentials):
+            kwargs["credentials"] = DB2ServiceBindingCredentials(**kwargs["credentials"])
+
+        kwargs["type"] = "db2"
 
         ServiceBindingCreateRequest.__init__(self, **kwargs)
 
@@ -248,6 +269,9 @@ class ServiceBindings(object):
                 serviceBinding = CloudantServiceBindingCreateRequest(**serviceBinding)
             elif serviceBinding["type"] == "eventstreams":
                 serviceBinding = EventStreamsServiceBindingCreateRequest(**serviceBinding)
+            elif serviceBinding["type"] == "db2":
+                serviceBinding = DB2ServiceBindingCreateRequest(**serviceBinding)
+                print("DB2ServiceBindingCreateRequest: %s" % (serviceBinding))
             else:
                 raise Exception("Unsupported service binding type")
 

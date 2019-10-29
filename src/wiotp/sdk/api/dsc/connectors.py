@@ -45,6 +45,13 @@ class Connector(defaultdict):
         return self["type"]
 
     @property
+    def configuration(self):
+        if "configuration" in self:
+            return self["configuration"]
+        else:
+            return None
+
+    @property
     def updated(self):
         return iso8601.parse_date(self["updated"])
 
@@ -184,7 +191,7 @@ class Connectors(defaultdict):
 
         return IterableConnectorList(self._apiClient, filters=queryParms)
 
-    def create(self, name, type, serviceId, timezone, description, enabled):
+    def create(self, name, type, serviceId, timezone, description, enabled, configuration=None):
         """
         Create a connector for the organization in the Watson IoT Platform. 
         The connector must reference the target service that the Watson IoT Platform will store the IoT data in.
@@ -214,7 +221,7 @@ class Connectors(defaultdict):
         else:
             raise ApiException(r)
 
-    def update(self, connectorId, name, description, timezone, enabled):
+    def update(self, connectorId, name, description, timezone, enabled, configuration=None):
         """
         Updates the connector with the specified uuid.
         if description is empty, the existing description will be removed.
@@ -235,6 +242,8 @@ class Connectors(defaultdict):
         connectorBody["description"] = description
         connectorBody["timezone"] = timezone
         connectorBody["enabled"] = enabled
+        if configuration != None:
+            connectorBody["configuration"] = configuration
 
         r = self._apiClient.put(url, data=connectorBody)
         if r.status_code == 200:
