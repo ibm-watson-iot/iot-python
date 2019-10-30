@@ -109,4 +109,3 @@ class DB2ServiceBindingCredentials(ServiceBindingCredentials):
             )
 
         ServiceBindingCredentials.__init__(self, **kwargs)
-    

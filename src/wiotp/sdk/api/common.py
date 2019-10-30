@@ -389,7 +389,7 @@ class RestApiDict(RestApiDictBase):
         r = self._apiClient.delete(url)
         if r.status_code == 404:
             self.__missing__(key)
-        elif r.status_code != 204:
+        elif r.status_code != 204 and r.status_code != 200:
             raise ApiException(r)
 
     def create(self, item):

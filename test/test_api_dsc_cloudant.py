@@ -106,6 +106,7 @@ class TestDscCloudant(testUtils.AbstractTest):
         assert self.WIOTP_API_KEY == createdConnector.updatedBy
         assert self.WIOTP_API_KEY == createdConnector.createdBy
         assert "UTC" == createdConnector.timezone
+        assert None == createdConnector.configuration
 
         # Create a destination under the connector
         destination1 = createdConnector.destinations.create(name="test-destination-cloudant1", bucketInterval="DAY")
@@ -149,6 +150,8 @@ class TestDscCloudant(testUtils.AbstractTest):
         assert rule1.destinationName == destination1.name
         assert rule1.description == "Test rule 1"
         assert rule1.selector == {"deviceType": "*", "eventId": "*"}
+        assert rule1.logicalInterfaceId == None
+        assert rule1.columnMappings == None
         assert rule1.enabled == True
         assert isinstance(rule1.id, str)
         assert isinstance(rule1.updated, datetime)
@@ -173,7 +176,7 @@ class TestDscCloudant(testUtils.AbstractTest):
 
         # Test deleting the destinations
         for d in createdConnector.destinations:
-            print("Deleting destination %s under connector %s" % (d.name, createdConnector.name))
+            # print("Deleting destination %s under connector %s" % (d.name, createdConnector.name))
             del createdConnector.destinations[d.name]
 
         # Confirm there are 0 destinations

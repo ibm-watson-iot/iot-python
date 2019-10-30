@@ -11,26 +11,16 @@ from collections import defaultdict
 import iso8601
 
 from wiotp.sdk.exceptions import ApiException
-from wiotp.sdk.api.common import IterableList
+from wiotp.sdk.api.common import IterableList, RestApiDict, RestApiItemBase
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/historian-connector.html
 
 
-class ForwardingRule(defaultdict):
+class ForwardingRule(RestApiItemBase):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
 
-    @property
-    def id(self):
-        return self["id"]
-
-    @property
-    def name(self):
-        return self["name"]
-
-    @property
-    def description(self):
-        return self["description"]
+    # Note - data accessor functions for common data items are defined in RestApiItemBase
 
     @property
     def destinationName(self):
@@ -48,22 +38,6 @@ class ForwardingRule(defaultdict):
     @property
     def enabled(self):
         return self["enabled"]
-
-    @property
-    def updated(self):
-        return iso8601.parse_date(self["updated"])
-
-    @property
-    def updatedBy(self):
-        return self["updatedBy"]
-
-    @property
-    def created(self):
-        return iso8601.parse_date(self["created"])
-
-    @property
-    def createdBy(self):
-        return self["createdBy"]
 
     # Event only configuration
     # I can't beleieve the API doesn't use the typeId naming convention consistent with everything else in the platform!
@@ -101,66 +75,18 @@ class ForwardingRule(defaultdict):
 
 
 class IterableForwardingRuleList(IterableList):
-    def __init__(self, apiClient, connectorId, filters=None):
-        self.connectorId = connectorId
+    def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
         super(IterableForwardingRuleList, self).__init__(
-            apiClient,
-            ForwardingRule,
-            "api/v0002/historianconnectors/%s/forwardingrules" % (connectorId),
-            sort=None,
-            filters=filters,
-            passApiClient=False,
+            apiClient, ForwardingRule, url, sort=None, filters=filters, passApiClient=False
         )
 
 
-class ForwardingRules(defaultdict):
+class ForwardingRules(RestApiDict):
     def __init__(self, apiClient, connectorId):
-        self._apiClient = apiClient
         self.connectorId = connectorId
-
-    def __contains__(self, key):
-        url = "api/v0002/historianconnectors/%s/forwardingrules/%s" % (self.connectorId, key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return True
-        if r.status_code == 404:
-            return False
-        else:
-            raise ApiException(r)
-
-    def __getitem__(self, key):
-        url = "api/v0002/historianconnectors/%s/forwardingrules/%s" % (self.connectorId, key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return ForwardingRule(**r.json())
-        if r.status_code == 404:
-            self.__missing__(key)
-        else:
-            raise ApiException(r)
-
-    def __setitem__(self, key, value):
-        raise Exception("Unable to register or update a forwarding rule via this interface at the moment.")
-
-    def __delitem__(self, key):
-        url = "api/v0002/historianconnectors/%s/forwardingrules/%s" % (self.connectorId, key)
-
-        r = self._apiClient.delete(url)
-        if r.status_code == 404:
-            self.__missing__(key)
-        elif r.status_code != 204:
-            raise ApiException(r)
-
-    def __missing__(self, key):
-        raise KeyError("Forwarding Rule %s does not exist" % (key))
-
-    def __iter__(self, *args, **kwargs):
-        """
-        Iterate through all Forwarding Rules
-        """
-        return IterableForwardingRuleList(self._apiClient, self.connectorId)
+        self.allRulesUrl = "api/v0002/historianconnectors/%s/forwardingrules" % connectorId
+        super(ForwardingRules, self).__init__(apiClient, ForwardingRule, IterableForwardingRuleList, self.allRulesUrl)
 
     def find(self, nameFilter=None, typeFilter=None, enabledFilter=None, destinationNameFilter=None):
         queryParms = {}
@@ -173,7 +99,7 @@ class ForwardingRules(defaultdict):
         if enabledFilter:
             queryParms["enabled"] = enabledFilter
 
-        return IterableForwardingRuleList(self._apiClient, self.connectorId, filters=queryParms)
+        return IterableForwardingRuleList(self._apiClient, self.allRulesUrl, filters=queryParms)
 
     def createEventRule(self, name, destinationName, description, enabled, typeId, eventId):
         rule = {
@@ -210,11 +136,13 @@ class ForwardingRules(defaultdict):
         else:
             raise ApiException(r)
 
-    def update(self, ruleId, name, description, destinationName, selector, enabled, configuration=None):
+    def update(self, ruleId, ruleType, name, description, destinationName, selector, enabled, configuration=None):
         url = "api/v0002/historianconnectors/%s/forwardingrules/%s" % (self.connectorId, ruleId)
 
         body = {}
+        body["id"] = ruleId
         body["name"] = name
+        body["type"] = ruleType
         body["description"] = description
         body["destinationName"] = destinationName
         body["enabled"] = enabled

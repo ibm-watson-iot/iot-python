@@ -17,7 +17,7 @@ from wiotp.sdk.api.services.credentials import (
     EventStreamsServiceBindingCredentials,
     DB2ServiceBindingCredentials,
 )
-from wiotp.sdk.api.common import IterableList
+from wiotp.sdk.api.common import IterableList, RestApiItemBase, RestApiDict
 from collections import defaultdict
 
 
@@ -77,7 +77,7 @@ class DB2ServiceBindingCreateRequest(ServiceBindingCreateRequest):
         ServiceBindingCreateRequest.__init__(self, **kwargs)
 
 
-class ServiceBinding(defaultdict):
+class ServiceBinding(RestApiItemBase):
     """
     u'bindingMode': u'manual',
                u'bound': True,
@@ -113,32 +113,12 @@ class ServiceBinding(defaultdict):
         return self["created"]
 
     @property
-    def createdBy(self):
-        return self["createdBy"]
-
-    @property
-    def description(self):
-        return self["description"]
-
-    @property
-    def id(self):
-        return self["id"]
-
-    @property
-    def name(self):
-        return self["name"]
-
-    @property
     def bindingType(self):
         return self["type"]
 
     @property
     def updated(self):
         return self["updated"]
-
-    @property
-    def updatedBy(self):
-        return self["updatedBy"]
 
     def __str__(self):
         return "[" + self["id"] + "] " + self["name"] + " (" + self["bindingMode"] + " binding)"
@@ -151,79 +131,19 @@ class ServiceBinding(defaultdict):
 
 
 class IterableServiceBindingsList(IterableList):
-    def __init__(self, apiClient, filters=None):
+    def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
         super(IterableServiceBindingsList, self).__init__(
-            apiClient, ServiceBinding, "api/v0002/s2s/services", sort=None, filters=filters, passApiClient=False
+            apiClient, ServiceBinding, url, sort=None, filters=filters, passApiClient=False
         )
 
 
-class ServiceBindings(object):
+class ServiceBindings(RestApiDict):
     def __init__(self, apiClient):
-        self._apiClient = apiClient
-
-    def __contains__(self, key):
-        """
-        Does a service binding exist?
-        """
-        url = "api/v0002/s2s/services/%s" % (key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return True
-        if r.status_code == 404:
-            return False
-        else:
-            raise ApiException(r)
-
-    def __getitem__(self, key):
-        """
-        Retrieve the service with the specified id.
-        Parameters:
-            - serviceId (String), Service Id which is a UUID
-        Throws APIException on failure.
-
-        """
-
-        url = "api/v0002/s2s/services/%s" % (key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return ServiceBinding(**r.json())
-        if r.status_code == 404:
-            self.__missing__(key)
-        else:
-            raise ApiException(r)
-
-    def __setitem__(self, key, value):
-        """
-        Register a new device - not currently supported via this interface, use: `registry.devices.create()`
-        """
-        raise Exception("Unable to register or update a service binding via this interface at the moment.")
-
-    def __delitem__(self, key):
-        """
-        Delete a connector
-        """
-        url = "api/v0002/s2s/services/%s" % (key)
-
-        r = self._apiClient.delete(url)
-        if r.status_code == 404:
-            self.__missing__(key)
-        elif r.status_code != 204:
-            raise ApiException(r)
-
-    def __missing__(self, key):
-        """
-        Device does not exist
-        """
-        raise KeyError("Service Binding %s does not exist" % (key))
-
-    def __iter__(self, *args, **kwargs):
-        """
-        Iterate through all Service Bindings
-        """
-        return IterableServiceBindingsList(self._apiClient)
+        self.allServicesUrl = "api/v0002/s2s/services"
+        super(ServiceBindings, self).__init__(
+            apiClient, ServiceBindings, IterableServiceBindingsList, self.allServicesUrl
+        )
 
     def find(self, nameFilter=None, typeFilter=None, bindingModeFilter=None, boundFilter=None):
         """
@@ -250,7 +170,7 @@ class ServiceBindings(object):
         if boundFilter:
             queryParms["bound"] = boundFilter
 
-        return IterableServiceBindingsList(self._apiClient, filters=queryParms)
+        return IterableServiceBindingsList(self._apiClient, self.allServicesUrl, filters=queryParms)
 
     def create(self, serviceBinding):
         """
@@ -271,19 +191,16 @@ class ServiceBindings(object):
                 serviceBinding = EventStreamsServiceBindingCreateRequest(**serviceBinding)
             elif serviceBinding["type"] == "db2":
                 serviceBinding = DB2ServiceBindingCreateRequest(**serviceBinding)
-                print("DB2ServiceBindingCreateRequest: %s" % (serviceBinding))
             else:
                 raise Exception("Unsupported service binding type")
 
-        url = "api/v0002/s2s/services"
-
-        r = self._apiClient.post(url, data=serviceBinding)
+        r = self._apiClient.post(self.allServicesUrl, data=serviceBinding)
         if r.status_code == 201:
             return ServiceBinding(**r.json())
         else:
             raise ApiException(r)
 
-    def update(self, serviceId, serviceName, credentials, description):
+    def update(self, serviceId, type, serviceName, credentials, description):
         """
         Updates the service with the specified id.
         if description is empty, the existing description will be removed.
@@ -296,10 +213,11 @@ class ServiceBindings(object):
 
         """
 
-        url = "api/v0002/s2s/services/%s" % (serviceId)
+        url = self.allServicesUrl + "/" + serviceId
 
         serviceBody = {}
         serviceBody["name"] = serviceName
+        serviceBody["type"] = type
         serviceBody["description"] = description
         serviceBody["credentials"] = credentials
 
