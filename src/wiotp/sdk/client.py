@@ -242,7 +242,7 @@ class AbstractClient(object):
             )
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
             self.client.loop_start()
-            if not self.connectEvent.wait(timeout=30):
+            if not self.connectEvent.wait(timeout=60):
                 self.client.loop_stop()
                 self._logAndRaiseException(
                     ConnectionException(
