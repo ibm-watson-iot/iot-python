@@ -169,7 +169,7 @@ class ApplicationClientConfig(defaultdict):
 def parseEnvVars():
     """
     Parse environment variables into a Python dictionary suitable for passing to the 
-    device client constructor as the `options` parameter
+    application client constructor as the `options` parameter
 
     - `WIOTP_IDENTITY_APPID`
     - `WIOTP_AUTH_KEY`

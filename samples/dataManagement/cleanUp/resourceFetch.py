@@ -28,8 +28,9 @@ if __name__ == "__main__":
     for dt in appClient.state.active.deviceTypes:
         print("Device type name: %s" % (dt.name))
         print("            - ID: %s" % (dt.id))
+        print("                      Devices of type %s:" % (dt.name))
         for dev in dt.devices:
-            print("     Device: %s" % (dev.deviceId))
+            print("                          - DeviceID: %s" % (dev.deviceId))
 
     # Fetch All physical interfaces, event type and schema
     for pi in appClient.state.draft.physicalInterfaces:
