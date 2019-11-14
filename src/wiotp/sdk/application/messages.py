@@ -163,6 +163,7 @@ class Error:
         else:
             raise InvalidEventException("Received error message on invalid topic: %s" % (pahoMessage.topic))
 
+
 class ThingError:
     def __init__(self, pahoMessage):
         result = ERROR_TOPIC_RE.match(pahoMessage.topic)
@@ -173,6 +174,3 @@ class ThingError:
             self.payload = pahoMessage.payload
         else:
             raise InvalidEventException("Received error message on invalid topic: %s" % (pahoMessage.topic))
-
-
-

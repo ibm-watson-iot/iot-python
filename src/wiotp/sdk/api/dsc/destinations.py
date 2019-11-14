@@ -11,7 +11,7 @@ from collections import defaultdict
 import iso8601
 
 from wiotp.sdk.exceptions import ApiException
-from wiotp.sdk.api.common import IterableList
+from wiotp.sdk.api.common import IterableList, RestApiDict
 
 # See docs @ https://orgid.internetofthings.ibmcloud.com/docs/v0002/historian-connector.html
 
@@ -58,78 +58,42 @@ class Destination(defaultdict):
         else:
             return None
 
+    # DB2 only configuration
+    @property
+    def columns(self):
+        # this is an optional parameter so check if it exists
+        if "configuration" in self and "columns" in self["configuration"]:
+            return self["configuration"]["columns"]
+        else:
+            return None
+
 
 class IterableDestinationList(IterableList):
-    def __init__(self, apiClient, connectorId, filters=None):
-        self.connectorId = connectorId
+    def __init__(self, apiClient, url, filters=None):
         # This API does not support sorting
         super(IterableDestinationList, self).__init__(
-            apiClient,
-            Destination,
-            "api/v0002/historianconnectors/%s/destinations" % (connectorId),
-            sort=None,
-            filters=filters,
-            passApiClient=False,
+            apiClient, Destination, url, sort=None, filters=filters, passApiClient=False
         )
 
 
-class Destinations(defaultdict):
+class Destinations(RestApiDict):
     def __init__(self, apiClient, connectorId, connectorType):
-        self._apiClient = apiClient
+        super(Destinations, self).__init__(
+            apiClient,
+            Destination,
+            IterableDestinationList,
+            "api/v0002/historianconnectors/%s/destinations" % connectorId,
+        )
         self.connectorId = connectorId
         self.connectorType = connectorType
-
-    def __contains__(self, key):
-        url = "api/v0002/historianconnectors/%s/destinations/%s" % (self.connectorId, key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return True
-        if r.status_code == 404:
-            return False
-        else:
-            raise ApiException(r)
-
-    def __getitem__(self, key):
-        url = "api/v0002/historianconnectors/%s/destinations/%s" % (self.connectorId, key)
-
-        r = self._apiClient.get(url)
-        if r.status_code == 200:
-            return Destination(**r.json())
-        if r.status_code == 404:
-            self.__missing__(key)
-        else:
-            raise ApiException(r)
-
-    def __setitem__(self, key, value):
-        raise Exception("Unable to register or update a destination via this interface at the moment.")
-
-    def __delitem__(self, key):
-        url = "api/v0002/historianconnectors/%s/destinations/%s" % (self.connectorId, key)
-
-        r = self._apiClient.delete(url)
-        if r.status_code == 404:
-            self.__missing__(key)
-        elif r.status_code != 200:
-            # Unlike most DELETE requests, this API is expected to return 200 with a message body containing the message:
-            # "Successfully deleted Cloudant configuration, the Cloudant database must be manually deleted"
-            raise ApiException(r)
-
-    def __missing__(self, key):
-        raise KeyError("Destination %s does not exist" % (key))
-
-    def __iter__(self, *args, **kwargs):
-        """
-        Iterate through all Destinations
-        """
-        return IterableDestinationList(self._apiClient, self.connectorId)
+        self.allDestinationsUrl = "api/v0002/historianconnectors/%s/destinations" % connectorId
 
     def find(self, nameFilter=None):
         queryParms = {}
         if nameFilter:
             queryParms["name"] = nameFilter
 
-        return IterableDestinationList(self._apiClient, self.connectorId, filters=queryParms)
+        return IterableDestinationList(self._apiClient, self.allDestinationsUrl, filters=queryParms)
 
     def create(self, name, **kwargs):
         if self.connectorType == "cloudant":
@@ -138,13 +102,20 @@ class Destinations(defaultdict):
         if self.connectorType == "eventstreams":
             if "partitions" not in kwargs.keys():
                 raise Exception("You must specify partitions parameter on create for an EventStreams destination")
+        if self.connectorType == "db2":
+            if "columns" not in kwargs.keys():
+                raise Exception("You must specify a columns parameter on create for a DB2 destination")
 
         destination = {"name": name, "type": self.connectorType, "configuration": kwargs}
 
-        url = "api/v0002/historianconnectors/%s/destinations" % (self.connectorId)
-
-        r = self._apiClient.post(url, data=destination)
+        r = self._apiClient.post(self.allDestinationsUrl, data=destination)
         if r.status_code == 201:
             return Destination(**r.json())
         else:
             raise ApiException(r)
+
+    def update(self, key, item):
+        """
+        Create an Item - not supported for CTIVE item
+        """
+        raise Exception("The API doesn't support updating a destination.")

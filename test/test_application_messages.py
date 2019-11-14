@@ -17,6 +17,7 @@ class FakeMessageStatus:
     payload = b'{"a":4}'
     retain = False
 
+
 class FakePahoMessageEvent:
     topic = "iot-2/type/1/id/2/evt/3/fmt/json"
     payload = b'{"a":4}'
@@ -26,23 +27,25 @@ class FakePahoMessageCommand:
     topic = "iot-2/type/typeid/id/deviceid/cmd/commandid/fmt/json"
     payload = b'{"a":4}'
 
+
 class FakeThingStateMessage:
     topic = "iot-2/thing/type/typeid/id/thingid/intf/interfaceid/evt/state"
     payload = b'{"a":4}'
+
 
 class FakeDeviceStateMessage:
     topic = "iot-2/type/typeid/id/deviceid/intf/interfaceid/evt/state"
     payload = b'{"a":4}'
 
+
 class FakeMessageError:
     topic = "iot-2/type/typeId/id/id/err/data"
     payload = b'{"a":4}'
 
+
 class FakeMessageThingError:
     topic = "iot-2/type/typeId/id/id/err/data"
     payload = b'{"a":4}'
-
-
 
 
 class TestApplicationMsgStat(testUtils.AbstractTest):
@@ -57,6 +60,7 @@ class TestApplicationMsgStat(testUtils.AbstractTest):
             message = FakePahoMessageEvent()
             status = wiotp.sdk.application.Status(message)
         assert e.value.reason == "Received device status on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
+
 
 class TestApplicationMsgDeviceError(testUtils.AbstractTest):
     def testError(self):
@@ -85,6 +89,7 @@ class TestApplicationMsgThingError(testUtils.AbstractTest):
             error = wiotp.sdk.application.ThingError(message)
         assert e.value.reason == "Received error message on invalid topic: iot-2/type/1/id/2/evt/3/fmt/json"
 
+
 class TestApplicationMsgThingState(testUtils.AbstractTest):
     def testThingState(self):
         message = FakeThingStateMessage()
@@ -92,7 +97,6 @@ class TestApplicationMsgThingState(testUtils.AbstractTest):
         assert state.typeId == "typeid"
         assert state.thingId == "thingid"
         assert state.logicalInterfaceId == "interfaceid"
-
 
     def testInvalidStateEventException(self):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:
@@ -108,7 +112,6 @@ class TestApplicationMsgDeviceState(testUtils.AbstractTest):
         assert state.typeId == "typeid"
         assert state.deviceId == "deviceid"
         assert state.logicalInterfaceId == "interfaceid"
-
 
     def testInvalidStateEventException(self):
         with pytest.raises(wiotp.sdk.InvalidEventException) as e:

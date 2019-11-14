@@ -56,7 +56,7 @@ class ApplicationClient(AbstractClient):
             cleanStart=self._config.cleanStart,
             port=self._config.port,
             transport=self._config.transport,
-            caFile=self._config.caFile
+            caFile=self._config.caFile,
         )
 
         # Add handlers for events and status
@@ -67,7 +67,6 @@ class ApplicationClient(AbstractClient):
         self.client.message_callback_add("iot-2/thing/type/+/id/+/intf/+/evt/state", self._onThingState)
         self.client.message_callback_add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
         self.client.message_callback_add("iot-2/thing/type/+/id/+/err/data", self._onThingError)
-
 
         # Add handler for commands if not connected to QuickStart
         if not self._config.isQuickstart():
@@ -187,7 +186,7 @@ class ApplicationClient(AbstractClient):
         topic = "iot-2/thing/type/%s/id/%s/err/data" % (typeId, Id)
         return self._subscribe(topic, 0)
 
-    def subscribeToThingState(self, typeId="+", thingId="+", logicalInterfaceId = "+"):
+    def subscribeToThingState(self, typeId="+", thingId="+", logicalInterfaceId="+"):
         """
         Subscribe to thing state messages
 
@@ -202,15 +201,14 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart() :
+        if self._config.isQuickstart():
             self.logger.warning("QuickStart applications do not support thing state")
             return 0
 
         topic = "iot-2/thing/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceId)
         return self._subscribe(topic, 0)
 
-
-    def subscribeToDeviceState(self, typeId="+", deviceId="+", logicalInterfaceId = "+"):
+    def subscribeToDeviceState(self, typeId="+", deviceId="+", logicalInterfaceId="+"):
         """
         Subscribe to device state messages
 
@@ -225,7 +223,7 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart() :
+        if self._config.isQuickstart():
             self.logger.warning("QuickStart applications do not support device state")
             return 0
 
@@ -340,7 +338,7 @@ class ApplicationClient(AbstractClient):
         """
         try:
             state = State(pahoMessage)
-            self.logger.debug("Received state from %s:%s" % ( state.typeId, state.thingId))
+            self.logger.debug("Received state from %s:%s" % (state.typeId, state.thingId))
             if self.thingStateCallback:
                 self.thingStateCallback(state)
         except InvalidEventException as e:
@@ -353,7 +351,7 @@ class ApplicationClient(AbstractClient):
         """
         try:
             state = DeviceState(pahoMessage)
-            self.logger.debug("Received state from %s:%s" % ( state.typeId, state.deviceId))
+            self.logger.debug("Received state from %s:%s" % (state.typeId, state.deviceId))
             if self.deviceStateCallback:
                 self.deviceStateCallback(state)
         except InvalidEventException as e:
@@ -372,7 +370,6 @@ class ApplicationClient(AbstractClient):
         except InvalidEventException as e:
             self.logger.critical(str(e))
 
-
     def _onThingError(self, client, userdata, pahoMessage):
         """
         Internal callback for error messages, parses source thing/device from topic string and
@@ -380,7 +377,7 @@ class ApplicationClient(AbstractClient):
         """
         try:
             error = ThingError(pahoMessage)
-            self.logger.debug("Received error from thing %s:%s" % ( error.typeId, error.id))
+            self.logger.debug("Received error from thing %s:%s" % (error.typeId, error.id))
             if self.errorTopicCallback:
                 self.errorTopicCallback(error)
         except InvalidEventException as e:

@@ -52,7 +52,7 @@ def commandProcessor(cmd):
             try:
                 interval = int(cmd.data["interval"])
             except ValueError:
-                print("Error - interval not an integer: ",cmd.data["interval"])
+                print("Error - interval not an integer: ", cmd.data["interval"])
     elif cmd.commandId == "print":
         if "message" not in cmd.data:
             print("Error - command is missing required information: 'message'")

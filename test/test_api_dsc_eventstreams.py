@@ -114,6 +114,7 @@ class TestDscEventStreams(testUtils.AbstractTest):
         assert self.WIOTP_API_KEY == createdConnector.updatedBy
         assert self.WIOTP_API_KEY == createdConnector.createdBy
         assert "UTC" == createdConnector.timezone
+        assert None == createdConnector.configuration
 
         with pytest.raises(ApiException) as e:
             del self.appClient.serviceBindings[createdService.id]

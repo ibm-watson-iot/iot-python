@@ -38,6 +38,18 @@ class AbstractTest(object):
     EVENTSTREAMS_USER = os.getenv("EVENTSTREAMS_USER")
     EVENTSTREAMS_PASSWORD = os.getenv("EVENTSTREAMS_PASSWORD")
 
+    DB2_HOST = os.getenv("DB2_HOST")
+    DB2_PORT = os.getenv("DB2_PORT")
+    DB2_USERNAME = os.getenv("DB2_USERNAME")
+    DB2_PASSWORD = os.getenv("DB2_PASSWORD")
+    DB2_HTTPS_URL = os.getenv("DB2_HTTPS_URL")
+    DB2_SSL_DSN = os.getenv("DB2_SSL_DSN")
+    DB2_HOST = os.getenv("DB2_HOST")
+    DB2_URI = os.getenv("DB2_URI")
+    DB2_DB = os.getenv("DB2_DB")
+    DB2_SSLJDCURL = os.getenv("DB2_SSLJDCURL")
+    DB2_JDBCURL = os.getenv("DB2_JDBCURL")
+
     try:
         ORG_ID = WIOTP_API_KEY.split("-")[1]
     except:
