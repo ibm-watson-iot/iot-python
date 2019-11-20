@@ -14,7 +14,9 @@ matrix:
     - python: "3.6"
     - python: "3.7"
       dist: xenial    # required for Python >= 3.7
-      env: BUILD_DOCKER_IMAGES=true 
+      env: 
+       - BUILD_DOCKER_IMAGES=true
+       - COVERALLS_PARALLEL=false
 
 install: 
   - pip install tox-travis coveralls pyyaml
