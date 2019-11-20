@@ -148,7 +148,7 @@ class TestRegistryDevices(testUtils.AbstractTest):
 
         assert deviceUid.deviceId in deviceType.devices
 
-        del self.appClient.registry.deviceType.devices[deviceUid.typeId]
+        del self.appClient.registry.devicetypes[deviceUid.typeId].devices[deviceUid.typeId]
         assert deviceUid.deviceId not in deviceType.devices
 
     def testDeleteDeviceThatDoesntExist(self):
