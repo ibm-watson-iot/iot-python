@@ -351,7 +351,7 @@ class AbstractClient(object):
         if rc != 0:
             self.logger.error("Unexpected disconnect from IBM Watson IoT Platform: %d" % (rc))
         else:
-            self.logger.info("Disconnected from IBM Watson IoT Platform")
+            self.logger.info("Disconnected from the IBM Watson IoT Platform")
 
     def _onPublish(self, mqttc, obj, mid):
         """
