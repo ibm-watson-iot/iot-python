@@ -13,12 +13,12 @@ import uuid
 import argparse
 
 try:
-    import ibmiotf.device
+    import wiotp.sdk
 except ImportError:
     # This part is only required to run the sample from within the samples
     # directory when the module itself is not installed.
     #
-    # If you have the module installed, just use "import ibmiotf.device"
+    # If you have the module installed, just use "import wiotp.sdk"
     import os
     import inspect
 
@@ -27,7 +27,7 @@ except ImportError:
     )
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
-    import ibmiotf.device
+    import wiotp.sdk
 
 
 def commandProcessor(cmd):
@@ -58,14 +58,16 @@ if args.token:
 # Initialize the device client.
 
 try:
-    import wiotp
-
     if args.cfg is not None:
         deviceOptions = wiotp.sdk.device.parseConfigFile(args.cfg)
+    elif args.organization == "quickstart":
+        deviceOptions = {
+            "identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId}
+        }
     else:
         deviceOptions = {
             "identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId},
-            "auth": {"token": args.token},
+            "auth": {"token": args.token}
         }
     deviceCli = wiotp.sdk.device.DeviceClient(deviceOptions)
     deviceCli.commandCallback = commandProcessor
@@ -79,11 +81,11 @@ for x in range(0, args.nummsgs):
     data = {"simpledev": "ok", "x": x}
 
     def myOnPublishCallback():
-        print("Confirmed event %s received by IoTF\n" % x)
+        print("Confirmed event %s received by WIoTP\n" % x)
 
     success = deviceCli.publishEvent(args.event, "json", data, qos=0, onPublish=myOnPublishCallback)
     if not success:
-        print("Not connected to IoTF")
+        print("Not connected to WIoTP")
 
     time.sleep(args.delay)
 
