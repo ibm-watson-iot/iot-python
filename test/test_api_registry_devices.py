@@ -127,6 +127,30 @@ class TestRegistryDevices(testUtils.AbstractTest):
         with pytest.raises(KeyError):
             self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
 
+    def testDeleteDevice(self, deviceType):
+        deviceUid = DeviceCreateRequest(
+            typeId=deviceType.id,
+            deviceId=str(uuid.uuid4()),
+            authToken="NotVerySecretPassw0rd",
+            deviceInfo=DeviceInfo(serialNumber="123", descriptiveLocation="Floor 3, Room 2"),
+        )
+
+        assert deviceUid.authToken == "NotVerySecretPassw0rd"
+        assert deviceUid.location is None
+        assert deviceUid.metadata is None
+
+        deviceCreateResponse = self.appClient.registry.devices.create(deviceUid)
+
+        assert deviceCreateResponse.typeId == deviceUid.typeId
+        assert deviceCreateResponse.deviceId == deviceUid.deviceId
+        assert deviceCreateResponse.success == True
+        assert deviceCreateResponse.authToken == deviceUid.authToken
+
+        assert deviceUid.deviceId in deviceType.devices
+
+        del self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
+        assert deviceUid.deviceId not in deviceType.devices
+
     def testDeleteDeviceThatDoesntExist(self):
         with pytest.raises(KeyError):
             del self.appClient.registry.devices["d:hldtxx:vm:iot-test-06"]
