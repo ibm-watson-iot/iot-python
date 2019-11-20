@@ -129,6 +129,12 @@
     
         <ul>
         
+            <li><a class="toctree-l4" href="#cloudant-connector">Cloudant Connector</a></li>
+        
+            <li><a class="toctree-l4" href="#event-streams-connector">Event Streams Connector</a></li>
+        
+            <li><a class="toctree-l4" href="#db2-connector">DB2 Connector</a></li>
+        
             <li><a class="toctree-l4" href="#connectors">Connectors</a></li>
         
             <li><a class="toctree-l4" href="#destinations">Destinations</a></li>
@@ -231,6 +237,7 @@
               
                 <h1 id="data-store-connectors">Data Store Connectors<a class="headerlink" href="#data-store-connectors" title="Permanent link"></a></h1>
 <p>Data store connectors can only be configured after you have set up one or more <a href="../bindings/">service bindings</a>:</p>
+<h2 id="cloudant-connector">Cloudant Connector<a class="headerlink" href="#cloudant-connector" title="Permanent link"></a></h2>
 <pre><code class="python">import wiotp.sdk.application
 
 options = wiotp.sdk.application.parseEnvVars()
@@ -245,19 +252,105 @@ cloudantService = appClient.serviceBindings.create(serviceBinding)
 
 # Create the connector
 connector = self.appClient.dsc.create(
-    name=&quot;connector1&quot;, serviceId=createdService.id, timezone=&quot;UTC&quot;, description=&quot;A test connector&quot;, enabled=True
+    name=&quot;connector1&quot;, type=&quot;cloudant&quot;, serviceId=cloudantService.id, timezone=&quot;UTC&quot;, 
+    description=&quot;A test connector&quot;, enabled=True
 )
 
 # Create a destination under the connector
-destination1 = createdConnector.destinations.create(name=&quot;all-data&quot;, bucketInterval=&quot;DAY&quot;)
+destination1 = connector.destinations.create(name=&quot;all-data&quot;, bucketInterval=&quot;DAY&quot;)
 
 # Create a rule under the connector, that routes all events to the destination
-rule1 = createdConnector.rules.createEventRule(
-    name=&quot;allevents&quot;, destinationName=destination1.name, description=&quot;Send all events&quot;, enabled=True, typeId=&quot;*&quot;, eventId=&quot;*&quot;
+rule1 = connector.rules.createEventRule(
+    name=&quot;allevents&quot;, destinationName=destination1.name, description=&quot;Send all events&quot;, 
+    enabled=True, typeId=&quot;*&quot;, eventId=&quot;*&quot;
 )
 # Create a second rule under the connector, that routes all state to the same destination
-rule2 = createdConnector.rules.createStateRule(
-    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;, enabled=True, logicalInterfaceId=&quot;*&quot;
+rule2 = connector.rules.createStateRule(
+    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;, 
+    enabled=True, logicalInterfaceId=&quot;*&quot;
+)
+</code></pre>
+
+<h2 id="event-streams-connector">Event Streams Connector<a class="headerlink" href="#event-streams-connector" title="Permanent link"></a></h2>
+<pre><code class="python">import wiotp.sdk.application
+from wiotp.sdk.api.services import EventStreamsServiceBindingCredentials, EventStreamsServiceBindingCreateRequest
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+serviceBinding = {
+    &quot;name&quot;: &quot;test-eventstreams&quot;,
+    &quot;description&quot;: &quot;Test EventStreams instance&quot;,
+    &quot;type&quot;: &quot;eventstreams&quot;,
+    &quot;credentials&quot;: {
+        &quot;api_key&quot;: &quot;EVENTSTREAMS_API_KEY&quot;,
+        &quot;user&quot;: &quot;EVENTSTREAMS_USER&quot;,
+        &quot;password&quot;: &quot;EVENTSTREAMS_PASSWORD&quot;,
+        &quot;kafka_admin_url&quot;: &quot;EVENTSTREAMS_ADMIN_URL&quot;,
+        &quot;kafka_brokers_sasl&quot;: [
+            &quot;EVENTSTREAMS_BROKER1&quot;,
+            &quot;EVENTSTREAMS_BROKER2&quot;,
+        ],
+    },
+}
+
+eventStreamsService = appClient.serviceBindings.create(serviceBinding)
+
+# Create the connector
+connector = self.appClient.dsc.create(
+    name=&quot;connectorES&quot;, type=&quot;eventstreams&quot;, serviceId=eventStreamsService.id, timezone=&quot;UTC&quot;,
+    description=&quot;A test event streams connector&quot;, enabled=True
+)
+
+# Create a destination under the connector
+destination1 = connector.destinations.create(name=&quot;all-data&quot;, partitions=3)
+
+# Create a rule under the connector, that routes all events to the destination
+rule1 = connector.rules.createEventRule(
+    name=&quot;allevents&quot;, destinationName=destination1.name, description=&quot;Send all events&quot;,
+    enabled=True, typeId=&quot;*&quot;, eventId=&quot;*&quot;
+)
+# Create a second rule under the connector, that routes all state to the same destination
+rule2 = connector.rules.createStateRule(
+    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;, 
+    enabled=True, logicalInterfaceId=&quot;*&quot;
+)
+</code></pre>
+
+<h2 id="db2-connector">DB2 Connector<a class="headerlink" href="#db2-connector" title="Permanent link"></a></h2>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+credentials = {
+  &quot;hostname&quot;: &quot;DB2_HOST&quot;, &quot;port&quot;: &quot;DB2_PORT&quot;, &quot;username&quot;: &quot;DB2_USERNAME&quot;, 
+  &quot;password&quot;: &quot;DB2_PASSWORD&quot;, &quot;https_url&quot;: &quot;DB2_HTTPS_URL&quot;, &quot;ssldsn&quot;: &quot;DB2_SSL_DSN&quot;, 
+  &quot;host&quot;: &quot;DB2_HOST&quot;, &quot;uri&quot;: &quot;DB2_URI&quot;, &quot;db&quot;: &quot;DB2_DB&quot;, &quot;ssljdbcurl&quot;: &quot;DB2_SSLJDCURL&quot;, 
+  &quot;jdbcurl&quot;: &quot;DB2_JDBCURL&quot;,
+}
+
+serviceBinding = {
+    &quot;name&quot;: &quot;test-db2&quot;,  &quot;description&quot;: &quot;Test DB2 instance&quot;, &quot;type&quot;: &quot;db2&quot;, 
+    &quot;credentials&quot;: credentials,
+}
+
+db2Service = appClient.serviceBindings.create(serviceBinding)
+
+# Create the connector
+connector = self.appClient.dsc.create(
+    name=&quot;connectorDB2&quot;, type=&quot;db2&quot;, serviceId=db2Service.id, timezone=&quot;UTC&quot;, 
+    description=&quot;A test connector&quot;, enabled=True
+)
+
+# Create a destination under the connector
+destination1 = connector.destinations.create(name=&quot;all-data&quot;, bucketInterval=&quot;DAY&quot;)
+
+# Create a rule under the connector, that routes all state to the same destination
+# We can only forward state to a db2 connector, not the raw events
+rule = connector.rules.createStateRule(
+    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;,
+    enabled=True, logicalInterfaceId=&quot;*&quot;
 )
 </code></pre>
 
