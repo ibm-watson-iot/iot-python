@@ -61,13 +61,11 @@ try:
     if args.cfg is not None:
         deviceOptions = wiotp.sdk.device.parseConfigFile(args.cfg)
     elif args.organization == "quickstart":
-        deviceOptions = {
-            "identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId}
-        }
+        deviceOptions = {"identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId}}
     else:
         deviceOptions = {
             "identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId},
-            "auth": {"token": args.token}
+            "auth": {"token": args.token},
         }
     deviceCli = wiotp.sdk.device.DeviceClient(deviceOptions)
     deviceCli.commandCallback = commandProcessor
