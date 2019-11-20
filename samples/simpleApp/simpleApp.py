@@ -14,12 +14,12 @@ import sys
 import json
 
 try:
-    import ibmiotf.application
+    import wiotp.sdk
 except ImportError:
     # This part is only required to run the sample from within the samples
     # directory when the module itself is not installed.
     #
-    # If you have the module installed, just use "import ibmiotf"
+    # If you have the module installed, just use "import wiotp.sdk"
     import os
     import inspect
 
@@ -28,7 +28,7 @@ except ImportError:
     )
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
-    import ibmiotf.application
+    import wiotp.sdk
 
 
 tableRowTemplate = "%-33s%-30s%s"
@@ -60,7 +60,7 @@ def interruptHandler(signal, frame):
 
 def usage():
     print(
-        "simpleApp: Basic application connected to the IBM Internet of Things Cloud service."
+        "simpleApp: Basic application connected to the Watson Internet of Things Platform."
         + "\n"
         + "\n"
         + "Options: "
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     client = None
     if configFilePath is not None:
-        options = ibmiotf.application.parseConfigFile(configFilePath)
+        options = wiotp.sdk.application.parseConfigFile(configFilePath)
     else:
         options = {
             "org": organization,
@@ -145,18 +145,18 @@ if __name__ == "__main__":
             "auth-token": authToken,
         }
     try:
-        client = ibmiotf.application.ApplicationClient(options)
+        client = wiotp.sdk.application.ApplicationClient(options)
         # If you want to see more detail about what's going on, set log level to DEBUG
         # import logging
         # client.logger.setLevel(logging.DEBUG)
         client.connect()
-    except ibmiotf.ConfigurationException as e:
+    except wiotp.sdk.ConfigurationException as e:
         print(str(e))
         sys.exit()
-    except ibmiotf.UnsupportedAuthenticationMethod as e:
+    except wiotp.sdk.UnsupportedAuthenticationMethod as e:
         print(str(e))
         sys.exit()
-    except ibmiotf.ConnectionException as e:
+    except wiotp.sdk.ConnectionException as e:
         print(str(e))
         sys.exit()
 
