@@ -66,7 +66,7 @@ class TestDscDb2(testUtils.AbstractTest):
         assert self.WIOTP_API_KEY == createdConnector.createdBy
         assert "UTC" == createdConnector.timezone
 
-    def createAndCheckDB2Connector(self, name, description, serviceId, timezone, configuration):
+    def createAndCheckDB2Connector(self, name, description, serviceId, timezone, configuration=None):
         createdConnector = self.appClient.dsc.create(
             name=name,
             type="db2",
@@ -104,7 +104,7 @@ class TestDscDb2(testUtils.AbstractTest):
 
         return createdConnector
 
-    def updateAndCheckDB2Connector(self, connector, name, description, serviceId, timezone, configuration):
+    def updateAndCheckDB2Connector(self, connector, name, description, serviceId, timezone, configuration=None):
         updatedConnector = self.appClient.dsc.update(
             connectorId=connector.id,
             name=name,
