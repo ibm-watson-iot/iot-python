@@ -299,8 +299,7 @@ class TestDscDb2(testUtils.AbstractTest):
             name="test-connector-db2",
             description="A test connector",
             serviceId=createdService.id,
-            timezone="UTC",
-            configuration={"schemaName": "wiotp_test"},
+            timezone="UTC"
         )
 
         updatedConnector = self.updateAndCheckDB2Connector(
@@ -308,8 +307,7 @@ class TestDscDb2(testUtils.AbstractTest):
             name="test-connector-db2",
             description="An Updated test connector",
             serviceId=createdService.id,
-            timezone="UTC",
-            configuration={"schemaName": "wiotp_test-updated"},
+            timezone="UTC"
         )
         # Create a destination under the connector
         # destination1 = createdConnector.destinations.create(name="test_destination_db2", columns= [{name="TEMPERATURE_C", type="REAL", nullable= 1}])
