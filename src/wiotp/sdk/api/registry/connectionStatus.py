@@ -82,13 +82,17 @@ class ConnectionStatus(defaultdict):
     def __delitem__(self, key):
         raise Exception("Unsupported operation")
 
-    def find(self, status=None, connectedAfter=None):
+    def find(self, typeId=None, deviceId=None, connectionStatus=None, connectedAfter=None):
         """
         Iterate through all Connectors
         """
         queryParms = {}
-        if status:
-            queryParms["status"] = status
+        if typeId:
+            queryParms["deviceType"] = typeId
+        if deviceId:
+            queryParms["deviceId"] = deviceId
+        if connectionStatus:
+            queryParms["connectionStatus"] = connectionStatus
         if connectedAfter:
             queryParms["connectedAfter"] = connectedAfter
 
