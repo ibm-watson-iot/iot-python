@@ -66,7 +66,7 @@ class TestDscDb2(testUtils.AbstractTest):
         assert self.WIOTP_API_KEY == createdConnector.createdBy
         assert "UTC" == createdConnector.timezone
 
-    def createAndCheckDB2Connector(self, name, description, serviceId, timezone, configuration):
+    def createAndCheckDB2Connector(self, name, description, serviceId, timezone, configuration=None):
         createdConnector = self.appClient.dsc.create(
             name=name,
             type="db2",
@@ -104,7 +104,7 @@ class TestDscDb2(testUtils.AbstractTest):
 
         return createdConnector
 
-    def updateAndCheckDB2Connector(self, connector, name, description, serviceId, timezone, configuration):
+    def updateAndCheckDB2Connector(self, connector, name, description, serviceId, timezone, configuration=None):
         updatedConnector = self.appClient.dsc.update(
             connectorId=connector.id,
             name=name,
@@ -299,8 +299,7 @@ class TestDscDb2(testUtils.AbstractTest):
             name="test-connector-db2",
             description="A test connector",
             serviceId=createdService.id,
-            timezone="UTC",
-            configuration={"schemaName": "wiotp_test"},
+            timezone="UTC"
         )
 
         updatedConnector = self.updateAndCheckDB2Connector(
@@ -308,8 +307,7 @@ class TestDscDb2(testUtils.AbstractTest):
             name="test-connector-db2",
             description="An Updated test connector",
             serviceId=createdService.id,
-            timezone="UTC",
-            configuration={"schemaName": "wiotp_test-updated"},
+            timezone="UTC"
         )
         # Create a destination under the connector
         # destination1 = createdConnector.destinations.create(name="test_destination_db2", columns= [{name="TEMPERATURE_C", type="REAL", nullable= 1}])
