@@ -122,11 +122,7 @@ class Connectors(RestApiDict):
         Throws APIException on failure
         """
 
-        connector = {
-            "name": name,
-            "type": type,
-            "serviceId": serviceId
-        }
+        connector = {"name": name, "type": type, "serviceId": serviceId}
         if description != None:
             connector["description"] = description
         if timezone != None:
@@ -144,7 +140,7 @@ class Connectors(RestApiDict):
         else:
             raise ApiException(r)
 
-    def update(self, connectorId, serviceId, name, type, description=None, timezone, enabled, configuration=None):
+    def update(self, connectorId, serviceId, name, type, timezone, enabled, description=None, configuration=None):
         """
         Updates the connector with the specified uuid.
         if description is empty, the existing description will be removed.
