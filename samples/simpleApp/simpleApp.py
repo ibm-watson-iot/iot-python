@@ -124,7 +124,7 @@ if __name__ == "__main__":
         options = wiotp.sdk.application.parseConfigFile(configFilePath)
     else:
         options = wiotp.sdk.application.parseEnvVars()
-    
+
     try:
         client = wiotp.sdk.application.ApplicationClient(options)
         # If you want to see more detail about what's going on, set log level to DEBUG

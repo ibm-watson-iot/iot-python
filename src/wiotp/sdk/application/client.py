@@ -99,13 +99,12 @@ class ApplicationClient(AbstractClient):
             # We directly expose the get() method via self.serviceStatus()
             self._serviceStatus = ServiceStatus(apiClient)
 
-
     def serviceStatus(self):
         if not self._config.isQuickstart():
             return self._serviceStatus.get()
         else:
             return None
-    
+
     def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """
         Subscribe to device event messages

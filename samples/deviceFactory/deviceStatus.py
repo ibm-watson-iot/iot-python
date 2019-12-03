@@ -56,14 +56,14 @@ if __name__ == "__main__":
     client = wiotp.sdk.application.ApplicationClient(options)
 
     # Terminal colour mods
-    red="%c[31m" % chr(27)
-    green="%c[32m" % chr(27)
-    off="%c[0m" % chr(27)
+    red = "%c[31m" % chr(27)
+    green = "%c[32m" % chr(27)
+    off = "%c[0m" % chr(27)
 
     statuses = client.registry.connectionStatus.find(typeId=args.typeId)
     output = {}
     for status in statuses:
-        #print(status)
+        # print(status)
         clientId = status["id"]
         deviceId = clientId.split(":")[3]
         if not deviceId.startswith(args.batchId):
@@ -76,7 +76,7 @@ if __name__ == "__main__":
             output[batchNum] = "%s%s%s" % (green, batchNum, off)
         else:
             output[batchNum] = "%s" % (batchNum)
-    
+
     print("=================================================")
     print("Device Connection State Report")
     print("")
@@ -85,14 +85,14 @@ if __name__ == "__main__":
     print("%sconnected%s / %sdisconnected%s / unknown" % (green, off, red, off))
     print("=================================================")
     outStr = ""
-    for i in range(1,args.numberOfDevices+1):
+    for i in range(1, args.numberOfDevices + 1):
         batchNum = "%04d" % (i)
         if batchNum in output:
             outStr += output[batchNum] + " "
         else:
             outStr += batchNum + " "
-        
+
         if batchNum[3] == "0":
             outStr += "\n"
-        
+
     print(outStr)
