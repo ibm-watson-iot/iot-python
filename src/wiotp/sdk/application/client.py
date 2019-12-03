@@ -17,7 +17,7 @@ from datetime import datetime
 from wiotp.sdk import ConnectionException, MissingMessageEncoderException, AbstractClient, InvalidEventException
 from wiotp.sdk.application.messages import Status, Command, Event, State, Error, ThingError, DeviceState
 from wiotp.sdk.application.config import ApplicationClientConfig
-from wiotp.sdk.api import ApiClient, Registry, Usage, Status, DSC, LEC, Mgmt, ServiceBindings, Actions, StateMgr
+from wiotp.sdk.api import ApiClient, Registry, Usage, ServiceStatus, DSC, LEC, Mgmt, ServiceBindings, Actions, StateMgr
 
 import paho.mqtt.client as paho
 
@@ -88,7 +88,6 @@ class ApplicationClient(AbstractClient):
         if not self._config.isQuickstart():
             apiClient = ApiClient(self._config, self.logger)
             self.registry = Registry(apiClient)
-            self.status = Status(apiClient)
             self.usage = Usage(apiClient)
             self.dsc = DSC(apiClient)
             self.lec = LEC(apiClient)
@@ -97,6 +96,16 @@ class ApplicationClient(AbstractClient):
             self.actions = Actions(apiClient)
             self.state = StateMgr(apiClient)
 
+            # We directly expose the get() method via self.serviceStatus()
+            self._serviceStatus = ServiceStatus(apiClient)
+
+
+    def serviceStatus(self):
+        if not self._config.isQuickstart():
+            return self._serviceStatus.get()
+        else:
+            return None
+    
     def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """
         Subscribe to device event messages

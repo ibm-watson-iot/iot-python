@@ -226,7 +226,7 @@
             <div class="section">
               
                 <h1 id="service-status">Service Status<a class="headerlink" href="#service-status" title="Permanent link"></a></h1>
-<p>The <code>status.serviceStatus()</code> method provides a simple way to query the health of IBM Watston IoT Platform in your region.  The response is a Python dictionary that firstly, tells you the region your service instance is running in (e.g. <code>us</code>, <code>uk</code>, <code>de</code>), and below that will provide a simple <code>green</code>, <code>orange</code>, <code>red</code> overview of the health of the platform broken down by different capabilities:</p>
+<p>The <code>serviceStatus()</code> method provides a simple way to query the health of IBM Watston IoT Platform in your region.  The response is a Python dictionary that firstly, tells you the region your service instance is running in (e.g. <code>us</code>, <code>uk</code>, <code>de</code>), and below that will provide a simple <code>green</code>, <code>orange</code>, <code>red</code> overview of the health of the platform broken down by different capabilities:</p>
 <ul>
 <li><code>dashboard</code> Availability of the dashboard</li>
 <li><code>messaging</code> Availability of the core messaging service (for events, commands, device management protocol etc)</li>
@@ -239,7 +239,7 @@
 <li><code>red</code> Service outage, or performance significantly impacted as to be unusable</li>
 </ul>
 <h2 id="handling-the-servicestatus-data">Handling the ServiceStatus data<a class="headerlink" href="#handling-the-servicestatus-data" title="Permanent link"></a></h2>
-<p>The <code>wiotp.sdk.api.status.ServiceStatus</code> class extends defaultdict allowing you to treat the reponse as a simple Python dictionary that contains the json response body of the API call made under the covers if you so choose, however it's designed to make it easy to interact with the API results by providing convenient properties representing the data available from the API:</p>
+<p>The <code>wiotp.sdk.api.status.ServiceStatusResult</code> class extends defaultdict allowing you to treat the reponse as a simple Python dictionary that contains the json response body of the API call made under the covers if you so choose, however it's designed to make it easy to interact with the API results by providing convenient properties representing the data available from the API:</p>
 <ul>
 <li><code>region</code> The Watson IoT Platform region where your organization runs.</li>
 <li><code>messaging</code> The status of core messaging services in your region.</li>
@@ -251,7 +251,7 @@
 options = wiotp.sdk.application.parseEnvVars()
 appClient = wiotp.sdk.application.ApplicationClient(options)
 
-status = appClient.status.serviceStatus()
+status = appClient.serviceStatus()
 
 # If you don't know what region you are in you can look it up from the status
 region = status.region

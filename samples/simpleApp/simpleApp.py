@@ -42,7 +42,7 @@ def mySubscribeCallback(mid, qos):
 
 
 def myEventCallback(event):
-    print("%-33s%-30s%s" % (event.timestamp.isoformat(), event.device, event.event + ": " + json.dumps(event.data)))
+    print("%-33s%-30s%s" % (event.timestamp.isoformat(), event.device, event.eventId + ": " + json.dumps(event.data)))
 
 
 def myStatusCallback(status):
@@ -99,27 +99,13 @@ if __name__ == "__main__":
         usage()
         sys.exit(2)
 
-    organization = "quickstart"
-    appId = "mySampleApp"
-    authMethod = None
-    authKey = None
-    authToken = None
     configFilePath = None
     typeId = "+"
     deviceId = "+"
     event = "+"
 
     for o, a in opts:
-        if o in ("-o", "--organization"):
-            organization = a
-        elif o in ("-i", "--id"):
-            appId = a
-        elif o in ("-k", "--key"):
-            authMethod = "apikey"
-            authKey = a
-        elif o in ("-t", "--token"):
-            authToken = a
-        elif o in ("-c", "--cfg"):
+        if o in ("-c", "--cfg"):
             configFilePath = a
         elif o in ("-T", "--typeId"):
             typeId = a
@@ -137,13 +123,8 @@ if __name__ == "__main__":
     if configFilePath is not None:
         options = wiotp.sdk.application.parseConfigFile(configFilePath)
     else:
-        options = {
-            "org": organization,
-            "id": appId,
-            "auth-method": authMethod,
-            "auth-key": authKey,
-            "auth-token": authToken,
-        }
+        options = wiotp.sdk.application.parseEnvVars()
+    
     try:
         client = wiotp.sdk.application.ApplicationClient(options)
         # If you want to see more detail about what's going on, set log level to DEBUG
@@ -166,8 +147,9 @@ if __name__ == "__main__":
     client.deviceStatusCallback = myStatusCallback
     client.subscriptionCallback = mySubscribeCallback
 
-    eventsMid = client.subscribeToDeviceEvents(typeId, deviceId, event)
     statusMid = client.subscribeToDeviceStatus(typeId, deviceId)
+
+    eventsMid = client.subscribeToDeviceEvents(typeId, deviceId, event)
 
     print("=============================================================================")
     print(tableRowTemplate % ("Timestamp", "Device", "Event"))

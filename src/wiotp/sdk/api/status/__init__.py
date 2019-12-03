@@ -12,7 +12,7 @@ from collections import defaultdict
 from wiotp.sdk.exceptions import ApiException
 
 
-class ServiceStatus(defaultdict):
+class ServiceStatusResult(defaultdict):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
 
@@ -33,11 +33,11 @@ class ServiceStatus(defaultdict):
         return self[self.region]["thirdParty"]
 
 
-class Status:
+class ServiceStatus:
     def __init__(self, apiClient):
         self._apiClient = apiClient
 
-    def serviceStatus(self):
+    def get(self):
         """
         Retrieve the organization-specific status of each of the services offered by the IBM Watson IoT Platform.
         In case of failure it throws APIException
@@ -46,6 +46,6 @@ class Status:
         r = self._apiClient.get("api/v0002/service-status")
 
         if r.status_code == 200:
-            return ServiceStatus(**r.json())
+            return ServiceStatusResult(**r.json())
         else:
             raise ApiException(r)

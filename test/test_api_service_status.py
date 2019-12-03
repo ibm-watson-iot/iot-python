@@ -16,7 +16,7 @@ class TestRegistryStatus(testUtils.AbstractTest):
     # Service Status
     # =========================================================================
     def testStatus(self):
-        status = self.appClient.status.serviceStatus()
+        status = self.appClient.serviceStatus()
 
         assert status.region == "us"
         assert status.dashboard in ["green", "orange", "red"]
