@@ -64,7 +64,7 @@ class ForwardingRule(RestApiItemBase):
         else:
             return None
 
-    # DB2 column mapping configuration
+    # DB2/Postgres column mapping configuration
     @property
     def columnMappings(self):
         # this is an optional parameter so check if it exists
@@ -101,27 +101,33 @@ class ForwardingRules(RestApiDict):
 
         return IterableForwardingRuleList(self._apiClient, self.allRulesUrl, filters=queryParms)
 
-    def createEventRule(self, name, destinationName, description, enabled, typeId, eventId):
+    def createEventRule(self, name, destinationName, typeId, eventId, description=None, enabled=None):
         rule = {
             "name": name,
             "destinationName": destinationName,
             "type": "event",
             "selector": {"eventId": eventId, "deviceType": typeId},
-            "description": description,
-            "enabled": enabled,
         }
+        if description != None:
+            rule["description"] = description
+        if enabled != None:
+            rule["enabled"] = enabled
 
         return self._create(rule)
 
-    def createStateRule(self, name, destinationName, description, enabled, logicalInterfaceId, configuration=None):
+    def createStateRule(
+        self, name, destinationName, logicalInterfaceId, description=None, enabled=None, configuration=None
+    ):
         rule = {
             "name": name,
             "destinationName": destinationName,
             "type": "state",
             "selector": {"logicalInterfaceId": logicalInterfaceId},
-            "description": description,
-            "enabled": enabled,
         }
+        if description != None:
+            rule["description"] = description
+        if enabled != None:
+            rule["enabled"] = enabled
         if configuration != None:
             rule["configuration"] = configuration
 
@@ -136,17 +142,21 @@ class ForwardingRules(RestApiDict):
         else:
             raise ApiException(r)
 
-    def update(self, ruleId, ruleType, name, description, destinationName, selector, enabled, configuration=None):
+    def update(
+        self, ruleId, ruleType, name, destinationName, selector, description=None, enabled=None, configuration=None
+    ):
         url = "api/v0002/historianconnectors/%s/forwardingrules/%s" % (self.connectorId, ruleId)
 
         body = {}
         body["id"] = ruleId
         body["name"] = name
         body["type"] = ruleType
-        body["description"] = description
         body["destinationName"] = destinationName
-        body["enabled"] = enabled
         body["selector"] = selector
+        if description != None:
+            body["description"] = description
+        if enabled != None:
+            body["enabled"] = enabled
         if configuration != None:
             body["configuration"] = configuration
 

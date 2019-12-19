@@ -58,7 +58,7 @@ class Destination(defaultdict):
         else:
             return None
 
-    # DB2 only configuration
+    # DB2/Postgres only configuration
     @property
     def columns(self):
         # this is an optional parameter so check if it exists
@@ -102,9 +102,9 @@ class Destinations(RestApiDict):
         if self.connectorType == "eventstreams":
             if "partitions" not in kwargs.keys():
                 raise Exception("You must specify partitions parameter on create for an EventStreams destination")
-        if self.connectorType == "db2":
+        if self.connectorType == "db2" or self.connectorType == "postgres":
             if "columns" not in kwargs.keys():
-                raise Exception("You must specify a columns parameter on create for a DB2 destination")
+                raise Exception("You must specify a columns parameter on create for a DB2 or Postgres destination")
 
         destination = {"name": name, "type": self.connectorType, "configuration": kwargs}
 

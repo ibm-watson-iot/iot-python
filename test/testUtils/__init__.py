@@ -50,6 +50,13 @@ class AbstractTest(object):
     DB2_SSLJDCURL = os.getenv("DB2_SSLJDCURL")
     DB2_JDBCURL = os.getenv("DB2_JDBCURL")
 
+    POSTGRES_HOSTNAME = os.getenv("POSTGRES_HOSTNAME")
+    POSTGRES_PORT = os.getenv("POSTGRES_PORT")
+    POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
+    POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+    POSTGRES_CERTIFICATE = os.getenv("POSTGRES_CERTIFICATE")
+    POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE")
+
     try:
         ORG_ID = WIOTP_API_KEY.split("-")[1]
     except:

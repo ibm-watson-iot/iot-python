@@ -88,24 +88,48 @@ class EventStreamsServiceBindingCredentials(ServiceBindingCredentials):
 
 class DB2ServiceBindingCredentials(ServiceBindingCredentials):
     def __init__(self, **kwargs):
-        if not set(
-            [
-                "hostname",
-                "port",
-                "username",
-                "password",
-                "https_url",
-                "ssldsn",
-                "host",
-                "uri",
-                "db",
-                "ssljdbcurl",
-                "jdbcurl",
-            ]
-        ).issubset(kwargs):
+        if not set(["username", "password", "db", "ssljdbcurl"]).issubset(kwargs):
             raise Exception(
-                "hostname, port, username, password, https_url, ssldsn, host, uri, db, ssljdbcurl, jdbcurl are required parameters for a DB2 Service Binding: %s"
+                "username, password, db and ssljdbcurl are required parameters for a DB2 Service Binding: %s"
                 % (json.dumps(kwargs, sort_keys=True))
             )
 
         ServiceBindingCredentials.__init__(self, **kwargs)
+
+    @property
+    def username(self):
+        return self["username"]
+
+    @property
+    def password(self):
+        return self["password"]
+
+    @property
+    def db(self):
+        return self["db"]
+
+    @property
+    def ssljdbcurl(self):
+        return self["ssljdbcurl"]
+
+
+class PostgresServiceBindingCredentials(ServiceBindingCredentials):
+    def __init__(self, **kwargs):
+        if not set(["hostname", "port", "username", "password", "certificate", "database"]).issubset(kwargs):
+            raise Exception(
+                "hostname, port, username, password, certificate and database are required parameters for a PostgreSQL Service Binding: %s"
+                % (json.dumps(kwargs, sort_keys=True))
+            )
+
+        self["connection"] = {
+            "postgres": {
+                "authentication": {"username": kwargs["username"], "password": kwargs["password"]},
+                "certificate": {"certificate_base64": kwargs["certificate"]},
+                "database": kwargs["database"],
+                "hosts": [{"hostname": kwargs["hostname"], "port": kwargs["port"]}],
+            }
+        }
+
+    @property
+    def connection(self):
+        return self["connection"]
