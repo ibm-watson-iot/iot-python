@@ -137,10 +137,10 @@ class TestDscCloudant(testUtils.AbstractTest):
         rule1 = createdConnector.rules.createEventRule(
             name="test-rule-cloudant1",
             destinationName=destination1.name,
-            description="Test rule 1",
-            enabled=True,
             typeId="*",
             eventId="*",
+            description="Test rule 1",
+            enabled=True,
         )
 
         assert destination1.name == rule1.destinationName

@@ -18,7 +18,7 @@
   <script>
     // Current page data
     var mkdocs_page_name = "Data Store Connectors";
-    var mkdocs_page_input_path = "application\\api\\dsc.md";
+    var mkdocs_page_input_path = "application/api/dsc.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -135,6 +135,8 @@
         
             <li><a class="toctree-l4" href="#db2-connector">DB2 Connector</a></li>
         
+            <li><a class="toctree-l4" href="#postgres-connector">Postgres Connector</a></li>
+        
             <li><a class="toctree-l4" href="#connectors">Connectors</a></li>
         
             <li><a class="toctree-l4" href="#destinations">Destinations</a></li>
@@ -244,15 +246,22 @@ options = wiotp.sdk.application.parseEnvVars()
 appClient = wiotp.sdk.application.ApplicationClient(options)
 
 serviceBinding = {
-    &quot;name&quot;: &quot;test-cloudant&quot;,  &quot;description&quot;: &quot;Test Cloudant instance&quot;, &quot;type&quot;: &quot;cloudant&quot;, 
-    &quot;credentials&quot;: { &quot;host&quot;: &quot;hostname&quot;, &quot;port&quot;: 443, &quot;username&quot;: &quot;username&quot;, &quot;password&quot;: &quot;password&quot; }
+    &quot;name&quot;: &quot;test-cloudant&quot;,
+    &quot;description&quot;: &quot;Test Cloudant instance&quot;,
+    &quot;type&quot;: &quot;cloudant&quot;,
+    &quot;credentials&quot;: {
+        &quot;host&quot;: &quot;hostname&quot;,
+        &quot;port&quot;: 443,
+        &quot;username&quot;: &quot;username&quot;,
+        &quot;password&quot;: &quot;password&quot;
+    }
 }
 
 cloudantService = appClient.serviceBindings.create(serviceBinding)
 
 # Create the connector
 connector = self.appClient.dsc.create(
-    name=&quot;connector1&quot;, type=&quot;cloudant&quot;, serviceId=cloudantService.id, timezone=&quot;UTC&quot;, 
+    name=&quot;connector1&quot;, type=&quot;cloudant&quot;, serviceId=cloudantService.id, timezone=&quot;UTC&quot;,
     description=&quot;A test connector&quot;, enabled=True
 )
 
@@ -261,13 +270,13 @@ destination1 = connector.destinations.create(name=&quot;all-data&quot;, bucketIn
 
 # Create a rule under the connector, that routes all events to the destination
 rule1 = connector.rules.createEventRule(
-    name=&quot;allevents&quot;, destinationName=destination1.name, description=&quot;Send all events&quot;, 
-    enabled=True, typeId=&quot;*&quot;, eventId=&quot;*&quot;
+    name=&quot;allevents&quot;, destinationName=destination1.name, typeId=&quot;*&quot;, eventId=&quot;*&quot;,
+    description=&quot;Send all events&quot;, enabled=True
 )
 # Create a second rule under the connector, that routes all state to the same destination
 rule2 = connector.rules.createStateRule(
-    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;, 
-    enabled=True, logicalInterfaceId=&quot;*&quot;
+    name=&quot;allstate&quot;, destinationName=destination1.name, logicalInterfaceId=&quot;*&quot;,
+    description=&quot;Send all state&quot;, enabled=True,
 )
 </code></pre>
 
@@ -307,13 +316,13 @@ destination1 = connector.destinations.create(name=&quot;all-data&quot;, partitio
 
 # Create a rule under the connector, that routes all events to the destination
 rule1 = connector.rules.createEventRule(
-    name=&quot;allevents&quot;, destinationName=destination1.name, description=&quot;Send all events&quot;,
-    enabled=True, typeId=&quot;*&quot;, eventId=&quot;*&quot;
+    name=&quot;allevents&quot;, destinationName=destination1.name, typeId=&quot;*&quot;, eventId=&quot;*&quot;,
+    description=&quot;Send all events&quot;, enabled=True
 )
 # Create a second rule under the connector, that routes all state to the same destination
 rule2 = connector.rules.createStateRule(
-    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;, 
-    enabled=True, logicalInterfaceId=&quot;*&quot;
+    name=&quot;allstate&quot;, destinationName=destination1.name, logicalInterfaceId=&quot;*&quot;,
+    description=&quot;Send all state&quot;, enabled=True
 )
 </code></pre>
 
@@ -324,33 +333,127 @@ options = wiotp.sdk.application.parseEnvVars()
 appClient = wiotp.sdk.application.ApplicationClient(options)
 
 credentials = {
-  &quot;hostname&quot;: &quot;DB2_HOST&quot;, &quot;port&quot;: &quot;DB2_PORT&quot;, &quot;username&quot;: &quot;DB2_USERNAME&quot;, 
-  &quot;password&quot;: &quot;DB2_PASSWORD&quot;, &quot;https_url&quot;: &quot;DB2_HTTPS_URL&quot;, &quot;ssldsn&quot;: &quot;DB2_SSL_DSN&quot;, 
-  &quot;host&quot;: &quot;DB2_HOST&quot;, &quot;uri&quot;: &quot;DB2_URI&quot;, &quot;db&quot;: &quot;DB2_DB&quot;, &quot;ssljdbcurl&quot;: &quot;DB2_SSLJDCURL&quot;, 
-  &quot;jdbcurl&quot;: &quot;DB2_JDBCURL&quot;,
+  &quot;hostname&quot;: &quot;DB2_HOST&quot;,
+  &quot;port&quot;: &quot;DB2_PORT&quot;,
+  &quot;username&quot;: &quot;DB2_USERNAME&quot;,
+  &quot;password&quot;: &quot;DB2_PASSWORD&quot;,
+  &quot;https_url&quot;: &quot;DB2_HTTPS_URL&quot;,
+  &quot;ssldsn&quot;: &quot;DB2_SSL_DSN&quot;,
+  &quot;host&quot;: &quot;DB2_HOST&quot;,
+  &quot;uri&quot;: &quot;DB2_URI&quot;,
+  &quot;db&quot;: &quot;DB2_DB&quot;,
+  &quot;ssljdbcurl&quot;: &quot;DB2_SSLJDCURL&quot;,
+  &quot;jdbcurl&quot;: &quot;DB2_JDBCURL&quot;
 }
 
 serviceBinding = {
-    &quot;name&quot;: &quot;test-db2&quot;,  &quot;description&quot;: &quot;Test DB2 instance&quot;, &quot;type&quot;: &quot;db2&quot;, 
-    &quot;credentials&quot;: credentials,
+    &quot;name&quot;: &quot;test-db2&quot;,
+    &quot;description&quot;: &quot;Test DB2 instance&quot;,
+    &quot;type&quot;: &quot;db2&quot;,
+    &quot;credentials&quot;: credentials
 }
 
 db2Service = appClient.serviceBindings.create(serviceBinding)
 
 # Create the connector
 connector = self.appClient.dsc.create(
-    name=&quot;connectorDB2&quot;, type=&quot;db2&quot;, serviceId=db2Service.id, timezone=&quot;UTC&quot;, 
-    description=&quot;A test connector&quot;, enabled=True
+    name=&quot;connectorDB2&quot;,
+    type=&quot;db2&quot;,
+    serviceId=db2Service.id,
+    timezone=&quot;UTC&quot;,
+    description=&quot;A test connector&quot;,
+    enabled=True
 )
 
 # Create a destination under the connector
-destination1 = connector.destinations.create(name=&quot;all-data&quot;, bucketInterval=&quot;DAY&quot;)
+columns = [
+    {&quot;name&quot;: &quot;TEMPERATURE_C&quot;, &quot;type&quot;: &quot;REAL&quot;, &quot;nullable&quot;: False},
+    {&quot;name&quot;: &quot;HUMIDITY&quot;, &quot;type&quot;: &quot;INTEGER&quot;, &quot;nullable&quot;: True},
+    {&quot;name&quot;: &quot;TIMESTAMP&quot;, &quot;type&quot;: &quot;TIMESTAMP&quot;, &quot;nullable&quot;: False},
+]
+
+destination1 = connector.destinations.create(name=&quot;test_destination_db2&quot;, columns=columns)
 
 # Create a rule under the connector, that routes all state to the same destination
 # We can only forward state to a db2 connector, not the raw events
+ruleConfiguration={
+    &quot;columnMappings&quot;: {
+        &quot;TEMPERATURE_C&quot;: &quot;$event.state.temp.C&quot;,
+        &quot;HUMIDITY&quot;: &quot;$event.state.humidity&quot;,
+        &quot;TIMESTAMP&quot;: &quot;$event.timestamp&quot;
+    }
+}
+
 rule = connector.rules.createStateRule(
-    name=&quot;allstate&quot;, destinationName=destination1.name, description=&quot;Send all state&quot;,
-    enabled=True, logicalInterfaceId=&quot;*&quot;
+    name=&quot;Environment State Forwarding Rule&quot;,
+    destinationName=destination1.name,
+    logicalInterfaceId=&quot;123456789012345678901234&quot;,
+    description=&quot;Write environment state to target table&quot;,
+    enabled=True,
+    configuration=ruleConfiguration
+)
+</code></pre>
+
+<h2 id="postgres-connector">Postgres Connector<a class="headerlink" href="#postgres-connector" title="Permanent link"></a></h2>
+<pre><code class="python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+credentials = {
+  &quot;hostname&quot;: &quot;POSTGRES_HOSTNAME&quot;,
+  &quot;port&quot;: &quot;POSTGRES_PORT&quot;,
+  &quot;username&quot;: &quot;POSTGRES_USERNAME&quot;,
+  &quot;password&quot;: &quot;POSTGRES_PASSWORD&quot;,
+  &quot;certificate&quot;: &quot;POSTGRES_CERTIFICATE&quot;,
+  &quot;database&quot;: &quot;POSTGRES_DATABASE&quot;
+}
+
+serviceBinding = {
+    &quot;name&quot;: &quot;test-postgres&quot;,
+    &quot;description&quot;: &quot;Test Postgres instance&quot;,
+    &quot;type&quot;: &quot;postgres&quot;,
+    &quot;credentials&quot;: credentials
+}
+
+postgresService = appClient.serviceBindings.create(serviceBinding)
+
+# Create the connector
+connector = self.appClient.dsc.create(
+    name=&quot;connectorPostgres&quot;,
+    type=&quot;postgres&quot;,
+    serviceId=postgresService.id,
+    timezone=&quot;UTC&quot;,
+    description=&quot;A test connector&quot;,
+    enabled=True
+)
+
+# Create a destination under the connector
+columns = [
+    {&quot;name&quot;: &quot;TEMPERATURE_C&quot;, &quot;type&quot;: &quot;REAL&quot;, &quot;nullable&quot;: False},
+    {&quot;name&quot;: &quot;HUMIDITY&quot;, &quot;type&quot;: &quot;INTEGER&quot;, &quot;nullable&quot;: True},
+    {&quot;name&quot;: &quot;TIMESTAMP&quot;, &quot;type&quot;: &quot;TIMESTAMP&quot;, &quot;nullable&quot;: False},
+]
+
+destination1 = connector.destinations.create(name=&quot;test_destination_postgres&quot;, columns=columns)
+
+# Create a rule under the connector, that routes all state to the same destination
+# We can only forward state to a postgres connector, not the raw events
+ruleConfiguration={
+    &quot;columnMappings&quot;: {
+        &quot;TEMPERATURE_C&quot;: &quot;$event.state.temp.C&quot;,
+        &quot;HUMIDITY&quot;: &quot;$event.state.humidity&quot;,
+        &quot;TIMESTAMP&quot;: &quot;$event.timestamp&quot;
+    }
+}
+
+rule = connector.rules.createStateRule(
+    name=&quot;Environment State Forwarding Rule&quot;,
+    destinationName=destination1.name,
+    logicalInterfaceId=&quot;123456789012345678901234&quot;,
+    description=&quot;Write environment state to target table&quot;,
+    enabled=True,
+    configuration=ruleConfiguration
 )
 </code></pre>
 
@@ -416,21 +519,21 @@ connector = appClient.dsc[connectorId]
 
 # Create a rule under the connector, that routes all events to the destination
 rule1 = connector.rules.createEventRule(
-    name=&quot;allevents&quot;, 
-    destinationName=&quot;all-data&quot;, 
-    description=&quot;Send all events&quot;, 
-    enabled=True, 
-    typeId=&quot;*&quot;, 
-    eventId=&quot;*&quot;
+    name=&quot;allevents&quot;,
+    destinationName=&quot;all-data&quot;,
+    typeId=&quot;*&quot;,
+    eventId=&quot;*&quot;,
+    description=&quot;Send all events&quot;,
+    enabled=True
 )
 
 # Create a second rule under the connector, that routes all state to the same destination
 rule2 = createdConnector.rules.createStateRule(
-    name=&quot;allstate&quot;, 
-    destinationName=&quot;all-data&quot;, 
-    description=&quot;Send all state&quot;, 
-    enabled=True, 
-    logicalInterfaceId=&quot;*&quot;
+    name=&quot;allstate&quot;,
+    destinationName=&quot;all-data&quot;,
+    logicalInterfaceId=&quot;*&quot;,
+    description=&quot;Send all state&quot;,
+    enabled=True,
 )
 </code></pre>
               

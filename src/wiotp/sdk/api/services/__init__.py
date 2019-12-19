@@ -16,6 +16,7 @@ from wiotp.sdk.api.services.credentials import (
     CloudantServiceBindingCredentials,
     EventStreamsServiceBindingCredentials,
     DB2ServiceBindingCredentials,
+    PostgresServiceBindingCredentials,
 )
 from wiotp.sdk.api.common import IterableList, RestApiItemBase, RestApiDict
 from collections import defaultdict
@@ -68,11 +69,28 @@ class DB2ServiceBindingCreateRequest(ServiceBindingCreateRequest):
                 % (json.dumps(kwargs, sort_keys=True))
             )
 
-        # Convert credentials to EventStreamsServiceBindingCredentials for validation
+        # Convert credentials to DB2ServiceBindingCredentials for validation
         if not isinstance(kwargs["credentials"], DB2ServiceBindingCredentials):
             kwargs["credentials"] = DB2ServiceBindingCredentials(**kwargs["credentials"])
 
         kwargs["type"] = "db2"
+
+        ServiceBindingCreateRequest.__init__(self, **kwargs)
+
+
+class PostgresServiceBindingCreateRequest(ServiceBindingCreateRequest):
+    def __init__(self, **kwargs):
+        if not set(["name", "credentials", "description"]).issubset(kwargs):
+            raise Exception(
+                "name, credentials, & description are required parameters for creating a PostgreSQL Service Binding: %s"
+                % (json.dumps(kwargs, sort_keys=True))
+            )
+
+        # Convert credentials to PostgresServiceBindingCredentials for validation
+        if not isinstance(kwargs["credentials"], PostgresServiceBindingCredentials):
+            kwargs["credentials"] = PostgresServiceBindingCredentials(**kwargs["credentials"])
+
+        kwargs["type"] = "postgres"
 
         ServiceBindingCreateRequest.__init__(self, **kwargs)
 
@@ -191,6 +209,8 @@ class ServiceBindings(RestApiDict):
                 serviceBinding = EventStreamsServiceBindingCreateRequest(**serviceBinding)
             elif serviceBinding["type"] == "db2":
                 serviceBinding = DB2ServiceBindingCreateRequest(**serviceBinding)
+            elif serviceBinding["type"] == "postgres":
+                serviceBinding = PostgresServiceBindingCreateRequest(**serviceBinding)
             else:
                 raise Exception("Unsupported service binding type")
 
@@ -212,6 +232,16 @@ class ServiceBindings(RestApiDict):
         Throws APIException on failure.
 
         """
+
+        # Convert credentials to the relevant type for validation
+        if type == "cloudant":
+            credentials = CloudantServiceBindingCredentials(**credentials)
+        elif type == "eventstreams":
+            credentials = EventStreamsServiceBindingCredentials(**credentials)
+        elif type == "db2":
+            credentials = DB2ServiceBindingCredentials(**credentials)
+        elif type == "postgres":
+            credentials = PostgresServiceBindingCredentials(**credentials)
 
         url = self.allServicesUrl + "/" + serviceId
 
