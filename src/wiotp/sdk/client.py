@@ -15,12 +15,18 @@ import json
 import socket
 import ssl
 import logging
+import platform
+
 from logging.handlers import RotatingFileHandler
-import paho.mqtt.client as paho
+from paho.mqtt import __version__ as pahoVersion
+import paho.mqtt.client
+import paho.mqtt.packettypes
+import paho.mqtt.properties
 import threading
 import pytz
 from datetime import datetime
 
+from wiotp.sdk import __version__ as wiotpVersion
 from wiotp.sdk.exceptions import MissingMessageEncoderException, ConnectionException
 from wiotp.sdk.messages import JsonCodec, RawCodec, Utf8Codec
 
@@ -58,6 +64,7 @@ class AbstractClient(object):
         password,
         port=None,
         transport="tcp",
+        protocol="v5.0",  # Other options are v3.1 and v3.1.1
         cleanStart=False,
         sessionExpiry=3600,
         keepAlive=60,
@@ -76,6 +83,12 @@ class AbstractClient(object):
         self.keepAlive = keepAlive
 
         self.connectEvent = threading.Event()
+
+        self.userAgent = "MQTT/5.0 (%s %s) Paho/%s WIoTP/%s" % (platform.system(), platform.release(), pahoVersion, wiotpVersion)
+
+        self.connectProperties = paho.mqtt.properties.Properties(paho.mqtt.packettypes.PacketTypes.CONNECT)
+        self.connectProperties.SessionExpiryInterval = sessionExpiry
+        self.connectProperties.UserProperty = ("User-Agent", self.userAgent)
 
         # If we are disconnected we lose all our active subscriptions.  Keep
         # track of all subscriptions so that we can internally restore all
@@ -116,7 +129,8 @@ class AbstractClient(object):
 
             self.logger.addHandler(ch)
 
-        self.client = paho.Client(self.clientId, transport=transport, clean_session=(not cleanStart))
+        # Note: now that we are using MQTT v5 we do not use the clean_session parameter, which has been replaced by clean_start
+        self.client = paho.mqtt.client.Client(self.clientId, transport=transport, protocol=paho.mqtt.client.MQTTv5)
 
         # Normal usage puts the client in an auto-detect mode, where it will try to use
         # TLS, and fall back to unencrypted mode ONLY if TLS 1.2 is unavailable.
@@ -240,6 +254,7 @@ class AbstractClient(object):
                 "Connecting with clientId %s to host %s on port %s with keepAlive set to %s"
                 % (self.clientId, self.address, self.port, self.keepAlive)
             )
+            self.logger.debug("User Agent: %s" % self.userAgent)
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
             self.client.loop_start()
             if not self.connectEvent.wait(timeout=60):
@@ -414,7 +429,7 @@ class AbstractClient(object):
             payload = self.getMessageCodec(msgFormat).encode(data, datetime.now(pytz.timezone("UTC")))
 
             result = self.client.publish(topic, payload=payload, qos=qos, retain=False)
-            if result[0] == paho.MQTT_ERR_SUCCESS:
+            if result[0] == paho.mqtt.client.MQTT_ERR_SUCCESS:
                 # Because we are dealing with aync pub/sub model and callbacks it is possible that
                 # the _onPublish() callback for this mid is called before we obtain the lock to place
                 # the mid into the _onPublishCallbacks list.

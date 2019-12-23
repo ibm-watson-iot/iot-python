@@ -10,6 +10,9 @@
 import sys
 sys.path.insert(0, 'src')
 
+# from wiotp.sdk import __version__
+VERSION="0.11.0"
+
 try:
     from setuptools import setup
 except ImportError:
@@ -35,7 +38,7 @@ except:
 
 setup(
     name='wiotp-sdk',
-    version="0.10.1",
+    version=VERSION,
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -68,7 +71,7 @@ setup(
         "iso8601 >= 0.1.12",
         "pytz >= 2018.9",
         "pyyaml >= 3.13",
-        "paho-mqtt >= 1.4.0",
+        "paho-mqtt >= 1.5.0",
         "requests >= 2.21.0",
         "requests_toolbelt >= 0.8.0",
     ],

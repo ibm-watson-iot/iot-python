@@ -188,17 +188,17 @@ def parseEnvVars():
     if port is not None:
         try:
             port = int(port)
-        except ValueError as e:
+        except ValueError:
             raise ConfigurationException("WIOTP_OPTIONS_MQTT_PORT must be a number")
 
     try:
         sessionExpiry = int(sessionExpiry)
-    except ValueError as e:
+    except ValueError:
         raise ConfigurationException("WIOTP_OPTIONS_MQTT_SESSIONEXPIRY must be a number")
 
     try:
         keepAlive = int(keepAlive)
-    except ValueError as e:
+    except ValueError:
         raise ConfigurationException("WIOTP_OPTIONS_MQTT_KEEPALIVE must be a number")
 
     if logLevel not in ["error", "warning", "info", "debug"]:
