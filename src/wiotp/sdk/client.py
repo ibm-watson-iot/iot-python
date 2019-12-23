@@ -15,12 +15,16 @@ import json
 import socket
 import ssl
 import logging
+import platform
+
 from logging.handlers import RotatingFileHandler
+from paho.mqtt import __version__ as pahoVersion
 import paho.mqtt.client as paho
 import threading
 import pytz
 from datetime import datetime
 
+from wiotp.sdk import __version__ as wiotpVersion
 from wiotp.sdk.exceptions import MissingMessageEncoderException, ConnectionException
 from wiotp.sdk.messages import JsonCodec, RawCodec, Utf8Codec
 
@@ -116,6 +120,14 @@ class AbstractClient(object):
 
             self.logger.addHandler(ch)
 
+        # This will be used as a MQTTv5 connect user property once v5 support is added.
+        # For now it's just a useful debug message logged when we connect
+        self.userAgent = "MQTT/3.1.1 (%s %s) Paho/%s (Python) WIoTP/%s (Python)" % (
+            platform.system(),
+            platform.release(),
+            pahoVersion,
+            wiotpVersion,
+        )
         self.client = paho.Client(self.clientId, transport=transport, clean_session=(not cleanStart))
 
         # Normal usage puts the client in an auto-detect mode, where it will try to use
@@ -240,6 +252,7 @@ class AbstractClient(object):
                 "Connecting with clientId %s to host %s on port %s with keepAlive set to %s"
                 % (self.clientId, self.address, self.port, self.keepAlive)
             )
+            self.logger.debug("User-Agent: %s" % self.userAgent)
             self.client.connect(self.address, port=self.port, keepalive=self.keepAlive)
             self.client.loop_start()
             if not self.connectEvent.wait(timeout=60):
