@@ -84,10 +84,19 @@ class TestApplication(testUtils.AbstractTest):
                 {
                     "identity": {"appId": "myAppId"},
                     "auth": {"key": "myKey", "token": "myToken"},
-                    "options": {"mqtt": {"instanceId": "myInstance", "cleanSession": "notABoolean"}},
+                    "options": {"mqtt": {"instanceId": "myInstance", "port": 1, "cleanSession": "notABoolean"}},
                 }
             )
         assert e.value.reason == "Optional setting options.cleanSession must be a boolean if provided"
+
+    def testMissingArgs(self):
+        appId = str(uuid.uuid4())
+        appCliInstance = wiotp.sdk.application.ApplicationClient(
+            {}
+        )  # Attempting to connect without any arguments - testing the autofill
+        appCliInstance.connect()
+        assert appCliInstance.isConnected() == True
+        appCliInstance.disconnect()
 
     def testMissingConfigFile(self):
         applicationFile = "test/notAFile.yaml"
@@ -99,7 +108,7 @@ class TestApplication(testUtils.AbstractTest):
         )
 
     def testConfigFileWrongLogLevel(self):
-        applicationFile = "test/test_application_configfile.yaml"
+        applicationFile = "test/testConfigFiles/test_application_configfile_invalidLogLevel.yaml"
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.application.parseConfigFile(applicationFile)
         assert e.value.reason == "Optional setting options.logLevel must be one of error, warning, info, debug"

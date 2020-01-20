@@ -95,7 +95,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
         )
 
     def testConfigFileWrongLogLevel(self):
-        deviceFile = "test/test_device_configfile.yaml"
+        deviceFile = "test/testConfigFiles/test_device_configfile.yaml"
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.parseConfigFile(deviceFile)
         assert e.value.reason == "Optional setting options.logLevel must be one of error, warning, info, debug"
