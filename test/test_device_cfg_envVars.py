@@ -47,6 +47,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
 
     def testSessionExpiryEnvVarNotInteger(self, manageEnvVars):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+            os.environ["WIOTP_OPTIONS_MQTT_PORT"] = "1"
             os.environ["WIOTP_OPTIONS_MQTT_SESSIONEXPIRY"] = "notAnInteger"
             wiotp.sdk.device.parseEnvVars()
         assert e.value.reason == "WIOTP_OPTIONS_MQTT_SESSIONEXPIRY must be a number"
