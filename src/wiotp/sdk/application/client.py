@@ -57,6 +57,9 @@ class ApplicationClient(AbstractClient):
             port=self._config.port,
             transport=self._config.transport,
             caFile=self._config.caFile,
+            logLevel=self._config.logLevel,
+            sessionExpiry=self._config.sessionExpiry,
+            keepAlive=self._config.keepAlive,
         )
 
         # Add handlers for events and status
