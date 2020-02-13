@@ -54,7 +54,7 @@ class DeviceType(defaultdict):
 
     @property
     def total_rows(self):
-            return self["total_rows"]
+        return self["total_rows"]
 
     @property
     def deviceInfo(self):
