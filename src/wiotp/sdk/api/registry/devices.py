@@ -256,6 +256,10 @@ class Device(defaultdict):
             return None
 
     @property
+    def total_rows(self):
+        return self["total_rows"]
+
+    @property
     def deviceInfo(self):
         # Unpack the deviceInfo dictionary into keyword arguments so that we
         # can return a DeviceInfo object instead of a plain dictionary
