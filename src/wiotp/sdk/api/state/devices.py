@@ -40,10 +40,6 @@ class Device(RestApiItemBase):
         return self["metadata"]
 
     @property
-    def total_rows(self):
-        return self["total_rows"]
-
-    @property
     def registration(self):
         return self["registration"]
 
