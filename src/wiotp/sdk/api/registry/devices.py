@@ -56,7 +56,7 @@ class DeviceUid(defaultdict):
 
 
 class DeviceCreateRequest(defaultdict):
-    def __init__(self, typeId, deviceId, authToken=None, deviceInfo=None, location=None, metadata=None, total_rows=0):
+    def __init__(self, typeId, deviceId, authToken=None, deviceInfo=None, location=None, metadata=None):
         dict.__init__(
             self,
             typeId=typeId,
@@ -65,7 +65,6 @@ class DeviceCreateRequest(defaultdict):
             deviceInfo=deviceInfo,
             location=location,
             metadata=metadata,
-            total_rows=total_rows,
         )
 
     @property
@@ -91,10 +90,6 @@ class DeviceCreateRequest(defaultdict):
     @property
     def metadata(self):
         return self["metadata"]
-
-    @property
-    def total_rows(self):
-        return self["total_rows"]
 
 
 class DeviceLocation(defaultdict):
@@ -259,10 +254,6 @@ class Device(defaultdict):
             return self["metadata"]
         else:
             return None
-
-    @property
-    def total_rows(self):
-            return self["total_rows"]
 
     @property
     def deviceInfo(self):
