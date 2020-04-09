@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.9
+FROM python:3.8-alpine3.11
 
 # Add the required dependencies to install psutil that are missing from alpine
 # See: https://github.com/giampaolo/psutil/issues/872#issuecomment-272248943
