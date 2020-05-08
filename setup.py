@@ -35,7 +35,7 @@ except:
 
 setup(
     name='wiotp-sdk',
-    version="0.11.0",
+    version="0.12.0",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
@@ -66,11 +66,11 @@ setup(
     long_description=read_md('README.md'),
     install_requires=[
         "iso8601 >= 0.1.12",
-        "pytz >= 2018.9",
-        "pyyaml >= 3.13",
+        "pytz >= 2020.1",
+        "pyyaml >= 5.3.1",
         "paho-mqtt >= 1.5.0",
-        "requests >= 2.21.0",
-        "requests_toolbelt >= 0.8.0",
+        "requests >= 2.23.0",
+        "requests_toolbelt >= 0.9.1",
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -78,8 +78,6 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',

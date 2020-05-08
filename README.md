@@ -11,10 +11,11 @@
 
 Python module for interacting with the [IBM Watson IoT Platform](https://internetofthings.ibmcloud.com).
 
--  [Python 3.8](https://www.python.org/downloads/release/python-373/)  (recommended)
--  [Python 2.7](https://www.python.org/downloads/release/python-2716/)
+- [Python 3.8](https://www.python.org/downloads/release/python-382/)  (recommended)
+- Python 3.7
+- Python 3.6
 
-Note: Support for MQTT with TLS requires at least Python v2.7.9 and openssl v1.0.1
+Note: As of version 0.12, versions of Python less than 3.6 are not officially supported.  Compatability with older versions of Python is not guaranteed.
 
 
 ## Dependencies

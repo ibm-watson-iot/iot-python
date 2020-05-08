@@ -13,7 +13,7 @@ import os
 import sys
 
 oneJobOnlyTest = pytest.mark.skipif(
-    sys.version_info < (3, 7),
+    sys.version_info < (3, 8),
     reason="Doesn't support running in multiple envs in parallel due to limits on # of service bindings allowed",
 )
 
