@@ -11,7 +11,7 @@
 
 Python module for interacting with the [IBM Watson IoT Platform](https://internetofthings.ibmcloud.com).
 
--  [Python 3.7](https://www.python.org/downloads/release/python-373/)  (recommended)
+-  [Python 3.8](https://www.python.org/downloads/release/python-373/)  (recommended)
 -  [Python 2.7](https://www.python.org/downloads/release/python-2716/)
 
 Note: Support for MQTT with TLS requires at least Python v2.7.9 and openssl v1.0.1
@@ -58,7 +58,7 @@ https://ibm-watson-iot.github.io/iot-python/
 - **Gateway Connectivity**: Connect your gateway(s) to Watson IoT Platform with ease using this library
 - **Application connectivity**: Connect your application(s) to Watson IoT Platform with ease using this library
 - **Watson IoT API**: Support for the interacting with the Watson IoT Platform through REST APIs
-- **SSL/TLS**: By default, this library connects your devices, gateways and applications securely to Watson IoT Platform registered service. Ports `8883` (default) and `443` support secure connections using TLS with the MQTT and HTTP protocol. Support for MQTT with TLS requires at least Python v2.7.9 or v3.4, and openssl v1.0.1
+- **SSL/TLS**: By default, this library connects your devices, gateways and applications securely to Watson IoT Platform registered service. Ports `8883` (default) and `443` support secure connections using TLS with the MQTT and HTTP protocol. Support for MQTT with TLS requires at least Python v2.7.9 or v3.5, and openssl v1.0.1
 - **Device Management for Device**: Connects your device(s) as managed device(s) to Watson IoT Platform.
 - **Device Management for Gateway**: Connects your gateway(s) as managed device(s) to Watson IoT Platform.
 - **Device Management Extensions**: Provides support for custom device management actions.
@@ -69,4 +69,3 @@ https://ibm-watson-iot.github.io/iot-python/
 
 ## Unsupported Features
 - **Client side Certificate based authentication**: [Client side Certificate based authentication](https://console.ng.bluemix.net/docs/services/IoT/reference/security/RM_security.html)n
-

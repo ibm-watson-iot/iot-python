@@ -13,7 +13,7 @@ matrix:
     - python: "3.5"
     - python: "3.6"
     - python: "3.7"
-      dist: xenial    # required for Python >= 3.7
+    - python: "3.8"
       env: 
        - BUILD_DOCKER_IMAGES=true
 
@@ -27,7 +27,7 @@ script:
 
 
 after_success:
-  # Only upload coverage report from pythonn 3.7 test run if BUILD_DOCKER_IMAGES is not null and not empty
+  # Only upload coverage report from pythonn 3.8 test run if BUILD_DOCKER_IMAGES is not null and not empty
   - |
     if [ -n "${BUILD_DOCKER_IMAGES}" ]; then
       coveralls
