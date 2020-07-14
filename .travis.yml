@@ -10,10 +10,15 @@ cache: pip
 matrix:
   include:
     - python: "3.6"
+      env: 
+        - ONE_JOB_ONLY_TESTS=false
     - python: "3.7"
+      env: 
+        - ONE_JOB_ONLY_TESTS=false
     - python: "3.8"
       env: 
-       - BUILD_DOCKER_IMAGES=true
+        - ONE_JOB_ONLY_TESTS=true
+        - BUILD_DOCKER_IMAGES=true
 
 install: 
   - pip install tox-travis coveralls pyyaml

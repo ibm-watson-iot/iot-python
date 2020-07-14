@@ -10,10 +10,9 @@
 import wiotp.sdk.application
 import pytest
 import os
-import sys
 
 oneJobOnlyTest = pytest.mark.skipif(
-    sys.version_info < (3, 8),
+    os.getenv("ONE_JOB_ONLY_TESTS", "true") == "false",
     reason="Doesn't support running in multiple envs in parallel due to limits on # of service bindings allowed",
 )
 
