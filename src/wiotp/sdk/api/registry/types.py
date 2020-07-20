@@ -53,10 +53,6 @@ class DeviceType(defaultdict):
             return None
 
     @property
-    def total_rows(self):
-        return self["total_rows"]
-
-    @property
     def deviceInfo(self):
         # Unpack the deviceInfo dictionary into keyword arguments so that we
         # can return a DeviceInfo object instead of a plain dictionary
@@ -136,9 +132,16 @@ class DeviceTypes(defaultdict):
 
     def __iter__(self, *args, **kwargs):
         """
-        iterate through all devices
+        iterate through all device types
         """
         return IterableDeviceTypeList(self._apiClient)
+
+    @property
+    def total_rows(self):
+        """
+        Returns total device types
+        """
+        return self["total_rows"] 
 
     def create(self, deviceType):
         """
