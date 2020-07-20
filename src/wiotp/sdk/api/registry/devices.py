@@ -443,6 +443,13 @@ class Devices(defaultdict):
         """
         return IterableDeviceList(self._apiClient, self.typeId)
 
+    @property
+    def total_rows(self):
+        """
+        Returns total devices
+        """
+        return self["total_rows"] 
+
     def create(self, devices):
         """
         Register one or more new devices, each request can contain a maximum of 512KB.

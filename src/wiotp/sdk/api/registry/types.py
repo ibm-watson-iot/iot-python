@@ -136,9 +136,16 @@ class DeviceTypes(defaultdict):
 
     def __iter__(self, *args, **kwargs):
         """
-        iterate through all devices
+        iterate through all device types
         """
         return IterableDeviceTypeList(self._apiClient)
+
+    @property
+    def total_rows(self):
+        """
+        Returns total device types
+        """
+        return self["total_rows"] 
 
     def create(self, deviceType):
         """
