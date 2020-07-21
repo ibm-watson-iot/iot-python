@@ -51,7 +51,7 @@ class TestRules(testUtils.AbstractTest):
         for r in self.appClient.state.draft.rules:
             if r.name in (TestRules.testRuleName, TestRules.updatedTestRuleName):
                 print("Deleting old rule instance: %s" % (r))
-                rules = self.appClient.state.draft.logicalinterfaces[r.logicalInterfaceId].rules
+                rules = self.appClient.state.draft.logicalInterfaces[r.logicalInterfaceId].rules
                 del rules[r.id]
 
         for li in self.appClient.state.draft.logicalInterfaces:
