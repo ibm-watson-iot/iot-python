@@ -448,7 +448,7 @@ class Devices(defaultdict):
         """
         Returns total devices
         """
-        return self["total_rows"] 
+        return self["total_rows"]
 
     def create(self, devices):
         """
