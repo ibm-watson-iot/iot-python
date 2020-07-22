@@ -145,7 +145,7 @@ class DeviceTypes(defaultdict):
         """
         Returns total device types
         """
-        return self["total_rows"] 
+        return self["total_rows"]
 
     def create(self, deviceType):
         """

@@ -10,6 +10,8 @@
 import uuid
 import pytest
 import testUtils
+from wiotp.sdk.api.registry.devices import DeviceInfo
+from wiotp.sdk.exceptions import ApiException
 
 
 class TestRegistryDevicetypes(testUtils.AbstractTest):
@@ -48,6 +50,7 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
             if count > 10:
                 break
 
+    # DeviceTypeDescription test
     def testCreateDeviceType(self):
         typeId = str(uuid.uuid4())
         myDeviceType = self.appClient.registry.devicetypes.create({"id": typeId, "description": "This is a test"})
@@ -59,10 +62,57 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
 
         del self.appClient.registry.devicetypes[typeId]
 
+    def testCreateDeviceTypeNone(self):
+        typeId = str(uuid.uuid4())
+        myDeviceType = self.appClient.registry.devicetypes.create({"id": typeId, "description": None})
+
+        myDeviceTypeRetrieved = self.appClient.registry.devicetypes[typeId]
+
+        assert myDeviceTypeRetrieved.id == typeId
+        assert myDeviceTypeRetrieved.description == None
+
+        del self.appClient.registry.devicetypes[typeId]
+
+    # Metadata test
+    def testCreateDeviceMetadata(self):
+        typeId = str(uuid.uuid4())
+        myDeviceType = self.appClient.registry.devicetypes.create(
+            {"id": typeId, "description": "This is still a test", "metadata": {"test": "test"}}
+        )
+
+        myDeviceTypeRetrieved = self.appClient.registry.devicetypes[typeId]
+
+        assert myDeviceTypeRetrieved.id == typeId
+        assert myDeviceTypeRetrieved.description == "This is still a test"
+        assert myDeviceTypeRetrieved.metadata == {"test": "test"}
+
+        del self.appClient.registry.devicetypes[typeId]
+
+    def testCreateDeviceMetadataNone(self):
+        typeId = str(uuid.uuid4())
+        myDeviceType = self.appClient.registry.devicetypes.create(
+            {"id": typeId, "description": "This is still a test", "metadata": None}
+        )
+
+        myDeviceTypeRetrieved = self.appClient.registry.devicetypes[typeId]
+
+        assert myDeviceTypeRetrieved.id == typeId
+        assert myDeviceTypeRetrieved.description == "This is still a test"
+        assert myDeviceTypeRetrieved.metadata == None
+
+        del self.appClient.registry.devicetypes[typeId]
+
     def testUpdateDeviceType(self, deviceType):
         self.appClient.registry.devicetypes.update(deviceType.id, description="This is still a test")
         updatedDeviceType = self.appClient.registry.devicetypes[deviceType.id]
+
         assert updatedDeviceType.description == "This is still a test"
+
+    def testUpdateDeviceInfo(self, deviceType):
+        self.appClient.registry.devicetypes.update(deviceType.id, deviceInfo=DeviceInfo(serialNumber="111"))
+        updatedDeviceType = self.appClient.registry.devicetypes[deviceType.id]
+
+        assert updatedDeviceType.deviceInfo.serialNumber == "111"
 
     # =========================================================================
     # Device under DeviceType tests
