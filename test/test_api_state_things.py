@@ -407,6 +407,60 @@ class TestThing(testUtils.AbstractTest):
         del self.appClient.state.active.thingTypes[TestThing.createdTT.id].things[createdThing.thingId]
         assert TestStateUtils.doesThingIdExist(self.appClient, TestThing.thingTypeId, createdThing.thingId) == False
 
+    def testRegisterThingMetadata(self):
+        thingId = "thingId"
+        thingName = "TemperatureThingName"
+        thingDescription = "Temp thing description"
+        # Aggregated devices for thing
+        aggregated = {
+            "Temperature": {"type": "device", "typeId": TestThing.createdDT.id, "id": TestThing.createdDevice.deviceId}
+        }
+
+        # Create the thing
+        createdThing = self.createAndCheckThing(
+            TestThing.createdTT.id, thingId, thingName, thingDescription, aggregated, metadata={"test": "test"}
+        )
+
+        assert TestStateUtils.doesThingIdExist(self.appClient, TestThing.thingTypeId, createdThing.thingId)
+
+        for retrievedThing in TestThing.createdTT.things:
+            assert retrievedThing.thingTypeId == TestThing.createdTT.id
+            assert retrievedThing.thingId == thingId
+            assert retrievedThing.name == thingName
+            assert retrievedThing.metadata == {"test": "test"}
+            assert retrievedThing.description == thingDescription
+            assert retrievedThing.aggregatedObjects == aggregated
+
+        del self.appClient.state.active.thingTypes[TestThing.createdTT.id].things[createdThing.thingId]
+        assert TestStateUtils.doesThingIdExist(self.appClient, TestThing.thingTypeId, createdThing.thingId) == False
+
+    def testRegisterThingDescriptionNone(self):
+        thingId = "thingId"
+        thingName = "TemperatureThingName"
+        thingDescription = None
+        # Aggregated devices for thing
+        aggregated = {
+            "Temperature": {"type": "device", "typeId": TestThing.createdDT.id, "id": TestThing.createdDevice.deviceId}
+        }
+
+        # Create the thing
+        createdThing = self.createAndCheckThing(
+            TestThing.createdTT.id, thingId, thingName, thingDescription, aggregated, metadata={"test": "test"}
+        )
+
+        assert TestStateUtils.doesThingIdExist(self.appClient, TestThing.thingTypeId, createdThing.thingId)
+
+        for retrievedThing in TestThing.createdTT.things:
+            assert retrievedThing.thingTypeId == TestThing.createdTT.id
+            assert retrievedThing.thingId == thingId
+            assert retrievedThing.name == thingName
+            assert retrievedThing.metadata == {"test": "test"}
+            assert retrievedThing.description == None
+            assert retrievedThing.aggregatedObjects == aggregated
+
+        del self.appClient.state.active.thingTypes[TestThing.createdTT.id].things[createdThing.thingId]
+        assert TestStateUtils.doesThingIdExist(self.appClient, TestThing.thingTypeId, createdThing.thingId) == False
+
     def testDeletePreReqs(self):
         # delete any left over thing types
         for tt in self.appClient.state.active.thingTypes:
