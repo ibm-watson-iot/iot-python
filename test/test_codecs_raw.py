@@ -10,6 +10,7 @@
 
 import os
 import testUtils
+import pytest
 
 from wiotp.sdk import InvalidEventException, RawCodec
 
@@ -23,6 +24,9 @@ class NonJsonDummyPahoMessage(object):
             # python 3
             self.payload.extend(map(ord, object))
 
+class NonByteDummyPahoMessage(object):
+    def __init__(self, object):
+        self.payload = "not a byteArray"
 
 class TestDevice(testUtils.AbstractTest):
     def testFileObject(self):
@@ -37,3 +41,15 @@ class TestDevice(testUtils.AbstractTest):
         message = RawCodec.decode(NonJsonDummyPahoMessage(encodedPayload))
         assert isinstance(message.data, (bytes, bytearray))
         assert message.data == fileContent
+
+    def testInvalidRawEncode(self):
+        with pytest.raises(InvalidEventException) as e:
+            message = RawCodec.encode(NonByteDummyPahoMessage("{sss,eee}"))
+        assert e.value.reason == "Unable to encode data, it is not a bytearray"
+
+    def testInvalidRawDecode(self):
+        with pytest.raises(InvalidEventException) as e:
+            message = RawCodec.decode(NonByteDummyPahoMessage("{sss,eee}"))
+        assert e.value.reason == "Unable to decode message, it is not a bytearray"
+
+
