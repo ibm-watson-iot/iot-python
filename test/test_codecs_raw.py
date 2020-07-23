@@ -10,6 +10,7 @@
 
 import os
 import testUtils
+import pytest
 
 from wiotp.sdk import InvalidEventException, RawCodec
 
