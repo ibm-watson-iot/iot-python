@@ -138,3 +138,21 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
             count += 1
             if count > 10:
                 break
+
+    def testCreateDeviceType(self):
+        with pytest.raises(ApiException):
+            typeId = 1
+            r = self.appClient.registry.devicetypes.create(typeId)
+
+    def testUpdateDeviceType(self):
+        with pytest.raises(ApiException):
+            data = None
+            r = self.appClient.registry.devicetypes.update(data)
+
+    def testDeleteTypeId(self, device, deviceType):
+        typeId = str(uuid.uuid4())
+        self.appClient.registry.devicetypes.create(
+            {"id": typeId, "description": "This is still a test", "metadata": {"test": "test"}}
+        )
+        self.appClient.registry.devicetypes.delete(typeId)
+        assert typeId not in deviceType.devices
