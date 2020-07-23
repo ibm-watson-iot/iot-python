@@ -154,7 +154,5 @@ class TestRegistryDevicetypes(testUtils.AbstractTest):
         self.appClient.registry.devicetypes.create(
             {"id": typeId, "description": "This is still a test", "metadata": {"test": "test"}}
         )
-
         self.appClient.registry.devicetypes.delete(typeId)
-
         assert typeId not in deviceType.devices
