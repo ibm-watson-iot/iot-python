@@ -58,10 +58,12 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
             if s.name == TestLogicalInterfaces.testSchemaName:
                 del self.appClient.state.draft.schemas[s.id]
 
-    def checkLI(self, logicalInterface, name, description, schemaId):
+    def checkLI(self, logicalInterface, name, description, schemaId, version, alias):
         assert logicalInterface.name == name
         assert logicalInterface.description == description
         assert logicalInterface.schemaId == schemaId
+        assert logicalInterface.version == version
+        assert logicalInterface.alias == alias
 
         assert isinstance(logicalInterface.created, datetime)
         assert isinstance(logicalInterface.createdBy, str)
@@ -85,11 +87,11 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         createdSchema = self.appClient.state.draft.schemas.create(name, schemaFileName, jsonSchemaContents, description)
         return createdSchema
 
-    def createAndCheckLI(self, name, description, schemaId):
+    def createAndCheckLI(self, name, description, schemaId, version, alias):
         createdLI = self.appClient.state.draft.logicalInterfaces.create(
-            {"name": name, "description": description, "schemaId": schemaId}
+            {"name": name, "description": description, "schemaId": schemaId, "version": version, "alias": alias}
         )
-        self.checkLI(createdLI, name, description, schemaId)
+        self.checkLI(createdLI, name, description, schemaId, version, alias)
 
         # now actively refetch the LI to check it is stored
         fetchedLI = self.appClient.state.draft.logicalInterfaces.__getitem__(createdLI.id)
@@ -109,7 +111,9 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         )
 
         # Create a Logical Interface
-        createdLI = self.createAndCheckLI(testLIName, "Test Logical Interface description", createdSchema.id)
+        createdLI = self.createAndCheckLI(
+            testLIName, "Test Logical Interface description", createdSchema.id, "draft", "alias"
+        )
 
         # Can we search for it
         assert self.doesLINameExist(testLIName) == True
@@ -123,9 +127,11 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
                 "name": updated_li_name,
                 "description": "Test LI updated description",
                 "schemaId": createdSchema.id,
+                "version": "draft",
+                "alias": "test",
             },
         )
-        self.checkLI(updatedLI, updated_li_name, "Test LI updated description", createdSchema.id)
+        self.checkLI(updatedLI, updated_li_name, "Test LI updated description", createdSchema.id, "draft", "test")
 
         # Delete the LI
         del self.appClient.state.draft.logicalInterfaces[createdLI.id]
@@ -149,7 +155,9 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         )
 
         # Create a Logical Interface
-        createdLI = self.createAndCheckLI(testLIName, "Test Logical Interface description", createdSchema.id)
+        createdLI = self.createAndCheckLI(
+            testLIName, "Test Logical Interface description", createdSchema.id, "draft", "alias"
+        )
 
         # Can we search for it
         assert self.doesLINameExist(testLIName) == True
@@ -166,6 +174,12 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         except:
             assert True
             # The expected exception was raised
+
+        try:
+            createdLI.differences()
+            assert False
+        except:
+            assert True
 
         # Delete the LI
         del self.appClient.state.draft.logicalInterfaces[createdLI.id]
