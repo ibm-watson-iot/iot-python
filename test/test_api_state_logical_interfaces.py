@@ -175,11 +175,14 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
             assert True
             # The expected exception was raised
 
+        #This should fail as there are currently no differences with the LI
         try:
             createdLI.differences()
+            #Should raise an exception
             assert False
         except:
             assert True
+            # The expected exception was raised
 
         # Delete the LI
         del self.appClient.state.draft.logicalInterfaces[createdLI.id]
