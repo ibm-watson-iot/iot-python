@@ -166,7 +166,7 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         createdLI.validate()
         print("LI Differences: %s " % createdLI.validate())
 
-        # Activating the Li should fail as it is not yet associated with a Device or Thong Type.
+        # Activating the Li should fail as it is not yet associated with a Device or Thing Type.
         try:
             createdLI.activate()
             # Hmm, the activate should raise an exception
@@ -175,10 +175,10 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
             assert True
             # The expected exception was raised
 
-        #This should fail as there are currently no differences with the LI
+        # This should fail as there are currently no differences with the LI
         try:
             createdLI.differences()
-            #Should raise an exception
+            # Should raise an exception
             assert False
         except:
             assert True
