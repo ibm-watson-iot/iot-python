@@ -12,7 +12,12 @@ from datetime import datetime
 import testUtils
 import time
 import pytest
-from wiotp.sdk.api.services import CloudantServiceBindingCredentials, CloudantServiceBindingCreateRequest
+from wiotp.sdk.api.services import (
+    CloudantServiceBindingCredentials,
+    CloudantServiceBindingCreateRequest,
+    PostgresServiceBindingCredentials,
+)
+
 from wiotp.sdk.exceptions import ApiException
 
 
@@ -365,3 +370,21 @@ class TestDscPostgres(testUtils.AbstractTest):
         # Deleting the connector will delete all the destinations and forwarding rules too
         del self.appClient.dsc[createdConnector.id]
         del self.appClient.serviceBindings[createdService.id]
+
+    def testPostgresServiceBindingParametersNone(self):
+        with pytest.raises(Exception) as e:
+            PostgresServiceBindingCredentials()
+            assert (
+                "hostname, port, username, password, certificate and database are required paramaters for a PostgreSQL Service Binding: "
+                in str(e.value)
+            )
+
+    def testPostgresConnection(self):
+        try:
+            test = PostgresServiceBindingCredentials(
+                hostname=1, port=1, username=1, password=1, certificate=1, database=1
+            )
+            test.connection()
+            assert False == True
+        except:
+            assert True

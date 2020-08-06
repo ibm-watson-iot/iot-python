@@ -59,7 +59,7 @@ class EventStreamsServiceBindingCredentials(ServiceBindingCredentials):
     def __init__(self, **kwargs):
         if not set(["api_key", "kafka_admin_url", "kafka_brokers_sasl", "user", "password"]).issubset(kwargs):
             raise Exception(
-                "api_key, kafka_admin_url, host, port, username, & password are required parameters for a Cloudant Service Binding: %s"
+                "api_key, kafka_admin_url, host, port, username, & password are required parameters for a EventStreams Service Binding: %s"
                 % (json.dumps(kwargs, sort_keys=True))
             )
 

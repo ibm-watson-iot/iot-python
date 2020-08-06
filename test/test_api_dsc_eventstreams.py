@@ -123,3 +123,61 @@ class TestDscEventStreams(testUtils.AbstractTest):
 
         del self.appClient.dsc[createdConnector.id]
         del self.appClient.serviceBindings[createdService.id]
+
+    def testEventStreamsServiceBindingParametersNone(self):
+        with pytest.raises(Exception) as e:
+            EventStreamsServiceBindingCredentials()
+            assert (
+                "api_key, kakfa_admin_url, host, port, username, & password are required parameters for a Cloudant Service Binding: "
+                in str(e.value)
+            )
+
+    def testEventStreamsAPIKey(self):
+        try:
+            test = EventStreamsServiceBindingCredentials(
+                api_key=1, kafka_admin_url=1, kafka_brokers_sasl=1, user=1, password=1
+            )
+            test.api_key()
+            assert False == True
+        except:
+            assert True
+
+    def testEventStreamsKafkaAdminURL(self):
+        try:
+            test = EventStreamsServiceBindingCredentials(
+                api_key=1, kafka_admin_url=1, kafka_brokers_sasl=1, user=1, password=1
+            )
+            test.kafka_admin_url()
+            assert False == True
+        except:
+            assert True
+
+    def testEventStreamsKafkaBrokersSasl(self):
+        try:
+            test = EventStreamsServiceBindingCredentials(
+                api_key=1, kafka_admin_url=1, kafka_brokers_sasl=1, user=1, password=1
+            )
+            test.kafka_brokers_sasl()
+            assert False == True
+        except:
+            assert True
+
+    def testEventStreamsUser(self):
+        try:
+            test = EventStreamsServiceBindingCredentials(
+                api_key=1, kafka_admin_url=1, kafka_brokers_sasl=1, user=1, password=1
+            )
+            test.user()
+            assert False == True
+        except:
+            assert True
+
+    def testEventStreamsPassword(self):
+        try:
+            test = EventStreamsServiceBindingCredentials(
+                api_key=1, kafka_admin_url=1, kafka_brokers_sasl=1, user=1, password=1
+            )
+            test.password()
+            assert False == True
+        except:
+            assert True

@@ -188,3 +188,50 @@ class TestDscCloudant(testUtils.AbstractTest):
         # Deleting the connector will delete all the destinations and forwarding rules too
         del self.appClient.dsc[createdConnector.id]
         del self.appClient.serviceBindings[createdService.id]
+
+    def testCloudantServiceBindingParametersNone(self):
+        with pytest.raises(Exception) as e:
+            CloudantServiceBindingCredentials()
+            assert "host, port, username, & password are required parameters for a Cloudant Service Binding: " in str(
+                e.value
+            )
+
+    def testCloudantURL(self):
+        try:
+            test = CloudantServiceBindingCredentials(host=1, port=2, username=3, password=4)
+            test.url()
+            assert False == True
+        except:
+            assert True
+
+    def testCloudantHost(self):
+        try:
+            test = CloudantServiceBindingCredentials(host=1, port=2, username=3, password=4)
+            test.host()
+            assert False == True
+        except:
+            assert True
+
+    def testCloudantPort(self):
+        try:
+            test = CloudantServiceBindingCredentials(host=1, port=2, username=3, password=4)
+            test.port()
+            assert False == True
+        except:
+            assert True
+
+    def testCloudantUsername(self):
+        try:
+            test = CloudantServiceBindingCredentials(host=1, port=2, username=3, password=4)
+            test.username()
+            assert False == True
+        except:
+            assert True
+
+    def testCloudantPassword(self):
+        try:
+            test = CloudantServiceBindingCredentials(host=1, port=2, username=3, password=4)
+            test.password()
+            assert False == True
+        except:
+            assert True

@@ -12,7 +12,11 @@ from datetime import datetime
 import testUtils
 import time
 import pytest
-from wiotp.sdk.api.services import CloudantServiceBindingCredentials, CloudantServiceBindingCreateRequest
+from wiotp.sdk.api.services import (
+    CloudantServiceBindingCredentials,
+    CloudantServiceBindingCreateRequest,
+    DB2ServiceBindingCredentials,
+)
 from wiotp.sdk.exceptions import ApiException
 
 
@@ -370,3 +374,42 @@ class TestDscDb2(testUtils.AbstractTest):
         # Deleting the connector will delete all the destinations and forwarding rules too
         del self.appClient.dsc[createdConnector.id]
         del self.appClient.serviceBindings[createdService.id]
+
+    def testDB2ServiceBindingCredentialsNone(self):
+        with pytest.raises(Exception) as e:
+            test = DB2ServiceBindingCredentials()
+            assert "username, password, db and ssljdbcurl are required paramaters for a DB2 Service Binding" in str(
+                e.value
+            )
+
+    def testDB2Username(self):
+        try:
+            test = DB2ServiceBindingCredentials(username=1, password=1, db=1, ssljdbcurl=1)
+            test.username()
+            assert False == True
+        except:
+            assert True
+
+    def testDB2Password(self):
+        try:
+            test = DB2ServiceBindingCredentials(username=1, password=1, db=1, ssljdbcurl=1)
+            test.password()
+            assert False == True
+        except:
+            assert True
+
+    def testDB2DB(self):
+        try:
+            test = DB2ServiceBindingCredentials(username=1, password=1, db=1, ssljdbcurl=1)
+            test.db()
+            assert False == True
+        except:
+            assert True
+
+    def testDB2SslDBCurl(self):
+        try:
+            test = DB2ServiceBindingCredentials(username=1, password=1, db=1, ssljdbcurl=1)
+            test.ssljdbcurl()
+            assert False == True
+        except:
+            assert True
