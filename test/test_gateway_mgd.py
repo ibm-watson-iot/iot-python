@@ -121,6 +121,81 @@ class TestGatewayMgd(testUtils.AbstractTest):
         except:
             assert False == True
 
+    def testOnDeviceCommand0Lifetime(self, gateway):
+        try:
+            option = {
+                "identity": {"orgId": "test", "typeId": "xxx", "deviceId": "xxx"},
+                "auth": {"token": gateway.authToken},
+            }
+            testVariable = 3599
+            test = ManagedGatewayClient(option)
+            test2 = test.manage(lifetime=testVariable)
+            assert True
+        except:
+            assert False == True
+
+    def testOnDeviceCommandLifetime(self, gateway):
+        try:
+            option = {
+                "identity": {"orgId": "test", "typeId": "xxx", "deviceId": "xxx"},
+                "auth": {"token": gateway.authToken},
+            }
+            testVariable = 3600
+            test = ManagedGatewayClient(option)
+            test2 = test.manage(lifetime=testVariable)
+            assert True
+        except:
+            assert False == True
+
+    def testUnmanage(self, gateway):
+        try:
+            option = {
+                "identity": {"orgId": "test", "typeId": "xxx", "deviceId": "xxx"},
+                "auth": {"token": gateway.authToken},
+            }
+            testVariable = 3600
+            test = ManagedGatewayClient(option)
+            test2 = test.unmanage()
+            assert True
+        except:
+            assert False == True
+
+    def testSetErrorCodesNone(self, gateway):
+        try:
+            option = {
+                "identity": {"orgId": "test", "typeId": "xxx", "deviceId": "xxx"},
+                "auth": {"token": gateway.authToken},
+            }
+            testVariable = 3600
+            test = ManagedGatewayClient(option).setErrorCode(errorCode=None)
+            assert True
+        except:
+            assert False == True
+
+    def testSetErrorCodesValue(self, gateway):
+        try:
+            option = {
+                "identity": {"orgId": "test", "typeId": "xxx", "deviceId": "xxx"},
+                "auth": {"token": gateway.authToken},
+            }
+            testVariable = 3600
+            test = ManagedGatewayClient(option).setErrorCode(errorCode=0)
+            assert True
+        except:
+            assert False == True
+
+    def testSetErrorCodesValue(self, gateway):
+        try:
+            option = {
+                "identity": {"orgId": "test", "typeId": "xxx", "deviceId": "xxx"},
+                "auth": {"token": gateway.authToken},
+            }
+            testVariable = 3600
+            test = ManagedGatewayClient(option).clearErrorCodes()
+            assert True
+        except:
+            assert False == True
+
     def testManagedDeviceMgmtResponseError(self, gateway):
         with pytest.raises(Exception) as e:
             config = {
@@ -132,5 +207,3 @@ class TestGatewayMgd(testUtils.AbstractTest):
             encodedPayload = Utf8Codec.encode(testValue)
             managedDevice._ManagedGatewayClient__onDeviceMgmtResponse(client=1, userdata=2, pahoMessage=encodedPayload)
             assert "Unable to parse JSON. payload=" " error" in str(e.value)
-
-    
