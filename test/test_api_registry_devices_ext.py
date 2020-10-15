@@ -70,6 +70,9 @@ class TestRegistryDevices(testUtils.AbstractTest):
         deviceClient.connect()
         time.sleep(10)
         deviceClient.disconnect()
+        deviceClient.connect()
+        time.sleep(10)
+        deviceClient.disconnect()
         # Allow 30 seconds for the logs to make it through
         time.sleep(30)
 
