@@ -17,6 +17,9 @@ Python module for interacting with the [IBM Watson IoT Platform](https://interne
 
 Note: As of version 0.12, versions of Python less than 3.6 are not officially supported.  Compatability with older versions of Python is not guaranteed.
 
+## Product Withdrawal Notice
+Per the September 8, 2020 [announcement](https://www-01.ibm.com/common/ssi/cgi-bin/ssialias?subtype=ca&infotype=an&appname=iSource&supplier=897&letternum=ENUS920-136#rprodnx) IBM Watson IoT Platform (5900-A0N) has been withdrawn from marketing effective **December 9, 2020**.  As a result, updates to this project will be limited.
+
 
 ## Dependencies
 
