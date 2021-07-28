@@ -6,9 +6,11 @@ Events are the mechanism by which devices publish data to the Watson IoT Platfor
 
 As with devices, events can be published with any of the three quality of service (QoS) levels that are defined by the MQTT protocol. By default, events are published with a QoS level of 0.
 
-`publishEvent()` takes up to 5 arguments:
+`publishEvent()` takes up to 7 arguments:
 
-- `event` Name of this event
+- `typeId` Type ID of the device to submit an event for
+- `deviceId` Device ID of the deivce to submit an event for
+- `eventId` Name of this event
 - `msgFormat` Format of the data for this event
 - `data` Data for this event
 - `qos` MQTT quality of service level to use (`0`, `1`, or `2`)
