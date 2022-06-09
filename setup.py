@@ -61,7 +61,7 @@ setup(
         'bin/wiotp-cli'
     ],
     url='https://github.com/ibm-watson-iot/iot-python',
-    license=open('LICENSE').read(),
+    license='Eclipse Public License 1.0 (EPL-1.0)',
     description='Python SDK for IBM Watson IoT Platform',
     long_description=read_md('README.md'),
     install_requires=[
