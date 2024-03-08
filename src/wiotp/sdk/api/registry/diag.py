@@ -10,7 +10,11 @@
 import iso8601
 import json
 from datetime import datetime
-from collections import defaultdict, MutableSequence
+from collections import defaultdict
+try:
+  from collections.abc import MutableSequence
+except ImportError:
+  from collections import MutableSequence
 from wiotp.sdk.exceptions import ApiException
 
 
