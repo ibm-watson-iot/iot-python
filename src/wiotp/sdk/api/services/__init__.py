@@ -165,16 +165,16 @@ class ServiceBindings(RestApiDict):
 
     def find(self, nameFilter=None, typeFilter=None, bindingModeFilter=None, boundFilter=None):
         """
-        Gets the list of services that the Watson IoT Platform can connect to. 
+        Gets the list of services that the Watson IoT Platform can connect to.
         The list can include a mixture of services that are either bound or unbound.
-        
+
         Parameters:
-        
+
             - nameFilter(string) - Filter the results by the specified name
             - typeFilter(string) - Filter the results by the specified type, Available values : cloudant, eventstreams
             - bindingModeFilter(string) - Filter the results by the specified binding mode, Available values : automatic, manual
-            - boundFilter(boolean) - Filter the results by the bound flag 
-        
+            - boundFilter(boolean) - Filter the results by the bound flag
+
         Throws APIException on failure.
         """
 
@@ -192,9 +192,9 @@ class ServiceBindings(RestApiDict):
 
     def create(self, serviceBinding):
         """
-        Create a new external service. 
-        The service must include all of the details required to connect 
-        and authenticate to the external service in the credentials property. 
+        Create a new external service.
+        The service must include all of the details required to connect
+        and authenticate to the external service in the credentials property.
         Parameters:
             - serviceName (string) - Name of the service
             - serviceType (string) - must be either eventstreams or cloudant

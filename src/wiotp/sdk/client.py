@@ -132,7 +132,9 @@ class AbstractClient(object):
         # paho 2.0.0 has a breaking change for callbacks to support both 2.0.0 and 1.x we need
         # to create a client in version1 mode if using 2.0.0
         if pahoVersion >= "2.0.0":
-            self.client = paho.Client(paho.CallbackAPIVersion.VERSION1, self.clientId, transport=transport, clean_session=(not cleanStart))
+            self.client = paho.Client(
+                paho.CallbackAPIVersion.VERSION1, self.clientId, transport=transport, clean_session=(not cleanStart)
+            )
         else:
             self.client = paho.Client(self.clientId, transport=transport, clean_session=(not cleanStart))
 

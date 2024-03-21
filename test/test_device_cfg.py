@@ -11,6 +11,7 @@
 import wiotp.sdk.device
 import testUtils
 import pytest
+import os
 
 
 class TestDeviceCfg(testUtils.AbstractTest):
@@ -58,7 +59,7 @@ class TestDeviceCfg(testUtils.AbstractTest):
             wiotp.sdk.device.DeviceClient(
                 {
                     "identity": {"orgId": "myOrg", "typeId": "myType", "deviceId": "myDevice"},
-                    "auth": {"token": "myToken"},
+                    "auth": {"apikey": "myApp-myOrg", "token": "myToken"},
                     "options": {"mqtt": {"port": "notAnInteger"}},
                 }
             )
@@ -89,3 +90,11 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.parseConfigFile(deviceFile)
         assert e.value.reason == "Optional setting options.logLevel must be one of error, warning, info, debug"
+
+    def testMissingOptionalArgs(self):
+        devCliInstance = wiotp.sdk.application.ApplicationClient(
+            {"auth": {"key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN")}}
+        )  # Attempting to connect without any arguments - testing the autofill
+        devCliInstance.connect()
+        assert devCliInstance.isConnected() == True
+        devCliInstance.disconnect()

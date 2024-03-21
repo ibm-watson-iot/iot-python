@@ -14,7 +14,7 @@ import time
 import pytest
 import string
 import json
-from test_state_utils import TestStateUtils
+import test_state_utils as TestStateUtils
 
 
 @testUtils.oneJobOnlyTest
@@ -115,7 +115,7 @@ class TestThing(testUtils.AbstractTest):
 
         # delete any left over logical interfaces
         for li in self.appClient.state.draft.logicalInterfaces:
-            if li.name == TestThing.testLogicalInterfaceName:
+            if li.name in (TestThing.testLogicalInterfaceName, TestThing.testThingLISchema):
                 print("Deleting old test LI: %s" % (li))
                 del self.appClient.state.draft.logicalInterfaces[li.id]
 
@@ -131,7 +131,12 @@ class TestThing(testUtils.AbstractTest):
                 del self.appClient.state.draft.eventTypes[et.id]
 
         for s in self.appClient.state.draft.schemas:
-            if s.name in (TestThing.testEventSchemaName, TestThing.testLiSchemaName):
+            if s.name in (
+                TestThing.testEventSchemaName,
+                TestThing.testLiSchemaName,
+                TestThing.thingLISchemaName,
+                TestThing.thingSchemaName,
+            ):
                 print("Deleting old test schema instance: %s" % (s))
                 del self.appClient.state.draft.schemas[s.id]
 
@@ -333,7 +338,7 @@ class TestThing(testUtils.AbstractTest):
         }
 
         # create thing type schema
-        thingSchema = TestStateUtils.createSchema(
+        TestThing.createdThingSchema = TestStateUtils.createSchema(
             self.appClient,
             TestThing.thingSchemaName,
             "liThingSchema.json",
@@ -343,7 +348,7 @@ class TestThing(testUtils.AbstractTest):
 
         # create and check thing type
         TestThing.createdTT = self.createAndCheckTT(
-            TestThing.thingTypeId, "temperature type", "Test Device Type description", thingSchema.id
+            TestThing.thingTypeId, "temperature type", "Test Device Type description", TestThing.createdThingSchema.id
         )
 
         testThingTypeLISchema = {
@@ -356,7 +361,7 @@ class TestThing(testUtils.AbstractTest):
         }
 
         # create thing type LI schema
-        thingLISchema = TestStateUtils.createSchema(
+        TestThing.createdThingLISchema = TestStateUtils.createSchema(
             self.appClient,
             TestThing.thingLISchemaName,
             "liThingSchema.json",
@@ -366,7 +371,7 @@ class TestThing(testUtils.AbstractTest):
 
         # Create a Logical Interface
         TestThing.createdThingLI = self.createLI(
-            TestThing.testThingLISchema, "Test Logical Interface description", thingLISchema.id
+            TestThing.testThingLISchema, "Test Logical Interface description", TestThing.createdThingLISchema.id
         )
 
         # create logical interface for thingType
@@ -493,9 +498,18 @@ class TestThing(testUtils.AbstractTest):
         del self.appClient.state.draft.logicalInterfaces[TestThing.createdLI.id]
         assert self.doesLINameExist(TestThing.testLogicalInterfaceName) == False
 
+        # Delete the LI
+        del self.appClient.state.draft.logicalInterfaces[TestThing.createdThingLI.id]
+        assert self.doesLINameExist(TestThing.testThingLISchema) == False
+
         # Delete the schema
         del self.appClient.state.draft.schemas[TestThing.createdLISchema.id]
         assert self.doesSchemaNameExist(TestThing.testLiSchemaName) == False
+
+        del self.appClient.state.draft.schemas[TestThing.createdThingSchema.id]
+        assert self.doesSchemaNameExist(TestThing.thingSchemaName) == False
+        del self.appClient.state.draft.schemas[TestThing.createdThingLISchema.id]
+        assert self.doesSchemaNameExist(TestThing.thingLISchemaName) == False
 
 
 #

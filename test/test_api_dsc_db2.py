@@ -12,6 +12,7 @@ from datetime import datetime
 import testUtils
 import time
 import pytest
+import os
 from wiotp.sdk.api.services import (
     CloudantServiceBindingCredentials,
     CloudantServiceBindingCreateRequest,
@@ -20,6 +21,7 @@ from wiotp.sdk.api.services import (
 from wiotp.sdk.exceptions import ApiException
 
 
+@pytest.mark.skipif(os.getenv("DB2_PASSWORD") is None, reason="DB2 settings not provided")
 @testUtils.oneJobOnlyTest
 class TestDscDb2(testUtils.AbstractTest):
     def checkDB2Service(self, service, name, description):
@@ -170,7 +172,7 @@ class TestDscDb2(testUtils.AbstractTest):
         assert createdRule.columnMappings == columnMappings
         assert createdRule.typeId == None
         assert createdRule.eventId == None
-        assert isinstance(createdRule.id, str)
+        assert testUtils.isstring(createdRule.id)
         assert isinstance(createdRule.updated, datetime)
         assert isinstance(createdRule.created, datetime)
 

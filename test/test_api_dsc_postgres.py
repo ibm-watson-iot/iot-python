@@ -12,6 +12,7 @@ from datetime import datetime
 import testUtils
 import time
 import pytest
+import os
 from wiotp.sdk.api.services import (
     CloudantServiceBindingCredentials,
     CloudantServiceBindingCreateRequest,
@@ -21,6 +22,7 @@ from wiotp.sdk.api.services import (
 from wiotp.sdk.exceptions import ApiException
 
 
+@pytest.mark.skipif(os.getenv("POSTGRES_DATABASE") is None, reason="postgres database not specified")
 @testUtils.oneJobOnlyTest
 class TestDscPostgres(testUtils.AbstractTest):
     def checkPostgresService(self, service, name, description):
@@ -173,7 +175,7 @@ class TestDscPostgres(testUtils.AbstractTest):
         assert createdRule.columnMappings == columnMappings
         assert createdRule.typeId == None
         assert createdRule.eventId == None
-        assert isinstance(createdRule.id, str)
+        assert testUtils.isstring(createdRule.id)
         assert isinstance(createdRule.updated, datetime)
         assert isinstance(createdRule.created, datetime)
 

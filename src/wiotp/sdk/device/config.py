@@ -216,6 +216,8 @@ def parseEnvVars():
         "auth": {"token": authToken}
     }
 
+    cfg["auth"] = {"token": authToken}
+
     return DeviceClientConfig(**cfg)
 
 

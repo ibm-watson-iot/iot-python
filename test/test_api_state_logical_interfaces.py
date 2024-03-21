@@ -66,9 +66,9 @@ class TestLogicalInterfaces(testUtils.AbstractTest):
         assert logicalInterface.alias == alias
 
         assert isinstance(logicalInterface.created, datetime)
-        assert isinstance(logicalInterface.createdBy, str)
+        assert testUtils.isstring(logicalInterface.createdBy)
         assert isinstance(logicalInterface.updated, datetime)
-        assert isinstance(logicalInterface.updatedBy, str)
+        assert testUtils.isstring(logicalInterface.updatedBy)
 
     def doesSchemaNameExist(self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):

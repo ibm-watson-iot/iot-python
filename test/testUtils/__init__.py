@@ -10,11 +10,20 @@
 import wiotp.sdk.application
 import pytest
 import os
+import sys
 
 oneJobOnlyTest = pytest.mark.skipif(
     os.getenv("ONE_JOB_ONLY_TESTS", "true") == "false",
     reason="Doesn't support running in multiple envs in parallel due to limits on # of service bindings allowed",
 )
+
+
+def isstring(s):
+    # if we use Python 3
+    if sys.version_info[0] >= 3:
+        return isinstance(s, str)
+    else:
+        return isinstance(s, basestring)  # noqa: F821
 
 
 class AbstractTest(object):
