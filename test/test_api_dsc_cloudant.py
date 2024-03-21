@@ -12,11 +12,13 @@ from datetime import datetime
 import testUtils
 import time
 import pytest
+import os
 from wiotp.sdk.api.services import CloudantServiceBindingCredentials, CloudantServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
 
 @testUtils.oneJobOnlyTest
+@pytest.mark.skipif(os.getenv("CLOUDANT_HOST", None) is None, reason="Cloudant host not specified")
 class TestDscCloudant(testUtils.AbstractTest):
 
     # =========================================================================
@@ -153,7 +155,7 @@ class TestDscCloudant(testUtils.AbstractTest):
         assert rule1.logicalInterfaceId == None
         assert rule1.columnMappings == None
         assert rule1.enabled == True
-        assert isinstance(rule1.id, str)
+        assert testUtils.isstring(rule1.id)
         assert isinstance(rule1.updated, datetime)
         assert isinstance(rule1.created, datetime)
 

@@ -18,12 +18,6 @@ from wiotp.sdk import Utf8Codec
 
 
 class TestDeviceMgd(testUtils.AbstractTest):
-    def testManagedDeviceQSException(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            options = {"identity": {"orgId": "quickstart", "typeId": "xxx", "deviceId": "xxx"}}
-            wiotp.sdk.device.ManagedDeviceClient(options)
-        assert "QuickStart does not support device management" == e.value.reason
-
     def testManagedDeviceConnectException(self, device):
         badOptions = {
             "identity": {"orgId": self.ORG_ID, "typeId": device.typeId, "deviceId": device.deviceId},

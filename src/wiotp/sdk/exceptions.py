@@ -11,7 +11,7 @@
 class ConnectionException(Exception):
     """
     Generic Connection exception
-    
+
     # Attributes
     reason (string): The reason why the connection exception occured
     """
@@ -26,7 +26,7 @@ class ConnectionException(Exception):
 class ConfigurationException(Exception):
     """
     Specific Connection exception where the configuration is invalid
-    
+
     # Attributes
     reason (string): The reason why the configuration is invalid
     """
@@ -41,7 +41,7 @@ class ConfigurationException(Exception):
 class UnsupportedAuthenticationMethod(ConnectionException):
     """
     Specific Connection exception where the authentication method specified is not supported
-    
+
     # Attributes
     method (string): The authentication method that is unsupported
     """
@@ -56,7 +56,7 @@ class UnsupportedAuthenticationMethod(ConnectionException):
 class InvalidEventException(Exception):
     """
     Specific exception where an Event object can not be constructed
-    
+
     # Attributes
     reason (string): The reason why the event could not be constructed
     """
@@ -71,7 +71,7 @@ class InvalidEventException(Exception):
 class MissingMessageDecoderException(Exception):
     """
     Specific exception where there is no message decoder defined for the message format being processed
-    
+
     # Attributes
     format (string): The message format for which no encoder could be found
     """
@@ -86,7 +86,7 @@ class MissingMessageDecoderException(Exception):
 class MissingMessageEncoderException(Exception):
     """
     Specific exception where there is no message encoder defined for the message format being processed
-    
+
     # Attributes
     format (string): The message format for which no encoder could be found
     """
@@ -101,7 +101,7 @@ class MissingMessageEncoderException(Exception):
 class ApiException(Exception):
     """
     Exception raised when any API call fails unexpectedly
-    
+
     # Attributes
     response (requests.Response): See: http://docs.python-requests.org/en/master/api/#requests.Response
     """

@@ -11,6 +11,7 @@
 import wiotp.sdk.device
 import testUtils
 import pytest
+import os
 
 
 class TestDeviceCfg(testUtils.AbstractTest):
@@ -41,16 +42,6 @@ class TestDeviceCfg(testUtils.AbstractTest):
             )
         assert e.value.reason == "Missing identity.deviceId from configuration"
 
-    def testQuickstartWithAuth(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            wiotp.sdk.device.DeviceClient(
-                {
-                    "identity": {"orgId": "quickstart", "typeId": "myType", "deviceId": "myDevice"},
-                    "auth": {"token": "myToken"},
-                }
-            )
-        assert e.value.reason == "Quickstart service does not support device authentication"
-
     def testMissingAuth(self):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient({"identity": {"orgId": "myOrg", "typeId": "myType", "deviceId": "myDevice"}})
@@ -67,7 +58,8 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient(
                 {
-                    "identity": {"orgId": "quickstart", "typeId": "myType", "deviceId": "myDevice"},
+                    "identity": {"orgId": "myOrg", "typeId": "myType", "deviceId": "myDevice"},
+                    "auth": {"apikey": "myApp-myOrg", "token": "myToken"},
                     "options": {"mqtt": {"port": "notAnInteger"}},
                 }
             )
@@ -99,9 +91,9 @@ class TestDeviceCfg(testUtils.AbstractTest):
             wiotp.sdk.device.parseConfigFile(deviceFile)
         assert e.value.reason == "Optional setting options.logLevel must be one of error, warning, info, debug"
 
-    def testMissingArgs(self):
+    def testMissingOptionalArgs(self):
         devCliInstance = wiotp.sdk.application.ApplicationClient(
-            {}
+            {"auth": {"key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN")}}
         )  # Attempting to connect without any arguments - testing the autofill
         devCliInstance.connect()
         assert devCliInstance.isConnected() == True

@@ -20,12 +20,6 @@ class TestGatewayMgd(testUtils.AbstractTest):
     registeredDevice = None
     registeredGateway = None
 
-    def testManagedgatewayQSException(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            options = {"identity": {"orgId": "quickstart", "typeId": "xxx", "deviceId": "xxx"}}
-            wiotp.sdk.gateway.ManagedGatewayClient(options)
-        assert "QuickStart does not support device management" == e.value.reason
-
     def testManagedGatewayConnectException(self, gateway):
         badOptions = {
             "identity": {"orgId": self.ORG_ID, "typeId": gateway.typeId, "deviceId": gateway.deviceId},

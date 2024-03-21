@@ -79,16 +79,16 @@ class Connectors(RestApiDict):
     def find(self, nameFilter=None, typeFilter=None, enabledFilter=None, serviceId=None):
         """
         Gets the list of Historian connectors, they are used to configure the Watson IoT Platform to store IoT data in compatible services.
-        
+
         Parameters:
-        
+
             - nameFilter(string) -      Filter the results by the specified name
             - typeFilter(string) -      Filter the results by the specified type, Available values : cloudant, eventstreams
-            - enabledFilter(boolean) -  Filter the results by the enabled flag 
+            - enabledFilter(boolean) -  Filter the results by the enabled flag
             - serviceId(string) -       Filter the results by the service id
             - limit(number) -           Max number of results returned, defaults 25
             - bookmark(string) -        used for paging through results
-        
+
         Throws APIException on failure.
         """
 
@@ -106,7 +106,7 @@ class Connectors(RestApiDict):
 
     def create(self, name, type, serviceId, timezone=None, description=None, enabled=None, configuration=None):
         """
-        Create a connector for the organization in the Watson IoT Platform. 
+        Create a connector for the organization in the Watson IoT Platform.
         The connector must reference the target service that the Watson IoT Platform will store the IoT data in.
         Parameters:
             - name (string)         - Name of the service

@@ -73,9 +73,9 @@ class TestSchemas(testUtils.AbstractTest):
         assert schema.version == version
 
         assert isinstance(schema.created, datetime)
-        assert isinstance(schema.createdBy, str)
+        assert testUtils.isstring(schema.createdBy)
         assert isinstance(schema.updated, datetime)
-        assert isinstance(schema.updatedBy, str)
+        assert testUtils.isstring(schema.updatedBy)
 
     def doesDraftSchemaNameExist(self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):

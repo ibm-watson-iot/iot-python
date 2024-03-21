@@ -15,7 +15,7 @@ import pytest
 import string
 import json
 import sys
-from test_state_utils import TestStateUtils
+import test_state_utils as TestStateUtils
 
 
 @testUtils.oneJobOnlyTest
@@ -103,12 +103,6 @@ class TestThingTypes(testUtils.AbstractTest):
             if s.name in (TestThingTypes.testEventSchemaName, TestThingTypes.testLiSchemaName):
                 print("Deleting old test schema instance: %s" % (s))
                 del self.appClient.state.draft.schemas[s.id]
-
-    def isstring(self, s):
-        # if we use Python 3
-        if sys.version_info[0] >= 3:
-            basestring = str
-        return isinstance(s, basestring)
 
     def createAndCheckTT(self, id, name, description, schemaId, metadata=None):
 
