@@ -16,7 +16,7 @@ from wiotp.sdk.exceptions import ApiException
 import string
 import json
 from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
-from test_state_utils import TestStateUtils
+import test_state_utils as TestStateUtils
 
 
 @testUtils.oneJobOnlyTest

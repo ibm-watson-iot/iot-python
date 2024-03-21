@@ -12,11 +12,13 @@ from datetime import datetime
 import pytest
 import testUtils
 import time
+import os
 
 from wiotp.sdk.api.services import EventStreamsServiceBindingCredentials, EventStreamsServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
 
+@pytest.mark.skipif(os.getenv("EVENTSTREAMS_API_KEY") is None, reason="Eventstreams details not test")
 @testUtils.oneJobOnlyTest
 class TestDscEventStreams(testUtils.AbstractTest):
 

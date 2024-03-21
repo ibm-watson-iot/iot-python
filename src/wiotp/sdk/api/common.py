@@ -360,11 +360,11 @@ class RestApiDictBase(defaultdict):
     def find(self, query_params={}):
         """
         Gets the list of Schemas, they are used to call specific business logic when data in Watson IoT Platform changes.
-        
+
         Parameters:
-        
+
             - queryParams(dict) - Filter the results by the key-value pairs in the dictionary
-        
+
         Throws APIException on failure.
         """
         return self._listToCast(self._apiClient, self._baseUrl, filters=query_params)
@@ -394,7 +394,7 @@ class RestApiDict(RestApiDictBase):
 
     def create(self, item):
         """
-        Create an Item for the organization in the Watson IoT Platform. 
+        Create an Item for the organization in the Watson IoT Platform.
         Parameters:
             - name (string) - Name of the service
             - type - must be webhook

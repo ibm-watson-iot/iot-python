@@ -18,12 +18,14 @@ from wiotp.sdk import ConfigurationException
 
 class ApplicationClientConfig(defaultdict):
     def __init__(self, **kwargs):
-        # Note: Authentication is not supported for quickstart
-        if "auth" in kwargs:
-            if "key" not in kwargs["auth"] or kwargs["auth"]["key"] is None:
-                raise ConfigurationException("Missing auth.key from configuration")
-            if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
-                raise ConfigurationException("Missing auth.token from configuration")
+
+        # previously quickstart supported unauthenticated connections but has been removed
+        if "auth" not in kwargs:
+            raise ConfigurationException("Missing auth from configuration")
+        if "key" not in kwargs["auth"] or kwargs["auth"]["key"] is None:
+            raise ConfigurationException("Missing auth.key from configuration")
+        if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
+            raise ConfigurationException("Missing auth.token from configuration")
 
         if "options" in kwargs and "mqtt" in kwargs["options"]:
             if "port" in kwargs["options"]["mqtt"] and kwargs["options"]["mqtt"]["port"] is not None:
@@ -82,13 +84,10 @@ class ApplicationClientConfig(defaultdict):
 
         dict.__init__(self, **kwargs)
 
-    def isQuickstart(self):
-        return self.orgId == "quickstart"
-
     @property
     def orgId(self):
         # Get the orgId from the apikey (format: a-orgid-randomness)
-        return self.apiKey.split("-")[1] if (self.apiKey is not None) else "quickstart"
+        return self.apiKey.split("-")[1]
 
     @property
     def appId(self):
@@ -168,7 +167,7 @@ class ApplicationClientConfig(defaultdict):
 
 def parseEnvVars():
     """
-    Parse environment variables into a Python dictionary suitable for passing to the 
+    Parse environment variables into a Python dictionary suitable for passing to the
     application client constructor as the `options` parameter
 
     - `WIOTP_IDENTITY_APPID`
@@ -249,20 +248,18 @@ def parseEnvVars():
         },
     }
 
-    # Quickstart doesn't support auth, so ensure we only add this if it's defined
-    if authToken is not None:
-        cfg["auth"] = {"key": authKey, "token": authToken}
+    cfg["auth"] = {"key": authKey, "token": authToken}
 
     return ApplicationClientConfig(**cfg)
 
 
 def parseConfigFile(configFilePath):
     """
-    Parse a yaml configuration file into a Python dictionary suitable for passing to the 
+    Parse a yaml configuration file into a Python dictionary suitable for passing to the
     device client constructor as the `options` parameter
-    
+
     # Example Configuration File
-    
+
     identity:
       appId: myApp
     auth:
@@ -280,7 +277,7 @@ def parseConfigFile(configFilePath):
         keepAlive: 60
         caFile: /path/to/certificateAuthorityFile.pem
       http:
-        verify: true    
+        verify: true
     """
 
     try:

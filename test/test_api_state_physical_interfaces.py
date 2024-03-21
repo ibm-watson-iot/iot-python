@@ -72,9 +72,9 @@ class TestPhysicalInterfaces(testUtils.AbstractTest):
         assert physicalInterface.description == description
 
         assert isinstance(physicalInterface.created, datetime)
-        assert isinstance(physicalInterface.createdBy, str)
+        assert testUtils.isstring(physicalInterface.createdBy)
         assert isinstance(physicalInterface.updated, datetime)
-        assert isinstance(physicalInterface.updatedBy, str)
+        assert testUtils.isstring(physicalInterface.updatedBy)
 
     def doesSchemaNameExist(self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):

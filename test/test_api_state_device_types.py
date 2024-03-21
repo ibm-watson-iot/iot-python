@@ -16,7 +16,7 @@ from wiotp.sdk.exceptions import ApiException
 import string
 import json
 import sys
-from test_state_utils import TestStateUtils
+import test_state_utils as TestStateUtils
 
 
 @testUtils.oneJobOnlyTest
@@ -86,12 +86,6 @@ class TestDeviceTypes(testUtils.AbstractTest):
         TestStateUtils.deleteDraftSchemas(
             self.appClient, (TestDeviceTypes.testEventSchemaName, TestDeviceTypes.testLiSchemaName)
         )
-
-    def isstring(self, s):
-        # if we use Python 3
-        if sys.version_info[0] >= 3:
-            basestring = str
-        return isinstance(s, basestring)
 
     def createAndCheckDT(
         self, name, description, deviceInfo=None, metadata=None, edgeConfiguration=None, classId="Device"

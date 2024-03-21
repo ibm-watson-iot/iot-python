@@ -69,12 +69,6 @@ class TestActions(testUtils.AbstractTest):
     testActionName = "test-action-new"
     updated_action_name = testActionName + "-updated"
 
-    def isstring(self, s):
-        # if we use Python 3
-        if sys.version_info[0] >= 3:
-            basestring = str
-        return isinstance(s, basestring)
-
     # =========================================================================
     # Set up services
     # =========================================================================
@@ -125,9 +119,9 @@ class TestActions(testUtils.AbstractTest):
             assert action.configuration[configElement] is not None
         assert action.enabled == enabled
         assert isinstance(action.created, datetime)
-        assert self.isstring(action.createdBy)
+        assert testUtils.isstring(action.createdBy)
         assert isinstance(action.updated, datetime)
-        assert self.isstring(action.updatedBy)
+        assert testUtils.isstring(action.updatedBy)
 
     def doesActionNameExist(self, name):
         for a in self.appClient.actions.find({"name": name}):

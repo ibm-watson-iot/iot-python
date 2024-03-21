@@ -89,11 +89,23 @@ class TestApplication(testUtils.AbstractTest):
             )
         assert e.value.reason == "Optional setting options.cleanSession must be a boolean if provided"
 
-    def testMissingArgs(self):
+    def testMissingAuth(self):
+        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
+            wiotp.sdk.application.ApplicationClient(
+                {
+                    "identity": {"appId": "myAppId"},
+                    "options": {"mqtt": {"instanceId": "myInstance"}},
+                }
+            )
+        assert e.value.reason == "Missing auth from configuration"
+
+    def testMissingOptionalArgs(self):
         appId = str(uuid.uuid4())
         appCliInstance = wiotp.sdk.application.ApplicationClient(
-            {}
-        )  # Attempting to connect without any arguments - testing the autofill
+            {
+                "auth": {"key": os.getenv("WIOTP_API_KEY"), "token": os.getenv("WIOTP_API_TOKEN")},
+            }
+        )
         appCliInstance.connect()
         assert appCliInstance.isConnected() == True
         appCliInstance.disconnect()

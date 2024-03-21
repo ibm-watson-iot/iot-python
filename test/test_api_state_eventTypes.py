@@ -62,9 +62,9 @@ class TestEventTypes(testUtils.AbstractTest):
         assert eventType.version == "draft"
 
         assert isinstance(eventType.created, datetime)
-        assert isinstance(eventType.createdBy, str)
+        assert testUtils.isstring(eventType.createdBy)
         assert isinstance(eventType.updated, datetime)
-        assert isinstance(eventType.updatedBy, str)
+        assert testUtils.isstring(eventType.updatedBy)
 
     def doesSchemaNameExist(self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):
