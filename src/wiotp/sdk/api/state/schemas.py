@@ -7,13 +7,11 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-from collections import defaultdict
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiItemBase
 from wiotp.sdk.api.common import RestApiDict
-from wiotp.sdk.api.common import RestApiDictReadOnly
 from wiotp.sdk.exceptions import ApiException
 
 import json

@@ -7,10 +7,6 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-from collections import defaultdict
-import iso8601
-
-from wiotp.sdk.exceptions import ApiException
 from wiotp.sdk.api.common import IterableList
 from wiotp.sdk.api.common import RestApiDict
 from wiotp.sdk.api.common import RestApiItemBase

@@ -25,9 +25,9 @@ class MessageCodec(object):
 
 class JsonCodec(MessageCodec):
     """
-    This is the default encoder used by clients for all messages sent with format 
+    This is the default encoder used by clients for all messages sent with format
     defined as "json".  This default can be changed by reconfiguring your client:
-      
+
       deviceCli.setMessageCodec("json", myCustomEncoderModule)
     """
 
@@ -43,7 +43,7 @@ class JsonCodec(MessageCodec):
     def decode(message):
         """
         Convert a generic JSON message
-        
+
         * The entire message is converted to JSON and treated as the message data
         * The timestamp of the message is the time that the message is RECEIVED
         """
@@ -60,9 +60,9 @@ class JsonCodec(MessageCodec):
 
 class RawCodec(MessageCodec):
     """
-    Support sending and receiving bytearray, useful for transmitting raw data files.  This is the default encoder used by clients for all messages sent with format 
+    Support sending and receiving bytearray, useful for transmitting raw data files.  This is the default encoder used by clients for all messages sent with format
     defined as "raw".  This default can be changed by reconfiguring your client:
-      
+
       deviceCli.setMessageCodec("raw", myCustomEncoderModule)
     """
 
@@ -87,9 +87,9 @@ class RawCodec(MessageCodec):
 
 class Utf8Codec(MessageCodec):
     """
-    Support sending and receiving simple UTF-8 strings.  This is the default encoder used by clients for all messages sent with format 
+    Support sending and receiving simple UTF-8 strings.  This is the default encoder used by clients for all messages sent with format
     defined as "utf8".  This default can be changed by reconfiguring your client:
-      
+
       deviceCli.setMessageCodec("utf8", myCustomEncoderModule)
     """
 
@@ -115,14 +115,14 @@ class Utf8Codec(MessageCodec):
 
 class Message:
     """
-    Represents an abstract message recieved over Mqtt.  All implementations of 
+    Represents an abstract message recieved over Mqtt.  All implementations of
     a Codec must return an object of this type.
-    
+
     # Attributes
     data (dict): The message payload
-    timestamp (datetime): Timestamp intended to denote the time the message was sent, 
-        or `None` if this information is not available. 
-    
+    timestamp (datetime): Timestamp intended to denote the time the message was sent,
+        or `None` if this information is not available.
+
     """
 
     def __init__(self, data, timestamp=None):

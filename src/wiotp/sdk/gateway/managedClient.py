@@ -8,24 +8,15 @@
 # *****************************************************************************
 
 import json
-import re
 import pytz
 import uuid
 import threading
-import requests
-import logging
-import paho.mqtt.client as paho
 
 from datetime import datetime
 
 from wiotp.sdk import (
     AbstractClient,
-    InvalidEventException,
-    UnsupportedAuthenticationMethod,
-    ConfigurationException,
-    ConnectionException,
-    MissingMessageEncoderException,
-    MissingMessageDecoderException,
+    InvalidEventException
 )
 from wiotp.sdk.device.managedClient import ManagedDeviceClient
 from wiotp.sdk.device.deviceInfo import DeviceInfo

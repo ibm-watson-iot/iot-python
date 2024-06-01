@@ -42,7 +42,7 @@ jobs:
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       env:
-        ONE_JOB_ONLY_TESTS: ${{ secrets[matrix.primary-config] }}
+        ONE_JOB_ONLY_TESTS: ${{ matrix.primary-config }}
         WIOTP_API_KEY: ${{ secrets.WIOTP_API_KEY }}
         WIOTP_API_TOKEN: ${{ secrets.WIOTP_API_TOKEN }}
         WIOTP_ORG_ID: ${{ secrets.WIOTP_ORG_ID }}
