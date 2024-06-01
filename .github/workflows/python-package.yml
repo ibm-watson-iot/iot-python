@@ -9,7 +9,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -41,6 +40,7 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      # if: github.ref == 'refs/heads/master'
       env:
         ONE_JOB_ONLY_TESTS: ${{ matrix.primary-config }}
         WIOTP_API_KEY: ${{ secrets.WIOTP_API_KEY }}
@@ -62,10 +62,3 @@ jobs:
         EVENTSTREAMS_PASSWORD: ${{ secrets.EVENTSTREAMS_PASSWORD }}
       run: |
         pytest
-        # If needed we can gate this step to only run on master
-        # BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-        # if [[ "$BRANCH" == 'refs/heads/master' ]]; then
-        #   pytest
-        # else
-        #   echo "Tests are only ran for pushes to master"
-        # fi

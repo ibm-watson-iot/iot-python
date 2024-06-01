@@ -1,0 +1,133 @@
+# mkdocs serve
+
+site_name: MAS Devops Collection
+site_url: https://ibm-mas.github.io/ansible-devops
+
+repo_name: GitHub
+repo_url: https://github.com/ibm-mas/ansible-devops
+edit_uri: blob/master/docs/
+
+nav:
+  - "Home": index.md
+  - "Playbooks":
+      - "OCP": playbooks/ocp.md
+      - 'Install Cloud Pak For Data': playbooks/cp4d.md
+      - "Install Core": playbooks/oneclick-core.md
+      - "Add IoT": playbooks/oneclick-iot.md
+      - "Add Manage": playbooks/oneclick-manage.md
+      - "Add Monitor": playbooks/oneclick-monitor.md
+      - "Add Optimizer": playbooks/oneclick-optimizer.md
+      - "Add Predict": playbooks/oneclick-predict.md
+      - "Add Visual Inspection": playbooks/oneclick-visualinspection.md
+      - "Update": playbooks/oneclick-update.md
+      - "Upgrade": playbooks/oneclick-upgrade.md
+      - "Uninstall Core": playbooks/uninstall-core.md
+  - "Roles: OCP Mgmt":
+      - "ocp_cluster_monitoring": roles/ocp_cluster_monitoring.md
+      - "ocp_config": roles/ocp_config.md
+      - "ocp_deprovision": roles/ocp_deprovision.md
+      - "ocp_efs": roles/ocp_efs.md
+      - "ocp_github_oauth": roles/ocp_github_oauth.md
+      - "ocp_login": roles/ocp_login.md
+      - 'ocp_node_config': roles/ocp_node_config.md
+      - "ocp_provision": roles/ocp_provision.md
+      - "ocp_roks_upgrade_registry_storage": roles/ocp_roks_upgrade_registry_storage.md
+      - "ocp_upgrade": roles/ocp_upgrade.md
+      - "ocp_verify": roles/ocp_verify.md
+  - "Roles: Dependency Mgmt":
+      - "appconnect": roles/appconnect.md
+      - "aws_bucket_access_point": roles/aws_bucket_access_point.md
+      - "aws_documentdb_user": roles/aws_documentdb_user.md
+      - "aws_policy": roles/aws_policy.md
+      - "aws_route53": roles/aws_route53.md
+      - "aws_user_creation": roles/aws_user_creation.md
+      - "aws_vpc": roles/aws_vpc.md
+      - "cert_manager": roles/cert_manager.md
+      - "cis": roles/cis.md
+      - "common-services": roles/common_services.md
+      - "configure_manage_eventstreams": roles/configure_manage_eventstreams.md
+      - "cos": roles/cos.md
+      - "cos_bucket": roles/cos_bucket.md
+      - "cp4d_admin_pwd_update": roles/cp4d_admin_pwd_update.md
+      - "cp4d": roles/cp4d.md
+      - "cp4d_service": roles/cp4d_service.md
+      - "db2": roles/db2.md
+      - "db2_backup": roles/db2_backup.md
+      - "db2_restore": roles/db2_restore.md
+      - "dro": roles/dro.md
+      - "grafana": roles/grafana.md
+      - "ibm_catalogs": roles/ibm_catalogs.md
+      - "kafka": roles/kafka.md
+      - "nvidia_gpu": roles/nvidia_gpu.md
+      - "mongodb": roles/mongodb.md
+      - "ocs": roles/ocs.md
+      - "sls": roles/sls.md
+      - "turbonomic": roles/turbonomic.md
+      - "uds": roles/uds.md
+  - "Roles: Image Mirroring":
+      - "mirror_case_prepare": roles/mirror_case_prepare.md
+      - "mirror_extras_prepare": roles/mirror_extras_prepare.md
+      - "mirror_images": roles/mirror_images.md
+      - "mirror_ocp": roles/mirror_ocp.md
+      - "ocp_contentsourcepolicy": roles/ocp_contentsourcepolicy.md
+      - "ocp_simulate_disconnected_network": roles/ocp_simulate_disconnected_network.md
+      - "registry": roles/registry.md
+  - "Roles: Suite Mgmt":
+      - "suite_app_config": roles/suite_app_config.md
+      - "suite_app_install": roles/suite_app_install.md
+      - "suite_app_uninstall": roles/suite_app_uninstall.md
+      - "suite_app_upgrade": roles/suite_app_upgrade.md
+      - "suite_app_rollback": roles/suite_app_rollback.md
+      - "suite_certs": roles/suite_certs.md
+      - "suite_config": roles/suite_config.md
+      - "suite_db2_setup_for_manage": roles/suite_db2_setup_for_manage.md
+      - "suite_dns": roles/suite_dns.md
+      - "suite_install": roles/suite_install.md
+      - "suite_manage_birt_report_config": roles/suite_manage_birt_report_config.md
+      - "suite_manage_bim_config": roles/suite_manage_bim_config.md
+      - "suite_manage_customer_files_config": roles/suite_manage_customer_files_config.md
+      - "suite_manage_doclinks_config": roles/suite_manage_doclinks_config.md
+      - "suite_manage_import_certs_config": roles/suite_manage_import_certs_config.md
+      - "suite_manage_load_dbc_scripts": roles/suite_manage_load_dbc_scripts.md
+      - "suite_manage_logging_config": roles/suite_manage_logging_config.md
+      - "suite_manage_pvc_config": roles/suite_manage_pvc_config.md
+      - "suite_uninstall": roles/suite_uninstall.md
+      - "suite_upgrade": roles/suite_upgrade.md
+      - "suite_rollback": roles/suite_rollback.md
+      - "suite_verify": roles/suite_verify.md
+  - "Roles: Utilities":
+      - "ansible_version_check": roles/ansible_version_check.md
+      - "entitlement_key_rotation": roles/entitlement_key_rotation.md
+      - "gencfg_jdbc": roles/gencfg_jdbc.md
+      - "gencfg_watsonstudio": roles/gencfg_watsonstudio.md
+      - "gencfg_workspace": roles/gencfg_workspace.md
+      - "install_operator": roles/install_operator.md
+      - "gencfg_mongo": roles/gencfg_mongo.md
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - yaml
+  prev_next_buttons_location: none
+extra_css:
+  - extra.css
+markdown_extensions:
+  - toc:
+      permalink: 
+  - admonition
+  # Add this to support expandable sections
+  #- pymdownx.details
+# https://squidfunk.github.io/mkdocs-material/extensions/admonition/
+# Note
+# Abstract
+# Info
+# Tip
+# Success
+# Question
+# Warning
+# Failure
+# Danger
+# Bug
+# Example
+# Quote

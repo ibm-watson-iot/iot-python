@@ -7,21 +7,14 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import os
-import re
-import json
-import iso8601
-import uuid
 from datetime import datetime
 
-from wiotp.sdk import ConnectionException, MissingMessageEncoderException, AbstractClient, InvalidEventException
+from wiotp.sdk import MissingMessageEncoderException, AbstractClient, InvalidEventException
 from wiotp.sdk.application.messages import Status, Command, Event, State, Error, ThingError, DeviceState
 from wiotp.sdk.application.config import ApplicationClientConfig
 from wiotp.sdk.api import ApiClient, Registry, Usage, ServiceStatus, DSC, LEC, Mgmt, ServiceBindings, Actions, StateMgr
 
 import paho.mqtt.client as paho
-
-import requests
 
 
 class ApplicationClient(AbstractClient):

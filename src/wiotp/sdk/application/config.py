@@ -18,11 +18,13 @@ from wiotp.sdk import ConfigurationException
 
 class ApplicationClientConfig(defaultdict):
     def __init__(self, **kwargs):
-        if "auth" in kwargs:
-            if "key" not in kwargs["auth"] or kwargs["auth"]["key"] is None:
-                raise ConfigurationException("Missing auth.key from configuration")
-            if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
-                raise ConfigurationException("Missing auth.token from configuration")
+        if "auth" not in kwargs or kwargs["auth"] is None:
+            raise ConfigurationException("Missing auth from configuration")
+
+        if "key" not in kwargs["auth"] or kwargs["auth"]["key"] is None:
+            raise ConfigurationException("Missing auth.key from configuration")
+        if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
+            raise ConfigurationException("Missing auth.token from configuration")
 
         if "options" in kwargs and "mqtt" in kwargs["options"]:
             if "port" in kwargs["options"]["mqtt"] and kwargs["options"]["mqtt"]["port"] is not None:

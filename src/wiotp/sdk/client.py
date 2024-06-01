@@ -239,8 +239,7 @@ class AbstractClient(object):
         ConnectionException: If there is a problem establishing the connection.
         """
         self.logger.debug(
-            "Connecting... (address = %s, port = %s, clientId = %s, username = %s)"
-            % (self.address, self.port, self.clientId, self.username)
+            f"Connecting ... (address = {self.address}, port = {self.port}, clientId = {self.clientId}, username = {self.username})"
         )
         try:
             self.connectEvent.clear()
@@ -277,7 +276,7 @@ class AbstractClient(object):
         self.logger.info("Closed connection to the IBM Watson IoT Platform")
 
     def isConnected(self):
-        return self.connectEvent.isSet()
+        return self.connectEvent.is_set()
 
     def _onLog(self, mqttc, obj, level, string):
         """
@@ -331,14 +330,14 @@ class AbstractClient(object):
             self._logAndRaiseException(ConnectionException("Server unavailable"))
         elif rc == 4:
             self._logAndRaiseException(
-                ConnectionException("Bad username or password: (%s, %s)" % (self.username, self.password))
+                ConnectionException(f"Bad username or password: ({self.username})")
             )
         elif rc == 5:
             self._logAndRaiseException(
-                ConnectionException("Not authorized: s (%s, %s, %s)" % (self.clientId, self.username, self.password))
+                ConnectionException(f"Not authorized: s ({self.clientId}, {self.username})")
             )
         else:
-            self._logAndRaiseException(ConnectionException("Unexpected connection failure: %s" % (rc)))
+            self._logAndRaiseException(ConnectionException(f"Unexpected connection failure: {rc}"))
 
     def _onDisconnect(self, mqttc, obj, rc):
         """

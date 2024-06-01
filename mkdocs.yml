@@ -1,8 +1,12 @@
-# mkdocs build -d ../docs
-
-# https://console.bluemix.net/docs/services/IoT/getting-started.html#getting-started-with-iotp
+# mkdocs serve
 
 site_name: IBM Watson IoT Platform
+site_url: https://ibm-watson-iot.github.io/iot-python
+
+repo_name: GitHub
+repo_url: https://github.com/ibm-watson-iot/iot-python
+edit_uri: blob/master/docs/
+
 nav:
   - 'Python SDK': index.md
   - 'Common Topics':
@@ -34,8 +38,14 @@ nav:
     - 'Configuration': gateway/config.md
     - 'Managed Gateways': gateway/managed.md
 
-theme: readthedocs
-
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - yaml
+  prev_next_buttons_location: none
+extra_css:
+  - extra.css
 markdown_extensions:
   - toc:
       permalink: 
