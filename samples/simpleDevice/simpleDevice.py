@@ -40,7 +40,7 @@ authMethod = None
 parser = argparse.ArgumentParser()
 
 # Primary Options
-parser.add_argument("-o", "--organization", required=False, default="quickstart")
+parser.add_argument("-o", "--organization", required=False)
 parser.add_argument("-T", "--typeId", required=False, default="simpleDev")
 parser.add_argument("-I", "--deviceId", required=False, default=str(uuid.uuid4()))
 parser.add_argument("-t", "--token", required=False, default=None, help="authentication token")
@@ -60,8 +60,6 @@ if args.token:
 try:
     if args.cfg is not None:
         deviceOptions = wiotp.sdk.device.parseConfigFile(args.cfg)
-    elif args.organization == "quickstart":
-        deviceOptions = {"identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId}}
     else:
         deviceOptions = {
             "identity": {"orgId": args.organization, "typeId": args.typeId, "deviceId": args.deviceId},

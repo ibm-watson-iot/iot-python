@@ -26,30 +26,23 @@ A tutorial guiding you through the process of setting up this sample on a Raspbe
 
 ## Before you Begin
 
-Register a device with IBM Watson IoT Platform.  
+Register a device with IBM Watson IoT Platform.
 
-For information on how to register devices, see the [Connecting Devices](https://www.ibm.com/support/knowledgecenter/SSQP8H/iot/platform/iotplatform_task.html) topic in the IBM Watson IoT Platform documentation.  
+For information on how to register devices, see the [Connecting Devices](https://www.ibm.com/support/knowledgecenter/SSQP8H/iot/platform/iotplatform_task.html) topic in the IBM Watson IoT Platform documentation.
 
-At the end of the registration process, make a note of the following parameters: 
+At the end of the registration process, make a note of the following parameters:
    - Organization ID
    - Type ID
    - Device ID
-   - Authentication Token  
+   - Authentication Token
 
 ## Docker
 
-The easiest way to test out the sample is via the [wiotp/psutil](https://cloud.docker.com/u/wiotp/repository/docker/wiotp/psutil) Docker image provided and the `--quickstart` command line option.
+The easiest way to test out the sample is via the [wiotp/psutil](https://cloud.docker.com/u/wiotp/repository/docker/wiotp/psutil) Docker image provided.
 
-The resource requirements for this container are tiny, if you use the accompanying helm chart it is by default confiugured with a request of 2m CPU + 18Mi memory, and  limits set to 4m cpu + 24Mi memory.
+The resource requirements for this container are tiny, if you use the accompanying helm chart it is by default configured with a request of 2m CPU + 18Mi memory, and  limits set to 4m cpu + 24Mi memory.
 
-```
-$ docker run -d --name psutil wiotp/psutil --quickstart
-psutil
-$ docker logs -tf psutil
-2019-05-07T11:09:19.672513500Z 2019-05-07 11:09:19,671   wiotp.sdk.device.client.DeviceClient  INFO    Connected successfully: d:quickstart:sample-iotpsutil:242ac110002
-```
-
-To connect as a registered device in your organization you must set the following environment variables in the container's environment. These variables correspond to the device parameters for your registered device: 
+To connect as a registered device in your organization you must set the following environment variables in the container's environment. These variables correspond to the device parameters for your registered device:
 - `WIOTP_IDENTITY_ORGID`
 - `WIOTP_IDENTITY_TYPEID`
 - `WIOTP_IDENTITY_DEVICEID`
@@ -77,13 +70,6 @@ $ helm repo add wiotp https://ibm-watson-iot.github.io/helm/charts/
 $ helm install psutil-mydevice wiotp/psutil --values path/to/mydevice.yaml
 ```
 
-If you provide no additional values the chart will deploy in a configuration supporting Quickstart by default:
-
-```
-$ helm repo add wiotp https://ibm-watson-iot.github.io/helm/charts/
-$ helm install psutil-quickstart wiotp/psutil
-```
-
 The pod consumes very little resource during operation, you can easily max out the default 110 pod/node limit with a cheap 2cpu/4gb worker if you are looking to deploy this chart at scale.
 
 
@@ -104,19 +90,20 @@ pi@raspberrypi ~ $ sudo pip install wiotp-sdk psutil
 pi@raspberrypi ~ $ wget https://github.com/ibm-watson-iot/iot-python/archive/master.zip
 pi@raspberrypi ~ $ unzip master.zip
 pi@raspberrypi ~ $ cd iot-python-master/samples/psutil/src
-pi@raspberrypi ~ $ python iotpsutil.py --quickstart
+pi@raspberrypi ~ $ export WIOTP_IDENTITY_ORGID=myorgid
+pi@raspberrypi ~ $ export WIOTP_IDENTITY_TYPEID=mytypeid
+pi@raspberrypi ~ $ export WIOTP_IDENTITY_DEVICEID=mydeviceid
+pi@raspberrypi ~ $ export WIOTP_AUTH_TOKEN=myauthtoken
+pi@raspberrypi ~ $ python iotpsutil.py
 (Press Ctrl+C to disconnect)
-
 ```
-
-Note: Set the same environment variables detailed in the Docker section of this README (above) and ommit the `--quickstart` argument to connect your Raspberry Pi to IBM Watson IoT Platform as a registered device.
 
 
 ## Support Application
 A sample application is provided that allows commands to be sent to the device when used in registered mode only.
 
 The application provides two functions:
- * Adjust the publish rate of the psutil device sample 
+ * Adjust the publish rate of the psutil device sample
  * Print a debug message to the console on the device
 
 ```

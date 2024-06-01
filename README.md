@@ -1,36 +1,36 @@
-# Python for IBM Watson IoT Platform
+Python for IBM Watson IoT Platform
+===============================================================================
 
-[![Build Status](https://travis-ci.org/ibm-watson-iot/iot-python.svg?branch=master)](https://travis-ci.org/ibm-watson-iot/iot-python)
-[![Coverage Status](https://coveralls.io/repos/github/ibm-watson-iot/iot-python/badge.svg?branch=master)](https://coveralls.io/github/ibm-watson-iot/iot-python?branch=master)
 [![GitHub issues](https://img.shields.io/github/issues/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/issues)
 [![GitHub](https://img.shields.io/github/license/ibm-watson-iot/iot-python.svg)](https://github.com/ibm-watson-iot/iot-python/blob/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/wiotp-sdk.svg)](https://pypi.org/project/wiotp-sdk/)
+![Project Status](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11-blue)
 [![Downloads](https://pepy.tech/badge/ibmiotf)](https://pepy.tech/project/ibmiotf)
 [![Downloads](https://pepy.tech/badge/wiotp-sdk)](https://pepy.tech/project/wiotp-sdk)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-Python module for interacting with the [IBM Watson IoT Platform](https://internetofthings.ibmcloud.com).
+Python module for interacting with **Maximo IoT** and **[IBM Watson IoT Platform](https://internetofthings.ibmcloud.com)**
 
-- [Python 3.8](https://www.python.org/downloads/release/python-382/)  (recommended)
-- Python 3.7
-- Python 3.6
+- Python 3.11
+- Python 3.10
+- Python 3.9
 
-Note: As of version 0.12, versions of Python less than 3.6 are not officially supported.  Compatability with older versions of Python is not guaranteed.
 
-## Product Withdrawal Notice
+Product Withdrawal Notice
+-------------------------------------------------------------------------------
 Per the September 8, 2020 [announcement](https://www-01.ibm.com/common/ssi/cgi-bin/ssialias?subtype=ca&infotype=an&appname=iSource&supplier=897&letternum=ENUS920-136#rprodnx) IBM Watson IoT Platform (5900-A0N) has been withdrawn from marketing effective **December 9, 2020**.  As a result, updates to this project will be limited.
 
 
-## Dependencies
-
+Dependencies
+-------------------------------------------------------------------------------
 -  [paho-mqtt](https://pypi.python.org/pypi/paho-mqtt)
 -  [iso8601](https://pypi.python.org/pypi/iso8601)
 -  [pytz](https://pypi.python.org/pypi/pytz)
 -  [requests](https://pypi.python.org/pypi/requests)
 
 
-## Installation
-
+Installation
+-------------------------------------------------------------------------------
 Install the [latest version](https://pypi.org/project/wiotp-sdk/) of the library with pip
 
 ```
@@ -38,26 +38,22 @@ Install the [latest version](https://pypi.org/project/wiotp-sdk/) of the library
 ```
 
 
-## Uninstall
-
+Uninstall
+-------------------------------------------------------------------------------
 Uninstalling the module is simple.
 
 ```
 # pip uninstall wiotp-sdk
 ```
 
-## Legacy ibmiotf Module
 
-Version `0.4.0` of the old [ibmiotf](https://pypi.python.org/pypi/ibmiotf) pre-release is still available, if you do not wish to upgrade to the new version, we have no plans to remove this from pypi at this time, however it will not be getting any updates.
-
-
-## Documentation
-
+Documentation
+-------------------------------------------------------------------------------
 https://ibm-watson-iot.github.io/iot-python/
 
 
-## Supported Features
-
+Supported Features
+-------------------------------------------------------------------------------
 - **Device Connectivity**: Connect your device(s) to Watson IoT Platform with ease using this library
 - **Gateway Connectivity**: Connect your gateway(s) to Watson IoT Platform with ease using this library
 - **Application connectivity**: Connect your application(s) to Watson IoT Platform with ease using this library
@@ -69,7 +65,3 @@ https://ibm-watson-iot.github.io/iot-python/
 - **Scalable Applications**: Supports load balancing of MQTT subscriptions over multiple application instances.
 - **Auto Reconnect**: All clients support automatic reconnect to the Platform in the event of a network interruption.
 - **Websockets**: Support device/gateway/application connectivity to Watson IoT Platform using WebSocket
-
-
-## Unsupported Features
-- **Client side Certificate based authentication**: [Client side Certificate based authentication](https://console.ng.bluemix.net/docs/services/IoT/reference/security/RM_security.html)n

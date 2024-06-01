@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,7 @@
 # *****************************************************************************
 
 import sys
+import os
 sys.path.insert(0, 'src')
 
 try:
@@ -15,35 +16,26 @@ try:
 except ImportError:
     from distutils.core import setup
 
-# =============================================================================
-# Convert README.md to README.rst for pypi
-# Need to install both pypandoc and pandoc 
-# - pip insall pypandoc
-# - https://pandoc.org/installing.html
-# =============================================================================
-try:
-    from pypandoc import convert
+if not os.path.exists('README.rst'):
+    import pypandoc
+    pypandoc.download_pandoc(targetfolder='~/bin/')
+    pypandoc.convert_file('README.md', 'rst', outputfile='README.rst')
 
-    def read_md(f):
-        return convert(f, 'rst')
-except:
-    print('Warning: pypandoc module not found, unable to convert README.md to RST')
-    print('Unless you are packaging this module for distribution you can ignore this error')
-
-    def read_md(f):
-        return "Python SDK for IBM Watson IoT Platform"
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='wiotp-sdk',
-    version="0.12.0",
+    version="1.0.0",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
     packages=[
-        'wiotp.sdk', 
-        'wiotp.sdk.device', 
-        'wiotp.sdk.gateway', 
-        'wiotp.sdk.application', 
+        'wiotp.sdk',
+        'wiotp.sdk.device',
+        'wiotp.sdk.gateway',
+        'wiotp.sdk.application',
         'wiotp.sdk.api',
         'wiotp.sdk.api.dsc',
         'wiotp.sdk.api.registry',
@@ -61,26 +53,32 @@ setup(
         'bin/wiotp-cli'
     ],
     url='https://github.com/ibm-watson-iot/iot-python',
-    license=open('LICENSE').read(),
-    description='Python SDK for IBM Watson IoT Platform',
-    long_description=read_md('README.md'),
+    license="Eclipse Public License - v1.0",
+    description='Python SDK for Maximo IoT and IBM Watson IoT Platform',
+    long_description=long_description,
     install_requires=[
         "iso8601 >= 0.1.12",
         "pytz >= 2020.1",
         "pyyaml >= 5.3.1",
-        "paho-mqtt >= 1.5.0",
+        "paho-mqtt >= 1.5.0, < 2.0.0",
         "requests >= 2.23.0",
         "requests_toolbelt >= 0.9.1",
     ],
+    extras_require={
+        'dev': [
+            'build',
+            'pytest'
+        ]
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Communications',
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules'

@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -31,9 +31,9 @@ from wiotp.sdk.messages import JsonCodec, RawCodec, Utf8Codec
 
 class AbstractClient(object):
     """
-    The underlying client object utilised for Platform connectivity over MQTT 
+    The underlying client object utilised for Platform connectivity over MQTT
     in devices, gateways, and applications.
-    
+
     # Parameters
     domain (string): Domain denoting the instance of IBM Watson IoT Platform to connect to
     organization (string): IBM Watson IoT Platform organization ID to connect to
@@ -41,13 +41,13 @@ class AbstractClient(object):
     username (string): MQTT username for the underlying Paho client
     password (string): MQTT password for the underlying Paho client
     port (int): MQTT port for the underlying Paho client to connect using.  Defaults to `8883`
-    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
+    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`,
         which will result in a default log handler being created.
     cleanStart (string): Defaults to `false`.  Although this is a true|false parameter
     sessionExpiry (string): Defaults to 3600 seconds.  Does nothing today (pending MQTT v5)
     transport (string): Defaults to `tcp`
     caFile (string): Defaults to None
-    
+
     # Attributes
     client (paho.mqtt.client.Client): Built-in Paho MQTT client handling connectivity for the client.
     logger (logging.logger): Client logger.
@@ -151,19 +151,15 @@ class AbstractClient(object):
             # TLS 1.2 is unavailable because the configuration explicitly requested
             # to use encrypted connection
         elif self.port is None:
-            if self.organization == "quickstart":
+            try:
+                self.tlsVersion = ssl.PROTOCOL_TLSv1_2
+                self.port = 8883
+            except:
                 self.tlsVersion = None
                 self.port = 1883
-            else:
-                try:
-                    self.tlsVersion = ssl.PROTOCOL_TLSv1_2
-                    self.port = 8883
-                except:
-                    self.tlsVersion = None
-                    self.port = 1883
-                    self.logger.warning(
-                        "Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)"
-                    )
+                self.logger.warning(
+                    "Unable to encrypt messages because TLSv1.2 is unavailable (MQTT over SSL requires at least Python v2.7.9 or 3.4 and openssl v1.0.1)"
+                )
         else:
             raise Exception("Unsupported value for port override: %s.  Supported values are 1883 & 8883." % self.port)
 
@@ -204,10 +200,10 @@ class AbstractClient(object):
     def getMessageCodec(self, messageFormat):
         """
         Get the Python class that is currently defined as the encoder/decoder for a specified message format.
-        
+
         # Arguments
         messageFormat (string): The message format to retrieve the encoder for
-        
+
         # Returns
         code (class): The python class, or `None` if there is no codec defined for the `messageFormat`
         """
@@ -218,7 +214,7 @@ class AbstractClient(object):
     def setMessageCodec(self, messageFormat, codec):
         """
         Set a Python class as the encoder/decoder for a specified message format.
-        
+
         # Arguments
         messageFormat (string): The message format to retreive the encoder for
         codec (class): The Python class (subclass of `wiotp.common.MessageCodec` to set as the encoder/decoder for `messageFormat`
@@ -228,7 +224,7 @@ class AbstractClient(object):
     def _logAndRaiseException(self, e):
         """
         Logs an exception at log level `critical` before raising it.
-        
+
         # Arguments
         e (Exception): The exception to log/raise
         """
@@ -238,7 +234,7 @@ class AbstractClient(object):
     def connect(self):
         """
         Connect the client to IBM Watson IoT Platform using the underlying Paho MQTT client
-        
+
         # Raises
         ConnectionException: If there is a problem establishing the connection.
         """
@@ -285,17 +281,17 @@ class AbstractClient(object):
 
     def _onLog(self, mqttc, obj, level, string):
         """
-        Called when the client has log information.  
-        
+        Called when the client has log information.
+
         See [paho.mqtt.python#on_log](https://github.com/eclipse/paho.mqtt.python#on_log) for more information
-        
+
         # Parameters
         mqttc (paho.mqtt.client.Client): The client instance for this callback
         obj (object): The private user data as set in Client() or user_data_set()
-        level (int): The severity of the message, will be one of `MQTT_LOG_INFO`, 
+        level (int): The severity of the message, will be one of `MQTT_LOG_INFO`,
             `MQTT_LOG_NOTICE`, `MQTT_LOG_WARNING`, `MQTT_LOG_ERR`, and `MQTT_LOG_DEBUG`.
         string (string): The log message itself
-        
+
         """
         self.logger.debug("%d %s" % (level, string))
 
@@ -347,16 +343,16 @@ class AbstractClient(object):
     def _onDisconnect(self, mqttc, obj, rc):
         """
         Called when the client disconnects from IBM Watson IoT Platform.
-        
+
         See [paho.mqtt.python#on_disconnect](https://github.com/eclipse/paho.mqtt.python#on_disconnect) for more information
-        
+
         # Parameters
         mqttc (paho.mqtt.client.Client): The client instance for this callback
         obj (object): The private user data as set in Client() or user_data_set()
-        rc (int): indicates the disconnection state.  If `MQTT_ERR_SUCCESS` (0), the callback was 
-            called in response to a `disconnect()` call. If any other value the disconnection was 
+        rc (int): indicates the disconnection state.  If `MQTT_ERR_SUCCESS` (0), the callback was
+            called in response to a `disconnect()` call. If any other value the disconnection was
             unexpected, such as might be caused by a network error.
-        
+
         """
         # Clear the event to indicate we're no longer connected
         self.connectEvent.clear()
@@ -369,9 +365,9 @@ class AbstractClient(object):
     def _onPublish(self, mqttc, obj, mid):
         """
         Called when a message from the client has been successfully sent to IBM Watson IoT Platform.
-        
+
         See [paho.mqtt.python#on_publish](https://github.com/eclipse/paho.mqtt.python#on_publish) for more information
-        
+
         # Parameters
         mqttc (paho.mqtt.client.Client): The client instance for this callback
         obj (object): The private user data as set in Client() or user_data_set()

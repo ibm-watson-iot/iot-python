@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -26,12 +26,12 @@ from wiotp.sdk.device.config import DeviceClientConfig
 
 class DeviceClient(AbstractClient):
     """
-    Extends #wiotp.common.AbstractClient to implement a device client supporting 
+    Extends #wiotp.common.AbstractClient to implement a device client supporting
     messaging over MQTT
-    
+
     # Parameters
     options (dict): Configuration options for the client
-    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
+    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`,
         which will result in a default log handler being created.
     """
 
@@ -57,16 +57,14 @@ class DeviceClient(AbstractClient):
             logHandlers=logHandlers,
         )
 
-        # Add handler for commands if not connected to QuickStart
-        if not self._config.isQuickstart():
-            self.client.message_callback_add("iot-2/cmd/+/fmt/+", self._onCommand)
+        # Add handler for commands
+        self.client.message_callback_add("iot-2/cmd/+/fmt/+", self._onCommand)
 
         # Initialize user supplied callback
         self.commandCallback = None
 
-        # Register startup subscription list (only for non-Quickstart)
-        if not self._config.isQuickstart():
-            self._subscriptions[self._COMMAND_TOPIC] = 1
+        # Register startup subscription list
+        self._subscriptions[self._COMMAND_TOPIC] = 1
 
     def publishEvent(self, eventId, msgFormat, data, qos=0, onPublish=None):
         """
@@ -77,13 +75,13 @@ class DeviceClient(AbstractClient):
         msgFormat (string): Format of the data for this event
         data (dict): Data for this event
         qos (int): MQTT quality of service level to use (`0`, `1`, or `2`)
-        onPublish(function): A function that will be called when receipt 
-           of the publication is confirmed.  
-        
+        onPublish(function): A function that will be called when receipt
+           of the publication is confirmed.
+
         # Callback and QoS
-        The use of the optional #onPublish function has different implications depending 
-        on the level of qos used to publish the event: 
-        
+        The use of the optional #onPublish function has different implications depending
+        on the level of qos used to publish the event:
+
         - qos 0: the client has asynchronously begun to send the event
         - qos 1 and 2: the client has confirmation of delivery from the platform
         """

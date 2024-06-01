@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # *****************************************************************************
-# Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -69,33 +69,24 @@ if __name__ == "__main__":
     # Initialize the properties we need
     parser = argparse.ArgumentParser(
         description="IBM Watson IoT Platform PSUtil device client.  For more information see https://github.com/ibm-watson-iot/iot-python/samples/psutil",
-        epilog="If neither the quickstart or cfg parameter is provided the device will attempt to parse the configuration from environment variables.",
+        epilog="If the cfg parameter is not provided the device will attempt to parse the configuration from environment variables.",
     )
     parser.add_argument(
         "-n", "--name", required=False, default=platform.node(), help="Defaults to platform.node() if not set"
     )
-    parser.add_argument("-q", "--quickstart", required=False, action="store_true", help="Connect device to quickstart?")
     parser.add_argument(
         "-c",
         "--cfg",
         required=False,
         default=None,
-        help="Location of device configuration file (ignored if quickstart mode is enabled)",
+        help="Location of device configuration file",
     )
     parser.add_argument("-v", "--verbose", required=False, action="store_true", help="Enable verbose log messages?")
     args, unknown = parser.parse_known_args()
 
     client = None
     try:
-        if args.quickstart:
-            options = {
-                "identity": {
-                    "orgId": "quickstart",
-                    "typeId": "sample-iotpsutil",
-                    "deviceId": str(hex(int(get_mac())))[2:],
-                }
-            }
-        elif args.cfg is not None:
+        if args.cfg is not None:
             options = wiotp.sdk.device.parseConfigFile(args.cfg)
         else:
             options = wiotp.sdk.device.parseEnvVars()
@@ -106,14 +97,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(str(e))
         sys.exit(1)
-
-    if args.quickstart:
-        print(
-            "Welcome to IBM Watson IoT Platform Quickstart, view a vizualization of live data from this device at the URL below:"
-        )
-        print(
-            "https://quickstart.internetofthings.ibmcloud.com/#/device/%s/sensor/" % (options["identity"]["deviceId"])
-        )
 
     print("(Press Ctrl+C to disconnect)")
 
