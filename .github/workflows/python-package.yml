@@ -15,7 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
-        primary-config: ["true", "false"]
         include:
           - python-version: "3.9"
             primary-config: "false"
@@ -41,7 +40,24 @@ jobs:
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       env:
-        ONE_JOB_ONLY_TESTS: ${{secrets[matrix.primary-config]}}
+        ONE_JOB_ONLY_TESTS: ${{ secrets[matrix.primary-config] }}
+        WIOTP_API_KEY: ${{ secrets.WIOTP_API_KEY }}
+        WIOTP_API_TOKEN: ${{ secrets.WIOTP_API_TOKEN }}
+        WIOTP_ORG_ID: ${{ secrets.WIOTP_ORG_ID }}
+        CLOUDANT_HOST: ${{ secrets.CLOUDANT_HOST }}
+        CLOUDANT_PORT: ${{ secrets.CLOUDANT_PORT }}
+        CLOUDANT_USERNAME: ${{ secrets.CLOUDANT_USERNAME }}
+        CLOUDANT_PASSWORD: ${{ secrets.CLOUDANT_PASSWORD }}
+        EVENTSTREAMS_API_KEY: ${{ secrets.EVENTSTREAMS_API_KEY }}
+        EVENTSTREAMS_ADMIN_URL: ${{ secrets.EVENTSTREAMS_ADMIN_URL }}
+        EVENTSTREAMS_BROKER1: ${{ secrets.EVENTSTREAMS_BROKER1 }}
+        EVENTSTREAMS_BROKER2: ${{ secrets.EVENTSTREAMS_BROKER2 }}
+        EVENTSTREAMS_BROKER3: ${{ secrets.EVENTSTREAMS_BROKER3 }}
+        EVENTSTREAMS_BROKER4: ${{ secrets.EVENTSTREAMS_BROKER4 }}
+        EVENTSTREAMS_BROKER5: ${{ secrets.EVENTSTREAMS_BROKER5 }}
+        EVENTSTREAMS_BROKER6: ${{ secrets.EVENTSTREAMS_BROKER6 }}
+        EVENTSTREAMS_USER: ${{ secrets.EVENTSTREAMS_USER }}
+        EVENTSTREAMS_PASSWORD: ${{ secrets.EVENTSTREAMS_PASSWORD }}
       run: |
         pytest
         # If needed we can gate this step to only run on master
