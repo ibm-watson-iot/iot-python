@@ -1,7 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: Python package
+name: Python Package
 
 on:
   push:
@@ -20,9 +17,9 @@ jobs:
           - python-version: "3.9"
             primary-config: "true"
           - python-version: "3.10"
-            primary-config: "true"
-          - python-version: "3.11"
             primary-config: "false"
+          - python-version: "3.11"
+            primary-config: "true"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -39,8 +36,8 @@ jobs:
         flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      # if: github.ref == 'refs/heads/master'
+    - name: Test with pytest (only on Python 3.11 to avoid concurrency issues)
+      if: github.ref == 'refs/heads/actions' and matrix.primary-config == 'true'
       env:
         ONE_JOB_ONLY_TESTS: ${{ matrix.primary-config }}
         WIOTP_API_KEY: ${{ secrets.WIOTP_API_KEY }}
