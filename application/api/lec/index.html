@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-watson-iot.github.io/iot-python/application/api/lec/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Last Event Cache - IBM Watson IoT Platform</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Last Event Cache";
+        var mkdocs_page_input_path = "application/api/lec.md";
+        var mkdocs_page_url = "/iot-python/application/api/lec/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> IBM Watson IoT Platform
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Python SDK</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Common Topics</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../concepts/">Basic Concepts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../mqtt/">MQTT Primer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../custommsg/">Custom Message Formats</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../exceptions/">Exceptions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Application Development</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">Application SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../mqtt/commands/">Device Commands</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../mqtt/events/">Device Events</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../mqtt/status/">Device Status Updates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../registry/types/">Registry - Types</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../registry/devices/">Registry - Devices</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../registry/diag/">Registry - Diagnostics</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mgmt/">Device Management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../bindings/">Service Bindings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dsc/">Data Store Connectors</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Last Event Cache</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#get-last-cached-event">Get Last Cached Event</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#get-all-last-cached-events">Get All Last Cached Events</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#handling-the-lastevent-data">Handling the LastEvent data</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../status/">Service Status</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../usage/">Usage Reports</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Device Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../device/">Device SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../device/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../device/managed/">Managed Devices</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateway Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../gateway/">Gateway SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../gateway/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../gateway/managed/">Managed Gateways</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">IBM Watson IoT Platform</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Application Development</li>
+      <li class="breadcrumb-item active">Last Event Cache</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-watson-iot/iot-python/blob/master/docs/application/api/lec.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="last-event-cache">Last Event Cache<a class="headerlink" href="#last-event-cache" title="Permanent link"></a></h1>
+<p>Last Event Cache is an <strong>optional</strong> feature in Watson IoT Platform, which when enabled allows the caching of the last event sent for each eventId by each registered device.  By default this feature is disabled, to use this feature you must enable it from your dashboard at <code>https://MYORGID.internetofthings.ibmcloud.com/dashboard/settings</code>.</p>
+<h2 id="get-last-cached-event">Get Last Cached Event<a class="headerlink" href="#get-last-cached-event" title="Permanent link"></a></h2>
+<p>The <code>lec.get(device, eventId)</code> method allows you to retrieve the last event isntance of a specific eventId sent by a device.  The method supports multiple ways to identify the device, as demonstrated below.</p>
+<pre><code class="language-python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+eventId = &quot;test1&quot;
+
+# Get the last event using a python dictionary to define the device
+device = {&quot;typeId&quot;: &quot;myType&quot;, &quot;deviceId&quot;: &quot;myDevice&quot;}
+lastEvent = appClient.lec.get(device, eventId)
+
+# Get the last event using a DeviceUid support class to define the device
+import wiotp.sdk.api.registry.devices.DeviceUid
+device = DeviceUid(typeId: &quot;myType&quot;, deviceId: &quot;myDevice&quot;)
+lastEvent = appClient.lec.get(device, eventId)
+
+# Get the last event using the result of a lookup from the device registry
+try:
+    device = client.registry.devicetypes[&quot;myType&quot;].devices[&quot;myDevice&quot;]
+    lastEvent = appClient.lec.get(device, eventId)
+except KeyError as e:
+    print(&quot;Device does not exist %s&quot; % (e))
+</code></pre>
+<h2 id="get-all-last-cached-events">Get All Last Cached Events<a class="headerlink" href="#get-all-last-cached-events" title="Permanent link"></a></h2>
+<p>The <code>lec.getAll(device)</code> method returns a list of the last cached event for all eventIds for a single device.  As with the <code>lec.get()</code> method, this supports multiple ways to define the device.</p>
+<pre><code class="language-python">import wiotp.sdk.application
+
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+# Get the last events using a python dictionary to define the device
+device = {&quot;typeId&quot;: &quot;myType&quot;, &quot;deviceId&quot;: &quot;myDevice&quot;}
+lastEvents = appClient.lec.getAll(device)
+
+# Get the last events using a DeviceUid support class to define the device
+import wiotp.sdk.api.registry.devices.DeviceUid
+device = DeviceUid(typeId: &quot;myType&quot;, deviceId: &quot;myDevice&quot;)
+lastEvents = appClient.lec.getAll(device)
+
+# Get the last events using the result of a lookup from the device registry
+try:
+    device = client.registry.devicetypes[&quot;myType&quot;].devices[&quot;myDevice&quot;]
+    lastEvents = appClient.lec.getAll(device)
+except KeyError as e:
+    print(&quot;Device does not exist %s&quot; % (e))
+</code></pre>
+<h2 id="handling-the-lastevent-data">Handling the LastEvent data<a class="headerlink" href="#handling-the-lastevent-data" title="Permanent link"></a></h2>
+<p>The <code>wiotp.sdk.api.lec.LastEvent</code> class extends defaultdict allowing you to treat the reponse as a simple Python dictionary if you so choose, however it's designed to make it easy to interact with the Last Event Cache API results by providing convenient properties representing the data available from the API:</p>
+<ul>
+<li><code>eventId</code> The eventId of the cached event</li>
+<li><code>typeId</code> The typeId of the device that sent the cached event</li>
+<li><code>deviceId</code> The devieId of the device that sent the cached event</li>
+<li><code>format</code> The format that the cached event was sent using</li>
+<li><code>timestamp</code> The date and time <strong>when the event was cached</strong>.  This is not the time the event was published by the device.  Events are cached in batches, so although this will usually be a good approximation of the time the event was sent, you can not rely on this timestamp representing the precise time the event was sent, only the time that it reached the cache.</li>
+<li><code>payload</code> The <strong>base64 encoded</strong> message content (payload) of the cached event.  The payload is base64 encoded to allow for any content-type to be safely cached and retrieved.  use the information in the format to determine how to handle the payload correctly.</li>
+</ul>
+<pre><code class="language-python">import wiotp.sdk.application
+import base64
+options = wiotp.sdk.application.parseEnvVars()
+appClient = wiotp.sdk.application.ApplicationClient(options)
+
+# Get the last events using a python dictionary to define the device
+device = {&quot;typeId&quot;: &quot;myType&quot;, &quot;deviceId&quot;: &quot;myDevice&quot;}
+lastEvents = appClient.lec.getAll(device)
+
+for event in lastEvents:
+    print(&quot;Event from device: %s:%s&quot; % (event.typeId, event.deviceId))
+    print(&quot;- Event ID: %s &quot; % (event.eventId))
+    print(&quot;- Format: %s&quot; % (event.format))
+    print(&quot;- Cached at: %s&quot; % (event.timestamp.isoformat()))
+
+    # The payload is always returned base64 encoded by the API
+    print(&quot;- Payload (base64 encoded): %s&quot; % (event.payload))
+
+    # Depending on the content of the message this may not be a good idea (e.g. if it was originally binary data)
+    print(&quot;- Payload (decoded): %s&quot; % (base64.b64decode(event.payload).decode('utf-8')))
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-watson-iot/iot-python" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../dsc/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../status/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

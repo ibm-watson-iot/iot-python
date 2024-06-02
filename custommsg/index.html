@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-watson-iot.github.io/iot-python/custommsg/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Custom Message Formats - IBM Watson IoT Platform</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Custom Message Formats";
+        var mkdocs_page_input_path = "custommsg.md";
+        var mkdocs_page_url = "/iot-python/custommsg/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> IBM Watson IoT Platform
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Python SDK</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Common Topics</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../concepts/">Basic Concepts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mqtt/">MQTT Primer</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Custom Message Formats</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#encoding">Encoding</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#decoding">Decoding</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sample-code">Sample Code</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../exceptions/">Exceptions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Application Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/">Application SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/mqtt/commands/">Device Commands</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/mqtt/events/">Device Events</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/mqtt/status/">Device Status Updates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/registry/types/">Registry - Types</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/registry/devices/">Registry - Devices</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/registry/diag/">Registry - Diagnostics</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/mgmt/">Device Management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/bindings/">Service Bindings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/dsc/">Data Store Connectors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/lec/">Last Event Cache</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/status/">Service Status</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/usage/">Usage Reports</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Device Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../device/">Device SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device/managed/">Managed Devices</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateway Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateway/">Gateway SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateway/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateway/managed/">Managed Gateways</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">IBM Watson IoT Platform</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Common Topics</li>
+      <li class="breadcrumb-item active">Custom Message Formats</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-watson-iot/iot-python/blob/master/docs/custommsg.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="custom-message-formats">Custom Message Formats<a class="headerlink" href="#custom-message-formats" title="Permanent link"></a></h1>
+<p>By default, the client library support encoding and decoding events and commands as <code>json</code> messages.  To add support
+for your own custom message formats you can create and register implementations of <code>wiotp.sdk.MessageCodec</code>.  MessageCodecs work for both commands and events.  To Implement a MessageCodec you must support two static class methods:</p>
+<h2 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link"></a></h2>
+<p>The job of the <code>encode(data, timestamp)</code> method is to take <code>data</code> (any python object) and optionally a <code>timestamp</code> (a <code>datetime.datetime</code> object) and 
+return a String representation of the message ready to be sent over MQTT.</p>
+<h2 id="decoding">Decoding<a class="headerlink" href="#decoding" title="Permanent link"></a></h2>
+<p>The job of <code>decode(message)</code> is to decode an incoming MQTT message and return an instance of <code>ibmiotf.Message</code></p>
+<h2 id="sample-code">Sample Code<a class="headerlink" href="#sample-code" title="Permanent link"></a></h2>
+<pre><code class="language-python">import yaml
+import wiotp.sdk.device
+import wiotp.sdk.Message
+import wiotp.sdk.MessageCodec
+
+class YamlCodec(ibmiotf.MessageCodec):
+
+    @staticmethod
+    def encode(data=None, timestamp=None):
+        return yaml.dumps(data)
+
+    @staticmethod
+    def decode(message):
+        try:
+            data = yaml.loads(message.payload.decode(&quot;utf-8&quot;))
+        except ValueError as e:
+            raise InvalidEventException(&quot;Unable to parse YAML.  payload=\&quot;%s\&quot; error=%s&quot; % (message.payload, str(e)))
+
+        timestamp = datetime.now(pytz.timezone('UTC'))
+
+        return wiotp.sdk.Message(data, timestamp)
+
+myConfig = ibmiotf.device.ParseConfigFile(&quot;device.yaml&quot;)
+client = ibmiotf.device.Client(config=myConfig, logHandlers=None)
+client.setMessageCodec(&quot;yaml&quot;, YamlCodec)
+myData = { 'hello' : 'world', 'x' : 100}
+
+# Publish the same event, in both json and yaml formats:
+client.publishEvent(&quot;status&quot;, &quot;json&quot;, myData)
+client.publishEvent(&quot;status&quot;, &quot;yaml&quot;, myData)
+</code></pre>
+<p>If you want to lookup which encoder is set for a specific message format use the <code>getMessageEncoderModule(msgFormt)</code>.  If an event is sent/received in an unknown format or if a client does not recognize the format, the client library will raise <code>wiotp.sdk.MissingMessageEncoderException</code> or <code>wiotp.sdk.MissingMessageDecoderException</code>.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-watson-iot/iot-python" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../mqtt/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../exceptions/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-watson-iot.github.io/iot-python/gateway/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Gateway SDK - IBM Watson IoT Platform</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Gateway SDK";
+        var mkdocs_page_input_path = "gateway/index.md";
+        var mkdocs_page_url = "/iot-python/gateway/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> IBM Watson IoT Platform
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Python SDK</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Common Topics</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../concepts/">Basic Concepts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mqtt/">MQTT Primer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../custommsg/">Custom Message Formats</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../exceptions/">Exceptions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Application Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/">Application SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/mqtt/commands/">Device Commands</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/mqtt/events/">Device Events</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/mqtt/status/">Device Status Updates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/registry/types/">Registry - Types</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/registry/devices/">Registry - Devices</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/registry/diag/">Registry - Diagnostics</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/mgmt/">Device Management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/bindings/">Service Bindings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/dsc/">Data Store Connectors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/lec/">Last Event Cache</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/status/">Service Status</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../application/api/usage/">Usage Reports</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Device Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../device/">Device SDK</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device/config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device/managed/">Managed Devices</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateway Development</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Gateway SDK</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connectivity">Connectivity</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#publishing-events">Publishing Events</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#handling-commands">Handling Commands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sample-code">Sample Code</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="managed/">Managed Gateways</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">IBM Watson IoT Platform</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Gateway Development</li>
+      <li class="breadcrumb-item active">Gateway SDK</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-watson-iot/iot-python/blob/master/docs/gateway/index.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="gateway-sdk">Gateway SDK<a class="headerlink" href="#gateway-sdk" title="Permanent link"></a></h1>
+<p>The <code>wiotp.sdk.gateway</code> package contains the following:</p>
+<p>Two client implementations:</p>
+<ul>
+<li><code>wiotp.sdk.gateway.GatewayClient</code></li>
+<li><code>wiotp.sdk.gateway.ManagedGatewayClient</code></li>
+</ul>
+<p>Support classes for working with the data model:</p>
+<ul>
+<li><code>wiotp.sdk.gateway.Command</code></li>
+<li><code>wiotp.sdk.gateway.Notification</code></li>
+<li><code>wiotp.sdk.gateway.DeviceInfo</code></li>
+<li><code>wiotp.sdk.gateway.DeviceFirmware</code></li>
+</ul>
+<p>Support methods for handling device configuration:</p>
+<ul>
+<li><code>wiotp.sdk.gateway.parseConfigFile</code></li>
+<li><code>wiotp.sdk.gateway.parseEnvVars</code></li>
+</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link"></a></h2>
+<p>Gateway configuration is passed to the client via the <code>config</code> parameter when you create the client instance.  See the <a href="config/">configure gateways</a> section for full details of all available options, and the built-in support for YAML file and environment variable sourced configuration.</p>
+<pre><code class="language-python">myConfig = { 
+    &quot;identity&quot;: {
+        &quot;orgId&quot;: &quot;org1id&quot;,
+        &quot;typeId&quot;: &quot;raspberry-pi-3&quot;
+        &quot;deviceId&quot;: &quot;00ef08ac05&quot;
+    }.
+    &quot;auth&quot; {
+        &quot;token&quot;: &quot;Ab$76s)asj8_s5&quot;
+    }
+}
+client = wiotp.sdk.gateway.GatewayClient(config=myConfig)
+</code></pre>
+<h2 id="connectivity">Connectivity<a class="headerlink" href="#connectivity" title="Permanent link"></a></h2>
+<p><code>connect()</code> &amp; <code>disconnect()</code> methods are used to manage the MQTT connection to IBM Watson IoT Platform that allows the gateway to 
+handle commands and publish events.</p>
+<h2 id="publishing-events">Publishing Events<a class="headerlink" href="#publishing-events" title="Permanent link"></a></h2>
+<p>Events are the mechanism by which devices &amp; gateway publish data to the Watson IoT Platform. The gateway
+controls the content of the event and assigns a name for each event that it sends.</p>
+<p>Events can be published with any of the three quality of service (QoS) levels that are defined
+by the MQTT protocol. By default, events are published with a QoS level of 0.</p>
+<p><code>publishEvent()</code> takes up to 5 arguments and submits an event from the gateway itself:</p>
+<ul>
+<li><code>eventId</code> Name of this event</li>
+<li><code>msgFormat</code> Format of the data for this event</li>
+<li><code>data</code> Data for this event</li>
+<li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+<li><code>onPublish</code> A function that will be called when receipt of the publication is confirmed.</li>
+</ul>
+<p><code>publishDeviceEvent()</code> takes up to 7 arguments and submits an event from a device connected to the gateway, rather than the gateway itself:</p>
+<ul>
+<li><code>typeId</code> Type ID of the device connected to this gateway that the event belongs to</li>
+<li><code>deviceId</code> Device ID of the device connected to this gateway that the event belongs to</li>
+<li><code>eventId</code> Name of this event</li>
+<li><code>msgFormat</code> Format of the data for this event</li>
+<li><code>data</code> Data for this event</li>
+<li><code>qos</code> MQTT quality of service level to use (<code>0</code>, <code>1</code>, or <code>2</code>)</li>
+<li><code>onPublish</code> A function that will be called when receipt of the publication is confirmed.</li>
+</ul>
+<p><strong>Callback and QoS</strong></p>
+<p>The use of the optional <code>onPublish</code> function has different implications depending
+on the level of qos used to publish the event:</p>
+<ul>
+<li>qos 0: the client has asynchronously begun to send the event</li>
+<li>qos 1 and 2: the client has confirmation of delivery from the platform</li>
+</ul>
+<pre><code class="language-python">def eventPublishCallback():
+    print(&quot;Device Publish Event done!!!&quot;)
+
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=eventPublishCallback)
+</code></pre>
+<h2 id="handling-commands">Handling Commands<a class="headerlink" href="#handling-commands" title="Permanent link"></a></h2>
+<p>Unlike devices, When the gateway client connects, it does <strong>not</strong> automatically subscribes to any commands. To 
+process specific commands, you need to explicitly subscribe as well as registering a command callback method.</p>
+<p>The messages are returned as an instance of the <code>Command</code> class with the following attributes:</p>
+<ul>
+<li><code>typeId</code>: Identifies the typeId of the device the command is directed at</li>
+<li><code>eventId</code>: Identifies the deviceId of the device the command is directed at</li>
+<li><code>commandId</code>: Identifies the commandId</li>
+<li><code>format</code>: Format that the command was encoded in, for example <code>json</code></li>
+<li><code>data</code>: Data for the payload converted to a Python dict by an impleentation of <code>MessageCodec</code></li>
+<li><code>timestamp</code>: Date and time that the event was recieved (as <code>datetime.datetime</code> object)</li>
+</ul>
+<p>If a command is recieved in an unknown format or if the gateway does not recognize the format, the gateway
+library raises <code>wiotp.sdk.MissingMessageDecoderException</code>.</p>
+<h2 id="sample-code">Sample Code<a class="headerlink" href="#sample-code" title="Permanent link"></a></h2>
+<pre><code class="language-python">import wiotp.sdk.gateway
+
+def myCommandCallback(cmd):
+    print(&quot;Command received for %s:%s: %s&quot; % (cmd.typeId, cmd.deviceId, cmd.data))
+
+# Configure
+myConfig = wiotp.sdk.gateway.parseConfigFile(&quot;gateway.yaml&quot;)
+client = wiotp.sdk.gateway.GatewayClient(config=myConfig, logHandlers=None)
+client.commandCallback = myCommandCallback
+
+# Connect
+client.connect()
+
+# Send data on behalf of the gateway itself
+myData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=myData, qos=0, onPublish=None)
+
+# Send data on behalf of a device connected to this gateway
+aDeviceData={'name' : 'foo', 'cpu' : 60, 'mem' : 50}
+client.publishEvent(eventId=&quot;status&quot;, msgFormat=&quot;json&quot;, data=aDeviceData, qos=0, onPublish=None)
+
+# Disconnect
+client.disconnect()
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-watson-iot/iot-python" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../device/managed/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="config/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
