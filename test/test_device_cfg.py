@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2016-2019 IBM Corporation and other Contributors.
+# Copyright (c) 2016, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -41,16 +41,6 @@ class TestDeviceCfg(testUtils.AbstractTest):
             )
         assert e.value.reason == "Missing identity.deviceId from configuration"
 
-    def testQuickstartWithAuth(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            wiotp.sdk.device.DeviceClient(
-                {
-                    "identity": {"orgId": "quickstart", "typeId": "myType", "deviceId": "myDevice"},
-                    "auth": {"token": "myToken"},
-                }
-            )
-        assert e.value.reason == "Quickstart service does not support device authentication"
-
     def testMissingAuth(self):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient({"identity": {"orgId": "myOrg", "typeId": "myType", "deviceId": "myDevice"}})
@@ -67,7 +57,8 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.DeviceClient(
                 {
-                    "identity": {"orgId": "quickstart", "typeId": "myType", "deviceId": "myDevice"},
+                    "identity": {"orgId": "myOrg", "typeId": "myType", "deviceId": "myDevice"},
+                    "auth": {"token": "myToken"},
                     "options": {"mqtt": {"port": "notAnInteger"}},
                 }
             )
@@ -98,11 +89,3 @@ class TestDeviceCfg(testUtils.AbstractTest):
         with pytest.raises(wiotp.sdk.ConfigurationException) as e:
             wiotp.sdk.device.parseConfigFile(deviceFile)
         assert e.value.reason == "Optional setting options.logLevel must be one of error, warning, info, debug"
-
-    def testMissingArgs(self):
-        devCliInstance = wiotp.sdk.application.ApplicationClient(
-            {}
-        )  # Attempting to connect without any arguments - testing the autofill
-        devCliInstance.connect()
-        assert devCliInstance.isConnected() == True
-        devCliInstance.disconnect()

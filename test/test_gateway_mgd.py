@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2016-2019 IBM Corporation and other Contributors.
+# Copyright (c) 2016, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -19,12 +19,6 @@ import unittest
 class TestGatewayMgd(testUtils.AbstractTest):
     registeredDevice = None
     registeredGateway = None
-
-    def testManagedgatewayQSException(self):
-        with pytest.raises(wiotp.sdk.ConfigurationException) as e:
-            options = {"identity": {"orgId": "quickstart", "typeId": "xxx", "deviceId": "xxx"}}
-            wiotp.sdk.gateway.ManagedGatewayClient(options)
-        assert "QuickStart does not support device management" == e.value.reason
 
     def testManagedGatewayConnectException(self, gateway):
         badOptions = {

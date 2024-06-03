@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2019 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -27,15 +27,10 @@ class DeviceClientConfig(defaultdict):
         if "deviceId" not in kwargs["identity"] or kwargs["identity"]["deviceId"] is None:
             raise ConfigurationException("Missing identity.deviceId from configuration")
 
-        # Authentication is not supported for quickstart
-        if kwargs["identity"]["orgId"] == "quickstart":
-            if "auth" in kwargs:
-                raise ConfigurationException("Quickstart service does not support device authentication")
-        else:
-            if "auth" not in kwargs:
-                raise ConfigurationException("Missing auth from configuration")
-            if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
-                raise ConfigurationException("Missing auth.token from configuration")
+        if "auth" not in kwargs:
+            raise ConfigurationException("Missing auth from configuration")
+        if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
+            raise ConfigurationException("Missing auth.token from configuration")
 
         if "options" in kwargs and "mqtt" in kwargs["options"]:
             # validate port
@@ -80,9 +75,6 @@ class DeviceClientConfig(defaultdict):
             kwargs["options"]["mqtt"]["caFile"] = None
 
         dict.__init__(self, **kwargs)
-
-    def isQuickstart(self):
-        return self["identity"]["orgId"] == "quickstart"
 
     @property
     def orgId(self):
@@ -183,7 +175,7 @@ def parseEnvVars():
         raise ConfigurationException("Missing WIOTP_IDENTITY_TYPEID environment variable")
     if deviceId is None:
         raise ConfigurationException("Missing WIOTP_IDENTITY_DEVICEID environment variable")
-    if orgId != "quickstart" and authToken is None:
+    if authToken is None:
         raise ConfigurationException("Missing WIOTP_AUTH_TOKEN environment variable")
     if port is not None:
         try:
@@ -221,11 +213,8 @@ def parseEnvVars():
                 "keepAlive": keepAlive,
             },
         },
+        "auth": {"token": authToken}
     }
-
-    # Quickstart doesn't support auth, so ensure we only add this if it's defined
-    if authToken is not None:
-        cfg["auth"] = {"token": authToken}
 
     return DeviceClientConfig(**cfg)
 

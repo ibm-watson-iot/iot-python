@@ -7,25 +7,10 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import json
-import re
-import pytz
-import uuid
-import threading
-import requests
-import logging
-import paho.mqtt.client as paho
-
-from datetime import datetime
 
 from wiotp.sdk import (
     AbstractClient,
-    InvalidEventException,
-    UnsupportedAuthenticationMethod,
-    ConfigurationException,
-    ConnectionException,
-    MissingMessageEncoderException,
-    MissingMessageDecoderException,
+    InvalidEventException
 )
 from wiotp.sdk.device import DeviceClient
 from wiotp.sdk.device.command import Command

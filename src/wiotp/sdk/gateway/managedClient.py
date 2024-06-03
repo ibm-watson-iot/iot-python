@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2016, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2016, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,24 +8,15 @@
 # *****************************************************************************
 
 import json
-import re
 import pytz
 import uuid
 import threading
-import requests
-import logging
-import paho.mqtt.client as paho
 
 from datetime import datetime
 
 from wiotp.sdk import (
     AbstractClient,
-    InvalidEventException,
-    UnsupportedAuthenticationMethod,
-    ConfigurationException,
-    ConnectionException,
-    MissingMessageEncoderException,
-    MissingMessageDecoderException,
+    InvalidEventException
 )
 from wiotp.sdk.device.managedClient import ManagedDeviceClient
 from wiotp.sdk.device.deviceInfo import DeviceInfo
@@ -50,9 +41,6 @@ class ManagedGatewayClient(ManagedDeviceClient):
         """
         Override the constructor
         """
-        if config["identity"]["orgId"] == "quickstart":
-            raise ConfigurationException("QuickStart does not support device management")
-
         self._config = GatewayClientConfig(**config)
 
         AbstractClient.__init__(

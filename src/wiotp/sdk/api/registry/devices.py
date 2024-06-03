@@ -336,36 +336,36 @@ class IterableDeviceList(IterableList):
 
 class Devices(defaultdict):
     """
-    Use the global unique identifier of a device, it's `clientId` to address devices. 
-    
+    Use the global unique identifier of a device, it's `clientId` to address devices.
+
     # Delete
-    
+
     ```python
     del devices["d:orgId:typeId:deviceId"]
     ```
-    
+
     # Get
-    Use the global unique identifier of a device, it's `clientId`. 
-    
+    Use the global unique identifier of a device, it's `clientId`.
+
     ```python
     device = devices["d:orgId:typeId:deviceId"]
     print(device.clientId)
     print(device)
-    
+
     # Is a device registered?
-    
+
     ```python
     if "d:orgId:typeId:deviceId" in devices:
         print("The device exists")
     ```
-    
+
     # Iterate through all registered devices
-    
+
     ```python
     for device in devices:
         print(device)
     ```
-    
+
     """
 
     # https://docs.python.org/2/library/collections.html#defaultdict-objects
@@ -456,9 +456,9 @@ class Devices(defaultdict):
         The response body will contain the generated authentication tokens for all devices.
         You must make sure to record these tokens when processing the response.
         We are not able to retrieve lost authentication tokens
-        
+
         It accepts accepts a list of devices (List of Dictionary of Devices), or a single device
-        
+
         If you provide a list as the parameter it will return a list in response
         If you provide a singular device it will return a singular response
         """

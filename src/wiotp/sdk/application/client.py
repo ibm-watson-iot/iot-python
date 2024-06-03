@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -7,36 +7,29 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import os
-import re
-import json
-import iso8601
-import uuid
 from datetime import datetime
 
-from wiotp.sdk import ConnectionException, MissingMessageEncoderException, AbstractClient, InvalidEventException
+from wiotp.sdk import MissingMessageEncoderException, AbstractClient, InvalidEventException
 from wiotp.sdk.application.messages import Status, Command, Event, State, Error, ThingError, DeviceState
 from wiotp.sdk.application.config import ApplicationClientConfig
 from wiotp.sdk.api import ApiClient, Registry, Usage, ServiceStatus, DSC, LEC, Mgmt, ServiceBindings, Actions, StateMgr
 
 import paho.mqtt.client as paho
 
-import requests
-
 
 class ApplicationClient(AbstractClient):
     """
-    Extends #wiotp.AbstractClient to implement an application client supporting 
+    Extends #wiotp.AbstractClient to implement an application client supporting
     messaging over MQTT
-        
+
     # Parameters
     options (dict): Configuration options for the client
-    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`, 
+    logHandlers (list<logging.Handler>): Log handlers to configure.  Defaults to `None`,
         which will result in a default log handler being created.
-    
+
     # Configuration Options
     The options parameter expects a Python dictionary containing the following keys:
-    
+
     - `auth-key` The API key to to securely connect your application to Watson IoT Platform.
     - `auth-token` An authentication token to securely connect your application to Watson IoT Platform.
     - `clean-session` A boolean value indicating whether to use MQTT clean session.
@@ -71,9 +64,8 @@ class ApplicationClient(AbstractClient):
         self.client.message_callback_add("iot-2/type/+/id/+/err/data", self._onErrorTopic)
         self.client.message_callback_add("iot-2/thing/type/+/id/+/err/data", self._onThingError)
 
-        # Add handler for commands if not connected to QuickStart
-        if not self._config.isQuickstart():
-            self.client.message_callback_add("iot-2/type/+/id/+/cmd/+/fmt/+", self._onDeviceCommand)
+        # Add handler for commands
+        self.client.message_callback_add("iot-2/type/+/id/+/cmd/+/fmt/+", self._onDeviceCommand)
 
         # Attach fallback handler
         self.client.on_message = self._onUnsupportedMessage
@@ -87,26 +79,22 @@ class ApplicationClient(AbstractClient):
         self.errorTopicCallback = None
         self.appStatusCallback = None
 
-        # Create an api client if not connected in QuickStart mode
-        if not self._config.isQuickstart():
-            apiClient = ApiClient(self._config, self.logger)
-            self.registry = Registry(apiClient)
-            self.usage = Usage(apiClient)
-            self.dsc = DSC(apiClient)
-            self.lec = LEC(apiClient)
-            self.mgmt = Mgmt(apiClient)
-            self.serviceBindings = ServiceBindings(apiClient)
-            self.actions = Actions(apiClient)
-            self.state = StateMgr(apiClient)
+        # Create an api client
+        apiClient = ApiClient(self._config, self.logger)
+        self.registry = Registry(apiClient)
+        self.usage = Usage(apiClient)
+        self.dsc = DSC(apiClient)
+        self.lec = LEC(apiClient)
+        self.mgmt = Mgmt(apiClient)
+        self.serviceBindings = ServiceBindings(apiClient)
+        self.actions = Actions(apiClient)
+        self.state = StateMgr(apiClient)
 
-            # We directly expose the get() method via self.serviceStatus()
-            self._serviceStatus = ServiceStatus(apiClient)
+        # We directly expose the get() method via self.serviceStatus()
+        self._serviceStatus = ServiceStatus(apiClient)
 
     def serviceStatus(self):
-        if not self._config.isQuickstart():
-            return self._serviceStatus.get()
-        else:
-            return None
+        return self._serviceStatus.get()
 
     def subscribeToDeviceEvents(self, typeId="+", deviceId="+", eventId="+", msgFormat="+", qos=0):
         """
@@ -125,12 +113,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart() and deviceId == "+":
-            self.logger.warning(
-                "QuickStart applications do not support wildcard subscription to events from all devices"
-            )
-            return 0
-
         topic = "iot-2/type/%s/id/%s/evt/%s/fmt/%s" % (typeId, deviceId, eventId, msgFormat)
         return self._subscribe(topic, qos)
 
@@ -148,10 +130,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart() and deviceId == "+":
-            self.logger.warning("QuickStart applications do not support wildcard subscription to device status")
-            return 0
-
         topic = "iot-2/type/%s/id/%s/mon" % (typeId, deviceId)
         return self._subscribe(topic, 0)
 
@@ -169,10 +147,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart() and Id == "+":
-            self.logger.warning("QuickStart applications do not support wildcard subscription to error topics")
-            return 0
-
         topic = "iot-2/type/%s/id/%s/err/data" % (typeId, Id)
         return self._subscribe(topic, 0)
 
@@ -190,10 +164,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart() and Id == "+":
-            self.logger.warning("QuickStart applications do not support wildcard subscription to error topics")
-            return 0
-
         topic = "iot-2/thing/type/%s/id/%s/err/data" % (typeId, Id)
         return self._subscribe(topic, 0)
 
@@ -212,10 +182,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart():
-            self.logger.warning("QuickStart applications do not support thing state")
-            return 0
-
         topic = "iot-2/thing/type/%s/id/%s/intf/%s/evt/state" % (typeId, thingId, logicalInterfaceId)
         return self._subscribe(topic, 0)
 
@@ -234,10 +200,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart():
-            self.logger.warning("QuickStart applications do not support device state")
-            return 0
-
         topic = "iot-2/type/%s/id/%s/intf/%s/evt/state" % (typeId, deviceId, logicalInterfaceId)
         return self._subscribe(topic, 0)
 
@@ -258,10 +220,6 @@ class ApplicationClient(AbstractClient):
             the mid argument if you register a subscriptionCallback method.
             If the subscription fails then the return value will be `0`
         """
-        if self._config.isQuickstart():
-            self.logger.warning("QuickStart applications do not support commands")
-            return 0
-
         topic = "iot-2/type/%s/id/%s/cmd/%s/fmt/%s" % (typeId, deviceId, commandId, msgFormat)
         return self._subscribe(topic, 0)
 
@@ -285,9 +243,6 @@ class ApplicationClient(AbstractClient):
             - qos 0 : the client has asynchronously begun to send the event
             - qos 1 and 2 : the client has confirmation of delivery from WIoTP
         """
-        if self._config.isQuickstart():
-            self.logger.warning("QuickStart applications do not support sending commands")
-            return False
         if not self.connectEvent.wait(timeout=10):
             return False
         else:

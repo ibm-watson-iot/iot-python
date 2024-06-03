@@ -17,9 +17,8 @@ resources:
 
 
 # WIoTP device configuration properties -- override these to connect
-# Without any configuration, the defaults will result in a connection to Quickstart
 identity:
-  orgId: quickstart
+  orgId: <undefined>
   typeId: <undefined>
   deviceId: <undefined>
 auth:

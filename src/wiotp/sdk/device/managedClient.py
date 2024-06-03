@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2014, 2018 IBM Corporation and other Contributors.
+# Copyright (c) 2014, 2024 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -62,9 +62,6 @@ class ManagedDeviceClient(DeviceClient):
     UPDATESTATE_INVALID_URI = 6
 
     def __init__(self, config, logHandlers=None, deviceInfo=None):
-        if config["identity"]["orgId"] == "quickstart":
-            raise ConfigurationException("QuickStart does not support device management")
-
         DeviceClient.__init__(self, config, logHandlers)
 
         # Initialize user supplied callback

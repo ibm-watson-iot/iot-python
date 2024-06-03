@@ -1,0 +1,61 @@
+name: Python Package
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+        primary-config: ["true", "false"]
+        # There may be a better way to do this, but it was the first way I found to set a variable for specific matrix entry
+        exclude:
+          - python-version: "3.9"
+            primary-config: "true"
+          - python-version: "3.10"
+            primary-config: "false"
+          - python-version: "3.11"
+            primary-config: "true"
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] flake8
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest (only on Python 3.11 to avoid concurrency issues)
+      if: ${{ (github.ref == 'refs/heads/actions') && (matrix.primary-config == 'true') }}
+      env:
+        ONE_JOB_ONLY_TESTS: ${{ matrix.primary-config }}
+        WIOTP_API_KEY: ${{ secrets.WIOTP_API_KEY }}
+        WIOTP_API_TOKEN: ${{ secrets.WIOTP_API_TOKEN }}
+        WIOTP_ORG_ID: ${{ secrets.WIOTP_ORG_ID }}
+        CLOUDANT_HOST: ${{ secrets.CLOUDANT_HOST }}
+        CLOUDANT_PORT: ${{ secrets.CLOUDANT_PORT }}
+        CLOUDANT_USERNAME: ${{ secrets.CLOUDANT_USERNAME }}
+        CLOUDANT_PASSWORD: ${{ secrets.CLOUDANT_PASSWORD }}
+        EVENTSTREAMS_API_KEY: ${{ secrets.EVENTSTREAMS_API_KEY }}
+        EVENTSTREAMS_ADMIN_URL: ${{ secrets.EVENTSTREAMS_ADMIN_URL }}
+        EVENTSTREAMS_BROKER1: ${{ secrets.EVENTSTREAMS_BROKER1 }}
+        EVENTSTREAMS_BROKER2: ${{ secrets.EVENTSTREAMS_BROKER2 }}
+        EVENTSTREAMS_BROKER3: ${{ secrets.EVENTSTREAMS_BROKER3 }}
+        EVENTSTREAMS_BROKER4: ${{ secrets.EVENTSTREAMS_BROKER4 }}
+        EVENTSTREAMS_BROKER5: ${{ secrets.EVENTSTREAMS_BROKER5 }}
+        EVENTSTREAMS_BROKER6: ${{ secrets.EVENTSTREAMS_BROKER6 }}
+        EVENTSTREAMS_USER: ${{ secrets.EVENTSTREAMS_USER }}
+        EVENTSTREAMS_PASSWORD: ${{ secrets.EVENTSTREAMS_PASSWORD }}
+      run: |
+        pytest
