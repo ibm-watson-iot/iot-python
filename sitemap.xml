@@ -2,127 +2,127 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/concepts/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/custommsg/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/exceptions/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/mqtt/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/config/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/bindings/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/dsc/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/lec/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/mgmt/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/status/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/usage/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/registry/devices/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/registry/diag/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/api/registry/types/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/mqtt/commands/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/mqtt/events/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/application/mqtt/status/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/device/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/device/config/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/device/managed/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/gateway/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/gateway/config/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ibm-watson-iot.github.io/iot-python/gateway/managed/</loc>
-         <lastmod>2024-06-03</lastmod>
+         <lastmod>2024-06-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
