@@ -17,9 +17,9 @@ jobs:
           - python-version: "3.9"
             primary-config: "true"
           - python-version: "3.10"
-            primary-config: "false"
-          - python-version: "3.11"
             primary-config: "true"
+          - python-version: "3.11"
+            primary-config: "false"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -37,7 +37,7 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest (only on Python 3.11 to avoid concurrency issues)
-      if: ${{ (github.ref == 'refs/heads/actions') && (matrix.primary-config == 'true') }}
+      if: ${{ (github.ref == 'refs/heads/master') && (matrix.primary-config == 'true') }}
       env:
         ONE_JOB_ONLY_TESTS: ${{ matrix.primary-config }}
         WIOTP_API_KEY: ${{ secrets.WIOTP_API_KEY }}
