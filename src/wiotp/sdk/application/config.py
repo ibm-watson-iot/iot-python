@@ -248,11 +248,8 @@ def parseEnvVars():
         "auth": {"key": authKey, "token": authToken}
     }
 
-<<<<<<< HEAD
-=======
     cfg["auth"] = {"key": authKey, "token": authToken}
 
->>>>>>> 1ec819d (Fix the unit tests)
     return ApplicationClientConfig(**cfg)
 
 
