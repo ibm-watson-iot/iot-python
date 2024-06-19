@@ -21,7 +21,7 @@ from wiotp.sdk.api.services import (
 from wiotp.sdk.exceptions import ApiException
 
 
-@pytest.mark.skipif(os.getenv("DB2_PASSWORD") is None, reason="DB2 settings not provided")
+@pytest.mark.skipif(os.getenv("DB2_PASSWORD") is None or os.getenv("DB2_PASSWORD") == "", reason="DB2 settings not provided")
 @testUtils.oneJobOnlyTest
 class TestDscDb2(testUtils.AbstractTest):
     def checkDB2Service(self, service, name, description):
