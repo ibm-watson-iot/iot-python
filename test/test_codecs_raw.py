@@ -24,9 +24,11 @@ class NonJsonDummyPahoMessage(object):
             # python 3
             self.payload.extend(map(ord, object))
 
+
 class NonByteDummyPahoMessage(object):
     def __init__(self, object):
         self.payload = "not a byteArray"
+
 
 class TestDevice(testUtils.AbstractTest):
     def testFileObject(self):
@@ -51,5 +53,3 @@ class TestDevice(testUtils.AbstractTest):
         with pytest.raises(InvalidEventException) as e:
             message = RawCodec.decode(NonByteDummyPahoMessage("{sss,eee}"))
         assert e.value.reason == "Unable to decode message, it is not a bytearray"
-
-

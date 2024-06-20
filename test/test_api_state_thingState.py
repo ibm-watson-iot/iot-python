@@ -14,7 +14,7 @@ import time
 import pytest
 import string
 import json
-from test_state_utils import TestStateUtils
+import test_state_utils as TestStateUtils
 
 
 @testUtils.oneJobOnlyTest
@@ -41,7 +41,7 @@ class TestThing(testUtils.AbstractTest):
     testPhysicalInterfaceName = "python-api-test-dt-pi"
 
     # Logical Interface Stuff
-    testLiSchemaName = "python-api-test-dt-li-schema"
+    testLISchemaName = "python-api-test-dt-li-schema"
     testLISchema = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
@@ -115,7 +115,7 @@ class TestThing(testUtils.AbstractTest):
 
         # delete any left over logical interfaces
         for li in self.appClient.state.draft.logicalInterfaces:
-            if li.name == TestThing.testLogicalInterfaceName:
+            if li.name in (TestThing.testLogicalInterfaceName, TestThing.testThingLISchema):
                 print("Deleting old test LI: %s" % (li))
                 del self.appClient.state.draft.logicalInterfaces[li.id]
 
@@ -131,7 +131,12 @@ class TestThing(testUtils.AbstractTest):
                 del self.appClient.state.draft.eventTypes[et.id]
 
         for s in self.appClient.state.draft.schemas:
-            if s.name in (TestThing.testEventSchemaName, TestThing.testLiSchemaName):
+            if s.name in (
+                TestThing.testEventSchemaName,
+                TestThing.testLISchemaName,
+                TestThing.thingLISchemaName,
+                TestThing.thingSchemaName,
+            ):
                 print("Deleting old test schema instance: %s" % (s))
                 del self.appClient.state.draft.schemas[s.id]
 
@@ -229,7 +234,7 @@ class TestThing(testUtils.AbstractTest):
 
     def testCreatePreReqs(self):
         # LI
-        test_schema_name = TestThing.testLiSchemaName
+        test_schema_name = TestThing.testLISchemaName
         assert self.doesSchemaNameExist(test_schema_name) == False
         testLIName = TestThing.testLogicalInterfaceName
         assert self.doesLINameExist(testLIName) == False
@@ -333,7 +338,7 @@ class TestThing(testUtils.AbstractTest):
         }
 
         # create thing type schema
-        thingSchema = TestStateUtils.createSchema(
+        TestThing.createdThingSchema = TestStateUtils.createSchema(
             self.appClient,
             TestThing.thingSchemaName,
             "liThingSchema.json",
@@ -343,7 +348,7 @@ class TestThing(testUtils.AbstractTest):
 
         # create and check thing type
         TestThing.createdTT = self.createAndCheckTT(
-            TestThing.thingTypeId, "temperature type", "Test Device Type description", thingSchema.id
+            TestThing.thingTypeId, "temperature type", "Test Device Type description", TestThing.createdThingSchema.id
         )
 
         testThingTypeLISchema = {
@@ -356,7 +361,7 @@ class TestThing(testUtils.AbstractTest):
         }
 
         # create thing type LI schema
-        thingLISchema = TestStateUtils.createSchema(
+        TestThing.createdThingLISchema = TestStateUtils.createSchema(
             self.appClient,
             TestThing.thingLISchemaName,
             "liThingSchema.json",
@@ -366,7 +371,7 @@ class TestThing(testUtils.AbstractTest):
 
         # Create a Logical Interface
         TestThing.createdThingLI = self.createLI(
-            TestThing.testThingLISchema, "Test Logical Interface description", thingLISchema.id
+            TestThing.testThingLISchema, "Test Logical Interface description", TestThing.createdThingLISchema.id
         )
 
         # create logical interface for thingType
@@ -438,9 +443,9 @@ class TestThing(testUtils.AbstractTest):
     def testThingStateErrors(self):
         # Check state for a non existent LI
         try:
-            dummyLiId = "DummyLI"
-            thingState = TestThing.createdThing.states[dummyLiId]
-            print("There should be no thing state for LI %s. We have: %s" % (dummyLiId, thingState))
+            dummyLIId = "DummyLI"
+            thingState = TestThing.createdThing.states[dummyLIId]
+            print("There should be no thing state for LI %s. We have: %s" % (dummyLIId, thingState))
             assert False == True  # fail
         except KeyError as e:
             assert True  # This is what we expect
@@ -493,9 +498,18 @@ class TestThing(testUtils.AbstractTest):
         del self.appClient.state.draft.logicalInterfaces[TestThing.createdLI.id]
         assert self.doesLINameExist(TestThing.testLogicalInterfaceName) == False
 
+        # Delete the LI
+        del self.appClient.state.draft.logicalInterfaces[TestThing.createdThingLI.id]
+        assert self.doesLINameExist(TestThing.testThingLISchema) == False
+
         # Delete the schema
         del self.appClient.state.draft.schemas[TestThing.createdLISchema.id]
-        assert self.doesSchemaNameExist(TestThing.testLiSchemaName) == False
+        assert self.doesSchemaNameExist(TestThing.testLISchemaName) == False
+
+        del self.appClient.state.draft.schemas[TestThing.createdThingSchema.id]
+        assert self.doesSchemaNameExist(TestThing.thingSchemaName) == False
+        del self.appClient.state.draft.schemas[TestThing.createdThingLISchema.id]
+        assert self.doesSchemaNameExist(TestThing.thingLISchemaName) == False
 
 
 #

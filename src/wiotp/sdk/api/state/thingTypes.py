@@ -179,6 +179,7 @@ class ActiveLogicalInterfaces(RestApiDict):
 # Mappings for the Thing Type
 # =========================================================================
 
+
 # define the common properties found on most Rest API Items
 class ThingTypeMapping(defaultdict):
     def __init__(self, **kwargs):

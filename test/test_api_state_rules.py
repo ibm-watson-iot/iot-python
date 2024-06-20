@@ -71,9 +71,9 @@ class TestRules(testUtils.AbstractTest):
         assert rule.notificationStrategy == notificationStrategy
 
         assert isinstance(rule.created, datetime)
-        assert isinstance(rule.createdBy, str)
+        assert testUtils.isstring(rule.createdBy)
         assert isinstance(rule.updated, datetime)
-        assert isinstance(rule.updatedBy, str)
+        assert testUtils.isstring(rule.updatedBy)
 
     def doesSchemaNameExist(self, name):
         for a in self.appClient.state.draft.schemas.find({"name": name}):

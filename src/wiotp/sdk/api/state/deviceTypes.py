@@ -21,6 +21,7 @@ from wiotp.sdk.api.state.devices import Devices
 from wiotp.sdk.api.state.logicalInterfaces import BaseLogicalInterface
 from wiotp.sdk.api.state.physicalInterfaces import PhysicalInterface
 
+
 # =========================================================================
 # Physical Interface for the Device Type
 # =========================================================================
@@ -165,6 +166,7 @@ class ActiveLogicalInterfaces(RestApiDict):
 # =========================================================================
 # Mappings for the Device Type
 # =========================================================================
+
 
 # define the common properties found on most Rest API Items
 class DeviceTypeMapping(defaultdict):

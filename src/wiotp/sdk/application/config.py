@@ -18,9 +18,9 @@ from wiotp.sdk import ConfigurationException
 
 class ApplicationClientConfig(defaultdict):
     def __init__(self, **kwargs):
-        if "auth" not in kwargs or kwargs["auth"] is None:
+        # previously quickstart supported unauthenticated connections but has been removed
+        if "auth" not in kwargs:
             raise ConfigurationException("Missing auth from configuration")
-
         if "key" not in kwargs["auth"] or kwargs["auth"]["key"] is None:
             raise ConfigurationException("Missing auth.key from configuration")
         if "token" not in kwargs["auth"] or kwargs["auth"]["token"] is None:
@@ -247,6 +247,8 @@ def parseEnvVars():
         },
         "auth": {"key": authKey, "token": authToken}
     }
+
+    cfg["auth"] = {"key": authKey, "token": authToken}
 
     return ApplicationClientConfig(**cfg)
 

@@ -15,12 +15,12 @@ from wiotp.sdk import InvalidEventException, MissingMessageEncoderException, Mis
 class Command:
     """
     Represents a command sent to a device.
-    
+
     # Parameters
     pahoMessage (?): ?
-    messageEncoderModules (dict): Dictionary of Python modules, keyed to the 
-        message format the module should use. 
-    
+    messageEncoderModules (dict): Dictionary of Python modules, keyed to the
+        message format the module should use.
+
     # Attributes
     command (string): Identifies the command.
     format (string): The format can be any string, for example JSON.
@@ -28,7 +28,7 @@ class Command:
     timestamp (datetime): The date and time of the event.
 
     # Raises
-    InvalidEventException: If the command was recieved on a topic that does 
+    InvalidEventException: If the command was recieved on a topic that does
         not match the regular expression `iot-2/cmd/(.+)/fmt/(.+)`
     """
 

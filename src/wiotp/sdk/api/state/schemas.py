@@ -78,7 +78,6 @@ class DraftSchemas(RestApiDict):
         super(DraftSchemas, self).__init__(apiClient, Schema, IterableSchemaList, "api/v0002/draft/schemas")
 
     def create(self, name, schemaFileName, schemaContents, description):
-
         """
         Create a schema for the org.
         Returns: schemaId (string), response (object).
