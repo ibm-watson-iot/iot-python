@@ -41,7 +41,7 @@ class TestThing(testUtils.AbstractTest):
     testPhysicalInterfaceName = "python-api-test-dt-pi"
 
     # Logical Interface Stuff
-    testLiSchemaName = "python-api-test-dt-li-schema"
+    testLISchemaName = "python-api-test-dt-li-schema"
     testLISchema = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
@@ -133,7 +133,7 @@ class TestThing(testUtils.AbstractTest):
         for s in self.appClient.state.draft.schemas:
             if s.name in (
                 TestThing.testEventSchemaName,
-                TestThing.testLiSchemaName,
+                TestThing.testLISchemaName,
                 TestThing.thingLISchemaName,
                 TestThing.thingSchemaName,
             ):
@@ -234,7 +234,7 @@ class TestThing(testUtils.AbstractTest):
 
     def testCreatePreReqs(self):
         # LI
-        test_schema_name = TestThing.testLiSchemaName
+        test_schema_name = TestThing.testLISchemaName
         assert self.doesSchemaNameExist(test_schema_name) == False
         testLIName = TestThing.testLogicalInterfaceName
         assert self.doesLINameExist(testLIName) == False
@@ -443,9 +443,9 @@ class TestThing(testUtils.AbstractTest):
     def testThingStateErrors(self):
         # Check state for a non existent LI
         try:
-            dummyLiId = "DummyLI"
-            thingState = TestThing.createdThing.states[dummyLiId]
-            print("There should be no thing state for LI %s. We have: %s" % (dummyLiId, thingState))
+            dummyLIId = "DummyLI"
+            thingState = TestThing.createdThing.states[dummyLIId]
+            print("There should be no thing state for LI %s. We have: %s" % (dummyLIId, thingState))
             assert False == True  # fail
         except KeyError as e:
             assert True  # This is what we expect
@@ -504,7 +504,7 @@ class TestThing(testUtils.AbstractTest):
 
         # Delete the schema
         del self.appClient.state.draft.schemas[TestThing.createdLISchema.id]
-        assert self.doesSchemaNameExist(TestThing.testLiSchemaName) == False
+        assert self.doesSchemaNameExist(TestThing.testLISchemaName) == False
 
         del self.appClient.state.draft.schemas[TestThing.createdThingSchema.id]
         assert self.doesSchemaNameExist(TestThing.thingSchemaName) == False
