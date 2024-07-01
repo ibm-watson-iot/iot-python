@@ -7,6 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 #
+
+# Disabled as we don't have a Db2 instance to test with
 import uuid
 from datetime import datetime
 import testUtils
