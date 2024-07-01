@@ -8,7 +8,6 @@
 # *****************************************************************************
 
 from datetime import date, timedelta, datetime
-import pytest
 import testUtils
 from wiotp.sdk.api.usage import DayDataTransfer, DataTransferSummary
 

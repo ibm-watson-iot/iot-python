@@ -8,10 +8,9 @@
 # *****************************************************************************
 
 import uuid
-from datetime import datetime
 import pytest
 import testUtils
-from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation
+from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
 

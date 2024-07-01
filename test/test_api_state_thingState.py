@@ -8,11 +8,7 @@
 # *****************************************************************************
 #
 import uuid
-from datetime import datetime
 import testUtils
-import time
-import pytest
-import string
 import json
 from test_state_utils import TestStateUtils
 

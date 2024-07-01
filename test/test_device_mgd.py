@@ -9,10 +9,7 @@
 
 import pytest
 import testUtils
-import uuid
-import os
 import wiotp.sdk
-import time
 from wiotp.sdk.device import ManagedDeviceClient
 from wiotp.sdk import Utf8Codec
 

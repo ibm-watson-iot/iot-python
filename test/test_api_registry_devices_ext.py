@@ -7,13 +7,12 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import uuid
 import time
 from datetime import datetime
 import testUtils
 
 import wiotp.sdk.device
-from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
+from wiotp.sdk.api.registry.devices import DeviceLocation, LogEntry
 from wiotp.sdk.exceptions import ApiException
 
 

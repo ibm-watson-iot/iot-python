@@ -7,7 +7,6 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-from datetime import datetime, timedelta
 import uuid
 import pytest
 import testUtils

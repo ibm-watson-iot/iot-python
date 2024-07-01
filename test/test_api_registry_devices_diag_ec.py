@@ -11,10 +11,7 @@ import uuid
 import time
 from datetime import datetime
 import testUtils
-import wiotp.sdk.device
-from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest, DeviceLocation, LogEntry
-from wiotp.sdk.api.registry.diag import DeviceLog, DeviceErrorCode, DeviceErrorCodes, DeviceLogs
-from wiotp.sdk.exceptions import ApiException
+from wiotp.sdk.api.registry.diag import DeviceErrorCode, DeviceErrorCodes, DeviceLogs
 import pytest
 
 

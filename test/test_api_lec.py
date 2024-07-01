@@ -8,16 +8,11 @@
 # *****************************************************************************
 
 import base64
-import uuid
-import os
 import json
 import time
-import pytest
 import testUtils
 from datetime import datetime
 from wiotp.sdk.device import DeviceClient
-from wiotp.sdk.api.registry.devices import DeviceUid, DeviceInfo, DeviceCreateRequest
-from wiotp.sdk.exceptions import ApiException
 
 
 class TestLEC(testUtils.AbstractTest):

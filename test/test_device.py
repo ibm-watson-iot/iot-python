@@ -7,13 +7,11 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import copy
-import uuid
 import testUtils
 import pytest
 import wiotp.sdk.device
 import wiotp.sdk.application
-from wiotp.sdk.exceptions import ApiException, ConnectionException, MissingMessageEncoderException
+from wiotp.sdk.exceptions import ConnectionException, MissingMessageEncoderException
 
 
 class TestDevice(testUtils.AbstractTest):

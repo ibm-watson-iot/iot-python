@@ -6,10 +6,8 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
+#
 
-# Disabled as we don't have an Event Streams instance to test with
-
-import uuid
 from datetime import datetime
 import pytest
 import testUtils
@@ -18,7 +16,7 @@ import time
 from wiotp.sdk.api.services import EventStreamsServiceBindingCredentials, EventStreamsServiceBindingCreateRequest
 from wiotp.sdk.exceptions import ApiException
 
-
+@pytest.mark.skip(reason="We don't have an Event Streams instance to test against")
 @testUtils.oneJobOnlyTest
 class TestDscEventStreams(testUtils.AbstractTest):
 

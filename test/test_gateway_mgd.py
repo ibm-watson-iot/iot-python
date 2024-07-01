@@ -7,13 +7,11 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import uuid
 import pytest
 import testUtils
 import wiotp.sdk
 from wiotp.sdk.gateway import ManagedGatewayClient
 from wiotp.sdk import Utf8Codec
-import unittest
 
 
 class TestGatewayMgd(testUtils.AbstractTest):

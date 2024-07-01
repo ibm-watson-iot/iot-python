@@ -11,7 +11,7 @@
 import os
 import testUtils
 
-from wiotp.sdk import InvalidEventException, Utf8Codec
+from wiotp.sdk import Utf8Codec
 
 
 class NonJsonDummyPahoMessage(object):

@@ -7,8 +7,6 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-import copy
-
 import wiotp.sdk
 
 import pytz
@@ -23,12 +21,12 @@ class MyCodec(wiotp.sdk.MessageCodec):
     def encode(data=None, timestamp=None):
         """
         Dedicated encoder for supporting a very specific dataset, serialises a dictionary object
-        of the following format: 
+        of the following format:
           {
-            'hello' : 'world', 
+            'hello' : 'world',
             'x' : 10
           }
-        
+
         into a simple comma-seperated message:
           world,10
         """
@@ -37,14 +35,14 @@ class MyCodec(wiotp.sdk.MessageCodec):
     @staticmethod
     def decode(message):
         """
-        The decoder understands the comma-seperated format produced by the encoder and 
+        The decoder understands the comma-seperated format produced by the encoder and
         allocates the two values to the correct keys:
-        
+
           data['hello'] = 'world'
           data['x'] = 10
 
         The MQTT message is a byte array, after splitting it convert to string and int
-          
+
         """
         (hello, x) = message.payload.decode("utf-8").split(",")
 

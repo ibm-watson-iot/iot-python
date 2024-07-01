@@ -9,7 +9,6 @@
 
 
 import json
-import os
 import testUtils
 import pytest
 

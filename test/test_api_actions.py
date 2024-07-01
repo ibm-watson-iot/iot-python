@@ -7,13 +7,9 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 #
-import uuid
 from datetime import datetime
 import testUtils
 import time
-import pytest
-from wiotp.sdk.exceptions import ApiException
-import string
 import sys
 import json
 
