@@ -17,7 +17,7 @@ Application configuration can be broken down into required and optional configur
 - `options.mqtt.cleanStart` A boolean value indicating whether to discard any previous state when reconnecting to the service.  Defaults to `False`.
 - `options.mqtt.sessionExpiry` When cleanStart is disabled, defines the maximum age of the previous session (in seconds).  Defaults to `False`.
 - `options.mqtt.keepAlive` Control the frequency of MQTT keep alive packets (in seconds).  Details to `60`.
-- `options.mqtt.caFile` A String value indicating the path to a CA file (in pem format) to use in verifying the server certificate.  Defaults to `messaging.pem` inside this module.
+- `options.mqtt.caFile` A String value indicating the path to a CA file (in pem format) to use in verifying the server certificate.  Defaults to `messaging.pem` inside this module. Use the special string `"_os_"` to use default python/OS truststore.
 
 
 The config parameter when constructing an instance of `wiotp.sdk.application.ApplicationClient` expects to be passed a dictionary containing this configuration:
