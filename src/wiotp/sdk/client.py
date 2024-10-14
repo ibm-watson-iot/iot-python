@@ -176,6 +176,9 @@ class AbstractClient(object):
                 # Path to default CA certificate if none provided
                 if caFile is None:
                     caFile = os.path.dirname(os.path.abspath(__file__)) + "/messaging.pem"
+                elif caFile == "_os_":
+                    self.logger.debug("Using OS trust store for certification verification")
+                    caFile=None
 
                 self.client.tls_set(
                     ca_certs=caFile,
