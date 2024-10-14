@@ -170,7 +170,7 @@
 <li><code>options.mqtt.cleanStart</code> A boolean value indicating whether to discard any previous state when reconnecting to the service.  Defaults to <code>False</code>.</li>
 <li><code>options.mqtt.sessionExpiry</code> When cleanStart is disabled, defines the maximum age of the previous session (in seconds).  Defaults to <code>False</code>.</li>
 <li><code>options.mqtt.keepAlive</code> Control the frequency of MQTT keep alive packets (in seconds).  Details to <code>60</code>.</li>
-<li><code>options.mqtt.caFile</code> A String value indicating the path to a CA file (in pem format) to use in verifying the server certificate.  Defaults to <code>messaging.pem</code> inside this module.</li>
+<li><code>options.mqtt.caFile</code> A String value indicating the path to a CA file (in pem format) to use in verifying the server certificate.  Defaults to <code>messaging.pem</code> inside this module. Use the special string <code>"_os_"</code> to use default python/OS truststore.</li>
 </ul>
 <p>The config parameter when constructing an instance of <code>wiotp.sdk.device.DeviceClient</code> expects to be passed a dictionary containing this configuration:</p>
 <pre><code class="language-python">myConfig = { 
