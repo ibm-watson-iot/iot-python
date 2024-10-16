@@ -15,7 +15,6 @@ _build/*
 src/wiotp_sdk.egg-info/*
 MANIFEST
 README.txt
-build/*
 dist/*
 .coverage
 tox.out
@@ -25,5 +24,6 @@ samples/*.exe
 samples/rbac-config.yaml
 test/.DS_Store
 /venv
+/.venv
 pandoc-*-amd64.deb
 README.rst
