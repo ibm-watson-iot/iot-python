@@ -1,10 +1,9 @@
 name: Build Python Package
 on:
-  push:
-    branches: [ "**" ]
-    tags-ignore: [ "**" ]
+  release:
+    types: [ published ]
 jobs:
-  build-package:
+  release-package:
     runs-on: ubuntu-latest
     steps:
       # 1. Initialize the build
@@ -55,9 +54,22 @@ jobs:
           EVENTSTREAMS_USER: ${{ secrets.EVENTSTREAMS_USER }}
           EVENTSTREAMS_PASSWORD: ${{ secrets.EVENTSTREAMS_PASSWORD }}
 
+      # 3. Flake8 Linting
+      # -------------------------------------------------------------------------------------------
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings.
           flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+
+      # 4. Publish to PyPi
+      # -------------------------------------------------------------------------------------------
+      - name: Build package
+        run: python -m build
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
