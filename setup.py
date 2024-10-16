@@ -27,7 +27,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='wiotp-sdk',
-    version="1.0.0",
+    version="1.0.1",
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},

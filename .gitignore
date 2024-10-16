@@ -24,6 +24,7 @@ samples/deviceFactory/bin
 samples/*.exe
 samples/rbac-config.yaml
 test/.DS_Store
-/venv
+venv
+.venv
 pandoc-*-amd64.deb
 README.rst
